@@ -27,6 +27,9 @@
   shop-thumbs/           557 张单品实拍小图（从高清原图逐个裁出，价格清单每行左侧+卷饼页引用）
   shop-photos/           81 张超市货架实拍（kl-prices.html 图库引用，压缩版）
   kl-prices.html         吉隆坡超市价格清单（786种实拍·RM原价+可换算RMB，从减脂吉隆坡版链接进）
+                         含：推荐星级/做法/购物清单/蛋白性价比/10天采购/收藏打分/离线（sw.js）
+  sw.js                  只缓存 kl-prices 的页面与商品图，供超市离线查看
+  jianzhi-calc.html      @谭成义 系数营养计算器（减脂 📐营养计算 tab）
   jianzhi-linyi.html     减脂·临沂版（减脂 → 临沂）
   jianzhi-plan.html      减脂·曼谷版（减脂 → 曼谷）
   dongbei-trip.html      东北自驾行程手册（旅游 → 东北）

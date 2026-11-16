@@ -106,6 +106,106 @@ body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1
 .score b{font-family:var(--display);font-weight:900;font-size:13px;color:var(--gold-deep)}
 .score small{font-size:11px;color:#6b5a2e;line-height:1.45;flex-basis:100%}
 .grp.rec .gh .sth{font-size:15px;color:var(--gold);letter-spacing:1px;background:none;padding:0;font-weight:400}
+.modes{display:flex;gap:6px;overflow-x:auto;margin-top:9px;padding-bottom:2px}
+.modes::-webkit-scrollbar{display:none}
+.modes button{flex:0 0 auto;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-family:inherit;font-size:12.5px;font-weight:800;padding:6px 12px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.modes button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.tools{display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.tools select{font-family:inherit;font-size:12px;font-weight:700;border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--paper);color:var(--ink)}
+.tools button{border:1px solid var(--line);background:var(--paper);color:var(--soft);font-family:inherit;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;cursor:pointer}
+.tools button.on{background:var(--gold);border-color:var(--gold);color:#fff}
+.tags{display:none}
+body[data-mode="recipe"] .tags{display:flex}
+body:not([data-mode="shop"]) #cats,body:not([data-mode="shop"]) .tools,body:not([data-mode="shop"]) #galBtn,body:not([data-mode="shop"]) #galGrid,body:not([data-mode="shop"]) #meat,body:not([data-mode="shop"]) #offBtn{display:none!important}
+body[data-mode="plan"] .srch{display:none}
+.ir{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.add{margin-top:6px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--jade);background:#fff;color:var(--jade);font-size:17px;font-weight:900;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center}
+.add:hover{background:var(--jade);color:#fff}
+.qty{margin-top:6px;display:flex;align-items:center;border:1.5px solid var(--jade);border-radius:999px;overflow:hidden;background:#E3F0EA}
+.qty button{width:28px;height:28px;border:0;background:transparent;color:var(--jade-deep);font-size:16px;font-weight:900;cursor:pointer}
+.qty b{min-width:18px;text-align:center;font-family:var(--display);font-size:14px;color:var(--jade-deep)}
+.item.incart{border-color:#9FD3BF;background:#FBFEFC}
+.fv{border:0;background:none;cursor:pointer;font-size:14px;margin-left:5px;color:#C5CDD3;vertical-align:-1px;padding:0 2px}
+.fv.on{color:#E0566B}
+.myr{font-style:normal;font-size:10.5px;font-weight:800;color:#fff;background:#E0566B;border-radius:999px;padding:0 7px}
+.pvl{font-size:11.5px;color:#5a4a1e;background:#FFF9EE;border-radius:7px;padding:3px 8px;margin-top:5px;line-height:1.55}
+.pvl b{color:#4a3810}.pvl span{color:var(--jade);font-weight:700}
+.pvl i{font-style:normal;font-size:9.5px;font-weight:800;background:#EEE3CC;color:#8a560f;border-radius:4px;padding:0 4px;margin-left:4px}
+.rank{display:inline-block;font-family:var(--display);font-weight:900;font-size:12px;color:#fff;background:var(--gold);border-radius:6px;padding:0 7px;margin-top:4px}
+.rcard{background:var(--paper);border:1px solid var(--line);border-radius:12px;margin-bottom:7px;overflow:hidden}
+.rcard.open{border-color:#F0DDB0;box-shadow:0 4px 14px rgba(192,129,43,.12)}
+.rch{padding:10px 13px;cursor:pointer}
+.rch b{font-size:14px;font-weight:800}
+.rch .rg{font-size:10.5px;font-weight:700;color:var(--gold-deep);background:#FAF1E0;border-radius:999px;padding:0 8px;margin-left:6px;white-space:nowrap}
+.rch .rm2{display:flex;gap:6px;margin-top:4px}
+.rch .rm2 span{font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 8px;background:#E3F0EA;color:var(--jade-deep)}
+.rch .rm2 span.k{background:#FAF1E0;color:#8a560f}
+.rcb{padding:0 13px 12px}
+.rcb .ri{font-size:12px;background:var(--paper-2);border-radius:8px;padding:6px 9px;line-height:1.55}
+.rcb .ri em{font-style:normal;font-weight:800;color:var(--jade-deep);margin-right:4px}
+.rcb ol{margin:8px 0 0 18px;font-size:12.5px;line-height:1.65}
+.rcb .rtp{font-size:11.5px;color:#5a4a1e;background:#FFF9EE;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:5px 9px;margin-top:8px}
+.rbuy{margin-top:10px;border-top:1px dashed var(--line);padding-top:9px}
+.rbh{font-size:11.5px;font-weight:800;color:var(--soft);margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;padding:2px 9px 2px 3px;margin:0 5px 5px 0;font-size:11.5px;cursor:pointer;background:#fff}
+.chip img{width:22px;height:22px;object-fit:contain;border-radius:50%;background:#F1F4F3}
+.chip b{color:var(--jade-deep);font-weight:800}
+.chip.in{border-color:var(--jade);background:#E3F0EA}
+.addall{display:block;width:100%;margin-top:6px;border:1.5px solid var(--jade);background:var(--jade);color:#fff;font-family:inherit;font-size:12.5px;font-weight:800;border-radius:10px;padding:8px;cursor:pointer}
+.addall.big{margin:10px 0 0;padding:11px;font-size:13.5px}
+.fresh{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.fresh div{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:9px 11px;font-size:12px;line-height:1.5}
+.fresh b{display:block;font-size:13.5px}.fresh span{color:var(--soft)}.fresh em{display:block;font-style:normal;font-weight:800;color:var(--gold-deep);margin-top:2px}
+.plantot{margin-top:14px;background:var(--ink);color:#fff;border-radius:14px;padding:12px 15px;font-size:12.5px;line-height:2}
+.plantot div{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.plantot b{font-family:var(--display);font-size:15px;margin-left:auto}.plantot span{opacity:.75;min-width:76px;text-align:right}
+.plantot .all{border-top:1px solid rgba(255,255,255,.25);margin-top:4px;padding-top:4px}.plantot .all b{font-size:18px;color:#F4C77B}
+.meat{background:var(--paper);border:1.5px solid #F1D6D2;border-radius:14px;margin-top:10px;overflow:hidden}
+.meat summary{cursor:pointer;padding:12px 14px;font-size:13.5px;font-weight:800;color:#8E2F26;list-style:none}
+.meat summary::-webkit-details-marker{display:none}
+.meat summary small{display:block;font-weight:600;font-size:11px;color:var(--soft);margin-top:1px}
+.meat .mt{padding:0 14px 13px}
+.meat a{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;text-decoration:none;color:var(--ink);border-top:1px dashed var(--line);padding:9px 0}
+.meat a b{font-size:13.5px}.meat a span{flex-basis:100%;order:3;font-size:11.5px;color:var(--soft);line-height:1.5}.meat a span b{font-size:inherit;color:#8E2F26}
+.meat a em{font-style:normal;font-size:11px;font-weight:800;color:var(--jade);margin-left:auto}
+.meat p{font-size:12px;line-height:1.7;background:var(--paper-2);border-radius:10px;padding:8px 11px;margin-top:6px}
+.gal-toggle.off{border-style:dashed;border-color:#B9C4C0;color:var(--soft);font-size:12.5px;padding:10px}
+.pmy{display:flex;align-items:center;gap:2px;margin-top:9px;font-size:12px;color:var(--soft);font-weight:700}
+.pmy span{margin-right:6px}
+.pmy button{border:0;background:none;font-size:22px;line-height:1;color:#DCE2DF;cursor:pointer;padding:0 1px}
+.pmy button.on{color:var(--gold)}
+.pmy button.clr{font-size:11px;color:var(--soft);margin-left:6px;font-family:inherit}
+#plbFav.on{background:#FDECEF;border-color:#F6C9D1;color:#C23B52}
+#cartBar{position:fixed;left:50%;bottom:14px;transform:translate(-50%,140%);z-index:90;border:0;background:var(--ink);color:#fff;font-family:inherit;font-size:13px;font-weight:700;border-radius:999px;padding:11px 18px;box-shadow:0 10px 30px rgba(0,0,0,.3);cursor:pointer;transition:transform .25s;white-space:nowrap;max-width:94vw}
+#cartBar.on{transform:translate(-50%,0)}
+#cartBar b{font-family:var(--display);font-size:15px;color:#F4C77B}
+#cartBar span{opacity:.75;margin-left:2px}
+#cartBar em{font-style:normal;margin-left:10px;background:var(--jade);border-radius:999px;padding:3px 10px;font-size:12px}
+body{padding-bottom:70px}
+#cart{display:none;position:fixed;inset:0;background:rgba(10,18,15,.88);z-index:102;align-items:flex-end;justify-content:center}
+#cart.on{display:flex}
+#cart .rs{background:var(--bg);width:100%;max-width:640px;max-height:92vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
+@media(min-width:700px){#cart{align-items:center}#cart .rs{border-radius:20px;max-height:88vh}}
+#cart .rh{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--paper);border-bottom:1px solid var(--line)}
+#cart .rh .rt{flex:1}#cart .rh b{font-size:16px;display:block}#cart .rh small{font-size:11.5px;color:var(--soft)}
+#cart .rh button{border:1px solid var(--line);background:var(--paper-2);font-family:inherit;font-size:13px;font-weight:700;border-radius:999px;padding:6px 13px;cursor:pointer}
+#cart .rb{overflow-y:auto;padding:8px 14px 12px}
+#cart .ch{font-size:12px;font-weight:800;color:var(--soft);margin:10px 2px 6px}
+#cart .ch button{border:0;background:#E3F0EA;color:var(--jade-deep);font-family:inherit;font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 10px;cursor:pointer}
+.ci{display:flex;align-items:center;gap:9px;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:7px 10px;margin-bottom:6px}
+.ci img,.ci .noimg{width:40px;height:40px;object-fit:contain;border-radius:8px;background:#F1F4F3;flex:0 0 40px;display:flex;align-items:center;justify-content:center;color:#C5CDD3}
+.ci .cn{flex:1;min-width:0}.ci .cn b{font-size:13px;display:block;line-height:1.35}.ci .cn small{font-size:11px;color:var(--soft)}
+.ci .ck{border:0;background:none;font-size:20px;cursor:pointer;padding:0}
+.ci .qty{margin-top:0}
+.ci.got{opacity:.5}.ci.got .cn b{text-decoration:line-through}
+#cart .cf{background:var(--paper);border-top:1px solid var(--line);padding:11px 14px 14px}
+#cartTot{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--soft)}
+#cartTot span{font-family:var(--display);font-weight:900;font-size:19px;color:var(--ink)}#cartTot i{font-style:normal;font-size:13px;color:var(--jade);margin-left:4px}
+.cfb{display:flex;gap:7px;margin-top:9px}
+.cfb button{flex:1;border:1px solid var(--line);background:var(--paper-2);font-family:inherit;font-size:12px;font-weight:700;border-radius:10px;padding:8px 4px;cursor:pointer;color:var(--ink)}
+.cfb button:first-child{background:var(--jade);border-color:var(--jade);color:#fff}
+#toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-150%);background:var(--ink);color:#fff;font-size:13px;font-weight:700;border-radius:999px;padding:8px 16px;z-index:110;transition:transform .25s;pointer-events:none}
+#toast.on{transform:translate(-50%,0)}
 .empty{text-align:center;color:var(--soft);padding:40px 20px}
 footer{text-align:center;color:var(--soft);font-size:11.5px;margin-top:30px;padding:16px;line-height:1.8}
 footer b{color:var(--ink)}
@@ -137,14 +237,28 @@ footer b{color:var(--ink)}
 <div class="wrap">
   <div class="bar">
     <div class="rate-row"><span class="rl">汇率　RM 1 =</span><span>&#165;</span><input id="rate" type="number" step="0.01" value="1.6" inputmode="decimal"><span class="cnt">显示 <b id="cnt">0</b> 种</span></div>
+    <div class="modes" id="modes"><button type="button" data-m="shop" class="on">&#128722; 商品</button><button type="button" data-m="recipe">&#127859; 做法反查</button><button type="button" data-m="pv">&#128176; 蛋白性价比</button><button type="button" data-m="plan">&#127919; 10天采购</button><button type="button" data-m="fav">&#10084;&#65039; 收藏</button></div>
     <div class="srch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="q" placeholder="搜索商品名（中文 / English）…"></div>
     <div class="cats" id="cats"></div>
+    <div class="tools"><select id="sortSel" aria-label="排序"></select><button type="button" id="promoBtn">&#127991; 只看促销</button><button type="button" id="favBtn">&#10084;&#65039; 只看收藏</button></div>
+    <div class="cats tags" id="tags"></div>
   </div>
   <button class="gal-toggle" id="galBtn" type="button">&#128247; 货架实拍图库 <small>81 张 &middot; 点开对照着买</small></button>
   <div id="galGrid"></div>
+  <details class="meat" id="meat"><summary>&#129385; 生鲜肉蛋 · The Tropika 附近哪里买 <small>实拍清单里暂无鲜肉鸡蛋</small></summary>
+    <div class="mt">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Super+Seven+Bukit+Jalil+Aurora+Place" target="_blank" rel="noopener"><b>Super Seven Bukit Jalil</b><span>Aurora Place · 有单独<b>非清真区卖新鲜猪肉</b>，9:00–22:00 · +60 3-4288 4678</span><em>地图 &rsaquo;</em></a>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=The+Food+Merchant+Pavilion+Bukit+Jalil" target="_blank" rel="noopener"><b>The Food Merchant</b><span>Pavilion Bukit Jalil 1 楼 · 进口肉类/海鲜（猪肉未确认）· 10:00–22:00</span><em>地图 &rsaquo;</em></a>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Pasar+Sri+Petaling" target="_blank" rel="noopener"><b>Sri Petaling 湿巴刹</b><span>华人区，通常有猪肉摊、鲜鸡鱼虾，早上去（未实地确认）</span><em>地图 &rsaquo;</em></a>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Jaya+Grocer+The+Tropika+Bukit+Jalil" target="_blank" rel="noopener"><b>Jaya Grocer The Tropika</b><span>鸡蛋、冷冻鸡胸、鱼虾都有；有没有非清真区进店看 Non-Halal 指示牌</span><em>地图 &rsaquo;</em></a>
+      <p>&#128170; 减脂挑：<b>鸡胸、去皮鸡腿、猪里脊(tenderloin)、猪腿肉、瘦牛肉、白身鱼、虾、鸡蛋</b>；少买五花、猪颈肉、肥牛卷。<br>&#128247; 下次去拍几张肉柜/蛋架价签照片发我，就能把生鲜价格补进清单。</p>
+    </div></details>
+  <button class="gal-toggle off" id="offBtn" type="button">&#128229; 离线保存（图片约 30MB，超市没信号也能看）</button>
   <div id="list"></div>
-  <div id="plb"><div class="pc"><img id="plbImg" alt="商品实拍"><div class="pi"><b id="plbCn"></b><small id="plbEn"></small><div class="pp" id="plbPr"></div><div class="pb"><button class="g" id="plbShelf" type="button"></button><button class="g" id="plbRcp" type="button" style="background:#FFF6E6;border-color:#F0DDB0;color:#8a560f">&#127859; 做法</button><button id="plbClose" type="button">&#10005; 关闭</button></div></div></div></div>
+  <div id="plb"><div class="pc"><img id="plbImg" alt="商品实拍"><div class="pi"><b id="plbCn"></b><small id="plbEn"></small><div class="pp" id="plbPr"></div><div class="pmy" id="plbMy"></div><div class="pb"><button class="g" id="plbAdd" type="button"></button><button id="plbFav" type="button"></button></div><div class="pb"><button class="g" id="plbShelf" type="button"></button><button class="g" id="plbRcp" type="button" style="background:#FFF6E6;border-color:#F0DDB0;color:#8a560f">&#127859; 做法</button><button id="plbClose" type="button">&#10005; 关闭</button></div></div></div></div>
   <div id="rlb"><div class="rs"><div class="rh"><img id="rlbImg" alt=""><div class="rt"><b id="rlbCn"></b><small id="rlbSub"></small></div><button id="rlbClose" type="button">&#10005;</button></div><div class="rb" id="rlbBody"></div></div></div>
+  <div id="cart"><div class="rs"><div class="rh"><div class="rt"><b>&#128722; 购物清单</b><small>按货架照片顺序排，进店顺着拿；点 &#11036; 打勾</small></div><button id="cartClose" type="button">&#10005;</button></div><div class="rb" id="cartBody"></div><div class="cf"><div id="cartTot"></div><div class="cfb"><button id="cartCopy" type="button">&#128203; 复制清单</button><button id="cartGotClr" type="button">&#8634; 取消全部勾选</button><button id="cartClear" type="button">&#128465; 清空</button></div></div></div></div>
+  <button id="cartBar" type="button"></button><div id="toast"></div>
   <footer>共 786 种商品 · 其中 <b>193 种健身/减脂推荐</b>（点上方 &#11088;推荐 查看）。价格为 2026年8月15日门店实拍价，<b>随门店/促销/时间浮动，以现场为准</b>。<br>推荐商品标注的 <b>蛋白 / 碳水 / 脂肪</b> 为该类食物<b>每 100g 的典型参考值</b>（罐头按沥干、干货按原重估算），具体以包装营养表为准。<br>人民币按上方汇率实时换算，改汇率即全表重算。</footer>
 </div>
 <script>
@@ -154,73 +268,228 @@ const RCP={"meigan":{"t":"梅干菜","r":[["梅干菜蒸鸡胸","25分钟","约3
 const SC={"0":[2.5,"腌渍菜钠极高，只能少量提味"],"1":[4,"低卡蔬菜即开即用，注意沥掉油"],"2":[4,"低卡蔬菜即开即用，注意沥掉油"],"3":[3,"风味足但油浸，热量偏高，少量用"],"4":[4,"纤维高、低卡，沥油后入沙拉意面"],"8":[4,"纤维高、低卡，沥油后入沙拉意面"],"5":[3,"健康脂肪但钠高、热量不低，一次 5–6 颗"],"6":[3,"健康脂肪但钠高、热量不低，一次 5–6 颗"],"7":[3,"健康脂肪但钠高、热量不低，一次 5–6 颗"],"11":[3,"卡拉马塔橄榄风味浓，钠高，少量入沙拉"],"9":[3,"低卡解腻，但钠很高，少量当配菜"],"10":[3,"低卡解腻，但钠很高，少量当配菜"],"12":[3,"装饰为主、几乎零卡，营养贡献有限"],"13":[3,"青酱油脂多，热量偏高，少量当配菜"],"14":[4,"香草多、谷物少的低卡沙拉，酱汁偏油"],"15":[4,"藜麦 + 菠菜的即食沙拉，碳水优质，酱汁略有油"],"16":[3.5,"蔬菜多，但菲达芝士和橄榄油让热量不低"],"17":[3,"一点就有咸鲜味，钠很高，只当调味"],"18":[4,"零热量提味，做番茄/鸡蛋菜不用多放油盐"],"19":[5,"零负担的风味叶菜，铺底增加饱腹"],"20":[5,"几乎零热量的体积担当，卷饼和沙拉底必备"],"21":[5,"几乎零热量的体积担当，卷饼和沙拉底必备"],"22":[4,"零热量提味，维C维K丰富"],"23":[4,"零热量提味，配鸡肉鱼肉替代奶油酱"],"24":[4,"零热量提味，炒蛋/酸奶酱少量即可"],"25":[4,"零热量提味，烤肉烤蔬菜少油也香"],"26":[4,"零热量提味，煎鸡胸/南瓜很搭"],"27":[4,"零热量提味，泡水/拌沙拉/做酸奶酱"],"29":[4,"零热量提味，泡水/拌沙拉/做酸奶酱"],"30":[4,"零热量提味，泡水/拌沙拉/做酸奶酱"],"28":[5,"低卡高纤、维C丰富，体积大最管饱，每天可吃"],"31":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"32":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"51":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"54":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"55":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"57":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"60":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"73":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"75":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"77":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"78":[4,"低脂版焗豆，糖盐更少，是焗豆里最好的选择"],"79":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"80":[4,"低脂版焗豆，糖盐更少，是焗豆里最好的选择"],"81":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"82":[3.5,"豆子有纤维蛋白，但茄汁里有糖（约5g/100g）和钠，别当主蛋白"],"33":[4,"100%纯南瓜泥无糖，低卡高纤维，做燕麦/浓汤增量"],"34":[4.5,"植物蛋白 + 高纤维，饱腹感强，沙拉/咖喱/烤脆零食百搭"],"37":[4.5,"植物蛋白 + 高纤维，饱腹感强，沙拉/咖喱/烤脆零食百搭"],"39":[4.5,"植物蛋白 + 高纤维，饱腹感强，沙拉/咖喱/烤脆零食百搭"],"47":[4.5,"植物蛋白 + 高纤维，饱腹感强，沙拉/咖喱/烤脆零食百搭"],"56":[4.5,"植物蛋白 + 高纤维，饱腹感强，沙拉/咖喱/烤脆零食百搭"],"61":[4.5,"植物蛋白 + 高纤维，饱腹感强，沙拉/咖喱/烤脆零食百搭"],"63":[4.5,"植物蛋白 + 高纤维，饱腹感强，沙拉/咖喱/烤脆零食百搭"],"66":[4.5,"植物蛋白 + 高纤维，饱腹感强，沙拉/咖喱/烤脆零食百搭"],"72":[4.5,"植物蛋白 + 高纤维，饱腹感强，沙拉/咖喱/烤脆零食百搭"],"76":[4.5,"植物蛋白 + 高纤维，饱腹感强，沙拉/咖喱/烤脆零食百搭"],"36":[4,"口感绵软、纤维高，蛋白略低于鹰嘴豆"],"38":[4,"素食豆泥无猪油，抹卷饼方便，注意钠"],"40":[4.5,"高纤维高蛋白、几乎无脂，炖菜做沙拉都行"],"41":[4.5,"高纤维高蛋白、几乎无脂，炖菜做沙拉都行"],"58":[4.5,"高纤维高蛋白、几乎无脂，炖菜做沙拉都行"],"59":[4.5,"高纤维高蛋白、几乎无脂，炖菜做沙拉都行"],"62":[4.5,"高纤维高蛋白、几乎无脂，炖菜做沙拉都行"],"65":[4.5,"高纤维高蛋白、几乎无脂，炖菜做沙拉都行"],"69":[4.5,"高纤维高蛋白、几乎无脂，炖菜做沙拉都行"],"71":[4.5,"高纤维高蛋白、几乎无脂，炖菜做沙拉都行"],"74":[4.5,"高纤维高蛋白、几乎无脂，炖菜做沙拉都行"],"42":[4.5,"纤维蛋白双高、口感绵，墨西哥卷饼经典豆"],"44":[4.5,"纤维蛋白双高、口感绵，墨西哥卷饼经典豆"],"52":[4.5,"纤维蛋白双高、口感绵，墨西哥卷饼经典豆"],"43":[4.5,"纤维和蛋白都高、升糖慢，配卷饼/墨西哥碗一流"],"45":[4.5,"纤维和蛋白都高、升糖慢，配卷饼/墨西哥碗一流"],"48":[4.5,"纤维和蛋白都高、升糖慢，配卷饼/墨西哥碗一流"],"46":[3.5,"豆子本身好，但辣酱带糖和钠，偶尔换口味"],"53":[3.5,"豆子本身好，但辣酱带糖和钠，偶尔换口味"],"49":[3.5,"五种豆子纤维高，但茄汁酱带糖"],"50":[4,"多种豆一次吃到，纤维高；茄汁版有糖"],"68":[3.5,"五种豆子纤维高，但茄汁酱带糖"],"64":[4.5,"豆类里蛋白最高之一、铁丰富，做汤做咖喱都快"],"67":[4.5,"豆类里蛋白最高之一、铁丰富，做汤做咖喱都快"],"70":[4.5,"豆类里蛋白最高之一、铁丰富，做汤做咖喱都快"],"83":[5,"高蛋白 + 天然 Omega-3，连骨吃还补钙，野生鱼重金属低"],"84":[5,"高蛋白 + 天然 Omega-3，连骨吃还补钙，野生鱼重金属低"],"85":[4.5,"橄榄油浸吞拿鱼，蛋白高，油多一点；沥油后和水浸差不多"],"86":[5,"纯蛋白之王：约25g蛋白/100g、几乎零碳水，开罐即吃，性价比最高"],"87":[5,"纯蛋白之王：约25g蛋白/100g、几乎零碳水，开罐即吃，性价比最高"],"102":[4,"葵花籽油浸，热量比水浸高约一倍，记得沥油"],"103":[4.5,"橄榄油浸，油质好但热量偏高，沥油后吃"],"110":[5,"纯蛋白之王：约25g蛋白/100g、几乎零碳水，开罐即吃，性价比最高"],"111":[5,"纯蛋白之王：约25g蛋白/100g、几乎零碳水，开罐即吃，性价比最高"],"88":[4,"蛋白 + 糙米一碗搞定，赶时间的合格正餐，份量偏小可加蔬菜"],"89":[4,"即食沙拉杯蛋白、纤维都有，热量可控，单价偏高"],"90":[4,"即食沙拉杯蛋白、纤维都有，热量可控，单价偏高"],"91":[4,"即食沙拉杯蛋白、纤维都有，热量可控，单价偏高"],"92":[4,"即食沙拉杯蛋白、纤维都有，热量可控，单价偏高"],"93":[4,"即食沙拉杯蛋白、纤维都有，热量可控，单价偏高"],"94":[3,"味道浓只能少量当调味，钠很高，不能当主蛋白"],"95":[4.5,"一罐同时有鱼蛋白和豆类纤维，开盖就是一餐"],"96":[4.5,"一罐同时有鱼蛋白和豆类纤维，开盖就是一餐"],"99":[4,"高蛋白有 Omega-3，烟熏风味好但钠偏高"],"101":[4,"蛋白够、带调味省事，但酱汁多了点钠和油"],"107":[4,"蛋白够、带调味省事，但酱汁多了点钠和油"],"108":[4,"蛋白够、带调味省事，但酱汁多了点钠和油"],"105":[3.5,"蛋白不错，但油和钠偏高，适合偶尔换口味"],"106":[3.5,"蛋白不错，但油和钠偏高，适合偶尔换口味"],"109":[4,"三文鱼蛋白 + Omega-3，酱汁带少量糖和钠"],"112":[4.5,"蛋白 + Omega-3 都高，价格亲民；茄汁有少量糖，沥掉部分酱汁更好"],"113":[3.5,"鱿鱼本身低脂高蛋白，但罐头多是浓酱汁，钠和糖偏高"],"114":[4.5,"蛋白高、Omega-3 多、带骨补钙又便宜；茄汁略有糖和钠"],"117":[4,"手撕鸡肉蛋白高，黑胡椒味不甜，即食方便"],"119":[3.5,"照烧酱带糖，蛋白不错，配大量蔬菜"],"120":[3,"咖喱辣椒酱油多，偶尔换口味"],"121":[3.5,"经典什锦麦片，有果干糖，控 40g"],"125":[3.5,"燕麦为主但含果干，糖偏高，控量 40g 拌酸奶"],"126":[4,"天然无烘烤什锦麦片，糖比烤香款少"],"127":[3.5,"坚果籽类多，营养好但热量高，控量"],"128":[3.5,"燕麦为主但含果干，糖偏高，控量 40g 拌酸奶"],"129":[3.5,"燕麦为主但含果干，糖偏高，控量 40g 拌酸奶"],"131":[3.5,"燕麦为主但含果干，糖偏高，控量 40g 拌酸奶"],"132":[4,"高纤版什锦麦片，饱腹感更强"],"135":[3.5,"燕麦为主但含果干，糖偏高，控量 40g 拌酸奶"],"136":[3.5,"燕麦为主但含果干，糖偏高，控量 40g 拌酸奶"],"150":[3.5,"燕麦为主但含果干，糖偏高，控量 40g 拌酸奶"],"169":[3.5,"燕麦为主但含果干，糖偏高，控量 40g 拌酸奶"],"173":[4,"传统款以燕麦为主，果干少"],"123":[2.5,"烤过加了糖和油，热量密度高（约450kcal/100g），只当撒料"],"134":[3.5,"高蛋白/高钙版格兰诺拉，比普通款强，仍要控量"],"138":[2.5,"烤过加了糖和油，热量密度高（约450kcal/100g），只当撒料"],"139":[3.5,"低糖版格兰诺拉，可作酸奶撒料"],"146":[2.5,"烤过加了糖和油，热量密度高（约450kcal/100g），只当撒料"],"149":[2.5,"烤过加了糖和油，热量密度高（约450kcal/100g），只当撒料"],"172":[2.5,"烤过加了糖和油，热量密度高（约450kcal/100g），只当撒料"],"185":[3,"49g 小包自带控量，比大袋好管住嘴"],"130":[5,"高蛋白版即食燕麦，蛋白比普通燕麦多一截，早餐首选"],"148":[4.5,"即食燕麦方便，升糖比原片略快，无糖款仍是好早餐"],"159":[3.5,"小包方便，但苹果葡萄干调味有添加糖"],"164":[4.5,"即食燕麦方便，升糖比原片略快，无糖款仍是好早餐"],"168":[4.5,"即食燕麦方便，升糖比原片略快，无糖款仍是好早餐"],"175":[4.5,"即食燕麦方便，升糖比原片略快，无糖款仍是好早餐"],"178":[4.5,"即食燕麦方便，升糖比原片略快，无糖款仍是好早餐"],"183":[4.5,"即食燕麦方便，升糖比原片略快，无糖款仍是好早餐"],"137":[4,"多谷物 + 部分有奇亚籽/益生元，注意部分口味含糖"],"143":[4,"多谷物 + 部分有奇亚籽/益生元，注意部分口味含糖"],"144":[4,"多谷物 + 部分有奇亚籽/益生元，注意部分口味含糖"],"152":[4,"多谷物粥底，纤维足，无糖款更好"],"153":[4,"多谷物 + 部分有奇亚籽/益生元，注意部分口味含糖"],"147":[5,"原片燕麦：慢碳 + β-葡聚糖控血糖、管饱，最划算的减脂主食"],"155":[5,"原片燕麦：慢碳 + β-葡聚糖控血糖、管饱，最划算的减脂主食"],"158":[5,"燕麦 + 亚麻籽，额外补 Omega-3 和纤维"],"166":[5,"原片燕麦：慢碳 + β-葡聚糖控血糖、管饱，最划算的减脂主食"],"171":[5,"低糖燕麦片，减脂期放心吃"],"176":[4.5,"快煮燕麦，营养接近原片，几分钟煮好"],"177":[4.5,"快煮燕麦，营养接近原片，几分钟煮好"],"179":[5,"原片燕麦：慢碳 + β-葡聚糖控血糖、管饱，最划算的减脂主食"],"180":[5,"原片燕麦：慢碳 + β-葡聚糖控血糖、管饱，最划算的减脂主食"],"181":[4.5,"快熟燕麦，营养接近原片，几分钟煮好"],"184":[4,"烤香燕麦更香，但可能加了少量油"],"154":[3,"方便即食，但调味酸奶 + 麦片有糖，偶尔当加餐"],"156":[5,"加工最少、升糖最慢的燕麦，饱腹最久；煮的时间稍长"],"157":[3,"原味 Nestum 无额外调味，偶尔冲一杯"],"167":[2,"3 合 1 已加糖加奶精，减脂期尽量不喝"],"182":[5,"纤维极高、热量低，加进燕麦/酸奶/面糊增加饱腹"],"188":[3.5,"比方便面健康，但汤包有钠，加蛋加菜补蛋白"],"194":[4.5,"全麦 + 低盐，你的主力卷饼皮首选"],"204":[4,"藜麦卷饼皮，口感好，纤维略低于全麦"],"197":[4.5,"全麦意面纤维高、升糖低于普通意面，控 60–80g 干重"],"208":[3.5,"5 分钟泡熟极方便，但是精制小麦，升糖较快，配豆配菜吃"],"221":[3.5,"5 分钟泡熟极方便，但是精制小麦，升糖较快，配豆配菜吃"],"306":[4.5,"纯番茄几乎零脂、低卡，做酱底替代奶油/甜酱"],"368":[3.5,"风味强少量就够，蛋白可以，但钠和饱和脂肪偏高"],"400":[5,"原味希腊酸奶：高蛋白、无添加糖，代替蛋黄酱/奶油的神器"],"392":[3,"儿童高钙优格，口味偏甜"],"401":[3.5,"希腊酸奶蛋白高，但草莓味有添加糖"],"402":[4,"Anlene 原味优格，高钙、无果酱"],"403":[3,"调味优格糖较多，偶尔吃"],"404":[3,"调味优格糖较多，偶尔吃"],"405":[4,"低脂优格，热量低，适合加餐"],"414":[4.5,"喷雾一下约 1–2g 油，控油神器，煎蛋煎鸡胸必备"],"415":[4.5,"喷雾一下约 1–2g 油，控油神器，煎蛋煎鸡胸必备"],"416":[4,"松露风味油喷雾，香味重少用就够，偶尔用"],"418":[4,"好油脂，但一勺 120kcal，必须量勺控量"],"436":[2.5,"方便但多有糖浆/巧克力/酸奶涂层，只在没得选时应急"],"444":[2.5,"方便但多有糖浆/巧克力/酸奶涂层，只在没得选时应急"],"454":[2.5,"方便但多有糖浆/巧克力/酸奶涂层，只在没得选时应急"],"456":[3,"花生腰果棒坚果为主，比酸奶涂层款好，仍有糖浆"],"440":[2.5,"蜂蜜黄油调味杏仁，有糖有盐，不如原味杏仁"],"462":[4.5,"原味杏仁蛋白 + 纤维 + 维E，每天一小把（15–20颗）"],"451":[3.5,"脂肪最高的坚果之一，香但热量高，少量"],"452":[2.5,"五香调味盐分高，嗑起来停不下，减脂期少吃"],"458":[3.5,"碳水和热量偏高，蛋白一般，少量"],"463":[4,"营养全面，但容易吃多，分装成 25g 小份"],"465":[4.5,"Omega-3 最多的坚果，一天 3–4 个"]};
 const CATS=["蔬菜沙拉", "罐头豆类", "海鲜", "肉禽蛋", "麦片燕麦", "主食米面", "罐头蔬果", "乳制品", "食用油", "坚果零食", "水果", "酱料调味", "饮料", "其他"];
 const REC_ORDER=["💪 高蛋白 · 豆类罐头", "🐟 高蛋白 · 鱼/海鲜", "🥛 高蛋白 · 蛋奶酸奶", "🌾 优质碳水 · 燕麦杂粮", "🥦 蔬菜 · 低卡管饱", "🥑 健康脂肪 · 油&坚果"];
-var curCat='全部';
-function esc(s){return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+/* 蛋白性价比：下标 → [每包可吃到的蛋白 g, 规格说明, 是否估算规格] */
+const PV={"34":[43.2,"800g，沥干约 60%",1],"36":[17.9,"425g，沥干约 60%",1],"37":[21.6,"400g，沥干约 60%",1],"39":[22.9,"425g，沥干约 60%",1],"40":[20.4,"425g，沥干约 60%",1],"41":[20.4,"425g，沥干约 60%",1],"42":[12.0,"400g，沥干约 60%",1],"43":[21.6,"400g，沥干约 60%",1],"44":[12.6,"300g，沥干约 60%",0],"45":[16.2,"300g，沥干约 60%",0],"47":[22.9,"425g，沥干约 60%",1],"48":[22.9,"425g，沥干约 60%",1],"50":[20.4,"425g，沥干约 60%",1],"52":[12.8,"425g，沥干约 60%",1],"56":[22.9,"425g，沥干约 60%",1],"58":[18.2,"380g，沥干约 60%",0],"59":[19.2,"400g，沥干约 60%",1],"61":[21.6,"400g，沥干约 60%",1],"62":[19.2,"400g，沥干约 60%",1],"63":[21.6,"400g，沥干约 60%",1],"64":[21.6,"400g，沥干约 60%",1],"65":[19.2,"400g，沥干约 60%",1],"66":[21.6,"400g，沥干约 60%",1],"67":[21.6,"400g，沥干约 60%",1],"69":[18.2,"380g，沥干约 60%",0],"70":[20.5,"380g，沥干约 60%",0],"71":[18.2,"380g，沥干约 60%",0],"72":[22.9,"425g，沥干约 60%",1],"74":[19.2,"400g，沥干约 60%",1],"76":[21.6,"400g，沥干约 60%",1],"38":[36.3,"454g",1],"46":[21.2,"425g",1],"53":[21.2,"425g",1],"49":[33.2,"415g",1],"31":[84.0,"1680g",1],"32":[84.0,"1680g",1],"51":[21.2,"425g",1],"54":[20.8,"415g",1],"55":[20.5,"410g",1],"57":[20.5,"410g",1],"60":[20.0,"400g",1],"73":[10.0,"200g",1],"75":[21.2,"425g",1],"77":[21.2,"425g",0],"78":[21.2,"425g",1],"79":[21.2,"425g",1],"80":[16.0,"320g",0],"81":[21.2,"425g",1],"82":[16.0,"320g",0],"83":[75.2,"418g，沥干约 90%",1],"84":[75.2,"418g，沥干约 90%",1],"85":[71.4,"425g，沥干约 70%",0],"86":[77.3,"425g，沥干约 70%",0],"87":[77.3,"425g，沥干约 70%",0],"94":[8.6,"45g，沥干约 80%",1],"99":[17.1,"95g，沥干约 90%",1],"101":[16.1,"95g，沥干约 65%",1],"107":[16.1,"95g，沥干约 65%",1],"108":[16.1,"95g，沥干约 65%",1],"109":[13.3,"95g，沥干约 70%",1],"102":[25.2,"150g，沥干约 70%",1],"103":[25.2,"150g，沥干约 70%",1],"105":[25.4,"150g，沥干约 65%",1],"106":[25.4,"150g，沥干约 65%",1],"110":[33.7,"185g，沥干约 70%",1],"111":[18.5,"95g，沥干约 75%",1],"112":[52.5,"425g，沥干约 65%",1],"113":[22.3,"155g，沥干约 60%",1],"114":[23.2,"155g，沥干约 75%",1],"117":[24.0,"160g，沥干约 60%",1],"119":[24.0,"160g，沥干约 60%",1],"120":[24.0,"160g，沥干约 60%",1],"368":[18.0,"200g",1],"392":[40.0,"800g",1],"400":[11.7,"130g",0],"401":[11.7,"130g",0],"402":[5.5,"110g",0],"403":[5.5,"110g",0],"404":[5.5,"110g",0],"405":[7.0,"140g",1],"88":[20,"整碗（含糙米）",1],"89":[17,"220g 整杯",1],"90":[17,"220g 整杯",1],"91":[15,"220g 整杯",1],"92":[16,"220g 整杯",1],"93":[16,"220g 整杯",1],"95":[17,"整罐",1],"96":[17,"整罐",1]};
+/* 10 天执行版采购（对应 🎯10天执行 页的「开跑前买齐」） */
+const PLAN10=[{"i":111,"q":6,"need":"吞拿鱼罐头（水浸）6 罐"},{"i":114,"q":3,"need":"沙丁鱼罐头 3 罐"},{"i":400,"q":11,"need":"希腊优格 130g × 11 杯"},{"i":171,"q":1,"need":"燕麦 500g 1 包"},{"i":197,"q":1,"need":"全麦意面 200g（买 500g 一包）"},{"i":76,"q":2,"need":"鹰嘴豆罐头 2 罐"},{"i":80,"q":2,"need":"低脂茄汁豆 2 罐"},{"i":463,"q":1,"need":"混合坚果 100g 小袋"},{"i":28,"q":4,"need":"西兰花 3–4 棵"},{"i":21,"q":3,"need":"生菜/罗马生菜 常备（约 3 颗）"},{"i":116,"q":1,"need":"瘦牛肉 200g（澳洲牛肉片）"},{"i":418,"q":1,"need":"橄榄油 1 瓶（家里有就不买）","opt":1}];
+const FRESH10=[["鸡蛋","30 枚一盘",13,17],["冷冻鸡胸","2 kg",28,40],["白身鱼 / 虾","1.2 kg",35,70],["糙米","1 kg",6,10],["红薯 + 紫薯","共 1.5 kg",6,12],["香蕉","2 根",2,4],["蓝莓","2 小盒",18,30],["牛油果","2 个",8,14],["空心菜 / 芥兰","常备，每 2–3 天补",8,15],["番茄 + 黄瓜 + 口蘑","常备",12,20]];
+/* 做法里的用料 → 食材组 */
+const KW={"tuna":"吞拿鱼|金枪鱼","salmon_can":"三文鱼","sardine":"沙丁鱼","mackerel":"鲭鱼","squid":"鱿鱼","anchovy":"鳀鱼|凤尾鱼","chicken_can":"鸡肉罐头|手撕鸡","chickpea":"鹰嘴豆","kidney":"红腰豆|腰豆","black_bean":"黑豆","pinto":"斑豆","lentil":"扁豆","butter_bean":"白芸豆|白腰豆|butter bean","baked_beans":"焗豆|茄汁豆","refried":"豆泥","pumpkin":"南瓜泥","greek_yogurt":"希腊酸奶|希腊优格|希腊式","yogurt":"酸奶|优格","feta":"菲达|feta|希腊芝士|白芝士","wrap":"卷饼|墨西哥饼","rolled_oat":"燕麦(?!麸)","oat_bran":"燕麦麸","ww_pasta":"意面|意大利面","couscous":"古斯米|北非小米|couscous","tomato_puree":"番茄蓉|番茄泥|番茄糊","broccoli":"西兰花","romaine":"生菜","rocket":"芝麻菜","basil":"罗勒","parsley":"香芹|欧芹|巴西里","mint":"薄荷","chive":"细香葱","rosemary":"迷迭香","sage":"鼠尾草","tarragon":"龙蒿","artichoke":"朝鲜蓟","capsicum":"烤甜椒|红椒条","semitomato":"半干番茄","olive":"橄榄(?!油)","oil_spray":"油喷雾|喷油|油喷|喷一下|喷少许|喷一层","evoo":"橄榄油(?!喷)","caper":"酸豆|续随子","pickle":"酸黄瓜|腌黄瓜|腌小黄瓜","meigan":"梅干菜","almond":"杏仁","walnut":"核桃","pecan":"碧根果","cashew":"腰果","mixed_nuts":"混合坚果|坚果碎|一把坚果","seeds":"瓜子","granola":"格兰诺拉|granola","muesli":"什锦麦片|muesli","nestum":"nestum","quinoa_noodle":"藜麦面"};
+var LVNAME={'5.0':'★★★★★ 5.0 闭眼买','4.5':'★★★★½ 4.5 强烈推荐','4.0':'★★★★ 4.0 推荐','3.5':'★★★½ 3.5 可以买','3.0':'★★★ 3.0 偶尔吃','2.5':'★★½ 2.5 少吃','2.0':'★★ 2.0 尽量不吃'};
+var SORTS={def:'默认（推荐指数优先）',score:'⭐ 推荐指数 高→低',pa:'💲 价格 低→高',pd:'💲 价格 高→低',prot:'💪 蛋白含量 高→低',pv:'💰 蛋白性价比',my:'❤️ 我的评分'};
+var TAGS=[['','全部'],['卷饼','🌯 卷饼'],['早餐','🌅 早餐'],['免开火','🔥 免开火'],['微波','📦 微波炉'],['带饭','🍱 带饭'],['加餐','🍎 加餐'],['汤','🥣 汤'],['沙拉','🥗 沙拉'],['快','⚡ 10分钟内']];
+var TAGRE={'卷饼':/卷饼|卷起|卷紧|墨西哥饼/,'早餐':/早餐|早上|燕麦粥|隔夜燕麦/,'免开火':/免开火|不开火|无需开火|免煮|开罐|直接吃|直接拌|即食/,'微波':/微波/,'带饭':/带饭|便当|饭盒|午餐盒|备餐|分装/,'加餐':/加餐|零食|下午|饿了|解馋/,'汤':/汤/,'沙拉':/沙拉/};
+var curCat='全部',mode='shop',sortBy='def',onlyPromo=false,onlyFav=false,rtag='',openR={};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function ld(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v;}catch(e){return d;}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+var CART=ld('kl_cart',{}),GOT=ld('kl_got',{}),FAV=ld('kl_fav',{}),MY=ld('kl_my',{});
+function rate(){return parseFloat(document.getElementById('rate').value)||1.6;}
+function $id(x){return document.getElementById(x);}
+function sc(i){return SC[i]?SC[i][0]:0;}
+function pv(i){var p=PV[i];return p&&p[0]?DATA[i][3]/p[0]*10:null;}
+function stars(v){return '<span class="stars">★★★★★<i style="width:'+(v/5*100)+'%">★★★★★</i></span>';}
+DATA.forEach(function(r,i){r.__i=i;});
+function bestOf(key){var g=RCP[key];if(!g)return null;var ids=[];for(var i in RG)if(RG[i]===key)ids.push(+i);ids.sort(function(a,b){return sc(b)-sc(a)||DATA[a][3]-DATA[b][3];});return ids[0];}
+
+/* ---------- 一行商品 ---------- */
+function cartCtl(i){
+  var q=CART[i]||0;
+  return q?'<div class="qty"><button type="button" data-q="-1" data-i="'+i+'">&minus;</button><b>'+q+'</b><button type="button" data-q="1" data-i="'+i+'">+</button></div>':'<button class="add" type="button" data-q="1" data-i="'+i+'" aria-label="加入购物清单">&#65291;</button>';
+}
+function rowHTML(r,extra){
+  var i=r.__i,rm=r[3],rt=rate();
+  var star=r[6]?'<span class="st">&#11088;</span>':'';
+  var sub=esc(r[2]||'');if(r[4])sub+=' · '+esc(r[4]);if(r[5])sub+=' <b class="pm">'+esc(r[5])+'</b>';
+  var S=SC[i],scr=S?'<div class="score">'+stars(S[0])+'<b>'+S[0].toFixed(1)+'</b>'+(MY[i]?'<em class="myr">我 '+MY[i]+'★</em>':'')+'<small>'+esc(S[1])+'</small></div>':(MY[i]?'<div class="score"><em class="myr">我 '+MY[i]+'★</em></div>':'');
+  var nu=(r[7]&&r[7].length)?'<div class="nutr"><span class="np">蛋白 <b>'+r[7][0]+'</b></span><span class="nc">碳水 <b>'+r[7][1]+'</b></span><span class="nf">脂肪 <b>'+r[7][2]+'</b></span><small>g/100g</small></div>':'';
+  var rb=RG[i]?'<button class="rbtn" type="button" data-r="'+i+'">&#127859; '+RCP[RG[i]].r.length+' 种做法</button>':'';
+  var th=r[8]?'<button class="th" type="button" data-i="'+i+'"><img loading="lazy" src="shop-thumbs/'+i+'.jpg" alt=""></button>':'<button class="th none" type="button" data-i="'+i+'">&#128722;</button>';
+  return '<div class="item'+(r[6]?' isrec':'')+(CART[i]?' incart':'')+'">'+th+'<div class="il"><div class="icn">'+star+esc(r[1]||'-')+'<button class="fv'+(FAV[i]?' on':'')+'" type="button" data-f="'+i+'" aria-label="收藏">'+(FAV[i]?'&#10084;&#65039;':'&#9825;')+'</button></div><div class="ien">'+sub+'</div>'+(extra||'')+scr+nu+rb+'</div><div class="ir"><div class="rm">RM '+rm.toFixed(2)+'</div><div class="rmb">&#165;'+(rm*rt).toFixed(1)+'</div>'+cartCtl(i)+'</div></div>';
+}
+
+/* ---------- 分类按钮 ---------- */
 function buildCats(){
   var nrec=DATA.filter(function(r){return r[6];}).length;
-  var h='<button data-c="全部" class="on">全部 '+DATA.length+'</button>';
-  h+='<button data-c="__rec__" class="rec">&#11088; 推荐 '+nrec+'</button>';
+  var h='<button data-c="全部" class="on">全部 '+DATA.length+'</button><button data-c="__rec__" class="rec">&#11088; 推荐 '+nrec+'</button>';
   CATS.forEach(function(c){var k=DATA.filter(function(r){return r[0]===c;}).length;h+='<button data-c="'+c+'">'+c+' '+k+'</button>';});
-  document.getElementById('cats').innerHTML=h;
-  document.querySelectorAll('#cats button').forEach(function(b){b.onclick=function(){curCat=b.dataset.c;document.querySelectorAll('#cats button').forEach(function(x){x.classList.toggle('on',x===b);});render();};});
+  $id('cats').innerHTML=h;
+  [].forEach.call(document.querySelectorAll('#cats button'),function(b){b.onclick=function(){curCat=b.dataset.c;[].forEach.call(document.querySelectorAll('#cats button'),function(x){x.classList.toggle('on',x===b);});render();};});
+  var sh='';for(var k in SORTS)sh+='<option value="'+k+'">'+SORTS[k]+'</option>';$id('sortSel').innerHTML=sh;
+  $id('tags').innerHTML=TAGS.map(function(t){return '<button type="button" data-t="'+t[0]+'"'+(t[0]===''?' class="on"':'')+'>'+t[1]+'</button>';}).join('');
 }
-var LVNAME={'5.0':'★★★★★ 5.0 闭眼买','4.5':'★★★★½ 4.5 强烈推荐','4.0':'★★★★ 4.0 推荐','3.5':'★★★½ 3.5 可以买','3.0':'★★★ 3.0 偶尔吃','2.5':'★★½ 2.5 少吃','2.0':'★★ 2.0 尽量不吃'};
-function stars(v){return '<span class="stars">★★★★★<i style="width:'+(v/5*100)+'%">★★★★★</i></span>';}
-function render(){
-  var rate=parseFloat(document.getElementById('rate').value)||1.6;
-  document.getElementById('rateShow').textContent=rate;
-  var q=document.getElementById('q').value.trim().toLowerCase();
+
+/* ---------- 各模式 ---------- */
+function renderShop(q){
   var isRec=(curCat==='__rec__');
-  var rows=DATA.map(function(r,i){r.__i=i;return r;}).filter(function(r){
-    if(isRec){if(!r[6])return false;}
-    else if(curCat!=='全部'&&r[0]!==curCat)return false;
+  var rows=DATA.filter(function(r){
+    if(isRec){if(!r[6])return false;}else if(curCat!=='全部'&&r[0]!==curCat)return false;
+    if(onlyPromo&&!r[5])return false;
+    if(onlyFav&&!FAV[r.__i])return false;
     if(q&&(r[1]+' '+r[2]).toLowerCase().indexOf(q)<0)return false;
     return true;
   });
-  document.getElementById('cnt').textContent=rows.length;
-  var groups={},order=[];
-  function sc(r){return SC[r.__i]?SC[r.__i][0]:0;}
-  if(isRec){var ro={};REC_ORDER.forEach(function(rc,j){ro[rc]=j;});rows.sort(function(a,b){return sc(b)-sc(a)||ro[a[6]]-ro[b[6]]||a.__i-b.__i;});rows.forEach(function(r){var lv=sc(r).toFixed(1);var c=LVNAME[lv]||lv;if(!groups[c]){groups[c]=[];order.push(c);}groups[c].push(r);});}
-  else{rows.sort(function(a,b){return sc(b)-sc(a)||a.__i-b.__i;});rows.forEach(function(r){if(!groups[r[0]]){groups[r[0]]=[];order.push(r[0]);}groups[r[0]].push(r);});order.sort(function(a,b){return CATS.indexOf(a)-CATS.indexOf(b);});}
-  var html='';
-  if(isRec)html+='<div class="rectip">&#11088; <b>健身 + 减脂推荐</b>（按推荐指数 5★→2★ 从高到低排）：高蛋白管饱、优质碳水稳血糖、蔬菜低卡、好油脂适量。按下面顺序配一天：每餐 <b>1 份蛋白 + 1 拳碳水 + 2 拳蔬菜</b>，饿了用蛋奶/坚果加餐。<br>&#127859; 每样推荐商品下面都有 <b>「N 种做法」</b>，点开看用料、步骤、热量，买了照着做。</div>';
+  $id('cnt').textContent=rows.length;
+  var groups={},order=[],html='';
+  function push(c,r){if(!groups[c]){groups[c]=[];order.push(c);}groups[c].push(r);}
+  if(sortBy!=='def'){
+    var key={score:function(r){return -sc(r.__i);},pa:function(r){return r[3];},pd:function(r){return -r[3];},prot:function(r){return r[7]?-r[7][0]:1;},pv:function(r){var v=pv(r.__i);return v==null?1e9:v;},my:function(r){return -(MY[r.__i]||0);}}[sortBy];
+    rows.sort(function(a,b){return key(a)-key(b)||sc(b.__i)-sc(a.__i)||a.__i-b.__i;});
+    if(sortBy==='pv')rows=rows.filter(function(r){return pv(r.__i)!=null;});
+    if(sortBy==='my')rows=rows.filter(function(r){return MY[r.__i];});
+    rows.forEach(function(r){push(SORTS[sortBy],r);});
+    $id('cnt').textContent=rows.length;
+  }else if(isRec){
+    var ro={};REC_ORDER.forEach(function(rc,j){ro[rc]=j;});
+    rows.sort(function(a,b){return sc(b.__i)-sc(a.__i)||ro[a[6]]-ro[b[6]]||a.__i-b.__i;});
+    rows.forEach(function(r){var lv=sc(r.__i).toFixed(1);push(LVNAME[lv]||lv,r);});
+  }else{
+    rows.sort(function(a,b){return sc(b.__i)-sc(a.__i)||a.__i-b.__i;});
+    rows.forEach(function(r){push(r[0],r);});
+    order.sort(function(a,b){return CATS.indexOf(a)-CATS.indexOf(b);});
+  }
+  if(isRec&&sortBy==='def')html+='<div class="rectip">&#11088; <b>健身 + 减脂推荐</b>（按推荐指数 5★→2★ 从高到低排）：每餐 <b>1 份蛋白 + 1 拳碳水 + 2 拳蔬菜</b>，饿了用蛋奶/坚果加餐。<br>&#127859; 每样下面有 <b>「N 种做法」</b>；点 <b>＋</b> 加进购物清单，到超市按货架顺序拿。</div>';
+  if(sortBy==='pv')html+='<div class="rectip">&#128176; 按 <b>每 10g 蛋白要花多少钱</b> 从便宜到贵排（只列有蛋白参考值的推荐商品）。规格带「估」的是按常见包装估算，罐头按沥干重算，<b>只用于横向比较</b>。</div>';
   order.forEach(function(c){
-    html+='<div class="grp'+(isRec?' rec':'')+'"><div class="gh">'+esc(c)+' <span>'+groups[c].length+'</span></div>';
-    groups[c].forEach(function(r){
-      var rm=r[3],rmb=rm*rate;
-      var star=r[6]?'<span class="st">&#11088;</span>':'';var S=SC[r.__i];var scr=S?'<div class="score">'+stars(S[0])+'<b>'+S[0].toFixed(1)+'</b><small>'+esc(S[1])+'</small></div>':'';
-      var sub=esc(r[2]||'');if(r[4])sub+=' · '+esc(r[4]);if(r[5])sub+=' <b class="pm">'+esc(r[5])+'</b>';
-      var nu=(r[7]&&r[7].length)?'<div class="nutr"><span class="np">蛋白 <b>'+r[7][0]+'</b></span><span class="nc">碳水 <b>'+r[7][1]+'</b></span><span class="nf">脂肪 <b>'+r[7][2]+'</b></span><small>g/100g</small></div>':'';
-      html+='<div class="item'+(r[6]?' isrec':'')+'">'+(r[8]?'<button class="th" type="button" data-i="'+r.__i+'"><img loading="lazy" src="shop-thumbs/'+r.__i+'.jpg" alt=""></button>':'<span class="th none">&#128722;</span>')+'<div class="il"><div class="icn">'+star+esc(r[1]||'-')+'</div><div class="ien">'+sub+'</div>'+scr+nu+(RG[r.__i]?'<button class="rbtn" type="button" data-r="'+r.__i+'">&#127859; '+RCP[RG[r.__i]].r.length+' 种做法</button>':'')+'</div><div class="ir"><div class="rm">RM '+rm.toFixed(2)+'</div><div class="rmb">&#165;'+rmb.toFixed(1)+'</div></div></div>';
-    });
+    html+='<div class="grp'+(isRec||sortBy!=='def'?' rec':'')+'"><div class="gh">'+esc(c)+' <span>'+groups[c].length+'</span></div>';
+    groups[c].forEach(function(r){html+=rowHTML(r,sortBy==='pv'?pvLine(r.__i):'');});
     html+='</div>';
   });
-  document.getElementById('list').innerHTML=html||'<div class="empty">没有匹配的商品</div>';
+  return html||'<div class="empty">没有匹配的商品'+(onlyFav?'<br>（还没有收藏：点商品名旁边的 ♡）':'')+'</div>';
 }
-document.getElementById('list').addEventListener('click',function(e){
-  var rb=e.target.closest('.rbtn');
-  if(rb){showRecipes(parseInt(rb.getAttribute('data-r'),10));return;}
-  var b=e.target.closest('.th');
-  if(!b||!b.getAttribute('data-i'))return;
-  var i=parseInt(b.getAttribute('data-i'),10),r=DATA[i],rate=parseFloat(document.getElementById('rate').value)||1.6;
-  document.getElementById('plbImg').src='shop-thumbs/'+i+'.jpg';
-  document.getElementById('plbCn').textContent=r[1];
-  document.getElementById('plbEn').textContent=r[2]+(r[4]?' · '+r[4]:'');
-  document.getElementById('plbPr').innerHTML='RM '+r[3].toFixed(2)+'<span>&#165;'+(r[3]*rate).toFixed(1)+'</span>';
-  var sb=document.getElementById('plbShelf');sb.setAttribute('data-p',r[8]);sb.innerHTML='&#128269; 看整个货架 P'+r[8];
-  var pr=document.getElementById('plbRcp');pr.style.display=RG[i]?'':'none';pr.setAttribute('data-r',i);
-  document.getElementById('plb').classList.add('on');
-});
-document.getElementById('plbRcp').onclick=function(){document.getElementById('plb').classList.remove('on');showRecipes(parseInt(this.getAttribute('data-r'),10));};
-document.getElementById('plbShelf').onclick=function(){var p=parseInt(this.getAttribute('data-p'),10);document.getElementById('plb').classList.remove('on');if(window.lbShow)window.lbShow(p);};
-document.getElementById('plbClose').onclick=function(){document.getElementById('plb').classList.remove('on');};
-document.getElementById('plb').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
+function pvLine(i){var p=PV[i],v=pv(i);if(v==null)return '';return '<div class="pvl">每 10g 蛋白 <b>RM '+v.toFixed(2)+'</b> <span>¥'+(v*rate()).toFixed(1)+'</span> · 一包约 <b>'+Math.round(p[0])+'g</b> 蛋白 · '+esc(p[1])+(p[2]?'<i>估</i>':'')+'</div>';}
+
+function renderPV(q){
+  var ids=Object.keys(PV).map(Number).filter(function(i){var r=DATA[i];return pv(i)!=null&&(!q||(r[1]+' '+r[2]).toLowerCase().indexOf(q)>=0);});
+  ids.sort(function(a,b){return pv(a)-pv(b);});
+  $id('cnt').textContent=ids.length;
+  var h='<div class="rectip">&#128176; <b>蛋白性价比榜</b>：每 10g 蛋白要花多少钱，<b>越靠前越划算</b>。罐头按沥干后能吃到的量算；规格带「估」= 照片没拍到净重、按常见包装估算。<b>只用于横向比较</b>，以包装营养表为准。<br>&#128161; 注意性价比 ≠ 推荐指数：豆子便宜但同时带碳水，鱼罐头蛋白最纯。</div><div class="grp rec"><div class="gh">&#128176; 从最划算到最贵 <span>'+ids.length+'</span></div>';
+  ids.forEach(function(i,k){h+=rowHTML(DATA[i],'<div class="rank">#'+(k+1)+'</div>'+pvLine(i));});
+  return h+'</div>';
+}
+
+var RLIST=[];
+for(var k in RCP)RCP[k].r.forEach(function(x,j){RLIST.push({k:k,j:j,x:x,txt:(x[0]+' '+x[3]+' '+x[4].join(' ')+' '+x[5]+' '+RCP[k].t).toLowerCase()});});
+var KWR={};for(var kk in KW)KWR[kk]=new RegExp(KW[kk],'i');
+function recipeGroups(o){
+  var keys=[o.k],t=o.x[0]+' '+o.x[3]+' '+o.x[4].join(' ');
+  for(var g in KWR){if(keys.indexOf(g)<0&&KWR[g].test(t))keys.push(g);}
+  if(keys.indexOf('greek_yogurt')>=0){var y=keys.indexOf('yogurt');if(y>0)keys.splice(y,1);}
+  var seen={};return keys.slice(0,9).map(bestOf).filter(function(i){if(i==null||seen[i])return false;seen[i]=1;return true;});
+}
+function renderRecipes(q){
+  var list=RLIST.filter(function(o){
+    if(q&&o.txt.indexOf(q)<0)return false;
+    if(rtag==='快'){var m=/(\d+)/.exec(o.x[1]);return m&&+m[1]<=10;}
+    if(rtag&&!TAGRE[rtag].test(o.txt))return false;
+    return true;
+  });
+  $id('cnt').textContent=list.length;
+  var h='<div class="rectip">&#127859; <b>按做法反查</b>：搜「鸡蛋」「卷饼」「微波」或点上方标签，点开做法看用到哪些商品，<b>一键把用料加进购物清单</b>。共 '+RLIST.length+' 种做法。</div>';
+  list.slice(0,200).forEach(function(o){
+    var id=o.k+'_'+o.j,x=o.x,open=openR[id];
+    h+='<div class="rcard'+(open?' open':'')+'" data-rc="'+id+'"><div class="rch"><b>'+esc(x[0])+'</b><span class="rg">'+esc(RCP[o.k].t)+'</span><div class="rm2"><span>&#9201; '+esc(x[1])+'</span><span class="k">'+esc(x[2])+'</span></div></div>';
+    if(open){
+      var items=recipeGroups(o);
+      h+='<div class="rcb"><div class="ri"><em>用料</em>'+esc(x[3])+'</div><ol>'+x[4].map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ol><div class="rtp">&#128161; '+esc(x[5])+'</div>';
+      h+='<div class="rbuy"><div class="rbh">&#128722; 清单里能买到的用料</div>'+items.map(function(i){var r=DATA[i];return '<span class="chip'+(CART[i]?' in':'')+'" data-i="'+i+'">'+(r[8]?'<img src="shop-thumbs/'+i+'.jpg" alt="">':'')+esc(r[1])+' <b>RM '+r[3].toFixed(2)+'</b></span>';}).join('')+'<button class="addall" type="button" data-add="'+items.join(',')+'">&#65291; 这些全部加入购物清单</button></div></div>';
+    }
+    h+='</div>';
+  });
+  if(list.length>200)h+='<div class="empty">还有 '+(list.length-200)+' 种，换个关键词缩小范围</div>';
+  return list.length?h:h+'<div class="empty">没找到匹配的做法</div>';
+}
+
+function renderPlan(){
+  var rt=rate(),tot=0,h='<div class="rectip">&#127919; 对应减脂里的 <b>「🎯10天执行」</b>（178cm/91kg 傻瓜版）的「开跑前买齐」：<b>超市清单里有的</b>直接给出商品和价格，一键加入购物清单；<b>生鲜肉蛋</b>实拍里没有，给的是吉隆坡大致行情。</div>';
+  h+='<div class="grp rec"><div class="gh">&#128247; 清单里有的（按实拍价） <span>'+PLAN10.length+'</span></div>';
+  PLAN10.forEach(function(p){var r=DATA[p.i];var sub=r[3]*p.q;if(!p.opt)tot+=sub;
+    h+=rowHTML(r,'<div class="pvl">10 天要：<b>'+esc(p.need)+'</b> → 买 <b>'+p.q+'</b> 件 · 小计 <b>RM '+sub.toFixed(2)+'</b>'+(p.opt?' <i>可选</i>':'')+'</div>');});
+  h+='<button class="addall big" type="button" data-plan="1">&#65291; 以上（不含可选）全部按数量加入购物清单</button></div>';
+  var lo=0,hi=0;FRESH10.forEach(function(f){lo+=f[2];hi+=f[3];});
+  h+='<div class="grp rec"><div class="gh">&#129385; 生鲜 &amp; 主食（实拍未覆盖，大致行情） <span>'+FRESH10.length+'</span></div><div class="fresh">'+FRESH10.map(function(f){return '<div><b>'+esc(f[0])+'</b><span>'+esc(f[1])+'</span><em>RM '+f[2]+'–'+f[3]+'</em></div>';}).join('')+'</div></div>';
+  h+='<div class="plantot"><div>清单商品 <b>RM '+tot.toFixed(2)+'</b><span>¥'+(tot*rt).toFixed(0)+'</span></div><div>生鲜估算 <b>RM '+lo+'–'+hi+'</b><span>¥'+Math.round(lo*rt)+'–'+Math.round(hi*rt)+'</span></div><div class="all">10 天合计约 <b>RM '+Math.round(tot+lo)+'–'+Math.round(tot+hi)+'</b><span>¥'+Math.round((tot+lo)*rt)+'–'+Math.round((tot+hi)*rt)+'</span></div></div>';
+  $id('cnt').textContent=PLAN10.length+FRESH10.length;
+  return h;
+}
+
+function renderFav(q){
+  var ids=DATA.filter(function(r){return (FAV[r.__i]||MY[r.__i])&&(!q||(r[1]+' '+r[2]).toLowerCase().indexOf(q)>=0);});
+  ids.sort(function(a,b){return (MY[b.__i]||0)-(MY[a.__i]||0)||(FAV[b.__i]?1:0)-(FAV[a.__i]?1:0)||sc(b.__i)-sc(a.__i);});
+  $id('cnt').textContent=ids.length;
+  var h='<div class="rectip">&#10084;&#65039; <b>我的收藏 &amp; 吃过打分</b>：点商品名旁的 ♡ 收藏；点商品小图打开卡片，给吃过的东西打 1–5 星，下次按你的口味优先买。按「我的评分」排在前面。</div>';
+  if(!ids.length)return h+'<div class="empty">还没有收藏或打分</div>';
+  return h+'<div class="grp rec"><div class="gh">&#10084;&#65039; 收藏 / 打过分 <span>'+ids.length+'</span></div>'+ids.map(function(r){return rowHTML(r);}).join('')+'</div>';
+}
+
+function render(){
+  $id('rateShow').textContent=rate();
+  var q=$id('q').value.trim().toLowerCase(),html;
+  document.body.setAttribute('data-mode',mode);
+  if(mode==='recipe')html=renderRecipes(q);
+  else if(mode==='pv')html=renderPV(q);
+  else if(mode==='plan')html=renderPlan();
+  else if(mode==='fav')html=renderFav(q);
+  else html=renderShop(q);
+  $id('list').innerHTML=html;
+  renderCartBar();
+}
+
+/* ---------- 购物清单 ---------- */
+function setQ(i,d){var q=(CART[i]||0)+d;if(q>0)CART[i]=q;else{delete CART[i];delete GOT[i];}sv('kl_cart',CART);sv('kl_got',GOT);}
+function cartSum(){var n=0,t=0;for(var i in CART){n+=CART[i];t+=DATA[i][3]*CART[i];}return {n:n,t:t};}
+function renderCartBar(){
+  var c=cartSum(),b=$id('cartBar');
+  b.classList.toggle('on',c.n>0);
+  b.innerHTML='&#128722; <b>'+c.n+'</b> 件 · RM '+c.t.toFixed(2)+' <span>¥'+(c.t*rate()).toFixed(1)+'</span><em>查看清单 &rsaquo;</em>';
+  if($id('cart').classList.contains('on'))renderCart();
+}
+function renderCart(){
+  var ids=Object.keys(CART).map(Number),rt=rate();
+  ids.sort(function(a,b){return (DATA[a][8]||999)-(DATA[b][8]||999)||a-b;});
+  var c=cartSum(),got=ids.filter(function(i){return GOT[i];}).length,h='',lastP=-1;
+  if(!ids.length)h='<div class="empty">清单是空的<br>在商品右边点 <b>＋</b> 加进来</div>';
+  ids.forEach(function(i){var r=DATA[i],p=r[8]||0;
+    if(p!==lastP){lastP=p;h+='<div class="ch">'+(p?'<button type="button" data-p="'+p+'">&#128247; 货架 P'+p+' &rsaquo;</button>':'&#128722; 没拍到货架位置')+'</div>';}
+    h+='<div class="ci'+(GOT[i]?' got':'')+'"><button class="ck" type="button" data-g="'+i+'">'+(GOT[i]?'&#9989;':'&#11036;')+'</button>'+(r[8]?'<img src="shop-thumbs/'+i+'.jpg" alt="">':'<span class="noimg">&#128722;</span>')+'<div class="cn"><b>'+esc(r[1])+'</b><small>RM '+r[3].toFixed(2)+' × '+CART[i]+' = RM '+(r[3]*CART[i]).toFixed(2)+'</small></div>'+cartCtl(i)+'</div>';
+  });
+  $id('cartBody').innerHTML=h;
+  $id('cartTot').innerHTML='共 <b>'+c.n+'</b> 件 · 已拿 '+got+'/'+ids.length+'<span>RM '+c.t.toFixed(2)+' <i>¥'+(c.t*rt).toFixed(1)+'</i></span>';
+}
+function openCart(){renderCart();$id('cart').classList.add('on');}
+function cartText(){
+  var ids=Object.keys(CART).map(Number);ids.sort(function(a,b){return (DATA[a][8]||999)-(DATA[b][8]||999);});
+  var c=cartSum();
+  return '🛒 吉隆坡超市购物清单\n'+ids.map(function(i){var r=DATA[i];return (GOT[i]?'☑ ':'☐ ')+r[1]+' ×'+CART[i]+'  RM'+(r[3]*CART[i]).toFixed(2)+(r[8]?'  (P'+r[8]+')':'');}).join('\n')+'\n合计 RM '+c.t.toFixed(2)+' ≈ ¥'+(c.t*rate()).toFixed(1);
+}
+
+/* ---------- 商品卡片 ---------- */
+var plbI=-1;
+function openCard(i){
+  plbI=i;var r=DATA[i],rt=rate(),img=$id('plbImg');
+  if(r[8]){img.src='shop-thumbs/'+i+'.jpg';img.style.display='';}else{img.removeAttribute('src');img.style.display='none';}
+  $id('plbCn').textContent=r[1];
+  $id('plbEn').textContent=r[2]+(r[4]?' · '+r[4]:'');
+  $id('plbPr').innerHTML='RM '+r[3].toFixed(2)+'<span>&#165;'+(r[3]*rt).toFixed(1)+'</span>';
+  var sb=$id('plbShelf');sb.style.display=r[8]?'':'none';sb.setAttribute('data-p',r[8]);sb.innerHTML='&#128269; 看整个货架 P'+r[8];
+  $id('plbRcp').style.display=RG[i]?'':'none';
+  cardState();
+  $id('plb').classList.add('on');
+}
+function cardState(){
+  var i=plbI;
+  $id('plbFav').innerHTML=FAV[i]?'&#10084;&#65039; 已收藏':'&#9825; 收藏';$id('plbFav').classList.toggle('on',!!FAV[i]);
+  $id('plbAdd').innerHTML=CART[i]?'&#9989; 清单里 ×'+CART[i]+'（再 +1）':'&#65291; 加入购物清单';
+  var m=MY[i]||0,h='<span>吃过打分</span>';for(var k=1;k<=5;k++)h+='<button type="button" data-my="'+k+'" class="'+(k<=m?'on':'')+'">★</button>';
+  if(m)h+='<button type="button" data-my="0" class="clr">清除</button>';
+  $id('plbMy').innerHTML=h;
+}
 function showRecipes(i){
   var k=RG[i];if(!k)return;var g=RCP[k],r=DATA[i];
-  var im=document.getElementById('rlbImg');
+  var im=$id('rlbImg');
   if(r[8]){im.src='shop-thumbs/'+i+'.jpg';im.style.display='';}else{im.style.display='none';}
-  document.getElementById('rlbCn').textContent=r[1];
-  document.getElementById('rlbSub').textContent='\uD83C\uDF73 '+g.t+' \u00B7 '+g.r.length+' \u79CD\u505A\u6CD5';
+  $id('rlbCn').textContent=r[1];
+  $id('rlbSub').textContent='🍳 '+g.t+' · '+g.r.length+' 种做法';
   var h='';
   g.r.forEach(function(x,j){
     h+='<div class="rc"><div class="rn"><i>'+(j+1)+'</i><b>'+esc(x[0])+'</b></div><div class="rm2">'+(x[1]?'<span>&#9201; '+esc(x[1])+'</span>':'')+(x[2]?'<span class="k">'+esc(x[2])+'</span>':'')+'</div>';
@@ -229,16 +498,68 @@ function showRecipes(i){
     if(x[5])h+='<div class="rtp">&#128161; '+esc(x[5])+'</div>';
     h+='</div>';
   });
-  var b=document.getElementById('rlbBody');b.innerHTML=h;b.scrollTop=0;
-  document.getElementById('rlb').classList.add('on');
+  var b=$id('rlbBody');b.innerHTML=h;b.scrollTop=0;
+  $id('rlb').classList.add('on');
 }
-document.getElementById('rlbClose').onclick=function(){document.getElementById('rlb').classList.remove('on');};
-document.getElementById('rlb').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
-document.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('rlb').classList.remove('on');});
+
+/* ---------- 事件 ---------- */
+document.addEventListener('click',function(e){
+  var t=e.target;
+  var qb=t.closest('[data-q]');if(qb){setQ(+qb.getAttribute('data-i'),+qb.getAttribute('data-q'));render();return;}
+  var fb=t.closest('.fv');if(fb){var fi=fb.getAttribute('data-f');if(FAV[fi])delete FAV[fi];else FAV[fi]=1;sv('kl_fav',FAV);render();return;}
+  var rb=t.closest('.rbtn');if(rb){showRecipes(+rb.getAttribute('data-r'));return;}
+  var th=t.closest('.th');if(th&&th.getAttribute('data-i')!=null){openCard(+th.getAttribute('data-i'));return;}
+  var ch=t.closest('.chip');if(ch){openCard(+ch.getAttribute('data-i'));return;}
+  var aa=t.closest('.addall');if(aa){
+    if(aa.getAttribute('data-plan')){PLAN10.forEach(function(p){if(!p.opt&&(CART[p.i]||0)<p.q){CART[p.i]=p.q;}});}
+    else aa.getAttribute('data-add').split(',').forEach(function(x){if(x!==''&&!CART[x])CART[x]=1;});
+    sv('kl_cart',CART);render();toast('已加入购物清单');return;}
+  var rc=t.closest('.rch');if(rc){var id=rc.parentNode.getAttribute('data-rc');openR[id]=!openR[id];render();return;}
+  var tg=t.closest('#tags button');if(tg){rtag=tg.getAttribute('data-t');[].forEach.call(document.querySelectorAll('#tags button'),function(x){x.classList.toggle('on',x===tg);});render();return;}
+  var md=t.closest('#modes button');if(md){mode=md.getAttribute('data-m');[].forEach.call(document.querySelectorAll('#modes button'),function(x){x.classList.toggle('on',x===md);});$id('q').placeholder=mode==='recipe'?'搜做法 / 用料：鸡蛋、卷饼、微波…':'搜索商品名（中文 / English）…';sv('kl_mode',mode);render();window.scrollTo({top:$id('list').offsetTop-160,behavior:'smooth'});return;}
+  var my=t.closest('#plbMy button');if(my){var v=+my.getAttribute('data-my');if(v)MY[plbI]=v;else delete MY[plbI];sv('kl_my',MY);cardState();render();return;}
+  var g=t.closest('[data-g]');if(g){var gi=g.getAttribute('data-g');if(GOT[gi])delete GOT[gi];else GOT[gi]=1;sv('kl_got',GOT);renderCart();return;}
+  var cp=t.closest('#cartBody .ch button');if(cp){$id('cart').classList.remove('on');if(window.lbShow)window.lbShow(+cp.getAttribute('data-p'));return;}
+});
+function toast(m){var x=$id('toast');x.textContent=m;x.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(function(){x.classList.remove('on');},1600);}
+$id('plbShelf').onclick=function(){var p=parseInt(this.getAttribute('data-p'),10);$id('plb').classList.remove('on');if(window.lbShow)window.lbShow(p);};
+$id('plbRcp').onclick=function(){$id('plb').classList.remove('on');showRecipes(plbI);};
+$id('plbFav').onclick=function(){if(FAV[plbI])delete FAV[plbI];else FAV[plbI]=1;sv('kl_fav',FAV);cardState();render();};
+$id('plbAdd').onclick=function(){setQ(plbI,1);cardState();render();toast('已加入购物清单');};
+$id('plbClose').onclick=function(){$id('plb').classList.remove('on');};
+$id('plb').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
+$id('rlbClose').onclick=function(){$id('rlb').classList.remove('on');};
+$id('rlb').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
+$id('cartBar').onclick=openCart;
+$id('cartClose').onclick=function(){$id('cart').classList.remove('on');};
+$id('cart').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
+$id('cartClear').onclick=function(){if(!Object.keys(CART).length)return;if(confirm('清空购物清单？')){CART={};GOT={};sv('kl_cart',CART);sv('kl_got',GOT);render();}};
+$id('cartGotClr').onclick=function(){GOT={};sv('kl_got',GOT);renderCart();};
+$id('cartCopy').onclick=function(){var tx=cartText();function ok(){toast('清单已复制，可粘贴到微信/备忘录');}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(tx).then(ok,function(){prompt('复制下面的清单',tx);});}else prompt('复制下面的清单',tx);};
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){['rlb','plb','cart'].forEach(function(x){$id(x).classList.remove('on');});}});
+$id('sortSel').onchange=function(){sortBy=this.value;render();};
+$id('promoBtn').onclick=function(){onlyPromo=!onlyPromo;this.classList.toggle('on',onlyPromo);render();};
+$id('favBtn').onclick=function(){onlyFav=!onlyFav;this.classList.toggle('on',onlyFav);render();};
 buildCats();
-document.getElementById('rate').addEventListener('input',render);
-document.getElementById('q').addEventListener('input',render);
+(function(){var m=ld('kl_mode','shop');var b=document.querySelector('#modes button[data-m="'+m+'"]');if(b){mode=m;[].forEach.call(document.querySelectorAll('#modes button'),function(x){x.classList.toggle('on',x===b);});}})();
+$id('rate').addEventListener('input',render);
+$id('q').addEventListener('input',render);
 render();
+/* ---------- 离线 ---------- */
+if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceWorker.register('sw.js').catch(function(){});}
+$id('offBtn').onclick=function(){
+  if(!('caches' in window)){toast('这个浏览器不支持离线缓存');return;}
+  var b=this,urls=[];DATA.forEach(function(r,i){if(r[8])urls.push('shop-thumbs/'+i+'.jpg');});
+  for(var p=1;p<=81;p++)urls.push('shop-photos/p'+(p<10?'0':'')+p+'.jpg');
+  urls.push('kl-prices.html');
+  var done=0,fail=0;b.disabled=true;
+  caches.open('kl-img-v1').then(function(c){
+    var k=0;function next(){if(k>=urls.length)return Promise.resolve();var u=urls[k++];
+      return c.match(u).then(function(hit){if(hit)return;return fetch(u).then(function(res){if(res.ok)return c.put(u,res);fail++;});}).catch(function(){fail++;}).then(function(){done++;b.innerHTML='&#128229; 下载中 '+done+'/'+urls.length;return next();});}
+    return Promise.all([next(),next(),next(),next(),next(),next()]);
+  }).then(function(){b.disabled=false;b.innerHTML=fail?'&#9888;&#65039; 完成，'+fail+' 个失败，可再点一次':'&#9989; 离线包已存好（没网也能看）';try{localStorage.setItem('kl_off','1');}catch(e){}});
+};
+try{if(localStorage.getItem('kl_off'))$id('offBtn').innerHTML='&#9989; 已离线保存 · 点这里更新';}catch(e){}
 </script><div id="lb"><img id="lbImg" alt="货架实拍大图"><div class="lbbar"><button id="lbPrev" type="button">&#8592; 上一张</button><b id="lbNum">P1</b><button id="lbNext" type="button">下一张 &#8594;</button><button id="lbClose" type="button">&#10005; 关闭</button></div></div>
 <script>
 (function(){
