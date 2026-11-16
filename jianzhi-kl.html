@@ -358,6 +358,14 @@
   .ksub{font-size:10.5px;color:var(--muted);align-self:center;margin-right:2px}
   .meal .row{flex-wrap:wrap}
   .meal .row>.kchips{flex-basis:100%;order:3;margin:2px 0 0;font-weight:400}
+  .en{display:block;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0;line-height:1.35;margin-top:1px}
+  .fname .en{margin-top:2px}
+  .alt .en{margin-top:3px;font-style:italic}
+  .fb i{font-style:normal;color:var(--muted)}
+  .hen{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.02em;font-family:var(--font,inherit)}
+  .fchip small{display:block;font-size:9.5px;font-weight:500;opacity:.8;line-height:1.2}
+  .pden{display:inline-block;font-style:normal;font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:4px}
+  .kchip i{font-style:normal;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -374,7 +382,7 @@
   <!-- 输入 -->
   <section class="card">
     <div class="card-head">
-      <span class="card-title">你的身体数据</span>
+      <span class="card-title">你的身体数据 <span class="hen">Your body</span></span>
       <span class="card-note">改动后下方自动重算</span>
     </div>
 
@@ -408,22 +416,22 @@
 
   <!-- 目标 -->
   <div class="targets-head">
-    <h2>每日营养目标</h2>
+    <h2>每日营养目标 <span class="hen">Daily targets</span></h2>
     <span class="formula" id="formula">体重 × 系数</span>
   </div>
   <div class="macro-grid">
     <div class="tile c">
-      <div class="name"><span class="dot"></span>碳水</div>
+      <div class="name"><span class="dot"></span>碳水 <span class="hen">Carbs</span></div>
       <div class="big"><span id="tC" class="tnum">0</span><span class="u">g</span></div>
       <div class="coef" id="cC">—</div>
     </div>
     <div class="tile p">
-      <div class="name"><span class="dot"></span>蛋白质</div>
+      <div class="name"><span class="dot"></span>蛋白质 <span class="hen">Protein</span></div>
       <div class="big"><span id="tP" class="tnum">0</span><span class="u">g</span></div>
       <div class="coef" id="cP">—</div>
     </div>
     <div class="tile f">
-      <div class="name"><span class="dot"></span>脂肪</div>
+      <div class="name"><span class="dot"></span>脂肪 <span class="hen">Fat</span></div>
       <div class="big"><span id="tF" class="tnum">0</span><span class="u">g</span></div>
       <div class="coef" id="cF">—</div>
     </div>
@@ -435,7 +443,7 @@
 
   <!-- 三餐 -->
   <div class="meals-head">
-    <h2>今日三餐搭配</h2>
+    <h2>今日三餐搭配 <span class="hen">Today's meals</span></h2>
     <button class="reroll" id="reroll" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
       换一组搭配
@@ -447,7 +455,7 @@
   <!-- 全天对照 -->
   <section class="card recon">
     <div class="card-head">
-      <span class="card-title">全天合计 vs 目标</span>
+      <span class="card-title">全天合计 vs 目标 <span class="hen">Total vs target</span></span>
       <span class="card-note">份量已反推贴近目标</span>
     </div>
     <div id="reconRows"></div>
@@ -459,7 +467,7 @@
 
   <!-- 食材库 -->
   <div class="meals-head">
-    <h2>食材库 · 分类总览</h2>
+    <h2>食材库 · 分类总览 <span class="hen">Pantry</span></h2>
     <span class="card-note" id="pantryCount"></span>
   </div>
   <section class="card">
@@ -469,19 +477,19 @@
 
   <!-- 水果指南 -->
   <div class="meals-head">
-    <h2>水果指南</h2>
+    <h2>水果指南 <span class="hen">Fruit guide</span></h2>
     <span class="card-note">蓝莓平替 + 分档</span>
   </div>
   <section class="card">
     <div class="swap-box">
       <span class="sb-k">🫐</span>
-      <span class="sb-t">蓝莓没有时，<b>最接近</b>：草莓、树莓、黑莓（低糖高纤，冷冻装更省也一样好用）。买不到莓果 → 番石榴 ฝรั่ง、火龙果 แก้วมังกร、奇异果 顶上，同样低糖高纤。</span>
+      <span class="sb-t">蓝莓 Blueberry 没有时，<b>最接近</b>：草莓 Strawberry、树莓 Raspberry、黑莓 Blackberry（低糖高纤，冷冻装更省也一样好用）。买不到莓果 → 番石榴 Guava (jambu batu)、火龙果 Dragon fruit (buah naga)、奇异果 Kiwi 顶上，同样低糖高纤。</span>
     </div>
 
     <div class="tier tier-good">
       <div class="tier-head"><span class="tier-badge">优选 · 可放心吃</span><span class="tier-sub">低糖高纤，一小把 100–150g 基本不计</span></div>
       <div class="fruits">
-        <span class="fchip">草莓</span><span class="fchip">树莓</span><span class="fchip">黑莓</span><span class="fchip">蓝莓</span><span class="fchip">番石榴 ฝรั่ง</span><span class="fchip">火龙果 แก้วมังกร</span><span class="fchip">奇异果</span><span class="fchip">柚子 / 西柚 ส้มโอ</span><span class="fchip">莲雾 ชมพู่</span><span class="fchip">木瓜</span>
+        <span class="fchip">草莓<small>Strawberry</small></span><span class="fchip">树莓<small>Raspberry</small></span><span class="fchip">黑莓<small>Blackberry</small></span><span class="fchip">蓝莓<small>Blueberries (frozen)</small></span><span class="fchip">番石榴<small>Guava · Jambu batu</small></span><span class="fchip">火龙果<small>Dragon fruit · Buah naga</small></span><span class="fchip">奇异果<small>Kiwi</small></span><span class="fchip">柚子 / 西柚<small>Pomelo / Grapefruit · Limau bali</small></span><span class="fchip">莲雾<small>Rose apple · Jambu air</small></span><span class="fchip">木瓜<small>Papaya · Betik</small></span>
       </div>
       <p class="tier-note">当蓝莓平替首选这一档的莓果；水分多、热量低，当早餐点缀那一小份基本不用计较。</p>
     </div>
@@ -489,7 +497,7 @@
     <div class="tier tier-ok">
       <div class="tier-head"><span class="tier-badge">适量 · 按份吃</span><span class="tier-sub">中等糖，一份手心大小并计入当天</span></div>
       <div class="fruits">
-        <span class="fchip">苹果</span><span class="fchip">梨</span><span class="fchip">橙子</span><span class="fchip">桃 / 李</span><span class="fchip">樱桃</span><span class="fchip">菠萝</span><span class="fchip">甜瓜</span><span class="fchip">西瓜</span>
+        <span class="fchip">苹果<small>Apple · Epal</small></span><span class="fchip">梨<small>Pear</small></span><span class="fchip">橙子<small>Orange · Oren</small></span><span class="fchip">桃 / 李<small>Peach / Plum</small></span><span class="fchip">樱桃<small>Cherry</small></span><span class="fchip">菠萝<small>Pineapple · Nanas</small></span><span class="fchip">甜瓜<small>Melon</small></span><span class="fchip">西瓜<small>Watermelon · Tembikai</small></span>
       </div>
       <p class="tier-note">一份约一个拳头大小。<b>西瓜</b>水多升糖快、量别大；<b>菠萝</b>选偏酸的更好；尽量放在白天或训练前后。</p>
     </div>
@@ -497,7 +505,7 @@
     <div class="tier tier-bad">
       <div class="tier-head"><span class="tier-badge">少吃 / 避免</span><span class="tier-sub">高糖或高热量密度，最容易超</span></div>
       <div class="fruits">
-        <span class="fchip">香蕉</span><span class="fchip">芒果</span><span class="fchip">葡萄</span><span class="fchip">荔枝</span><span class="fchip">龙眼</span><span class="fchip">榴莲</span><span class="fchip">果干</span><span class="fchip">果汁</span>
+        <span class="fchip">香蕉<small>Banana · Pisang</small></span><span class="fchip">芒果<small>Mango</small></span><span class="fchip">葡萄<small>Grapes</small></span><span class="fchip">荔枝<small>Lychee</small></span><span class="fchip">龙眼<small>Longan</small></span><span class="fchip">榴莲<small>Durian</small></span><span class="fchip">果干<small>Dried fruit</small></span><span class="fchip">果汁<small>Fruit juice</small></span>
       </div>
       <p class="tier-note"><b>香蕉</b>训练前后可少量；<b>榴莲</b>又高脂又高糖、是热量炸弹；<b>果干、果汁</b>糖被浓缩又没纤维，直接跳过。</p>
     </div>
@@ -507,7 +515,7 @@
 
   <!-- 买菜清单 -->
   <div class="meals-head">
-    <h2>买菜清单</h2>
+    <h2>买菜清单 <span class="hen">Shopping list</span></h2>
     <div class="ppl">
       <span class="ppl-lab">人数</span>
       <button class="stp" id="pplMinus" type="button" aria-label="减少人数">−</button>
@@ -520,7 +528,7 @@
     <div class="tbl-scroll">
     <table class="pantry-table shop-table">
       <thead><tr>
-        <th>食材</th>
+        <th>食材 <span class="hen">Item</span></th>
         <th class="num">1 天</th>
         <th class="num">3 天</th>
         <th class="num">7 天</th>
@@ -534,7 +542,7 @@
 
   <!-- 在泰国买 -->
   <div class="meals-head">
-    <h2>在吉隆坡买 · 本地化</h2>
+    <h2>在吉隆坡买 · 本地化 <span class="hen">Buying in KL</span></h2>
     <span class="card-note">同上人数</span>
   </div>
   <section class="card">
@@ -543,11 +551,11 @@
     <div class="tbl-scroll">
     <table class="pantry-table th-table">
       <thead><tr>
-        <th>原料</th>
+        <th>原料 <span class="hen">Item</span></th>
         <th class="q">1 天</th>
         <th class="q">3 天</th>
         <th class="q">7 天</th>
-        <th class="alt-h">没有就用（泰国平替）</th>
+        <th class="alt-h">没有就用（本地平替）<span class="hen">Local swaps</span></th>
       </tr></thead>
       <tbody id="thBody"></tbody>
     </table>
@@ -559,7 +567,7 @@
 
   <!-- 照超市实拍规划 -->
   <div class="meals-head">
-    <h2>🛒 照超市实拍买什么</h2>
+    <h2>🛒 照超市实拍买什么 <span class="hen">What to buy</span></h2>
     <span class="card-note">786 种实拍</span>
   </div>
   <section class="card">
@@ -567,7 +575,7 @@
     <p class="plan-lead">从你常去超市 <b>实拍的 786 种商品</b>里挑出的减脂优选（价格 RM，×约 1.6 ≈ ¥）。<a href="kl-prices.html" target="_blank" rel="noopener">→ 看全部商品价格清单</a></p>
 
     <div class="plan-grp">
-      <div class="plan-h"><span class="dot" style="background:var(--protein)"></span>优质蛋白 · 每餐必有</div>
+      <div class="plan-h"><span class="dot" style="background:var(--protein)"></span>优质蛋白 · 每餐必有 <span class="hen">Protein</span></div>
       <div class="prow linked" data-i="80"><a class="pimg" href="kl-prices.html#i=80"><img src="shop-thumbs/80.jpg" alt="" loading="lazy"></a><span class="pn">低脂茄汁豆 <i>Ayam Brand Baked Beans Low Fat</i><span class="pn-nutr"><b class="np">蛋 5</b><b class="nc">碳 20</b><b class="nf">脂 0.5</b><small>/100g</small></span><em class="pshelf">货架 P28</em></span><span class="pside"><span class="pp">RM 3.35</span><span class="pact"><button class="padd" type="button" data-i="80">＋ 清单</button><a class="pgo" href="kl-prices.html#i=80">查看 ›</a></span></span></div>
       <div class="prow linked" data-i="114"><a class="pimg" href="kl-prices.html#i=114"><img src="shop-thumbs/114.jpg" alt="" loading="lazy"></a><span class="pn">沙丁鱼罐头 <i>King Cup Sardin</i><span class="pn-nutr"><b class="np">蛋 20</b><b class="nc">碳 0</b><b class="nf">脂 11</b><small>/100g</small></span><em class="pshelf">货架 P12</em></span><span class="pside"><span class="pp">RM 4.40</span><span class="pact"><button class="padd" type="button" data-i="114">＋ 清单</button><a class="pgo" href="kl-prices.html#i=114">查看 ›</a></span></span></div>
       <div class="prow linked" data-i="76"><a class="pimg" href="kl-prices.html#i=76"><img src="shop-thumbs/76.jpg" alt="" loading="lazy"></a><span class="pn">鹰嘴豆罐头 <i>La Diva Garbanzo Beans</i><span class="pn-nutr"><b class="np">蛋 9</b><b class="nc">碳 22</b><b class="nf">脂 3</b><small>/100g</small></span><em class="pshelf">货架 P28</em></span><span class="pside"><span class="pp">RM 4.50</span><span class="pact"><button class="padd" type="button" data-i="76">＋ 清单</button><a class="pgo" href="kl-prices.html#i=76">查看 ›</a></span></span></div>
@@ -579,7 +587,7 @@
     </div>
 
     <div class="plan-grp">
-      <div class="plan-h"><span class="dot" style="background:var(--carb)"></span>优质碳水 · 主食换成它</div>
+      <div class="plan-h"><span class="dot" style="background:var(--carb)"></span>优质碳水 · 主食换成它 <span class="hen">Good carbs</span></div>
       <div class="prow linked" data-i="184"><a class="pimg" href="kl-prices.html#i=184"><span class="noimg">🛒</span></a><span class="pn">原片燕麦 <i>Captain Oats Toasted Rolled Oats</i><span class="pn-nutr"><b class="np">蛋 13</b><b class="nc">碳 60</b><b class="nf">脂 7</b><small>/100g 干</small></span></span><span class="pside"><span class="pp">RM 7.70</span><span class="pact"><button class="padd" type="button" data-i="184">＋ 清单</button><a class="pgo" href="kl-prices.html#i=184">查看 ›</a></span></span></div>
       <div class="prow linked" data-i="181"><a class="pimg" href="kl-prices.html#i=181"><img src="shop-thumbs/181.jpg" alt="" loading="lazy"></a><span class="pn">快熟燕麦 <i>Pristine Quick Oats</i><span class="pn-nutr"><b class="np">蛋 13</b><b class="nc">碳 60</b><b class="nf">脂 7</b><small>/100g 干</small></span><em class="pshelf">货架 P73</em></span><span class="pside"><span class="pp">RM 9.50</span><span class="pact"><button class="padd" type="button" data-i="181">＋ 清单</button><a class="pgo" href="kl-prices.html#i=181">查看 ›</a></span></span></div>
       <div class="prow linked" data-i="182"><a class="pimg" href="kl-prices.html#i=182"><img src="shop-thumbs/182.jpg" alt="" loading="lazy"></a><span class="pn">燕麦麸(更高纤) <i>Pristine Oat Bran</i><span class="pn-nutr"><b class="np">蛋 17</b><b class="nc">碳 50</b><b class="nf">脂 7</b><small>/100g 干</small></span><em class="pshelf">货架 P73</em></span><span class="pside"><span class="pp">RM 9.50</span><span class="pact"><button class="padd" type="button" data-i="182">＋ 清单</button><a class="pgo" href="kl-prices.html#i=182">查看 ›</a></span></span></div>
@@ -587,14 +595,14 @@
     </div>
 
     <div class="plan-grp">
-      <div class="plan-h"><span class="dot" style="background:var(--primary)"></span>蔬菜低卡 · 管饱不长肉</div>
+      <div class="plan-h"><span class="dot" style="background:var(--primary)"></span>蔬菜低卡 · 管饱不长肉 <span class="hen">Vegetables</span></div>
       <div class="prow linked" data-i="28"><a class="pimg" href="kl-prices.html#i=28"><span class="noimg">🛒</span></a><span class="pn">西兰花 <i>BROCCOLI (CHN) P24</i><span class="pn-nutr"><b class="np">蛋 3</b><b class="nc">碳 7</b><b class="nf">脂 0.4</b><small>/100g</small></span></span><span class="pside"><span class="pp">RM 3.20</span><span class="pact"><button class="padd" type="button" data-i="28">＋ 清单</button><a class="pgo" href="kl-prices.html#i=28">查看 ›</a></span></span></div>
       <div class="prow linked" data-i="21"><a class="pimg" href="kl-prices.html#i=21"><img src="shop-thumbs/21.jpg" alt="" loading="lazy"></a><span class="pn">罗马生菜 <i>Cameron Garden Romaine Lettuce</i><span class="pn-nutr"><b class="np">蛋 1</b><b class="nc">碳 3</b><b class="nf">脂 0.2</b><small>/100g</small></span><em class="pshelf">货架 P77</em></span><span class="pside"><span class="pp">RM 4.40</span><span class="pact"><button class="padd" type="button" data-i="21">＋ 清单</button><a class="pgo" href="kl-prices.html#i=21">查看 ›</a></span></span></div>
       <div class="prow linked" data-i="16"><a class="pimg" href="kl-prices.html#i=16"><img src="shop-thumbs/16.jpg" alt="" loading="lazy"></a><span class="pn">即食希腊沙拉盒 <i>Greek Salad</i><span class="pn-nutr"><b class="np">蛋 9</b><b class="nc">碳 4</b><b class="nf">脂 4</b><small>/100g</small></span><em class="pshelf">货架 P3</em></span><span class="pside"><span class="pp">RM 9.20</span><span class="pact"><button class="padd" type="button" data-i="16">＋ 清单</button><a class="pgo" href="kl-prices.html#i=16">查看 ›</a></span></span></div>
     </div>
 
     <div class="plan-grp">
-      <div class="plan-h"><span class="dot" style="background:var(--fat)"></span>好油 &amp; 坚果 · 加分但控量</div>
+      <div class="plan-h"><span class="dot" style="background:var(--fat)"></span>好油 &amp; 坚果 · 加分但控量 <span class="hen">Healthy fats & nuts</span></div>
       <div class="prow linked" data-i="417"><a class="pimg" href="kl-prices.html#i=417"><img src="shop-thumbs/417.jpg" alt="" loading="lazy"></a><span class="pn">特级初榨橄榄油(淋菜用) <i>Colavita Extra Virgin Olive Oil</i><span class="pn-nutr"><b class="np">蛋 0</b><b class="nc">碳 0</b><b class="nf">脂 100</b><small>/100g</small></span><em class="pshelf">货架 P26</em></span><span class="pside"><span class="pp">RM 22.99</span><span class="pact"><button class="padd" type="button" data-i="417">＋ 清单</button><a class="pgo" href="kl-prices.html#i=417">查看 ›</a></span></span></div>
       <div class="prow linked" data-i="463"><a class="pimg" href="kl-prices.html#i=463"><img src="shop-thumbs/463.jpg" alt="" loading="lazy"></a><span class="pn">混合坚果(每天一小把) <i>Healthy Mixed Nuts</i><span class="pn-nutr"><b class="np">蛋 17</b><b class="nc">碳 20</b><b class="nf">脂 54</b><small>/100g</small></span><em class="pshelf">货架 P44</em></span><span class="pside"><span class="pp">RM 11.90</span><span class="pact"><button class="padd" type="button" data-i="463">＋ 清单</button><a class="pgo" href="kl-prices.html#i=463">查看 ›</a></span></span></div>
       <div class="prow linked" data-i="462"><a class="pimg" href="kl-prices.html#i=462"><span class="noimg">🛒</span></a><span class="pn">杏仁 <i>Healthy Almond</i><span class="pn-nutr"><b class="np">蛋 21</b><b class="nc">碳 22</b><b class="nf">脂 49</b><small>/100g</small></span></span><span class="pside"><span class="pp">RM 11.90</span><span class="pact"><button class="padd" type="button" data-i="462">＋ 清单</button><a class="pgo" href="kl-prices.html#i=462">查看 ›</a></span></span></div>
@@ -602,16 +610,16 @@
 
     <div class="plan-day">
       <b>怎么配一天（都用上面这些）：</b><br>
-      🌅 早餐：燕麦冲泡 + 低脂/希腊优格 + 一把坚果 + 水果<br>
-      ☀️ 午餐：燕麦或糙米 + 吞拿鱼/鹰嘴豆 + 大份西兰花或生菜，淋一勺橄榄油<br>
-      🌙 晚餐：红腰豆/鹰嘴豆 + 沙丁鱼/吞拿鱼 + 即食沙拉盒（蛋白管饱、碳水收尾少一点）<br>
-      🍎 加餐饿了：低脂优格 或 一小把坚果
+      🌅 早餐：燕麦冲泡 + 低脂/希腊优格 + 一把坚果 + 水果<br><i class="pden">Breakfast: Oats + Low-fat / Greek yogurt + a handful of Nuts + Fruit</i><br>
+      ☀️ 午餐：燕麦或糙米 + 吞拿鱼/鹰嘴豆 + 大份西兰花或生菜，淋一勺橄榄油<br><i class="pden">Lunch: Oats or Brown rice + Tuna / Chickpeas + Broccoli or Lettuce + 1 tbsp Olive oil</i><br>
+      🌙 晚餐：红腰豆/鹰嘴豆 + 沙丁鱼/吞拿鱼 + 即食沙拉盒（蛋白管饱、碳水收尾少一点）<br><i class="pden">Dinner: Kidney beans / Chickpeas + Sardines / Tuna + Ready salad box</i><br>
+      🍎 加餐饿了：低脂优格 或 一小把坚果<br><i class="pden">Snack: Low-fat yogurt or a small handful of Nuts</i>
     </div>
   </section>
 
   <!-- 说明 -->
   <section class="card notes">
-    <div class="card-head"><span class="card-title">执行与调整要点</span></div>
+    <div class="card-head"><span class="card-title">执行与调整要点 <span class="hen">Tips</span></span></div>
     <div class="note"><span class="k">监控</span><span>按计算量坚持 7–10 天，期间拍对比照记录变化，避免被短期水分波动误判。</span></div>
     <div class="note"><span class="k">调碳水</span><span>掉太快或状态变差 → 适当加碳水；体重停滞 → 适当减碳水。蛋白质与脂肪通常保持恒定。</span></div>
     <div class="note"><span class="k">复算</span><span>每 10 天按最新体重重算各项目标，确保热量缺口持续有效。</span></div>
@@ -713,14 +721,14 @@
         const allMeals=[...new Set(items.flatMap(f=>f.meals))];
         const sub=g.sub?g.sub+' · 自由量':'自由量';
         rows += `<tr class="food">
-          <td><div class="fn">${names}</div><div class="fb">${sub}</div>${klChips(names)}</td>
+          <td><div class="fn">${names}</div>${enSpan(names)}<div class="fb">${sub}</div>${klChips(names)}</td>
           <td class="meal">${badges(allMeals)}</td>
           <td class="num free-cell" colspan="3">不计热量</td>
         </tr>`;
       } else {
         items.forEach(f=>{
           rows += `<tr class="food">
-            <td><div class="fn">${f.name}</div><div class="fb">${f.basis}${f.note?' · '+f.note:''}</div>${klChips(f.name)}</td>
+            <td><div class="fn">${f.name}</div>${enSpan(f.name)}<div class="fb">${f.basis}${f.note?' · '+f.note:''}</div>${klChips(f.name)}</td>
             <td class="meal">${badges(f.meals)}</td>
             <td class="num">${fmt(f.c)}</td>
             <td class="num">${fmt(f.p)}</td>
@@ -732,7 +740,7 @@
     $('#pantry').innerHTML =
       `<table class="pantry-table">
         <thead><tr>
-          <th>食材</th><th class="meal">餐次</th>
+          <th>食材 <span class="hen">Item</span></th><th class="meal">餐次</th>
           <th class="num th-c">碳水</th><th class="num th-p">蛋白</th><th class="num th-f">脂肪</th>
         </tr></thead>
         <tbody>${rows}</tbody>
@@ -784,6 +792,7 @@
     return {oats, eggs, rice, lmeat, beef, tuber, oil, nuts:20, seeds:15, veg:500, berry:75};
   }
 
+  const SUBEN={"按生米计": "uncooked weight", "午餐蛋白": "lunch protein", "红薯/紫薯/土豆/南瓜": "sweet potato / purple sweet potato / potato / pumpkin", "牛油果油/橄榄油": "avocado oil / olive oil", "绿叶 + 耐放搭配": "leafy greens + long-lasting veg", "冷冻装更划算": "frozen packs are cheaper"};
   const SHOP=[
     {name:'燕麦',         unit:'g',  store:'dry',     d:o=>o.oats},
     {name:'鸡蛋',         unit:'egg',store:'fridge',  d:o=>o.eggs},
@@ -811,14 +820,17 @@
 
 
   /* 与超市价格清单关联（kl-prices.html 同源 localStorage: kl_cart） */
-  const KL_RULES=[["^蔬菜$", [[28, "西兰花", 3.2, 0], [21, "Cameron Garden罗马生菜", 4.4, 1]], "蔬菜", "超市也有 →"], ["燕麦", [[184, "Captain烤香燕麦片", 7.7, 0], [181, "Pristine快熟燕麦", 9.5, 1]], "", ""], ["橄榄油", [[417, "特级初榨橄榄油", 22.99, 1], [414, "特级初榨橄榄油喷雾", 25.99, 1]], "", ""], ["牛油果油|山茶油|菜籽油|食用油", [[414, "特级初榨橄榄油喷雾", 25.99, 1], [417, "特级初榨橄榄油", 22.99, 1]], "", "清单里没有这款油，可用橄榄油/喷雾"], ["混合坚果|坚果", [[463, "混合坚果", 11.9, 1], [462, "杏仁", 11.9, 0]], "", ""], ["西兰花", [[28, "西兰花", 3.2, 0]], "", ""], ["生菜", [[21, "Cameron Garden罗马生菜", 4.4, 1], [20, "Cameron Garden小罗马生菜", 4.4, 1]], "", ""], ["牛肉", [[116, "澳洲牛肉片", 19.87, 1]], "", ""], ["龙利鱼|巴沙鱼|鸡胸|鸡腿|虾仁|鱼 / 鸡胸|鸡胸 / 鱼", [[111, "约翰威斯特黄鳍吞拿鱼", 6.5, 1], [117, "红鸡牌手撕鸡(黑胡椒味)", 7.7, 1]], "鲜鱼鸡肉", "没空买生鲜 → 罐头替代"], ["全蛋|鸡蛋", [], "鸡蛋", ""], ["米饭|大米", [[197, "全麦意面", 11.6, 1], [208, "北非小米(古斯米)", 8.9, 0]], "大米", "想换主食 → 全麦意面/古斯米"], ["南瓜子", [[462, "杏仁", 11.9, 0]], "", "清单里没有 → 杏仁替代"], ["红薯|紫薯|土豆|南瓜|薯类", [], "薯类", ""], ["蓝莓", [], "蓝莓", ""], ["彩椒|甜椒", [[1, "炭烤甜椒", 19.5, 1]], "彩椒", "懒人版 → 罐装炭烤甜椒"], ["白萝卜|菠菜|羽衣甘蓝|口蘑|蔬菜", [], "蔬菜", ""]];
+  const EN={"燕麦": "Oats", "米饭": "Rice (uncooked weight)", "大米": "Rice · Beras", "红薯": "Sweet potato · Ubi keledek", "紫薯": "Purple sweet potato · Ubi ungu", "土豆": "Potato · Kentang", "贝贝南瓜": "Kabocha / Japanese pumpkin · Labu", "全蛋": "Whole eggs · Telur", "鸡蛋": "Eggs · Telur", "龙利鱼": "Sole / Dory fillet · Ikan dori", "巴沙鱼": "Basa / Dory fillet · Ikan dori", "去皮鸡腿肉": "Skinless chicken thigh · Peha ayam", "鸡胸肉": "Chicken breast · Dada ayam", "虾仁": "Peeled prawns · Udang", "牛肉": "Lean beef · Daging lembu", "牛油果油": "Avocado oil", "山茶油": "Camellia oil", "低芥酸菜籽油": "Canola oil", "橄榄油": "Olive oil", "南瓜子": "Pumpkin seeds", "混合坚果": "Mixed nuts", "西兰花": "Broccoli", "羽衣甘蓝": "Kale", "生菜": "Lettuce / Romaine · Salad", "菠菜": "Spinach · Bayam", "口蘑": "Button mushrooms · Cendawan", "白萝卜": "White radish · Lobak putih", "彩椒": "Bell pepper / Capsicum", "蓝莓": "Blueberries (frozen)", "鱼 / 鸡胸": "Fish / Chicken breast", "鸡胸 / 鱼": "Chicken breast / Fish", "薯类": "Sweet potato / Potato / Pumpkin", "食用油": "Cooking oil · Minyak", "坚果 + 南瓜子": "Nuts + Pumpkin seeds", "坚果 + 籽": "Nuts + Seeds", "蔬菜": "Vegetables · Sayur", "水果": "Fruit · Buah", "草莓": "Strawberry", "树莓": "Raspberry", "黑莓": "Blackberry", "番石榴": "Guava · Jambu batu", "火龙果": "Dragon fruit · Buah naga", "奇异果": "Kiwi", "柚子 / 西柚": "Pomelo / Grapefruit · Limau bali", "莲雾": "Rose apple · Jambu air", "木瓜": "Papaya · Betik", "苹果": "Apple · Epal", "梨": "Pear", "橙子": "Orange · Oren", "桃 / 李": "Peach / Plum", "樱桃": "Cherry", "菠萝": "Pineapple · Nanas", "甜瓜": "Melon", "西瓜": "Watermelon · Tembikai", "香蕉": "Banana · Pisang", "芒果": "Mango", "葡萄": "Grapes", "荔枝": "Lychee", "龙眼": "Longan", "榴莲": "Durian", "果干": "Dried fruit", "果汁": "Fruit juice"};
+  function en(n){if(EN[n])return EN[n];if(/、/.test(n))return n.split('、').map(x=>(EN[x]||x).split(' · ')[0]).join(', ');return '';}
+  function enSpan(n){const e=en(n);return e?`<span class="en">${e}</span>`:'';}
+  const KL_RULES=[["^蔬菜$", [[28, "西兰花", 3.2, 0, "BROCCOLI (CHN) P24"], [21, "Cameron Garden罗马生菜", 4.4, 1, "Cameron Garden Romaine Lettuce"]], "蔬菜", "超市也有 →"], ["燕麦", [[184, "Captain烤香燕麦片", 7.7, 0, "Captain Oats Toasted Rolled Oats"], [181, "Pristine快熟燕麦", 9.5, 1, "Pristine Quick Oats"]], "", ""], ["橄榄油", [[417, "特级初榨橄榄油", 22.99, 1, "Colavita Extra Virgin Olive Oil"], [414, "特级初榨橄榄油喷雾", 25.99, 1, "Naturel Extra Virgin Olive Oil Spray 200ml"]], "", ""], ["牛油果油|山茶油|菜籽油|食用油", [[414, "特级初榨橄榄油喷雾", 25.99, 1, "Naturel Extra Virgin Olive Oil Spray 200ml"], [417, "特级初榨橄榄油", 22.99, 1, "Colavita Extra Virgin Olive Oil"]], "", "清单里没有这款油，可用橄榄油/喷雾"], ["混合坚果|坚果", [[463, "混合坚果", 11.9, 1, "Healthy Mixed Nuts"], [462, "杏仁", 11.9, 0, "Healthy Almond"]], "", ""], ["西兰花", [[28, "西兰花", 3.2, 0, "BROCCOLI (CHN) P24"]], "", ""], ["生菜", [[21, "Cameron Garden罗马生菜", 4.4, 1, "Cameron Garden Romaine Lettuce"], [20, "Cameron Garden小罗马生菜", 4.4, 1, "Cameron Garden Baby Romaine Lettuce"]], "", ""], ["牛肉", [[116, "澳洲牛肉片", 19.87, 1, "AUSSIE BEEF"]], "", ""], ["龙利鱼|巴沙鱼|鸡胸|鸡腿|虾仁|鱼 / 鸡胸|鸡胸 / 鱼", [[111, "约翰威斯特黄鳍吞拿鱼", 6.5, 1, "John West Yellowfin Tuna"], [117, "红鸡牌手撕鸡(黑胡椒味)", 7.7, 1, "Ayam Brand Pulled Chicken Black Pepper"]], "鲜鱼鸡肉", "没空买生鲜 → 罐头替代"], ["全蛋|鸡蛋", [], "鸡蛋", ""], ["米饭|大米", [[197, "全麦意面", 11.6, 1, "Barilla Integrale Whole Wheat Spaghetti"], [208, "北非小米(古斯米)", 8.9, 0, "PastaZara CousCous"]], "大米", "想换主食 → 全麦意面/古斯米"], ["南瓜子", [[462, "杏仁", 11.9, 0, "Healthy Almond"]], "", "清单里没有 → 杏仁替代"], ["红薯|紫薯|土豆|南瓜|薯类", [], "薯类", ""], ["蓝莓", [], "蓝莓", ""], ["彩椒|甜椒", [[1, "炭烤甜椒", 19.5, 1, "Sandhurst Char Grilled Capsicum"]], "彩椒", "懒人版 → 罐装炭烤甜椒"], ["白萝卜|菠菜|羽衣甘蓝|口蘑|蔬菜", [], "蔬菜", ""]];
   function klChips(name){
     let h='';
     KL_RULES.forEach(r=>{
       if(h||!new RegExp(r[0]).test(name))return;
-      if(r[2])h+=`<a class="kchip fresh" href="kl-prices.html#m=shop">🥩 ${r[2]}：生鲜去「附近哪里买」</a>`;
+      if(r[2])h+=`<a class="kchip fresh" href="kl-prices.html#m=shop">🥩 ${r[2]}${en(r[2])?' '+en(r[2]).split(' · ')[0]:''}：生鲜去「附近哪里买」 Fresh market</a>`;
       if(r[3]&&r[1].length)h+=`<span class="ksub">${r[3]}</span>`;
-      h+=r[1].map(x=>`<a class="kchip" href="kl-prices.html#i=${x[0]}">${x[3]?`<img src="shop-thumbs/${x[0]}.jpg" alt="">`:'🛒'}${x[1]} <b>RM ${x[2].toFixed(2)}</b></a>`).join('');
+      h+=r[1].map(x=>`<a class="kchip" href="kl-prices.html#i=${x[0]}">${x[3]?`<img src="shop-thumbs/${x[0]}.jpg" alt="">`:'🛒'}${x[1]} <i>${x[4]}</i> <b>RM ${x[2].toFixed(2)}</b></a>`).join('');
     });
     if(/、/.test(name)){h='';const seen={};name.split('、').forEach(n=>{const c=klChips(n).replace(/^<div class="kchips">|<\/div>$/g,'');c.split(/(?=<a |<span class="ksub)/).forEach(x=>{if(x&&!seen[x]){seen[x]=1;h+=x;}});});}
     return h?'<div class="kchips">'+h+'</div>':'';
@@ -829,7 +841,7 @@
     SHOP.forEach(s=>{
       const per=s.d(o), st=STORE[s.store];
       body+=`<tr class="food">
-        <td><div class="fn">${s.name}</div>${s.sub?`<div class="fb">${s.sub}</div>`:''}${klChips(s.name)}</td>
+        <td><div class="fn">${s.name}</div>${enSpan(s.name)}${s.sub?`<div class="fb">${s.sub}${SUBEN[s.sub]?' · <i>'+SUBEN[s.sub]+'</i>':''}</div>`:''}${klChips(s.name)}</td>
         <td class="num">${fmtQty(per*ppl,s.unit)}</td>
         <td class="num">${fmtQty(per*ppl*3,s.unit)}</td>
         <td class="num">${fmtQty(per*ppl*7,s.unit)}</td>
@@ -850,11 +862,12 @@
 
   // ===== 在泰国买（本地化采购 + 平替）=====
   const TH_STORES=[
-    {sn:'湿巴刹 Pasar Basah',           tag:'生鲜最便宜',   sfor:'蔬菜 · 鲜鱼 · 鸡肉 · 水果（每 2–3 天）'},
-    {sn:'NSK / Econsave',               tag:'批发囤货最省', sfor:'大米 · 油 · 冷冻鸡胸/鱼 · 整盘鸡蛋 · 坚果'},
-    {sn:'Lotus’s / AEON / Giant',       tag:'一站式中档',   sfor:'日常杂货 · 调味料 · 燕麦'},
-    {sn:'Jaya Grocer / Village Grocer', tag:'进口货才来',   sfor:'橄榄油 · 蓝莓 · 进口绿叶（能平替就别买）'},
+    {sn:'湿巴刹 Pasar Basah',           tag:'生鲜最便宜',   sfor:'蔬菜 · 鲜鱼 · 鸡肉 · 水果（每 2–3 天）', sen:'Wet market: veg, fresh fish, chicken, fruit (every 2–3 days)'},
+    {sn:'NSK / Econsave',               tag:'批发囤货最省', sfor:'大米 · 油 · 冷冻鸡胸/鱼 · 整盘鸡蛋 · 坚果', sen:'Rice, oil, frozen chicken breast / fish, egg trays, nuts'},
+    {sn:'Lotus’s / AEON / Giant',       tag:'一站式中档',   sfor:'日常杂货 · 调味料 · 燕麦', sen:'Groceries, seasoning, oats'},
+    {sn:'Jaya Grocer / Village Grocer', tag:'进口货才来',   sfor:'橄榄油 · 蓝莓 · 进口绿叶（能平替就别买）', sen:'Olive oil, blueberries, imported greens'},
   ];
+  const THEN={"燕麦": "Brown rice porridge / Wholemeal bread", "鸡蛋": "Buy a full tray (30 eggs) — cheapest", "大米": "Brown rice (more fibre)", "鸡胸 / 鱼": "Tilapia, Patin fish, Prawns", "牛肉": "Lean chicken thigh, Tempeh (cheap protein)", "薯类": "Sweet potato, Pumpkin", "食用油": "Rice bran / Canola oil for cooking; olive oil only for drizzling", "坚果 + 籽": "Peanuts, Sunflower seeds, Cashews", "蔬菜": "Kai lan, Choy sum (sawi), Kangkung instead of broccoli / kale", "蓝莓": "Frozen blueberries; or Guava (jambu), Papaya (betik), Dragon fruit"};
   const TH_ITEMS=[
     {cn:'燕麦',      th:'Oat',              buy:'Lotus’s',     q:o=>o.oats,        u:'g',  sub:'糙米粥 / 全麦吐司'},
     {cn:'鸡蛋',      th:'Telur',            buy:'湿巴刹',   q:o=>o.eggs,        u:'egg',sub:'极易买，整盘（sepapan · 30 粒）最便宜'},
@@ -873,15 +886,15 @@
     document.getElementById('thNote').innerHTML=
       `按 <b>${ppl} 位男性</b>、各 <b>${state.weight} kg</b> · ${COEF[state.act].label} 估算，吉隆坡本地化采购；马来 / 英文名可直接给摊主或收银看。`;
     document.getElementById('thStores').innerHTML = TH_STORES.map(s=>
-      `<div class="store-card"><div class="sn">${s.sn}</div><span class="stag">${s.tag}</span><div class="sfor">${s.sfor}</div></div>`
+      `<div class="store-card"><div class="sn">${s.sn}</div><span class="stag">${s.tag}</span><div class="sfor">${s.sfor}<span class="en">${s.sen||''}</span></div></div>`
     ).join('');
     document.getElementById('thBody').innerHTML = TH_ITEMS.map(it=>
       `<tr class="food">
-        <td><div class="fn">${it.cn}</div><div class="fb">${it.th} · ${it.buy}</div>${klChips(it.cn)}</td>
+        <td><div class="fn">${it.cn}</div>${enSpan(it.cn)}<div class="fb">${it.th} · ${it.buy}</div>${klChips(it.cn)}</td>
         <td class="q">${fmtQty(it.q(o)*ppl,it.u)}</td>
         <td class="q">${fmtQty(it.q(o)*ppl*3,it.u)}</td>
         <td class="q">${fmtQty(it.q(o)*ppl*7,it.u)}</td>
-        <td class="alt">${it.sub}</td>
+        <td class="alt">${it.sub}${THEN[it.cn]?`<span class="en">${THEN[it.cn]}</span>`:''}</td>
       </tr>`
     ).join('');
     const loW=Math.round(ppl*55/5)*5, hiW=Math.round(ppl*95/5)*5;
@@ -1007,7 +1020,7 @@
     const rows = m.items.map(it=>{
       const paren = it.free ? '' : macroParen(it.c||0, it.p||0, it.f||0);
       return `<div class="row">
-        <div class="fname">${it.n}${it.tag?`<span class="tag">${it.tag}</span>`:''}</div>
+        <div class="fname">${it.n}${it.tag?`<span class="tag">${it.tag}</span>`:''}${enSpan(it.n)}</div>
         <div class="amt"><span class="w tnum">${it.a}</span>${paren}</div>${klChips(it.n)}
       </div>`;
     }).join('');
