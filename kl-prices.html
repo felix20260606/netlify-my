@@ -559,6 +559,15 @@ $id('offBtn').onclick=function(){
     return Promise.all([next(),next(),next(),next(),next(),next()]);
   }).then(function(){b.disabled=false;b.innerHTML=fail?'&#9888;&#65039; 完成，'+fail+' 个失败，可再点一次':'&#9989; 离线包已存好（没网也能看）';try{localStorage.setItem('kl_off','1');}catch(e){}});
 };
+function deepLink(){
+  var h=decodeURIComponent(location.hash||'');
+  var m=/#i=(\d+)/.exec(h);
+  if(m&&DATA[+m[1]]){var i=+m[1];var b=document.querySelector('#modes button[data-m="shop"]');if(mode!=='shop'&&b)b.click();
+    setTimeout(function(){var el=document.querySelector('.th[data-i="'+i+'"]');if(el)el.closest('.item').scrollIntoView({block:'center'});openCard(i);},60);}
+  else if(/#cart/.test(h))openCart();
+  else if(/#m=(\w+)/.test(h)){var mm=/#m=(\w+)/.exec(h)[1],bb=document.querySelector('#modes button[data-m="'+mm+'"]');if(bb)bb.click();}
+}
+window.addEventListener('hashchange',deepLink);deepLink();
 try{if(localStorage.getItem('kl_off'))$id('offBtn').innerHTML='&#9989; 已离线保存 · 点这里更新';}catch(e){}
 </script><div id="lb"><img id="lbImg" alt="货架实拍大图"><div class="lbbar"><button id="lbPrev" type="button">&#8592; 上一张</button><b id="lbNum">P1</b><button id="lbNext" type="button">下一张 &#8594;</button><button id="lbClose" type="button">&#10005; 关闭</button></div></div>
 <script>

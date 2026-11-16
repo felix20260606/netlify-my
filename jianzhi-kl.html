@@ -329,6 +329,28 @@
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important}
   }
+
+  .prow.linked{align-items:center}
+  .prow .pimg{flex:none;width:46px;height:46px;border-radius:10px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;text-decoration:none}
+  .prow .pimg img{max-width:100%;max-height:100%;object-fit:contain}
+  .prow .noimg{color:#C5CDD3;font-size:18px}
+  .prow.linked .pn{flex:1}
+  .pshelf{display:inline-block;font-style:normal;font-size:10px;font-weight:800;color:var(--primary-deep);background:var(--primary-bg,#E3F0EA);border-radius:999px;padding:0 7px;margin-top:3px}
+  .pside{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+  .pact{display:flex;gap:5px}
+  .padd,.pgo{font-family:inherit;font-size:11px;font-weight:800;border-radius:999px;padding:3px 9px;cursor:pointer;text-decoration:none;white-space:nowrap}
+  .padd{border:1.5px solid var(--primary);background:#fff;color:var(--primary)}
+  .padd.in{background:var(--primary);color:#fff}
+  .pgo{border:1px solid var(--line);background:var(--surface-2);color:var(--ink)}
+  .pbar{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}
+  .pbar button,.pbar a{flex:1;min-width:150px;text-align:center;font-family:inherit;font-size:12.5px;font-weight:800;border-radius:11px;padding:9px;cursor:pointer;text-decoration:none}
+  .pbar button{border:1.5px solid var(--primary);background:var(--primary);color:#fff}
+  .pbar a{border:1.5px solid var(--primary);background:#fff;color:var(--primary-deep)}
+  .kchips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+  .kchip{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--ink);text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:1px 8px 1px 2px;white-space:nowrap}
+  .kchip img{width:18px;height:18px;object-fit:contain;border-radius:50%;background:#F1F4F3}
+  .kchip b{color:var(--primary-deep)}
+  .kchip.fresh{padding-left:8px;color:#8E2F26;border-color:#F1D6D2}
 </style>
 </head>
 <body>
@@ -533,40 +555,41 @@
     <span class="card-note">786 种实拍</span>
   </div>
   <section class="card">
+    <div class="pbar"><button type="button" id="addAllKl">＋ 上面全部加入购物清单</button><a href="kl-prices.html#cart" id="openCartKl">🛒 打开购物清单</a></div>
     <p class="plan-lead">从你常去超市 <b>实拍的 786 种商品</b>里挑出的减脂优选（价格 RM，×约 1.6 ≈ ¥）。<a href="kl-prices.html" target="_blank" rel="noopener">→ 看全部商品价格清单</a></p>
 
     <div class="plan-grp">
       <div class="plan-h"><span class="dot" style="background:var(--protein)"></span>优质蛋白 · 每餐必有</div>
-      <div class="prow"><span class="pn">低脂茄汁豆 <i>Ayam Brand Baked Beans Low Fat 320g</i><span class="pn-nutr"><b class="np">蛋 5</b><b class="nc">碳 20</b><b class="nf">脂 0.5</b><small>/100g</small></span></span><span class="pp">RM 3.35</span></div>
-      <div class="prow"><span class="pn">沙丁鱼罐头 <i>King Cup Sardin</i><span class="pn-nutr"><b class="np">蛋 20</b><b class="nc">碳 0</b><b class="nf">脂 11</b><small>/100g</small></span></span><span class="pp">RM 4.40</span></div>
-      <div class="prow"><span class="pn">鹰嘴豆罐头 <i>La Diva Garbanzo Beans</i><span class="pn-nutr"><b class="np">蛋 9</b><b class="nc">碳 22</b><b class="nf">脂 3</b><small>/100g</small></span></span><span class="pp">RM 4.50</span></div>
-      <div class="prow"><span class="pn">红腰豆罐头 <i>La Diva Red Kidney Beans</i><span class="pn-nutr"><b class="np">蛋 8</b><b class="nc">碳 20</b><b class="nf">脂 0.5</b><small>/100g</small></span></span><span class="pp">RM 4.60</span></div>
-      <div class="prow"><span class="pn">黄鳍吞拿鱼 <i>John West Yellowfin Tuna</i><span class="pn-nutr"><b class="np">蛋 26</b><b class="nc">碳 0</b><b class="nf">脂 1</b><small>/100g</small></span></span><span class="pp">RM 6.50</span></div>
-      <div class="prow"><span class="pn">吞拿鱼(橄榄油浸) <i>Ayam Brand Tuna in Olive Oil</i><span class="pn-nutr"><b class="np">蛋 24</b><b class="nc">碳 0</b><b class="nf">脂 8</b><small>/100g</small></span></span><span class="pp">RM 7.70</span></div>
-      <div class="prow"><span class="pn">低脂优格 <i>Fernleaf Low Fat Yogurt</i><span class="pn-nutr"><b class="np">蛋 5</b><b class="nc">碳 7</b><b class="nf">脂 1.5</b><small>/100g</small></span></span><span class="pp">RM 1.75</span></div>
-      <div class="prow"><span class="pn">希腊式优格 <i>Lactel Greek Yogurt 130g</i><span class="pn-nutr"><b class="np">蛋 9</b><b class="nc">碳 4</b><b class="nf">脂 4</b><small>/100g</small></span></span><span class="pp">RM 5.05</span></div>
+      <div class="prow linked" data-i="80"><a class="pimg" href="kl-prices.html#i=80"><img src="shop-thumbs/80.jpg" alt="" loading="lazy"></a><span class="pn">低脂茄汁豆 <i>Ayam Brand Baked Beans Low Fat</i><span class="pn-nutr"><b class="np">蛋 5</b><b class="nc">碳 20</b><b class="nf">脂 0.5</b><small>/100g</small></span><em class="pshelf">货架 P28</em></span><span class="pside"><span class="pp">RM 3.35</span><span class="pact"><button class="padd" type="button" data-i="80">＋ 清单</button><a class="pgo" href="kl-prices.html#i=80">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="114"><a class="pimg" href="kl-prices.html#i=114"><img src="shop-thumbs/114.jpg" alt="" loading="lazy"></a><span class="pn">沙丁鱼罐头 <i>King Cup Sardin</i><span class="pn-nutr"><b class="np">蛋 20</b><b class="nc">碳 0</b><b class="nf">脂 11</b><small>/100g</small></span><em class="pshelf">货架 P12</em></span><span class="pside"><span class="pp">RM 4.40</span><span class="pact"><button class="padd" type="button" data-i="114">＋ 清单</button><a class="pgo" href="kl-prices.html#i=114">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="76"><a class="pimg" href="kl-prices.html#i=76"><img src="shop-thumbs/76.jpg" alt="" loading="lazy"></a><span class="pn">鹰嘴豆罐头 <i>La Diva Garbanzo Beans</i><span class="pn-nutr"><b class="np">蛋 9</b><b class="nc">碳 22</b><b class="nf">脂 3</b><small>/100g</small></span><em class="pshelf">货架 P28</em></span><span class="pside"><span class="pp">RM 4.50</span><span class="pact"><button class="padd" type="button" data-i="76">＋ 清单</button><a class="pgo" href="kl-prices.html#i=76">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="74"><a class="pimg" href="kl-prices.html#i=74"><img src="shop-thumbs/74.jpg" alt="" loading="lazy"></a><span class="pn">红腰豆罐头 <i>La Diva Red Kidney Beans</i><span class="pn-nutr"><b class="np">蛋 8</b><b class="nc">碳 20</b><b class="nf">脂 0.5</b><small>/100g</small></span><em class="pshelf">货架 P28</em></span><span class="pside"><span class="pp">RM 4.60</span><span class="pact"><button class="padd" type="button" data-i="74">＋ 清单</button><a class="pgo" href="kl-prices.html#i=74">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="111"><a class="pimg" href="kl-prices.html#i=111"><img src="shop-thumbs/111.jpg" alt="" loading="lazy"></a><span class="pn">黄鳍吞拿鱼 <i>John West Yellowfin Tuna</i><span class="pn-nutr"><b class="np">蛋 26</b><b class="nc">碳 0</b><b class="nf">脂 1</b><small>/100g</small></span><em class="pshelf">货架 P12</em></span><span class="pside"><span class="pp">RM 6.50</span><span class="pact"><button class="padd" type="button" data-i="111">＋ 清单</button><a class="pgo" href="kl-prices.html#i=111">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="103"><a class="pimg" href="kl-prices.html#i=103"><img src="shop-thumbs/103.jpg" alt="" loading="lazy"></a><span class="pn">吞拿鱼(橄榄油浸) <i>Ayam Brand Tuna Chunks in Olive Oil</i><span class="pn-nutr"><b class="np">蛋 24</b><b class="nc">碳 0</b><b class="nf">脂 8</b><small>/100g</small></span><em class="pshelf">货架 P12</em></span><span class="pside"><span class="pp">RM 7.70</span><span class="pact"><button class="padd" type="button" data-i="103">＋ 清单</button><a class="pgo" href="kl-prices.html#i=103">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="405"><a class="pimg" href="kl-prices.html#i=405"><span class="noimg">🛒</span></a><span class="pn">低脂优格 <i>FERNLEAF LOW FAT YOGURT</i><span class="pn-nutr"><b class="np">蛋 5</b><b class="nc">碳 7</b><b class="nf">脂 1.5</b><small>/100g</small></span></span><span class="pside"><span class="pp">RM 1.75</span><span class="pact"><button class="padd" type="button" data-i="405">＋ 清单</button><a class="pgo" href="kl-prices.html#i=405">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="400"><a class="pimg" href="kl-prices.html#i=400"><img src="shop-thumbs/400.jpg" alt="" loading="lazy"></a><span class="pn">希腊式优格 <i>LACTEL GREEK YOGURT NATURAL 130G</i><span class="pn-nutr"><b class="np">蛋 9</b><b class="nc">碳 4</b><b class="nf">脂 4</b><small>/100g</small></span><em class="pshelf">货架 P60</em></span><span class="pside"><span class="pp">RM 5.05</span><span class="pact"><button class="padd" type="button" data-i="400">＋ 清单</button><a class="pgo" href="kl-prices.html#i=400">查看 ›</a></span></span></div>
     </div>
 
     <div class="plan-grp">
       <div class="plan-h"><span class="dot" style="background:var(--carb)"></span>优质碳水 · 主食换成它</div>
-      <div class="prow"><span class="pn">原片燕麦 <i>Captain Rolled Oats</i><span class="pn-nutr"><b class="np">蛋 13</b><b class="nc">碳 60</b><b class="nf">脂 7</b><small>/100g 干</small></span></span><span class="pp">RM 7.70</span></div>
-      <div class="prow"><span class="pn">快熟燕麦 <i>Pristine Quick Oats 750g</i><span class="pn-nutr"><b class="np">蛋 13</b><b class="nc">碳 60</b><b class="nf">脂 7</b><small>/100g 干</small></span></span><span class="pp">RM 9.50</span></div>
-      <div class="prow"><span class="pn">燕麦麸(更高纤) <i>Pristine Oat Bran</i><span class="pn-nutr"><b class="np">蛋 17</b><b class="nc">碳 50</b><b class="nf">脂 7</b><small>/100g 干</small></span></span><span class="pp">RM 9.50</span></div>
-      <div class="prow"><span class="pn">桂格即溶燕麦 <i>Quaker Instant Oatmeal 800g</i><span class="pn-nutr"><b class="np">蛋 13</b><b class="nc">碳 60</b><b class="nf">脂 7</b><small>/100g 干</small></span></span><span class="pp">RM 10.80</span></div>
+      <div class="prow linked" data-i="184"><a class="pimg" href="kl-prices.html#i=184"><span class="noimg">🛒</span></a><span class="pn">原片燕麦 <i>Captain Oats Toasted Rolled Oats</i><span class="pn-nutr"><b class="np">蛋 13</b><b class="nc">碳 60</b><b class="nf">脂 7</b><small>/100g 干</small></span></span><span class="pside"><span class="pp">RM 7.70</span><span class="pact"><button class="padd" type="button" data-i="184">＋ 清单</button><a class="pgo" href="kl-prices.html#i=184">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="181"><a class="pimg" href="kl-prices.html#i=181"><img src="shop-thumbs/181.jpg" alt="" loading="lazy"></a><span class="pn">快熟燕麦 <i>Pristine Quick Oats</i><span class="pn-nutr"><b class="np">蛋 13</b><b class="nc">碳 60</b><b class="nf">脂 7</b><small>/100g 干</small></span><em class="pshelf">货架 P73</em></span><span class="pside"><span class="pp">RM 9.50</span><span class="pact"><button class="padd" type="button" data-i="181">＋ 清单</button><a class="pgo" href="kl-prices.html#i=181">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="182"><a class="pimg" href="kl-prices.html#i=182"><img src="shop-thumbs/182.jpg" alt="" loading="lazy"></a><span class="pn">燕麦麸(更高纤) <i>Pristine Oat Bran</i><span class="pn-nutr"><b class="np">蛋 17</b><b class="nc">碳 50</b><b class="nf">脂 7</b><small>/100g 干</small></span><em class="pshelf">货架 P73</em></span><span class="pside"><span class="pp">RM 9.50</span><span class="pact"><button class="padd" type="button" data-i="182">＋ 清单</button><a class="pgo" href="kl-prices.html#i=182">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="175"><a class="pimg" href="kl-prices.html#i=175"><img src="shop-thumbs/175.jpg" alt="" loading="lazy"></a><span class="pn">桂格即溶燕麦 <i>Quaker Instant Oatmeal</i><span class="pn-nutr"><b class="np">蛋 13</b><b class="nc">碳 60</b><b class="nf">脂 7</b><small>/100g 干</small></span><em class="pshelf">货架 P72</em></span><span class="pside"><span class="pp">RM 10.80</span><span class="pact"><button class="padd" type="button" data-i="175">＋ 清单</button><a class="pgo" href="kl-prices.html#i=175">查看 ›</a></span></span></div>
     </div>
 
     <div class="plan-grp">
       <div class="plan-h"><span class="dot" style="background:var(--primary)"></span>蔬菜低卡 · 管饱不长肉</div>
-      <div class="prow"><span class="pn">西兰花 <i>Broccoli</i><span class="pn-nutr"><b class="np">蛋 3</b><b class="nc">碳 7</b><b class="nf">脂 0.4</b><small>/100g</small></span></span><span class="pp">RM 3.20</span></div>
-      <div class="prow"><span class="pn">罗马生菜 <i>Cameron Garden Romaine</i><span class="pn-nutr"><b class="np">蛋 1</b><b class="nc">碳 3</b><b class="nf">脂 0.2</b><small>/100g</small></span></span><span class="pp">RM 4.40</span></div>
-      <div class="prow"><span class="pn">即食希腊沙拉盒 <i>Greek Salad 200g</i><span class="pn-nutr"><b class="np">蛋 9</b><b class="nc">碳 4</b><b class="nf">脂 4</b><small>/100g</small></span></span><span class="pp">RM 9.20</span></div>
+      <div class="prow linked" data-i="28"><a class="pimg" href="kl-prices.html#i=28"><span class="noimg">🛒</span></a><span class="pn">西兰花 <i>BROCCOLI (CHN) P24</i><span class="pn-nutr"><b class="np">蛋 3</b><b class="nc">碳 7</b><b class="nf">脂 0.4</b><small>/100g</small></span></span><span class="pside"><span class="pp">RM 3.20</span><span class="pact"><button class="padd" type="button" data-i="28">＋ 清单</button><a class="pgo" href="kl-prices.html#i=28">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="21"><a class="pimg" href="kl-prices.html#i=21"><img src="shop-thumbs/21.jpg" alt="" loading="lazy"></a><span class="pn">罗马生菜 <i>Cameron Garden Romaine Lettuce</i><span class="pn-nutr"><b class="np">蛋 1</b><b class="nc">碳 3</b><b class="nf">脂 0.2</b><small>/100g</small></span><em class="pshelf">货架 P77</em></span><span class="pside"><span class="pp">RM 4.40</span><span class="pact"><button class="padd" type="button" data-i="21">＋ 清单</button><a class="pgo" href="kl-prices.html#i=21">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="16"><a class="pimg" href="kl-prices.html#i=16"><img src="shop-thumbs/16.jpg" alt="" loading="lazy"></a><span class="pn">即食希腊沙拉盒 <i>Greek Salad</i><span class="pn-nutr"><b class="np">蛋 9</b><b class="nc">碳 4</b><b class="nf">脂 4</b><small>/100g</small></span><em class="pshelf">货架 P3</em></span><span class="pside"><span class="pp">RM 9.20</span><span class="pact"><button class="padd" type="button" data-i="16">＋ 清单</button><a class="pgo" href="kl-prices.html#i=16">查看 ›</a></span></span></div>
     </div>
 
     <div class="plan-grp">
       <div class="plan-h"><span class="dot" style="background:var(--fat)"></span>好油 &amp; 坚果 · 加分但控量</div>
-      <div class="prow"><span class="pn">特级初榨橄榄油(淋菜用) <i>Colavita EVOO 250ml</i><span class="pn-nutr"><b class="np">蛋 0</b><b class="nc">碳 0</b><b class="nf">脂 100</b><small>/100g</small></span></span><span class="pp">RM 22.99</span></div>
-      <div class="prow"><span class="pn">混合坚果(每天一小把) <i>Healthy Mixed Nuts 100g</i><span class="pn-nutr"><b class="np">蛋 17</b><b class="nc">碳 20</b><b class="nf">脂 54</b><small>/100g</small></span></span><span class="pp">RM 11.90</span></div>
-      <div class="prow"><span class="pn">杏仁 <i>Healthy Almond 100g</i><span class="pn-nutr"><b class="np">蛋 21</b><b class="nc">碳 22</b><b class="nf">脂 49</b><small>/100g</small></span></span><span class="pp">RM 11.90</span></div>
+      <div class="prow linked" data-i="417"><a class="pimg" href="kl-prices.html#i=417"><img src="shop-thumbs/417.jpg" alt="" loading="lazy"></a><span class="pn">特级初榨橄榄油(淋菜用) <i>Colavita Extra Virgin Olive Oil</i><span class="pn-nutr"><b class="np">蛋 0</b><b class="nc">碳 0</b><b class="nf">脂 100</b><small>/100g</small></span><em class="pshelf">货架 P26</em></span><span class="pside"><span class="pp">RM 22.99</span><span class="pact"><button class="padd" type="button" data-i="417">＋ 清单</button><a class="pgo" href="kl-prices.html#i=417">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="463"><a class="pimg" href="kl-prices.html#i=463"><img src="shop-thumbs/463.jpg" alt="" loading="lazy"></a><span class="pn">混合坚果(每天一小把) <i>Healthy Mixed Nuts</i><span class="pn-nutr"><b class="np">蛋 17</b><b class="nc">碳 20</b><b class="nf">脂 54</b><small>/100g</small></span><em class="pshelf">货架 P44</em></span><span class="pside"><span class="pp">RM 11.90</span><span class="pact"><button class="padd" type="button" data-i="463">＋ 清单</button><a class="pgo" href="kl-prices.html#i=463">查看 ›</a></span></span></div>
+      <div class="prow linked" data-i="462"><a class="pimg" href="kl-prices.html#i=462"><span class="noimg">🛒</span></a><span class="pn">杏仁 <i>Healthy Almond</i><span class="pn-nutr"><b class="np">蛋 21</b><b class="nc">碳 22</b><b class="nf">脂 49</b><small>/100g</small></span></span><span class="pside"><span class="pp">RM 11.90</span><span class="pact"><button class="padd" type="button" data-i="462">＋ 清单</button><a class="pgo" href="kl-prices.html#i=462">查看 ›</a></span></span></div>
     </div>
 
     <div class="plan-day">
@@ -778,13 +801,22 @@
     return Math.round(n/10)*10+' g';
   }
 
+
+  /* 与超市价格清单关联（kl-prices.html 同源 localStorage: kl_cart） */
+  const KL_LINK={"燕麦": [[184, "Captain烤香燕麦片", 7.7, 0], [181, "Pristine快熟燕麦", 9.5, 1]], "食用油": [[414, "特级初榨橄榄油喷雾", 25.99, 1], [417, "特级初榨橄榄油", 22.99, 1]], "坚果 + 南瓜子": [[463, "混合坚果", 11.9, 1], [462, "杏仁", 11.9, 0]], "坚果 + 籽": [[463, "混合坚果", 11.9, 1], [462, "杏仁", 11.9, 0]], "蔬菜": [[28, "西兰花", 3.2, 0], [21, "Cameron Garden罗马生菜", 4.4, 1]]};
+  const KL_FRESH=["鸡蛋", "大米", "鱼 / 鸡胸", "鸡胸 / 鱼", "牛肉", "薯类", "蓝莓"];
+  function klChips(name){
+    if(KL_LINK[name])return '<div class="kchips">'+KL_LINK[name].map(x=>`<a class="kchip" href="kl-prices.html#i=${x[0]}">${x[3]?`<img src="shop-thumbs/${x[0]}.jpg" alt="">`:'🛒'}${x[1]} <b>RM ${x[2].toFixed(2)}</b></a>`).join('')+'</div>';
+    if(KL_FRESH.indexOf(name)>=0)return '<div class="kchips"><a class="kchip fresh" href="kl-prices.html#m=shop">🥩 生鲜：看清单里「附近哪里买」</a></div>';
+    return '';
+  }
   function renderShopping(){
     const o=dailyPerMan(), ppl=state.people;
     let body='';
     SHOP.forEach(s=>{
       const per=s.d(o), st=STORE[s.store];
       body+=`<tr class="food">
-        <td><div class="fn">${s.name}</div>${s.sub?`<div class="fb">${s.sub}</div>`:''}</td>
+        <td><div class="fn">${s.name}</div>${s.sub?`<div class="fb">${s.sub}</div>`:''}${klChips(s.name)}</td>
         <td class="num">${fmtQty(per*ppl,s.unit)}</td>
         <td class="num">${fmtQty(per*ppl*3,s.unit)}</td>
         <td class="num">${fmtQty(per*ppl*7,s.unit)}</td>
@@ -832,7 +864,7 @@
     ).join('');
     document.getElementById('thBody').innerHTML = TH_ITEMS.map(it=>
       `<tr class="food">
-        <td><div class="fn">${it.cn}</div><div class="fb">${it.th} · ${it.buy}</div></td>
+        <td><div class="fn">${it.cn}</div><div class="fb">${it.th} · ${it.buy}</div>${klChips(it.cn)}</td>
         <td class="q">${fmtQty(it.q(o)*ppl,it.u)}</td>
         <td class="q">${fmtQty(it.q(o)*ppl*3,it.u)}</td>
         <td class="q">${fmtQty(it.q(o)*ppl*7,it.u)}</td>
@@ -1046,6 +1078,20 @@
   renderPantry();
   fillSlider();
   recompute(true);
+})();
+</script>
+<script>
+(function(){
+  function ld(){try{return JSON.parse(localStorage.getItem('kl_cart'))||{};}catch(e){return {};}}
+  function sv(c){try{localStorage.setItem('kl_cart',JSON.stringify(c));}catch(e){}}
+  function sync(){var c=ld(),n=0;for(var i in c)n+=c[i];
+    document.querySelectorAll('.padd').forEach(function(b){var q=c[b.getAttribute('data-i')];b.classList.toggle('in',!!q);b.textContent=q?'✓ 清单×'+q:'＋ 清单';});
+    var o=document.getElementById('openCartKl');if(o)o.textContent='🛒 打开购物清单'+(n?'（'+n+' 件）':'');}
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.padd');if(b){var c=ld(),i=b.getAttribute('data-i');c[i]=(c[i]||0)+1;sv(c);sync();return;}
+    if(e.target.id==='addAllKl'){var c2=ld();document.querySelectorAll('.prow.linked').forEach(function(r){var i=r.getAttribute('data-i');if(!c2[i])c2[i]=1;});sv(c2);sync();e.target.textContent='✓ 已全部加入';setTimeout(function(){e.target.textContent='＋ 上面全部加入购物清单';},1600);}
+  });
+  window.addEventListener('pageshow',sync);window.addEventListener('storage',sync);sync();
 })();
 </script>
 </body>
