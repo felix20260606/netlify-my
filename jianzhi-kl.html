@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>配餐买菜 · 吉隆坡</title>
+<title>配餐买菜-吉隆坡</title>
 <meta name="theme-color" content="#EFF2F1">
 <meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -351,17 +351,25 @@
   .kchip img{width:18px;height:18px;object-fit:contain;border-radius:50%;background:#F1F4F3}
   .kchip b{color:var(--primary-deep)}
   .kchip.fresh{padding-left:8px;color:#8E2F26;border-color:#F1D6D2}
+  .klbanner{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;background:linear-gradient(135deg,#0FA37A,#0A6E54);border-radius:16px;padding:13px 15px;margin:0 0 16px;box-shadow:0 8px 20px rgba(12,147,112,.22)}
+  .klbanner .kb-e{font-size:26px}
+  .klbanner .kb-t{flex:1;min-width:0}.klbanner b{display:block;font-size:15px}.klbanner small{font-size:11.5px;opacity:.9}
+  .klbanner .kb-c{flex:none;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:800;white-space:nowrap}
+  .ksub{font-size:10.5px;color:var(--muted);align-self:center;margin-right:2px}
+  .meal .row{flex-wrap:wrap}
+  .meal .row>.kchips{flex-basis:100%;order:3;margin:2px 0 0;font-weight:400}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <header>
-    <span class="eyebrow">生活化减脂 · 吉隆坡 KL</span>
+    <span class="eyebrow">🍱 配餐买菜-吉隆坡</span>
     <h1>算清楚吃多少，<br>再随机搭一份三餐</h1>
     <p class="lede">以体重为锚点，按每周运动量推算碳水、蛋白质、脂肪目标，并自动生成份量贴近目标的一日食谱。建议每 10 天按最新体重复算一次。</p>
     <span class="src">系数源自抖音 <b>@谭成义</b> 整理内容</span>
   </header>
+  <a class="klbanner" href="kl-prices.html"><span class="kb-e">🛒</span><span class="kb-t"><b>吉隆坡超市价格清单</b><small>786 种实拍价 · 下面每样食材都能点进对应商品 · 一键加购物清单</small></span><span class="kb-c" id="klCartN">去买 ›</span></a>
 
   <!-- 输入 -->
   <section class="card">
@@ -705,14 +713,14 @@
         const allMeals=[...new Set(items.flatMap(f=>f.meals))];
         const sub=g.sub?g.sub+' · 自由量':'自由量';
         rows += `<tr class="food">
-          <td><div class="fn">${names}</div><div class="fb">${sub}</div></td>
+          <td><div class="fn">${names}</div><div class="fb">${sub}</div>${klChips(names)}</td>
           <td class="meal">${badges(allMeals)}</td>
           <td class="num free-cell" colspan="3">不计热量</td>
         </tr>`;
       } else {
         items.forEach(f=>{
           rows += `<tr class="food">
-            <td><div class="fn">${f.name}</div><div class="fb">${f.basis}${f.note?' · '+f.note:''}</div></td>
+            <td><div class="fn">${f.name}</div><div class="fb">${f.basis}${f.note?' · '+f.note:''}</div>${klChips(f.name)}</td>
             <td class="meal">${badges(f.meals)}</td>
             <td class="num">${fmt(f.c)}</td>
             <td class="num">${fmt(f.p)}</td>
@@ -803,12 +811,17 @@
 
 
   /* 与超市价格清单关联（kl-prices.html 同源 localStorage: kl_cart） */
-  const KL_LINK={"燕麦": [[184, "Captain烤香燕麦片", 7.7, 0], [181, "Pristine快熟燕麦", 9.5, 1]], "食用油": [[414, "特级初榨橄榄油喷雾", 25.99, 1], [417, "特级初榨橄榄油", 22.99, 1]], "坚果 + 南瓜子": [[463, "混合坚果", 11.9, 1], [462, "杏仁", 11.9, 0]], "坚果 + 籽": [[463, "混合坚果", 11.9, 1], [462, "杏仁", 11.9, 0]], "蔬菜": [[28, "西兰花", 3.2, 0], [21, "Cameron Garden罗马生菜", 4.4, 1]]};
-  const KL_FRESH=["鸡蛋", "大米", "鱼 / 鸡胸", "鸡胸 / 鱼", "牛肉", "薯类", "蓝莓"];
+  const KL_RULES=[["^蔬菜$", [[28, "西兰花", 3.2, 0], [21, "Cameron Garden罗马生菜", 4.4, 1]], "蔬菜", "超市也有 →"], ["燕麦", [[184, "Captain烤香燕麦片", 7.7, 0], [181, "Pristine快熟燕麦", 9.5, 1]], "", ""], ["橄榄油", [[417, "特级初榨橄榄油", 22.99, 1], [414, "特级初榨橄榄油喷雾", 25.99, 1]], "", ""], ["牛油果油|山茶油|菜籽油|食用油", [[414, "特级初榨橄榄油喷雾", 25.99, 1], [417, "特级初榨橄榄油", 22.99, 1]], "", "清单里没有这款油，可用橄榄油/喷雾"], ["混合坚果|坚果", [[463, "混合坚果", 11.9, 1], [462, "杏仁", 11.9, 0]], "", ""], ["西兰花", [[28, "西兰花", 3.2, 0]], "", ""], ["生菜", [[21, "Cameron Garden罗马生菜", 4.4, 1], [20, "Cameron Garden小罗马生菜", 4.4, 1]], "", ""], ["牛肉", [[116, "澳洲牛肉片", 19.87, 1]], "", ""], ["龙利鱼|巴沙鱼|鸡胸|鸡腿|虾仁|鱼 / 鸡胸|鸡胸 / 鱼", [[111, "约翰威斯特黄鳍吞拿鱼", 6.5, 1], [117, "红鸡牌手撕鸡(黑胡椒味)", 7.7, 1]], "鲜鱼鸡肉", "没空买生鲜 → 罐头替代"], ["全蛋|鸡蛋", [], "鸡蛋", ""], ["米饭|大米", [[197, "全麦意面", 11.6, 1], [208, "北非小米(古斯米)", 8.9, 0]], "大米", "想换主食 → 全麦意面/古斯米"], ["南瓜子", [[462, "杏仁", 11.9, 0]], "", "清单里没有 → 杏仁替代"], ["红薯|紫薯|土豆|南瓜|薯类", [], "薯类", ""], ["蓝莓", [], "蓝莓", ""], ["彩椒|甜椒", [[1, "炭烤甜椒", 19.5, 1]], "彩椒", "懒人版 → 罐装炭烤甜椒"], ["白萝卜|菠菜|羽衣甘蓝|口蘑|蔬菜", [], "蔬菜", ""]];
   function klChips(name){
-    if(KL_LINK[name])return '<div class="kchips">'+KL_LINK[name].map(x=>`<a class="kchip" href="kl-prices.html#i=${x[0]}">${x[3]?`<img src="shop-thumbs/${x[0]}.jpg" alt="">`:'🛒'}${x[1]} <b>RM ${x[2].toFixed(2)}</b></a>`).join('')+'</div>';
-    if(KL_FRESH.indexOf(name)>=0)return '<div class="kchips"><a class="kchip fresh" href="kl-prices.html#m=shop">🥩 生鲜：看清单里「附近哪里买」</a></div>';
-    return '';
+    let h='';
+    KL_RULES.forEach(r=>{
+      if(h||!new RegExp(r[0]).test(name))return;
+      if(r[2])h+=`<a class="kchip fresh" href="kl-prices.html#m=shop">🥩 ${r[2]}：生鲜去「附近哪里买」</a>`;
+      if(r[3]&&r[1].length)h+=`<span class="ksub">${r[3]}</span>`;
+      h+=r[1].map(x=>`<a class="kchip" href="kl-prices.html#i=${x[0]}">${x[3]?`<img src="shop-thumbs/${x[0]}.jpg" alt="">`:'🛒'}${x[1]} <b>RM ${x[2].toFixed(2)}</b></a>`).join('');
+    });
+    if(/、/.test(name)){h='';const seen={};name.split('、').forEach(n=>{const c=klChips(n).replace(/^<div class="kchips">|<\/div>$/g,'');c.split(/(?=<a |<span class="ksub)/).forEach(x=>{if(x&&!seen[x]){seen[x]=1;h+=x;}});});}
+    return h?'<div class="kchips">'+h+'</div>':'';
   }
   function renderShopping(){
     const o=dailyPerMan(), ppl=state.people;
@@ -995,7 +1008,7 @@
       const paren = it.free ? '' : macroParen(it.c||0, it.p||0, it.f||0);
       return `<div class="row">
         <div class="fname">${it.n}${it.tag?`<span class="tag">${it.tag}</span>`:''}</div>
-        <div class="amt"><span class="w tnum">${it.a}</span>${paren}</div>
+        <div class="amt"><span class="w tnum">${it.a}</span>${paren}</div>${klChips(it.n)}
       </div>`;
     }).join('');
     const k = Math.round(kcal(m.macro.c,m.macro.p,m.macro.f));
@@ -1086,7 +1099,8 @@
   function sv(c){try{localStorage.setItem('kl_cart',JSON.stringify(c));}catch(e){}}
   function sync(){var c=ld(),n=0;for(var i in c)n+=c[i];
     document.querySelectorAll('.padd').forEach(function(b){var q=c[b.getAttribute('data-i')];b.classList.toggle('in',!!q);b.textContent=q?'✓ 清单×'+q:'＋ 清单';});
-    var o=document.getElementById('openCartKl');if(o)o.textContent='🛒 打开购物清单'+(n?'（'+n+' 件）':'');}
+    var o=document.getElementById('openCartKl');if(o)o.textContent='🛒 打开购物清单'+(n?'（'+n+' 件）':'');
+    var kb=document.getElementById('klCartN');if(kb)kb.textContent=n?'购物清单 '+n+' 件 ›':'去买 ›';}
   document.addEventListener('click',function(e){
     var b=e.target.closest('.padd');if(b){var c=ld(),i=b.getAttribute('data-i');c[i]=(c[i]||0)+1;sv(c);sync();return;}
     if(e.target.id==='addAllKl'){var c2=ld();document.querySelectorAll('.prow.linked').forEach(function(r){var i=r.getAttribute('data-i');if(!c2[i])c2[i]=1;});sv(c2);sync();e.target.textContent='✓ 已全部加入';setTimeout(function(){e.target.textContent='＋ 上面全部加入购物清单';},1600);}
