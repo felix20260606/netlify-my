@@ -1,0 +1,981 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>减脂营养计算 · 曼谷</title>
+<meta name="theme-color" content="#EFF2F1">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EFF2F1;
+    --surface:#FFFFFF;
+    --surface-2:#F1F4F3;
+    --ink:#1E2733;
+    --ink-soft:#3A4653;
+    --muted:#7C8794;
+    --line:#E5EAE8;
+    --line-strong:#D3DAD8;
+    --primary:#0C9370;
+    --primary-deep:#0A7A5C;
+    --accent:#0FA37A;
+    --gold:#E8A23C;
+    --carb:#D8912E;
+    --protein:#C2564A;
+    --fat:#2C8FA3;
+    --carb-bg:#FAF1E0;
+    --protein-bg:#FAEBE7;
+    --fat-bg:#E4F1F4;
+    --primary-bg:#E3F0EA;
+    --font:"Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC",
+            "Source Han Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    --display:"Fraunces", Georgia, "Songti SC", serif;
+    --shadow: 0 1px 2px rgba(20,35,28,.04), 0 10px 26px rgba(20,35,28,.055);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+    padding:env(safe-area-inset-top) 16px calc(40px + env(safe-area-inset-bottom));
+  }
+  .wrap{max-width:660px;margin:0 auto}
+  .tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  /* ---------- Header ---------- */
+  header{padding:34px 4px 22px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;font-family:var(--display);
+    font-size:11px;letter-spacing:.26em;font-weight:700;
+    color:var(--accent);text-transform:uppercase;margin-bottom:12px;
+  }
+  .eyebrow::before{content:"";width:18px;height:1.5px;background:var(--gold);border-radius:2px}
+  h1{
+    font-family:var(--display);
+    font-size:32px;line-height:1.14;margin:0 0 10px;letter-spacing:-.01em;font-weight:900;
+  }
+  .lede{color:var(--ink-soft);font-size:15px;max-width:46ch;margin:0}
+  .src{
+    margin-top:14px;display:inline-flex;align-items:center;gap:7px;
+    font-size:12px;color:var(--muted);
+    background:var(--surface);border:1px solid var(--line);border-radius:999px;
+    padding:5px 11px;
+  }
+  .src b{color:var(--ink-soft);font-weight:600}
+
+  /* ---------- Card shell ---------- */
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:16px;
+    box-shadow:var(--shadow);padding:20px;margin-bottom:16px;
+  }
+  .card-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .card-title{font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--ink)}
+  .card-note{font-size:12px;color:var(--muted)}
+
+  /* ---------- Segmented controls ---------- */
+  .field{margin-bottom:18px}
+  .field:last-child{margin-bottom:0}
+  .field-label{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:9px;letter-spacing:.02em}
+  .seg{display:grid;gap:7px;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:5px}
+  .seg.two{grid-template-columns:1fr 1fr}
+  .seg.four{grid-template-columns:repeat(4,1fr)}
+  .seg button{
+    appearance:none;border:0;background:transparent;cursor:pointer;border-radius:9px;
+    padding:10px 6px;font-family:inherit;color:var(--ink-soft);font-size:14px;font-weight:600;
+    display:flex;flex-direction:column;align-items:center;gap:2px;transition:.18s ease;
+  }
+  .seg button .sub{font-size:11px;font-weight:500;color:var(--muted)}
+  .seg button:hover{color:var(--ink)}
+  .seg button[aria-pressed="true"]{
+    background:var(--primary);color:#fff;box-shadow:0 3px 9px rgba(12,147,112,.30);
+  }
+  .seg button[aria-pressed="true"] .sub{color:rgba(255,255,255,.82)}
+  .seg button:focus-visible{outline:2px solid var(--primary-deep);outline-offset:2px}
+
+  /* ---------- Weight dial ---------- */
+  .weight-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:6px}
+  .weight-val{font-family:var(--display);font-size:48px;font-weight:900;letter-spacing:-.02em;line-height:1;color:var(--gold)}
+  .weight-val .u{font-size:18px;font-weight:600;color:var(--muted);margin-left:4px}
+  .weight-hint{font-size:12px;color:var(--muted);text-align:right;max-width:16ch}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;cursor:pointer;margin:0;
+  }
+  input[type=range]::-webkit-slider-runnable-track{
+    height:8px;border-radius:999px;
+    background:linear-gradient(90deg,var(--primary) var(--fill,40%),var(--line) var(--fill,40%));
+  }
+  input[type=range]::-moz-range-track{height:8px;border-radius:999px;background:var(--line)}
+  input[type=range]::-moz-range-progress{height:8px;border-radius:999px;background:var(--primary)}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;
+    background:#fff;border:3px solid var(--primary);margin-top:-9px;
+    box-shadow:0 2px 6px rgba(20,35,28,.22);transition:transform .12s;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--primary);
+    box-shadow:0 2px 6px rgba(20,35,28,.22);
+  }
+  input[type=range]:active::-webkit-slider-thumb{transform:scale(1.08)}
+  input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--primary-deep);outline-offset:2px}
+  .range-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px}
+
+  /* ---------- Macro tiles (nutrition-label style) ---------- */
+  .targets-head{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 12px}
+  .targets-head h2{font-size:15px;margin:0;font-weight:700}
+  .formula{font-size:12px;color:var(--muted)}
+  .macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+  .tile{
+    background:var(--surface);border:1px solid var(--line-strong);border-radius:14px;
+    padding:14px 14px 13px;position:relative;overflow:hidden;
+  }
+  .tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px}
+  .tile.c::before{background:var(--carb)} .tile.p::before{background:var(--protein)} .tile.f::before{background:var(--fat)}
+  .tile .name{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--ink-soft)}
+  .dot{width:8px;height:8px;border-radius:50%}
+  .tile.c .dot{background:var(--carb)} .tile.p .dot{background:var(--protein)} .tile.f .dot{background:var(--fat)}
+  .tile .big{font-family:var(--display);font-size:36px;font-weight:900;line-height:1.02;letter-spacing:-.02em;margin:8px 0 0}
+  .tile .big .u{font-size:14px;font-weight:600;color:var(--muted);margin-left:3px}
+  .tile .coef{font-size:11px;color:var(--muted);margin-top:5px;border-top:1px dashed var(--line);padding-top:7px}
+  .kcal-strip{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:13px 16px;
+  }
+  .kcal-strip .lab{font-size:12px;font-weight:600;color:var(--muted)}
+  .kcal-strip .v{font-family:var(--display);font-size:26px;font-weight:900;letter-spacing:-.01em}
+  .kcal-strip .v .u{font-size:13px;font-weight:600;color:var(--muted);margin-left:3px}
+
+  /* ---------- Meal section ---------- */
+  .meals-head{display:flex;align-items:center;justify-content:space-between;margin:24px 2px 12px}
+  .meals-head h2{font-size:15px;margin:0;font-weight:700}
+  .reroll{
+    appearance:none;border:1px solid var(--primary);background:var(--surface);color:var(--primary-deep);
+    font-family:inherit;font-weight:700;font-size:13px;border-radius:999px;padding:8px 15px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;transition:.16s;
+  }
+  .reroll:hover{background:var(--primary);color:#fff}
+  .reroll:focus-visible{outline:2px solid var(--primary-deep);outline-offset:2px}
+  .reroll svg{width:14px;height:14px}
+
+  .meal{padding:0;overflow:hidden}
+  .meal-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+  .meal-bar .l{display:flex;align-items:center;gap:10px}
+  .meal-emoji{font-size:20px}
+  .meal-name{font-weight:800;font-size:15px}
+  .meal-kcal{font-size:12px;color:var(--muted);font-weight:600}
+  .rows{padding:6px 18px}
+  .row{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px dashed var(--line)}
+  .row:last-child{border-bottom:0}
+  .row .fname{font-size:14px;color:var(--ink);flex:0 1 auto;min-width:5.5em}
+  .row .fname .tag{font-size:11px;color:var(--muted);margin-left:6px}
+  .row .amt{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:2px 7px;text-align:right;flex:1 1 auto;min-width:0}
+  .row .amt .w{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .mparen{font-size:11px;color:var(--muted);font-weight:500;line-height:1.4;font-variant-numeric:tabular-nums}
+  .mparen b{font-weight:700}
+  .mparen .kc{color:var(--carb)} .mparen .kp{color:var(--protein)} .mparen .kf{color:var(--fat)}
+  .meal-legend{font-size:12px;color:var(--muted);margin:0 2px 12px;line-height:1.5}
+  .tip{font-size:12px;color:var(--muted);padding:10px 18px 0;display:flex;gap:7px;align-items:flex-start}
+  .tip svg{width:13px;height:13px;flex:none;margin-top:3px;color:var(--primary)}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;padding:12px 18px 16px}
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;border-radius:999px;padding:4px 10px}
+  .chip.c{background:var(--carb-bg);color:#8a560f}
+  .chip.p{background:var(--protein-bg);color:#8e2f26}
+  .chip.f{background:var(--fat-bg);color:#1e5a66}
+
+  /* ---------- Reconciliation ---------- */
+  .recon .rrow{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:12px;padding:9px 0}
+  .recon .rname{font-size:13px;font-weight:700}
+  .recon .rname.c{color:var(--carb)} .recon .rname.p{color:var(--protein)} .recon .rname.f{color:var(--fat)}
+  .bar{height:9px;border-radius:999px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}
+  .bar > span{display:block;height:100%;border-radius:999px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+  .bar.c > span{background:var(--carb)} .bar.p > span{background:var(--protein)} .bar.f > span{background:var(--fat)}
+  .recon .vals{font-size:12px;color:var(--muted);white-space:nowrap}
+  .recon .vals b{color:var(--ink);font-weight:700}
+  .recon-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:13px;border-top:1px solid var(--line)}
+  .recon-total .t-lab{font-size:13px;font-weight:700}
+  .recon-total .t-val{font-family:var(--display);font-size:22px;font-weight:900}
+  .recon-total .t-val .u{font-size:12px;color:var(--muted);font-weight:600;margin-left:3px}
+
+  /* ---------- Pantry table (食材库) ---------- */
+  .pantry-intro{font-size:12px;color:var(--muted);margin:0 0 14px;line-height:1.6}
+  .pantry-table{width:100%;border-collapse:collapse;font-size:13px}
+  .pantry-table th,.pantry-table td{padding:9px 8px;text-align:left;vertical-align:middle}
+  .pantry-table thead th{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.03em;border-bottom:1.5px solid var(--line-strong);padding-bottom:9px}
+  .pantry-table th.num,.pantry-table td.num{text-align:right;white-space:nowrap;width:46px;font-variant-numeric:tabular-nums}
+  .pantry-table thead .th-c{color:var(--carb)} .pantry-table thead .th-p{color:var(--protein)} .pantry-table thead .th-f{color:var(--fat)}
+  .pantry-table td.num{font-weight:700;color:var(--ink)}
+  .pantry-table td.meal{width:1%;white-space:nowrap}
+  .pantry-table tbody tr.food{border-bottom:1px solid var(--line)}
+  .pantry-table tbody tr.food:hover{background:var(--surface-2)}
+  .fn{font-weight:600;color:var(--ink);font-size:13.5px;line-height:1.3}
+  .fb{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.3}
+  .pantry-table tr.grp td{font-weight:800;font-size:12px;letter-spacing:.02em;padding:7px 10px}
+  .pantry-table tr.grp td span{font-weight:600;font-size:11px;margin-left:7px;opacity:.7}
+  .grp-c td{background:var(--carb-bg);color:#8a560f} .grp-p td{background:var(--protein-bg);color:#8e2f26}
+  .grp-f td{background:var(--fat-bg);color:#1e5a66} .grp-g td{background:var(--primary-bg);color:var(--primary-deep)}
+  .free-cell{text-align:center!important;color:var(--muted);font-weight:600;font-size:12px}
+  .mb{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;border-radius:6px;background:var(--surface-2);border:1px solid var(--line);font-size:11px;font-weight:700;color:var(--muted);margin-right:3px}
+
+  /* ---------- Shopping (买菜清单) ---------- */
+  .ppl{display:inline-flex;align-items:center;gap:9px}
+  .ppl-lab{font-size:12px;color:var(--muted);font-weight:600}
+  .stp{appearance:none;width:28px;height:28px;border-radius:9px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font-size:16px;font-weight:700;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:.14s}
+  .stp:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .stp:focus-visible{outline:2px solid var(--primary-deep);outline-offset:2px}
+  .ppl-n{font-size:16px;font-weight:800;min-width:20px;text-align:center;font-variant-numeric:tabular-nums}
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .shop-table{min-width:480px}
+  .shop-table th.num,.shop-table td.num{width:66px}
+  .shop-table th.store,.shop-table td.store{text-align:center;width:1%;white-space:nowrap;padding-left:6px}
+  .tagpill{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px}
+  .tp-dry{background:var(--primary-bg);color:var(--primary-deep)}
+  .tp-cold{background:var(--fat-bg);color:#1e5a66}
+  .tp-fresh{background:var(--carb-bg);color:#8a560f}
+  .buy-tips{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+  .buy-tips h4{margin:0 0 13px;font-size:13px;font-weight:800;color:var(--ink);letter-spacing:.02em}
+  .bt{display:flex;gap:11px;font-size:13px;color:var(--ink-soft);line-height:1.6;margin-bottom:11px}
+  .bt:last-child{margin-bottom:0}
+  .bt-k{flex:none;width:21px;height:21px;border-radius:7px;background:var(--primary);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .bt b{color:var(--ink);font-weight:700}
+
+  /* ---------- Thailand module (在泰国买) ---------- */
+  .stores{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .store-card{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+  .store-card .sn{font-size:13px;font-weight:800;color:var(--ink);line-height:1.3}
+  .store-card .stag{font-size:11px;font-weight:700;color:var(--primary-deep);margin:5px 0;display:inline-block;background:var(--primary-bg);border-radius:999px;padding:2px 9px}
+  .store-card .sfor{font-size:11.5px;color:var(--muted);line-height:1.5}
+  .th-table{min-width:500px}
+  .th-table th.q,.th-table td.q{text-align:right;white-space:nowrap;width:54px;font-variant-numeric:tabular-nums}
+  .th-table td.q{font-weight:700;color:var(--ink)}
+  .th-table th.q{color:var(--muted);font-weight:700}
+  .th-table td.alt{font-size:12px;color:var(--ink-soft);line-height:1.5}
+  .th-table th.alt-h{font-size:11px;color:var(--muted);font-weight:700}
+  .cost{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--primary-bg);border:1px solid #CFE2D6;border-radius:13px;padding:13px 16px;margin-top:16px}
+  .cost .cl{font-size:12px;font-weight:700;color:var(--primary-deep)}
+  .cost .cv{font-size:17px;font-weight:800;color:var(--primary-deep);text-align:right;white-space:nowrap}
+  .cost .cv small{display:block;font-size:11px;font-weight:600;opacity:.8;margin-top:2px}
+  .th-disc{font-size:11px;color:var(--muted);margin:14px 0 0;line-height:1.6}
+
+  /* ---------- Fruit guide (水果指南) ---------- */
+  .swap-box{display:flex;gap:11px;background:var(--primary-bg);border:1px solid #CFE2D6;border-radius:13px;padding:13px 15px;margin-bottom:18px}
+  .swap-box .sb-k{flex:none;font-size:20px;line-height:1.2}
+  .swap-box .sb-t{font-size:13px;color:var(--ink-soft);line-height:1.55}
+  .swap-box .sb-t b{color:var(--primary-deep);font-weight:800}
+  .tier{margin-bottom:17px}
+  .tier:last-of-type{margin-bottom:0}
+  .tier-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:9px}
+  .tier-badge{font-size:12px;font-weight:800;border-radius:8px;padding:3px 11px;letter-spacing:.02em}
+  .tier-sub{font-size:11.5px;color:var(--muted)}
+  .tier-good .tier-badge{background:var(--primary-bg);color:var(--primary-deep)}
+  .tier-ok   .tier-badge{background:var(--carb-bg);color:#8a560f}
+  .tier-bad  .tier-badge{background:var(--protein-bg);color:#8e2f26}
+  .fruits{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+  .fchip{font-size:13px;font-weight:600;border-radius:999px;padding:5px 12px;border:1px solid}
+  .tier-good .fchip{background:#EAF3EC;border-color:#D3E5D8;color:#235C3B}
+  .tier-ok   .fchip{background:#FAF2E2;border-color:#EFE1C7;color:#7E5410}
+  .tier-bad  .fchip{background:#FBECEA;border-color:#F1D6D2;color:#8E2F26}
+  .tier-note{font-size:12px;color:var(--ink-soft);line-height:1.55;margin:0}
+  .tier-note b{color:var(--ink);font-weight:700}
+
+  /* ---------- Notes ---------- */
+  .notes{margin-top:8px}
+  .note{display:flex;gap:11px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-soft)}
+  .note:last-child{border-bottom:0}
+  .note .k{flex:none;font-weight:800;color:var(--primary);width:54px;font-size:12px;letter-spacing:.02em;padding-top:1px}
+  .disclaimer{font-size:12px;color:var(--muted);margin-top:18px;text-align:center;line-height:1.7}
+
+  @media (max-width:430px){
+    h1{font-size:25px}
+    .seg.four{grid-template-columns:1fr 1fr}
+    .macro-grid{grid-template-columns:1fr;gap:10px}
+    .tile{display:flex;align-items:center;gap:14px}
+    .tile .name{flex:none;width:78px}
+    .tile .big{margin:0;font-size:30px}
+    .tile .coef{border:0;padding:0;margin:0 0 0 auto;text-align:right}
+    .weight-val{font-size:40px}
+    .pantry-table th,.pantry-table td{padding:8px 5px}
+    .pantry-table th.num,.pantry-table td.num{width:40px}
+    .pantry-table thead th{font-size:10px}
+    .shop-table th.num,.shop-table td.num{width:62px}
+    .th-table th.q,.th-table td.q{width:48px}
+    .cost{flex-direction:column;align-items:flex-start;gap:6px}
+    .cost .cv{text-align:left}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="eyebrow">生活化减脂 · 曼谷 Bangkok</span>
+    <h1>算清楚吃多少，<br>再随机搭一份三餐</h1>
+    <p class="lede">以体重为锚点，按每周运动量推算碳水、蛋白质、脂肪目标，并自动生成份量贴近目标的一日食谱。建议每 10 天按最新体重复算一次。</p>
+    <span class="src">系数源自抖音 <b>@谭成义</b> 整理内容</span>
+  </header>
+
+  <!-- 输入 -->
+  <section class="card">
+    <div class="card-head">
+      <span class="card-title">你的身体数据</span>
+      <span class="card-note">改动后下方自动重算</span>
+    </div>
+
+    <div class="field">
+      <div class="field-label">性别</div>
+      <div class="seg two" id="sexSeg" role="group" aria-label="性别">
+        <button data-sex="m" aria-pressed="true">男</button>
+        <button data-sex="f" aria-pressed="false">女</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">每周运动量</div>
+      <div class="seg four" id="actSeg" role="group" aria-label="每周运动量">
+        <button data-act="low" aria-pressed="true">低频<span class="sub">2–3 小时</span></button>
+        <button data-act="medium" aria-pressed="false">中频<span class="sub">4–5 小时</span></button>
+        <button data-act="high" aria-pressed="false">高频<span class="sub">6–7 小时</span></button>
+        <button data-act="extreme" aria-pressed="false">极高频<span class="sub">8–9 小时</span></button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="weight-top">
+        <div class="weight-val"><span id="wVal" class="tnum">70</span><span class="u">kg</span></div>
+        <div class="weight-hint">拖动设定当前体重</div>
+      </div>
+      <input id="weight" type="range" min="40" max="150" step="1" value="70" aria-label="体重（公斤）">
+      <div class="range-scale"><span>40</span><span>95</span><span>150</span></div>
+    </div>
+  </section>
+
+  <!-- 目标 -->
+  <div class="targets-head">
+    <h2>每日营养目标</h2>
+    <span class="formula" id="formula">体重 × 系数</span>
+  </div>
+  <div class="macro-grid">
+    <div class="tile c">
+      <div class="name"><span class="dot"></span>碳水</div>
+      <div class="big"><span id="tC" class="tnum">0</span><span class="u">g</span></div>
+      <div class="coef" id="cC">—</div>
+    </div>
+    <div class="tile p">
+      <div class="name"><span class="dot"></span>蛋白质</div>
+      <div class="big"><span id="tP" class="tnum">0</span><span class="u">g</span></div>
+      <div class="coef" id="cP">—</div>
+    </div>
+    <div class="tile f">
+      <div class="name"><span class="dot"></span>脂肪</div>
+      <div class="big"><span id="tF" class="tnum">0</span><span class="u">g</span></div>
+      <div class="coef" id="cF">—</div>
+    </div>
+  </div>
+  <div class="kcal-strip">
+    <span class="lab">估算每日总热量</span>
+    <span class="v"><span id="tKcal" class="tnum">0</span><span class="u">kcal</span></span>
+  </div>
+
+  <!-- 三餐 -->
+  <div class="meals-head">
+    <h2>今日三餐搭配</h2>
+    <button class="reroll" id="reroll" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+      换一组搭配
+    </button>
+  </div>
+  <p class="meal-legend">括号内 = 该食材的碳水 / 蛋白 / 脂肪克数 · 热量占比（顺序：碳 / 蛋 / 脂）。</p>
+  <div id="meals"></div>
+
+  <!-- 全天对照 -->
+  <section class="card recon">
+    <div class="card-head">
+      <span class="card-title">全天合计 vs 目标</span>
+      <span class="card-note">份量已反推贴近目标</span>
+    </div>
+    <div id="reconRows"></div>
+    <div class="recon-total">
+      <span class="t-lab">食谱总热量</span>
+      <span class="t-val"><span id="planKcal" class="tnum">0</span><span class="u">kcal</span></span>
+    </div>
+  </section>
+
+  <!-- 食材库 -->
+  <div class="meals-head">
+    <h2>食材库 · 分类总览</h2>
+    <span class="card-note" id="pantryCount"></span>
+  </div>
+  <section class="card">
+    <p class="pantry-intro">三餐搭配都从这里随机抽取。数字为各自基准下的 <b style="color:var(--carb)">碳水</b> / <b style="color:var(--protein)">蛋白</b> / <b style="color:var(--fat)">脂肪</b>（克）；蔬菜、水果按不计热量处理。</p>
+    <div id="pantry"></div>
+  </section>
+
+  <!-- 水果指南 -->
+  <div class="meals-head">
+    <h2>水果指南</h2>
+    <span class="card-note">蓝莓平替 + 分档</span>
+  </div>
+  <section class="card">
+    <div class="swap-box">
+      <span class="sb-k">🫐</span>
+      <span class="sb-t">蓝莓没有时，<b>最接近</b>：草莓、树莓、黑莓（低糖高纤，冷冻装更省也一样好用）。买不到莓果 → 番石榴 ฝรั่ง、火龙果 แก้วมังกร、奇异果 顶上，同样低糖高纤。</span>
+    </div>
+
+    <div class="tier tier-good">
+      <div class="tier-head"><span class="tier-badge">优选 · 可放心吃</span><span class="tier-sub">低糖高纤，一小把 100–150g 基本不计</span></div>
+      <div class="fruits">
+        <span class="fchip">草莓</span><span class="fchip">树莓</span><span class="fchip">黑莓</span><span class="fchip">蓝莓</span><span class="fchip">番石榴 ฝรั่ง</span><span class="fchip">火龙果 แก้วมังกร</span><span class="fchip">奇异果</span><span class="fchip">柚子 / 西柚 ส้มโอ</span><span class="fchip">莲雾 ชมพู่</span><span class="fchip">木瓜</span>
+      </div>
+      <p class="tier-note">当蓝莓平替首选这一档的莓果；水分多、热量低，当早餐点缀那一小份基本不用计较。</p>
+    </div>
+
+    <div class="tier tier-ok">
+      <div class="tier-head"><span class="tier-badge">适量 · 按份吃</span><span class="tier-sub">中等糖，一份手心大小并计入当天</span></div>
+      <div class="fruits">
+        <span class="fchip">苹果</span><span class="fchip">梨</span><span class="fchip">橙子</span><span class="fchip">桃 / 李</span><span class="fchip">樱桃</span><span class="fchip">菠萝</span><span class="fchip">甜瓜</span><span class="fchip">西瓜</span>
+      </div>
+      <p class="tier-note">一份约一个拳头大小。<b>西瓜</b>水多升糖快、量别大；<b>菠萝</b>选偏酸的更好；尽量放在白天或训练前后。</p>
+    </div>
+
+    <div class="tier tier-bad">
+      <div class="tier-head"><span class="tier-badge">少吃 / 避免</span><span class="tier-sub">高糖或高热量密度，最容易超</span></div>
+      <div class="fruits">
+        <span class="fchip">香蕉</span><span class="fchip">芒果</span><span class="fchip">葡萄</span><span class="fchip">荔枝</span><span class="fchip">龙眼</span><span class="fchip">榴莲</span><span class="fchip">果干</span><span class="fchip">果汁</span>
+      </div>
+      <p class="tier-note"><b>香蕉</b>训练前后可少量；<b>榴莲</b>又高脂又高糖、是热量炸弹；<b>果干、果汁</b>糖被浓缩又没纤维，直接跳过。</p>
+    </div>
+
+    <p class="th-disc">ⓘ 减脂期水果不是不能吃，是别当水喝：越甜越要按份量算，优先吃整果、不喝果汁。</p>
+  </section>
+
+  <!-- 买菜清单 -->
+  <div class="meals-head">
+    <h2>买菜清单</h2>
+    <div class="ppl">
+      <span class="ppl-lab">人数</span>
+      <button class="stp" id="pplMinus" type="button" aria-label="减少人数">−</button>
+      <span class="ppl-n" id="pplN">3</span>
+      <button class="stp" id="pplPlus" type="button" aria-label="增加人数">＋</button>
+    </div>
+  </div>
+  <section class="card">
+    <p class="pantry-intro" id="shopNote"></p>
+    <div class="tbl-scroll">
+    <table class="pantry-table shop-table">
+      <thead><tr>
+        <th>食材</th>
+        <th class="num">1 天</th>
+        <th class="num">3 天</th>
+        <th class="num">7 天</th>
+        <th class="store">存放</th>
+      </tr></thead>
+      <tbody id="shopBody"></tbody>
+    </table>
+    </div>
+    <div class="buy-tips" id="buyTips"></div>
+  </section>
+
+  <!-- 在泰国买 -->
+  <div class="meals-head">
+    <h2>在泰国买 · 本地化</h2>
+    <span class="card-note">同上人数</span>
+  </div>
+  <section class="card">
+    <p class="pantry-intro" id="thNote"></p>
+    <div class="stores" id="thStores"></div>
+    <div class="tbl-scroll">
+    <table class="pantry-table th-table">
+      <thead><tr>
+        <th>原料</th>
+        <th class="q">1 天</th>
+        <th class="q">3 天</th>
+        <th class="q">7 天</th>
+        <th class="alt-h">没有就用（泰国平替）</th>
+      </tr></thead>
+      <tbody id="thBody"></tbody>
+    </table>
+    </div>
+    <div class="cost" id="thCost"></div>
+    <div class="buy-tips" id="thTips"></div>
+    <p class="th-disc">ⓘ 价位为大致行情，随地区、季节与门店浮动；泰文名可直接给摊主看。</p>
+  </section>
+
+  <!-- 说明 -->
+  <section class="card notes">
+    <div class="card-head"><span class="card-title">执行与调整要点</span></div>
+    <div class="note"><span class="k">监控</span><span>按计算量坚持 7–10 天，期间拍对比照记录变化，避免被短期水分波动误判。</span></div>
+    <div class="note"><span class="k">调碳水</span><span>掉太快或状态变差 → 适当加碳水；体重停滞 → 适当减碳水。蛋白质与脂肪通常保持恒定。</span></div>
+    <div class="note"><span class="k">复算</span><span>每 10 天按最新体重重算各项目标，确保热量缺口持续有效。</span></div>
+    <div class="note"><span class="k">钠 / 盐</span><span>钠控制在 6–8 g/天；1 g 钠 ≈ 2.5 g 盐，酱油等调味料需折算计入。</span></div>
+    <div class="note"><span class="k">用油</span><span>炒菜用高烟点油（牛油果油、山茶油、低芥酸菜籽油）；晚餐推荐水煮牛肉淋橄榄油。</span></div>
+  </section>
+
+  <p class="disclaimer">蓝莓、蔬菜按「基本不计热量」处理；蛋白质均按瘦肉估算。<br>本工具为通用估算，非个性化医学或营养建议，特殊健康状况请咨询专业人士。</p>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = s => document.querySelector(s);
+
+  // 运动量系数（g/kg）
+  const COEF = {
+    low:     {label:'低频',  carbM:2.2, carbF:2.2, prot:1.4, fatM:0.8, fatF:1.0},
+    medium:  {label:'中频',  carbM:2.5, carbF:2.5, prot:1.6, fatM:0.9, fatF:1.1},
+    high:    {label:'高频',  carbM:3.0, carbF:3.0, prot:1.7, fatM:1.0, fatF:1.1},
+    extreme: {label:'极高频',carbM:3.5, carbF:3.0, prot:1.8, fatM:1.0, fatF:1.2},
+  };
+
+  // ===== 食材库（单一数据源）=====
+  // meals: b 早 / l 午 / d 晚；c,p,f = 该基准(basis)下的 碳水/蛋白/脂肪（克）
+  const FOODS = [
+    // 主食 · 碳水来源
+    {id:'oats',    name:'燕麦',       cat:'carb', meals:['b'],     basis:'每 100g',      c:60, p:13,  f:7,   note:'冲泡早餐主食'},
+    {id:'rice',    name:'米饭',       cat:'carb', meals:['l'],     basis:'每 100g 生米', c:76, p:7,   f:0.8},
+    {id:'sweet',   name:'红薯',       cat:'carb', meals:['d'],     basis:'每 100g',      c:22, p:1.6, f:0.2},
+    {id:'purple',  name:'紫薯',       cat:'carb', meals:['d'],     basis:'每 100g',      c:22, p:1.8, f:0.2},
+    {id:'potato',  name:'土豆',       cat:'carb', meals:['d'],     basis:'每 100g',      c:17, p:2,   f:0.1},
+    {id:'kabocha', name:'贝贝南瓜',   cat:'carb', meals:['d'],     basis:'每 100g',      c:22, p:1.4, f:0.3},
+    // 蛋白质来源
+    {id:'egg',     name:'全蛋',       cat:'prot', meals:['b'],     basis:'每 个(约50g)', c:0.5, p:7,  f:5},
+    {id:'sole',    name:'龙利鱼',     cat:'prot', meals:['l'],     basis:'每 100g',      c:0,  p:17,  f:2},
+    {id:'basa',    name:'巴沙鱼',     cat:'prot', meals:['l'],     basis:'每 100g',      c:0,  p:16,  f:3},
+    {id:'thigh',   name:'去皮鸡腿肉', cat:'prot', meals:['l'],     basis:'每 100g',      c:0,  p:20,  f:5},
+    {id:'breast',  name:'鸡胸肉',     cat:'prot', meals:['l'],     basis:'每 100g',      c:0,  p:24,  f:2},
+    {id:'shrimp',  name:'虾仁',       cat:'prot', meals:['l'],     basis:'每 100g',      c:0,  p:18,  f:1},
+    {id:'beef',    name:'牛肉',       cat:'prot', meals:['d'],     basis:'每 100g',      c:0,  p:24,  f:6},
+    // 油脂 · 坚果
+    {id:'avoOil',  name:'牛油果油',   cat:'fat',  meals:['l'],     basis:'每 100g',      c:0,  p:0,   f:100, note:'高烟点'},
+    {id:'teaOil',  name:'山茶油',     cat:'fat',  meals:['l'],     basis:'每 100g',      c:0,  p:0,   f:100, note:'高烟点'},
+    {id:'canola',  name:'低芥酸菜籽油',cat:'fat', meals:['l'],     basis:'每 100g',      c:0,  p:0,   f:100, note:'高烟点'},
+    {id:'olive',   name:'橄榄油',     cat:'fat',  meals:['d'],     basis:'每 100g',      c:0,  p:0,   f:100, note:'水煮后淋'},
+    {id:'pkSeed',  name:'南瓜子',     cat:'fat',  meals:['b'],     basis:'每 15g',       c:2.7, p:4.5,f:7},
+    {id:'nuts',    name:'混合坚果',   cat:'fat',  meals:['d'],     basis:'每 20g',       c:4,  p:4,   f:11},
+    // 蔬菜（不计热量）
+    {id:'broccoli',name:'西兰花',     cat:'veg',  meals:['l','d']},
+    {id:'kale',    name:'羽衣甘蓝',   cat:'veg',  meals:['l','d']},
+    {id:'lettuce', name:'生菜',       cat:'veg',  meals:['l','d']},
+    {id:'spinach', name:'菠菜',       cat:'veg',  meals:['l','d']},
+    {id:'mush',    name:'口蘑',       cat:'veg',  meals:['l','d']},
+    {id:'radish',  name:'白萝卜',     cat:'veg',  meals:['l','d']},
+    {id:'pepper',  name:'彩椒',       cat:'veg',  meals:['l','d']},
+    // 水果（不计热量）
+    {id:'blueberry',name:'蓝莓',      cat:'fruit',meals:['b']},
+  ];
+
+  const byId  = id => FOODS.find(f=>f.id===id);
+  const inCat = c  => FOODS.filter(f=>f.cat===c);
+  const pgr   = id => { const f=byId(id); return {cpg:f.c/100, ppg:f.p/100, fpg:f.f/100}; };
+  const fix   = id => { const f=byId(id); return {c:f.c, p:f.p, f:f.f}; };
+
+  // 由食材库派生生成器所需数据（改食材库即同步）
+  const OATS = pgr('oats');
+  const RICE = pgr('rice');
+  const EGG  = fix('egg');
+  const SEEDS= fix('pkSeed');
+  const NUTS = fix('nuts');
+  const BEEF = (()=>{const f=byId('beef');return {ppg:f.p/100, fpg:f.f/100};})();
+  const PROT_LUNCH  = inCat('prot').filter(f=>f.meals.includes('l')).map(f=>({name:f.name, ppg:f.p/100, fpg:f.f/100}));
+  const CARB_DINNER = inCat('carb').filter(f=>f.meals.includes('d')).map(f=>({name:f.name, cpg:f.c/100, ppg:f.p/100, fpg:f.f/100}));
+  const VEG = inCat('veg').map(f=>f.name);
+  const STIRFRY_OIL = inCat('fat').filter(f=>f.meals.includes('l')).map(f=>f.name);
+
+  // ===== 食材库模块渲染（表格）=====
+  const MEAL_LABEL = {b:'早', l:'午', d:'晚'};
+  const fmt = n => (Math.round(n*10)/10).toString();
+
+  function renderPantry(){
+    const groups=[
+      {key:'carb', label:'主食 · 碳水来源', cls:'grp-c'},
+      {key:'prot', label:'蛋白质来源',      cls:'grp-p'},
+      {key:'fat',  label:'油脂 · 坚果',      cls:'grp-f'},
+      {key:'veg',  label:'蔬菜',            cls:'grp-g', free:true, sub:'每餐 200–300g'},
+      {key:'fruit',label:'水果',            cls:'grp-g', free:true, sub:''},
+    ];
+    const badges = meals => meals.map(m=>`<span class="mb">${MEAL_LABEL[m]}</span>`).join('');
+    let rows='';
+    groups.forEach(g=>{
+      const items=inCat(g.key); if(!items.length) return;
+      const tag = g.free ? `${items.length} 种 · 不计热量` : `${items.length} 种`;
+      rows += `<tr class="grp ${g.cls}"><td colspan="5">${g.label}<span>${tag}</span></td></tr>`;
+      if(g.free){
+        const names=items.map(f=>f.name).join('、');
+        const allMeals=[...new Set(items.flatMap(f=>f.meals))];
+        const sub=g.sub?g.sub+' · 自由量':'自由量';
+        rows += `<tr class="food">
+          <td><div class="fn">${names}</div><div class="fb">${sub}</div></td>
+          <td class="meal">${badges(allMeals)}</td>
+          <td class="num free-cell" colspan="3">不计热量</td>
+        </tr>`;
+      } else {
+        items.forEach(f=>{
+          rows += `<tr class="food">
+            <td><div class="fn">${f.name}</div><div class="fb">${f.basis}${f.note?' · '+f.note:''}</div></td>
+            <td class="meal">${badges(f.meals)}</td>
+            <td class="num">${fmt(f.c)}</td>
+            <td class="num">${fmt(f.p)}</td>
+            <td class="num">${fmt(f.f)}</td>
+          </tr>`;
+        });
+      }
+    });
+    $('#pantry').innerHTML =
+      `<table class="pantry-table">
+        <thead><tr>
+          <th>食材</th><th class="meal">餐次</th>
+          <th class="num th-c">碳水</th><th class="num th-p">蛋白</th><th class="num th-f">脂肪</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    const cnt=document.getElementById('pantryCount');
+    if(cnt) cnt.textContent='共 '+FOODS.length+' 种食材';
+  }
+
+  // 三餐占比
+  const RC = {b:0.24, l:0.39, d:0.37};
+  const RP = {b:0.20, l:0.40, d:0.40};
+
+  const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
+  const r5=x=>Math.round(x/5)*5;
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  function sample(a,k){const c=[...a],o=[];for(let i=0;i<k&&c.length;i++)o.push(c.splice(Math.floor(Math.random()*c.length),1)[0]);return o;}
+  const kcal=(c,p,f)=>4*c+4*p+9*f;
+
+  const state={sex:'m',act:'low',weight:70,people:3};
+  const ACT_HOURS={low:'2–3 小时',medium:'4–5 小时',high:'6–7 小时',extreme:'8–9 小时'};
+
+  function targets(){
+    const c=COEF[state.act], w=state.weight, sx=state.sex;
+    const C = w*(sx==='m'?c.carbM:c.carbF);
+    const P = w*c.prot;
+    const F = w*(sx==='m'?c.fatM:c.fatF);
+    const coef = {
+      C: sx==='m'?c.carbM:c.carbF,
+      P: c.prot,
+      F: sx==='m'?c.fatM:c.fatF,
+    };
+    return {C,P,F,coef};
+  }
+
+  // ===== 买菜清单（按男性 + 当前体重/运动量，反推每人每日用量）=====
+  function dailyPerMan(){
+    const c=COEF[state.act], w=state.weight;
+    const C=w*c.carbM, P=w*c.prot, F=w*c.fatM;            // 男性系数
+    const oats = clamp(r5((RC.b*C - SEEDS.c)/OATS.cpg), 30, 130);
+    const eggs = clamp(Math.round((RP.b*P - OATS.ppg*oats - SEEDS.p)/EGG.p), 2, 4);
+    const rice = clamp(r5(RC.l*C/RICE.cpg), 40, 220);
+    const lmeat= clamp(r5((RP.l*P - RICE.ppg*rice)/0.20), 80, 320);  // 0.20=鱼/鸡均值
+    const tuber= clamp(r5((RC.d*C - NUTS.c)/0.22), 80, 520);          // 0.22=代表性薯类
+    const beef = clamp(r5((RP.d*P - 0.016*tuber - NUTS.p)/BEEF.ppg), 80, 320);
+    const fatNoOil = (OATS.fpg*oats + EGG.f*eggs + SEEDS.f)
+                   + (0.02*lmeat + RICE.fpg*rice)
+                   + (BEEF.fpg*beef + 0.002*tuber + NUTS.f);
+    const oil = clamp(F - fatNoOil, 14, 64);
+    return {oats, eggs, rice, lmeat, beef, tuber, oil, nuts:20, seeds:15, veg:500, berry:75};
+  }
+
+  const SHOP=[
+    {name:'燕麦',         unit:'g',  store:'dry',     d:o=>o.oats},
+    {name:'鸡蛋',         unit:'egg',store:'fridge',  d:o=>o.eggs},
+    {name:'大米',         unit:'g',  store:'dry',     d:o=>o.rice,  sub:'按生米计'},
+    {name:'鱼 / 鸡胸',    unit:'g',  store:'freezer', d:o=>o.lmeat, sub:'午餐蛋白'},
+    {name:'牛肉',         unit:'g',  store:'freezer', d:o=>o.beef},
+    {name:'薯类',         unit:'g',  store:'dry',     d:o=>o.tuber, sub:'红薯/紫薯/土豆/南瓜'},
+    {name:'食用油',       unit:'ml', store:'dry',     d:o=>o.oil,   sub:'牛油果油/橄榄油'},
+    {name:'坚果 + 南瓜子',unit:'g',  store:'dry',     d:o=>o.nuts+o.seeds},
+    {name:'蔬菜',         unit:'g',  store:'fresh',   d:o=>o.veg,   sub:'绿叶 + 耐放搭配'},
+    {name:'蓝莓',         unit:'g',  store:'freezer', d:o=>o.berry, sub:'冷冻装更划算'},
+  ];
+  const STORE={
+    dry:    {t:'耐储', c:'tp-dry'},
+    fridge: {t:'冷藏', c:'tp-cold'},
+    freezer:{t:'冷冻', c:'tp-cold'},
+    fresh:  {t:'生鲜', c:'tp-fresh'},
+  };
+  function fmtQty(n,unit){
+    if(unit==='egg'){ return Math.round(n)+' 个'; }
+    if(unit==='ml'){ return Math.round(n)+' ml'; }
+    if(n>=1000){ return (Math.round(n/100)/10)+' kg'; }
+    return Math.round(n/10)*10+' g';
+  }
+
+  function renderShopping(){
+    const o=dailyPerMan(), ppl=state.people;
+    let body='';
+    SHOP.forEach(s=>{
+      const per=s.d(o), st=STORE[s.store];
+      body+=`<tr class="food">
+        <td><div class="fn">${s.name}</div>${s.sub?`<div class="fb">${s.sub}</div>`:''}</td>
+        <td class="num">${fmtQty(per*ppl,s.unit)}</td>
+        <td class="num">${fmtQty(per*ppl*3,s.unit)}</td>
+        <td class="num">${fmtQty(per*ppl*7,s.unit)}</td>
+        <td class="store"><span class="tagpill ${st.c}">${st.t}</span></td>
+      </tr>`;
+    });
+    document.getElementById('shopBody').innerHTML=body;
+    document.getElementById('pplN').textContent=ppl;
+    document.getElementById('shopNote').innerHTML=
+      `按 <b>${ppl} 位男性</b>、各 <b>${state.weight} kg</b> · ${COEF[state.act].label}（每周 ${ACT_HOURS[state.act]}）估算。数字为该人数下各周期总量（<b>1 天＝每日消耗</b>）；生鲜按可食部计，建议再上浮 5–10% 备损耗。`;
+    document.getElementById('buyTips').innerHTML=
+      `<h4>怎么买最合理</h4>
+       <div class="bt"><span class="bt-k">1</span><span><b>耐储干货一次囤够：</b>燕麦、大米、坚果、食用油、薯类常温耐放，按 7 天量一次性买大包装，单价更低、少跑几趟。</span></div>
+       <div class="bt"><span class="bt-k">2</span><span><b>肉类分装冷冻：</b>鱼片 / 鸡胸买大包，回家按<b>每人每餐约 ${Math.round(o.lmeat)} g</b> 分袋冷冻；牛肉同理（约 ${Math.round(o.beef)} g/餐），吃前一晚移冷藏解冻。</span></div>
+       <div class="bt"><span class="bt-k">3</span><span><b>蔬菜分两批买：</b>一周用量大且易坏，耐放的（西兰花、彩椒、白萝卜）可多备，绿叶菜（菠菜、生菜）每 2–3 天买新鲜的，避免烂掉。</span></div>
+       <div class="bt"><span class="bt-k">4</span><span><b>鸡蛋、蓝莓按盒：</b>鸡蛋整盒（30 枚）更划算；蓝莓买冷冻装，早餐直接取用、长期不浪费。</span></div>`;
+  }
+
+  // ===== 在泰国买（本地化采购 + 平替）=====
+  const TH_STORES=[
+    {sn:'Makro แม็คโคร',   tag:'批发囤货最省', sfor:'大米 · 油 · 冷冻鸡胸/鱼 · 整盘鸡蛋 · 坚果'},
+    {sn:'菜市场 ตลาดสด',   tag:'生鲜最便宜',   sfor:'蔬菜 · 鲜鱼 · 猪肉 · 水果（每 2–3 天）'},
+    {sn:'Big C / Lotus’s', tag:'一站式中档',   sfor:'日常杂货 · 调味料 · 燕麦'},
+    {sn:'Villa / Tops',    tag:'进口货才来',   sfor:'橄榄油 · 蓝莓 · 进口绿叶（能平替就别买）'},
+  ];
+  const TH_ITEMS=[
+    {cn:'燕麦',      th:'ข้าวโอ๊ต',           buy:'Big C', q:o=>o.oats,        u:'g',  sub:'糙米粥 / 全麦吐司'},
+    {cn:'鸡蛋',      th:'ไข่ไก่',             buy:'菜市场', q:o=>o.eggs,        u:'egg',sub:'极易买，无需平替（整盘 แผง 最便宜）'},
+    {cn:'大米',      th:'ข้าวหอมมะลิ',        buy:'Makro', q:o=>o.rice,        u:'g',  sub:'糙米 ข้าวกล้อง（更高纤）'},
+    {cn:'鸡胸 / 鱼', th:'อกไก่ / ปลานิล',     buy:'菜市场', q:o=>o.lmeat,       u:'g',  sub:'罗非鱼 ปลานิล、虾 กุ้ง、巴沙 ปลาดอรี่'},
+    {cn:'牛肉',      th:'เนื้อวัว',           buy:'Makro', q:o=>o.beef,        u:'g',  sub:'瘦猪里脊 หมูสันใน（便宜量大，首选）'},
+    {cn:'薯类',      th:'มันเทศ / ฟักทอง',    buy:'菜市场', q:o=>o.tuber,       u:'g',  sub:'泰国南瓜 ฟักทอง、芋头 เผือก'},
+    {cn:'食用油',    th:'น้ำมันรำข้าว',       buy:'Makro', q:o=>o.oil,         u:'ml', sub:'米糠油（高烟点·便宜）；橄榄油只留淋菜'},
+    {cn:'坚果 + 籽', th:'ถั่ว / เมล็ดฟักทอง', buy:'Makro', q:o=>o.nuts+o.seeds, u:'g', sub:'腰果、花生 ถั่วลิสง、葵花籽'},
+    {cn:'蔬菜',      th:'คะน้า / ผักบุ้ง',    buy:'菜市场', q:o=>o.veg,         u:'g',  sub:'芥蓝 คะน้า、空心菜 ผักบุ้ง 替西兰花/羽衣甘蓝'},
+    {cn:'蓝莓',      th:'บลูเบอร์รี่',        buy:'Makro', q:o=>o.berry,       u:'g',  sub:'冷冻蓝莓；或番石榴 ฝรั่ง、火龙果 แก้วมังกร'},
+  ];
+
+  function renderThai(){
+    const o=dailyPerMan(), ppl=state.people;
+    document.getElementById('thNote').innerHTML=
+      `按 <b>${ppl} 位男性</b>、各 <b>${state.weight} kg</b> · ${COEF[state.act].label} 估算，泰国本地化采购；泰文名可直接给摊主看。`;
+    document.getElementById('thStores').innerHTML = TH_STORES.map(s=>
+      `<div class="store-card"><div class="sn">${s.sn}</div><span class="stag">${s.tag}</span><div class="sfor">${s.sfor}</div></div>`
+    ).join('');
+    document.getElementById('thBody').innerHTML = TH_ITEMS.map(it=>
+      `<tr class="food">
+        <td><div class="fn">${it.cn}</div><div class="fb">${it.th} · ${it.buy}</div></td>
+        <td class="q">${fmtQty(it.q(o)*ppl,it.u)}</td>
+        <td class="q">${fmtQty(it.q(o)*ppl*3,it.u)}</td>
+        <td class="q">${fmtQty(it.q(o)*ppl*7,it.u)}</td>
+        <td class="alt">${it.sub}</td>
+      </tr>`
+    ).join('');
+    const loW=Math.round(ppl*600/50)*50, hiW=Math.round(ppl*950/50)*50;
+    document.getElementById('thCost').innerHTML=
+      `<div class="cl">${ppl} 人一周食材（用平替）</div>
+       <div class="cv">≈ ฿${loW.toLocaleString()}–${hiW.toLocaleString()}<small>/ 周 · ฿85–135 / 人 / 天</small></div>`;
+    document.getElementById('thTips').innerHTML=
+      `<h4>怎么买最省（泰国）</h4>
+       <div class="bt"><span class="bt-k">1</span><span><b>Makro 囤干货 + 冷冻：</b>每周一次买齐大米、油、整盘鸡蛋、冷冻鸡胸 / 鱼、坚果，批发价最低、少跑几趟。</span></div>
+       <div class="bt"><span class="bt-k">2</span><span><b>菜市场 ตลาดสด 买生鲜：</b>蔬菜、鲜鱼、猪肉、水果在菜市场常比超市便宜近一半，每 2–3 天买新鲜的。</span></div>
+       <div class="bt"><span class="bt-k">3</span><span><b>牛肉换猪肉、洋菜换本地菜：</b>牛肉贵 → 瘦猪里脊 <b>หมูสันใน</b>；西兰花 / 羽衣甘蓝 → 芥蓝 <b>คะน้า</b>、空心菜 <b>ผักบุ้ง</b>，更省更新鲜。</span></div>
+       <div class="bt"><span class="bt-k">4</span><span><b>进口品能省则省：</b>炒菜改米糠油 <b>น้ำมันรำข้าว</b>，橄榄油只留淋菜；蓝莓买冷冻或换番石榴 <b>ฝรั่ง</b> / 火龙果。</span></div>`;
+  }
+
+  // 反推一份食谱，使全天合计贴近 C/P/F
+  function buildPlan(C,P,F){
+    // 早餐
+    const oats = clamp(r5((RC.b*C - SEEDS.c)/OATS.cpg), 30, 130);
+    const oM = {c:OATS.cpg*oats, p:OATS.ppg*oats, f:OATS.fpg*oats};
+    const eggs = clamp(Math.round((RP.b*P - oM.p - SEEDS.p)/EGG.p), 2, 4);
+    const eM = {c:EGG.c*eggs, p:EGG.p*eggs, f:EGG.f*eggs};
+    const berry = pick([50,75,100]);
+    const bMacro = {c:oM.c+eM.c+SEEDS.c, p:oM.p+eM.p+SEEDS.p, f:oM.f+eM.f+SEEDS.f};
+
+    // 午餐
+    const lp = pick(PROT_LUNCH);
+    const rice = clamp(r5(RC.l*C/RICE.cpg), 40, 220);
+    const rM = {c:RICE.cpg*rice, p:RICE.ppg*rice, f:RICE.fpg*rice};
+    const lmeat = clamp(r5((RP.l*P - rM.p)/lp.ppg), 80, 320);
+    const lmM = {p:lp.ppg*lmeat, f:lp.fpg*lmeat};
+    const lveg = sample(VEG,2), lvegA = pick([200,250,300]);
+
+    // 晚餐
+    const dc = pick(CARB_DINNER);
+    const tuber = clamp(r5((RC.d*C - NUTS.c)/dc.cpg), 80, 520);
+    const tM = {c:dc.cpg*tuber, p:dc.ppg*tuber, f:dc.fpg*tuber};
+    const beef = clamp(r5((RP.d*P - tM.p - NUTS.p)/BEEF.ppg), 80, 320);
+    const bfM = {p:BEEF.ppg*beef, f:BEEF.fpg*beef};
+    const dveg = sample(VEG,2), dvegA = pick([200,250,300]);
+
+    // 用油平衡脂肪（午、晚各承担一半剩余脂肪）
+    const fatNoOil = bMacro.f + rM.f + lmM.f + tM.f + bfM.f + NUTS.f;
+    let oilTotal = clamp(F - fatNoOil, 14, 64);
+    const oilL = clamp(Math.round(oilTotal/2), 8, 32);
+    const oilD = clamp(Math.round(oilTotal - oilL), 8, 32);
+    const sfOil = pick(STIRFRY_OIL);
+
+    const lMacro = {c:rM.c, p:rM.p+lmM.p, f:rM.f+lmM.f+oilL};
+    const dMacro = {c:tM.c+NUTS.c, p:tM.p+bfM.p+NUTS.p, f:tM.f+bfM.f+NUTS.f+oilD};
+
+    return {
+      breakfast:{
+        emoji:'☀️', name:'早餐', macro:bMacro,
+        tip:'燕麦用水或无糖豆浆冲泡；鸡蛋水煮或少油煎。',
+        items:[
+          {n:'燕麦', a:oats+' g', c:oM.c, p:oM.p, f:oM.f},
+          {n:'全蛋', a:eggs+' 个', c:eM.c, p:eM.p, f:eM.f},
+          {n:'南瓜子', a:'15 g', c:SEEDS.c, p:SEEDS.p, f:SEEDS.f},
+          {n:'蓝莓', tag:'不计热量', a:berry+' g', free:true},
+        ]
+      },
+      lunch:{
+        emoji:'🍱', name:'午餐', macro:lMacro,
+        tip:sfOil+'快炒，油温控制在烟点内；蔬菜可换生食。',
+        items:[
+          {n:'米饭', tag:'生米计', a:rice+' g', c:rM.c, p:rM.p, f:rM.f},
+          {n:lp.name, a:lmeat+' g', c:0, p:lmM.p, f:lmM.f},
+          {n:sfOil, a:oilL+' g', c:0, p:0, f:oilL},
+          {n:lveg.join('、'), tag:'不计热量', a:lvegA+' g', free:true},
+        ]
+      },
+      dinner:{
+        emoji:'🌙', name:'晚餐', macro:dMacro,
+        tip:'水煮牛肉淋橄榄油；'+dc.name+'蒸制更省心。',
+        items:[
+          {n:dc.name, a:tuber+' g', c:tM.c, p:tM.p, f:tM.f},
+          {n:'牛肉', a:beef+' g', c:0, p:bfM.p, f:bfM.f},
+          {n:'橄榄油', tag:'水煮后淋', a:oilD+' g', c:0, p:0, f:oilD},
+          {n:'混合坚果', a:'20 g', c:NUTS.c, p:NUTS.p, f:NUTS.f},
+          {n:dveg.join('、'), tag:'不计热量', a:dvegA+' g', free:true},
+        ]
+      }
+    };
+  }
+
+  // 数字滚动动画
+  const anim = {};
+  function animNum(el,to,dur=420){
+    const key=el.id||(el.id='_n'+Math.random().toString(36).slice(2));
+    if(anim[key]) cancelAnimationFrame(anim[key]);
+    const from=parseFloat(el.textContent.replace(/[^\d.]/g,''))||0;
+    if(Math.abs(to-from)<1){el.textContent=Math.round(to);return;}
+    const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    if(reduce){el.textContent=Math.round(to);return;}
+    const t0=performance.now();
+    const step=now=>{
+      const p=Math.min(1,(now-t0)/dur);
+      const e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(from+(to-from)*e);
+      if(p<1) anim[key]=requestAnimationFrame(step);
+    };
+    anim[key]=requestAnimationFrame(step);
+  }
+
+  function renderTargets(t){
+    animNum($('#tC'),t.C); animNum($('#tP'),t.P); animNum($('#tF'),t.F);
+    animNum($('#tKcal'),kcal(t.C,t.P,t.F));
+    $('#cC').textContent = t.coef.C+' g/kg × '+state.weight+' kg';
+    $('#cP').textContent = t.coef.P+' g/kg × '+state.weight+' kg';
+    $('#cF').textContent = t.coef.F+' g/kg × '+state.weight+' kg';
+    $('#formula').textContent = COEF[state.act].label+'｜'+(state.sex==='m'?'男':'女')+'｜'+state.weight+' kg';
+  }
+
+  function macroParen(c,p,f){
+    const C=Math.round(c), P=Math.round(p), F=Math.round(f);
+    const kc=4*c, kp=4*p, kf=9*f, tot=kc+kp+kf||1;
+    let pc=Math.round(kc/tot*100), pp=Math.round(kp/tot*100);
+    let pf=Math.max(0,100-pc-pp);                       // 让三者恰好相加=100
+    return `<span class="mparen">（<b class="kc">碳${C}g</b> <b class="kp">蛋${P}g</b> <b class="kf">脂${F}g</b> · 占比 ${pc}/${pp}/${pf}%）</span>`;
+  }
+
+  function mealCard(m){
+    const rows = m.items.map(it=>{
+      const paren = it.free ? '' : macroParen(it.c||0, it.p||0, it.f||0);
+      return `<div class="row">
+        <div class="fname">${it.n}${it.tag?`<span class="tag">${it.tag}</span>`:''}</div>
+        <div class="amt"><span class="w tnum">${it.a}</span>${paren}</div>
+      </div>`;
+    }).join('');
+    const k = Math.round(kcal(m.macro.c,m.macro.p,m.macro.f));
+    return `<section class="card meal">
+      <div class="meal-bar">
+        <div class="l"><span class="meal-emoji">${m.emoji}</span><span class="meal-name">${m.name}</span></div>
+        <span class="meal-kcal tnum">约 ${k} kcal</span>
+      </div>
+      <div class="rows">${rows}</div>
+      <div class="tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1" stroke-linecap="round" stroke-linejoin="round"/></svg><span>${m.tip}</span></div>
+      <div class="chips">
+        <span class="chip c"><span class="dot" style="background:var(--carb)"></span>碳水 ${Math.round(m.macro.c)} g</span>
+        <span class="chip p"><span class="dot" style="background:var(--protein)"></span>蛋白 ${Math.round(m.macro.p)} g</span>
+        <span class="chip f"><span class="dot" style="background:var(--fat)"></span>脂肪 ${Math.round(m.macro.f)} g</span>
+      </div>
+    </section>`;
+  }
+
+  function renderPlan(t){
+    const plan = buildPlan(t.C,t.P,t.F);
+    const ms=[plan.breakfast,plan.lunch,plan.dinner];
+    $('#meals').innerHTML = ms.map(mealCard).join('');
+
+    const sum = ms.reduce((s,m)=>({c:s.c+m.macro.c,p:s.p+m.macro.p,f:s.f+m.macro.f}),{c:0,p:0,f:0});
+    const rec=[
+      {cls:'c',name:'碳水',v:sum.c,tg:t.C},
+      {cls:'p',name:'蛋白',v:sum.p,tg:t.P},
+      {cls:'f',name:'脂肪',v:sum.f,tg:t.F},
+    ];
+    $('#reconRows').innerHTML = rec.map(r=>{
+      const pct=clamp(Math.round(r.v/r.tg*100),0,118);
+      return `<div class="rrow">
+        <span class="rname ${r.cls}">${r.name}</span>
+        <span class="bar ${r.cls}"><span style="width:${pct}%"></span></span>
+        <span class="vals">实际 <b>${Math.round(r.v)}</b> / 目标 ${Math.round(r.tg)} g</span>
+      </div>`;
+    }).join('');
+    animNum($('#planKcal'),kcal(sum.c,sum.p,sum.f));
+  }
+
+  function recompute(regen){
+    const t=targets();
+    renderTargets(t);
+    renderShopping();
+    renderThai();
+    if(regen!==false) renderPlan(t);
+  }
+
+  // 交互
+  function bindSeg(id,attr,key){
+    $(id).addEventListener('click',e=>{
+      const b=e.target.closest('button'); if(!b)return;
+      state[key]=b.getAttribute(attr);
+      [...e.currentTarget.children].forEach(x=>x.setAttribute('aria-pressed', x===b));
+      recompute(true);
+    });
+  }
+  bindSeg('#sexSeg','data-sex','sex');
+  bindSeg('#actSeg','data-act','act');
+
+  const wEl=$('#weight');
+  function fillSlider(){
+    const p=(wEl.value-wEl.min)/(wEl.max-wEl.min)*100;
+    wEl.style.setProperty('--fill',p+'%');
+  }
+  wEl.addEventListener('input',()=>{
+    state.weight=+wEl.value;
+    $('#wVal').textContent=state.weight;
+    fillSlider();
+    renderTargets(targets());        // 实时更新目标
+  });
+  wEl.addEventListener('change',()=>recompute(true)); // 松手再换搭配
+  $('#reroll').addEventListener('click',()=>renderPlan(targets()));
+
+  // 人数步进
+  const setPeople=n=>{ state.people=clamp(n,1,12); renderShopping(); renderThai(); };
+  $('#pplMinus').addEventListener('click',()=>setPeople(state.people-1));
+  $('#pplPlus').addEventListener('click',()=>setPeople(state.people+1));
+
+  renderPantry();
+  fillSlider();
+  recompute(true);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,696 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>东北三省自驾游 · 沈阳出发·约20天·渡海回山东</title>
+<meta name="theme-color" content="#0C9370">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1E2733;--soft:#7C8794;--line:#E5EAE8;
+  --bg:#EFF2F1;--paper:#FFFFFF;--paper-2:#F1F4F3;
+  --accent:#0FA37A;--jade:#0C9370;--gold:#E8A23C;
+  --display:"Fraunces", Georgia, "Songti SC", serif;
+  --font:"Noto Sans SC", -apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 70px}
+.hero{position:relative;color:#fff;padding:62px 22px 54px;text-align:center;background:linear-gradient(150deg,#0FA37A 0%,#0C9370 46%,#0A6E54 100%);overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 16% 12%,rgba(255,255,255,.22),transparent 46%),radial-gradient(circle at 88% 78%,rgba(232,162,60,.20),transparent 50%)}
+.hin{position:relative;max-width:1080px;margin:0 auto}
+.hero .k{font-family:var(--display);font-size:12px;letter-spacing:.28em;text-transform:uppercase;opacity:.95;font-weight:700}
+.hero h1{font-family:var(--display);font-size:40px;margin:12px 0 8px;font-weight:900;letter-spacing:-.01em;text-shadow:0 2px 16px rgba(0,0,0,.18)}
+.hero .sub{font-size:16px;opacity:.95;margin-bottom:22px}
+.stats{display:flex;flex-wrap:wrap;gap:11px;justify-content:center}
+.stat{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);border-radius:14px;padding:12px 18px;min-width:112px;backdrop-filter:blur(2px)}
+.stat b{display:block;font-family:var(--display);font-size:26px;font-weight:900;letter-spacing:-.01em} .stat span{font-size:12px;opacity:.92}
+.rl{margin-top:22px;font-size:13.5px;opacity:.97;background:rgba(0,0,0,.16);display:inline-block;padding:11px 18px;border-radius:16px;line-height:2}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;margin:20px 0;box-shadow:0 1px 2px rgba(20,35,28,.04),0 10px 26px rgba(20,35,28,.05)}
+.card h2.s{font-family:var(--display);font-weight:900;font-size:21px;letter-spacing:-.01em;margin-bottom:6px;display:flex;gap:8px;align-items:center}
+.note{font-size:13.8px;color:var(--soft)}
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));gap:13px;margin-top:13px}
+.tip{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:13.5px}
+.tip b{display:block;margin-bottom:3px}
+.ov{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:7px;margin-top:12px}
+.ovr{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:4px solid;border-radius:10px;padding:7px 11px;font-size:13px;transition:.15s}
+.ovr:hover{background:var(--paper-2);transform:translateX(2px)}
+.ovd{color:#fff;font-weight:700;border-radius:6px;padding:2px 7px;font-size:12px;flex-shrink:0}
+.ovt{flex:1;font-weight:600} .ovk{color:var(--soft);font-size:11.5px;flex-shrink:0}
+.seg{margin-top:36px}
+.shead{display:flex;align-items:center;gap:15px;background:linear-gradient(120deg,var(--c1),var(--c2));color:#fff;border-radius:16px;padding:18px 22px;margin-bottom:6px;box-shadow:0 6px 18px rgba(0,0,0,.10)}
+.sicon{font-size:34px} .shead h2{font-family:var(--display);font-size:23px;font-weight:900;letter-spacing:-.01em} .shead p{opacity:.95;font-size:13.5px}
+.day{background:var(--sbg);border:1px solid var(--line);border-radius:16px;padding:18px 18px 8px;margin:15px 0;scroll-margin-top:14px}
+.dhead{display:flex;align-items:center;gap:13px;margin-bottom:7px}
+.dnum{background:var(--c1);color:#fff;font-family:var(--display);font-weight:900;font-size:19px;border-radius:14px;min-width:54px;height:54px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dhead h3{font-size:18px;font-weight:800;line-height:1.35}
+.dmeta{display:flex;flex-wrap:wrap;gap:5px 13px;margin-top:3px;font-size:12.5px;color:var(--soft)}
+.dsum{font-size:14px;background:var(--paper);border-radius:10px;padding:10px 13px;margin:5px 0 13px;border:1px solid var(--line)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px;margin-bottom:12px}
+.card2{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:.15s}
+.card2:hover{box-shadow:0 8px 20px rgba(20,35,28,.08);transform:translateY(-1px)}
+.media{position:relative;width:100%;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ph{font-size:48px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25));opacity:.9}
+.cbody{padding:11px 13px 13px;display:flex;flex-direction:column;flex:1}
+.ctitle{font-weight:800;font-size:15px;display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.cdesc{font-size:13px;color:#374151;flex:1;margin-bottom:9px}
+.clinks{display:flex;gap:7px;flex-wrap:wrap}
+.b{font-size:12px;text-decoration:none;padding:5px 9px;border-radius:7px;font-weight:600;white-space:nowrap}
+.b.map{background:var(--chip);color:#fff} .b.pic{background:var(--paper-2);color:var(--ink);border:1px solid var(--line)}
+.b:hover{opacity:.88}
+.more{background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:10px 13px;margin-bottom:12px}
+.more-h{font-size:12.5px;color:var(--soft);font-weight:700;margin-bottom:7px}
+.mrow{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
+.mrow:first-of-type{border-top:none}
+.mtxt{flex:1;font-size:13px} .mtxt b{margin-right:6px} .mtxt span{color:var(--soft)}
+.mlinks{display:flex;gap:6px;flex-shrink:0}
+.mlinks a{text-decoration:none;font-size:14px;background:var(--paper-2);border-radius:7px;padding:3px 8px}
+.dfoot{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0 11px}
+.fi{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px}
+.fi b{display:block;margin-bottom:2px}
+.bkbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.bk{font-size:12.5px;text-decoration:none;padding:7px 12px;border-radius:9px;font-weight:700;border:1px solid transparent}
+.bk.hotel{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.bk.ticket{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+.bk.ferry{background:#EAF4F0;color:#0C8A67;border-color:#BFE0D6}
+.bk:hover{opacity:.85}
+@media(max-width:640px){.hero h1{font-size:28px}.hero{padding:44px 15px 38px}.dfoot{grid-template-columns:1fr}.stat{min-width:96px}}
+footer{text-align:center;color:var(--soft);font-size:12px;margin-top:34px;padding:18px}
+a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;text-decoration:none;border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(12,147,112,.4);font-size:19px;z-index:50}
+</style></head><body>
+<div class="hero"><div class="hin">
+  <div class="k">辽 · 吉 · 黑　自驾环线</div>
+  <h1>东北三省自驾游手册</h1>
+  <div class="sub">沈阳出发 · 约 19 天（青岛住一晚则 20 天）· 夏季慢节奏 · 大连渡海回临沂</div>
+  <div class="stats">
+    <div class="stat"><b>19–20</b><span>天行程</span></div>
+    <div class="stat"><b>≈3400</b><span>公里陆路</span></div>
+    <div class="stat"><b>3+1</b><span>辽吉黑+山东</span></div>
+    <div class="stat"><b>真实</b><span>景点实拍图</span></div>
+  </div>
+  <div class="rl">🚩 沈阳 → 集安·高句丽 → 长白山 → 延吉 → 防川·一眼望三国 → 镜泊湖 → 哈尔滨 → 扎龙丹顶鹤 → 长春 → 大连 → 🚢 渤海轮渡 → 烟台上岸 → 临沂（到家 · 青岛顺路可选）</div>
+</div></div>
+<div class="wrap">
+  <div class="card">
+    <h2 class="s">📖 关于这份行程</h2>
+    <p class="note">按你的最新情况定制：<b>今天抵达沈阳出发、全程约 19 天、以自然风光为主兼顾人文与美食边境、最后从大连乘渤海轮渡到烟台、当天开回临沂的家</b>（想玩青岛就住一晚，成 20 天）。全程顺时针不走回头路，多数驾驶日 3–5 小时，节奏轻松。长白山特意安排了<b>北坡+西坡+1 天机动</b>共 3 次看天池的机会（天池能否看到全看天气）。<b>每个主要景点都配了真实实拍照片</b>（图片来自维基共享资源等公开来源）；每条下方均有「📍高德定位」与「🔍看实景图」，点击即可导航或看更多照片。</p>
+    <div class="tips">
+      <div class="tip"><b>🚢 关键·渡海</b>回临沂走「大连港→烟台港」渤海轮渡（客滚船可载车）最省时——比绕山海关/济南陆路少开约 800km、少一天。<b>建议乘夜班</b>：傍晚在大连登船，清晨到烟台，当天即可开回临沂（约 460km/5h）。需提前订车+人船票、按时到港安检。</div>
+      <div class="tip"><b>🪪 证件</b>随身带身份证：防川、旅顺等边境/口岸区域及登船均需实名查验。</div>
+      <div class="tip"><b>🎫 预约</b>长白山需在官方「长白山智慧旅游/长白山景区」微信小程序<b>实名预约门票+环保车</b>（2026 支持提前购、可改约）；镜泊湖、扎龙、伪满皇宫等暑期也建议提前网上购票。每天下方均有「🏨订住宿 / 🎫门票预约」入口。</div>
+      <div class="tip"><b>🌤️ 天气</b>7–8 月日均 18–28℃，长白山山顶风大偏冷，备一件冲锋衣/薄羽绒。</div>
+    </div>
+  </div>
+  <div class="card">
+    <h2 class="s">🗺️ 全程总览（点击跳转当天）</h2>
+    <div class="ov"><a href="#day1" class="ovr" style="border-left-color:#0C8A67"><span class="ovd" style="background:#0C8A67">D1</span><span class="ovt">沈阳 · 今日抵达</span><span class="ovk">抵达日 · 市内</span></a><a href="#day2" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D2</span><span class="ovt">沈阳 → 集安 · 世界遗产高句丽</span><span class="ovk">约 350km</span></a><a href="#day3" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D3</span><span class="ovt">集安 → 长白山（二道白河）</span><span class="ovk">约 260km</span></a><a href="#day4" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D4</span><span class="ovt">长白山 · 北坡登顶天池</span><span class="ovk">景区换乘越野车/环保车</span></a><a href="#day5" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D5</span><span class="ovt">长白山 · 西坡花海大峡谷</span><span class="ovk">约 120km</span></a><a href="#day6" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D6</span><span class="ovt">长白山 · 机动休整日（天池备看）</span><span class="ovk">约 60km</span></a><a href="#day7" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D7</span><span class="ovt">长白山 → 延吉 · 朝鲜族之都</span><span class="ovk">约 270km</span></a><a href="#day8" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D8</span><span class="ovt">延吉 · 民俗与美食慢游</span><span class="ovk">市内</span></a><a href="#day9" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D9</span><span class="ovt">延吉 → 珲春 · 一眼望三国</span><span class="ovk">约 200km</span></a><a href="#day10" class="ovr" style="border-left-color:#3D5A93"><span class="ovd" style="background:#3D5A93">D10</span><span class="ovt">珲春 → 敦化 → 镜泊湖</span><span class="ovk">约 360km</span></a><a href="#day11" class="ovr" style="border-left-color:#3D5A93"><span class="ovd" style="background:#3D5A93">D11</span><span class="ovt">镜泊湖 → 哈尔滨 · 东方莫斯科</span><span class="ovk">约 350km</span></a><a href="#day12" class="ovr" style="border-left-color:#3D5A93"><span class="ovd" style="background:#3D5A93">D12</span><span class="ovt">哈尔滨 · 欧陆风情深度</span><span class="ovk">市内</span></a><a href="#day13" class="ovr" style="border-left-color:#3D5A93"><span class="ovd" style="background:#3D5A93">D13</span><span class="ovt">哈尔滨 → 齐齐哈尔 · 丹顶鹤之乡</span><span class="ovk">约 300km</span></a><a href="#day14" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D14</span><span class="ovt">齐齐哈尔 → 长春 · 末代皇宫</span><span class="ovk">约 450km</span></a><a href="#day15" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D15</span><span class="ovt">长春 → 沈阳（可绕吉林市松花湖）</span><span class="ovk">约 300km</span></a><a href="#day16" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D16</span><span class="ovt">沈阳 → 大连 · 浪漫海滨</span><span class="ovk">约 400km</span></a><a href="#day17" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D17</span><span class="ovt">大连 · 旅顺口近代史</span><span class="ovk">约 90km</span></a><a href="#day18" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D18</span><span class="ovt">大连 · 金石滩 + 傍晚登船渡海</span><span class="ovk">约 110km + 登船</span></a><a href="#day19" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D19</span><span class="ovt">烟台上岸 → 临沂 · 到家（青岛顺路可选）</span><span class="ovk">约 460km</span></a></div>
+  </div>
+  <section class="seg" style="--c1:#0C8A67;--c2:#13A585;--sbg:#EAF4F0;--chip:#0C8A67">
+      <div class="shead"><div class="sicon">🏯</div><div><h2>辽宁 · 起点沈阳</h2><p>一朝发祥地 · Day 1</p></div></div>
+      <div class="day" id="day1">
+      <div class="dhead"><div class="dnum">D1</div>
+        <div><h3>沈阳 · 今日抵达</h3>
+        <div class="dmeta"><span>🚗 沈阳市区</span><span>🧭 抵达日 · 市内</span></div></div></div>
+      <p class="dsum">你今天到达沈阳——环线的起点。用轻松的一天读懂这座清朝龙兴之城与共和国工业长子。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#0C8A67,#13A585)"><span class="ph">🏯</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Mukden%20Palace%20in%20Shenyang.jpg?width=700" alt="沈阳故宫" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🏯</span>沈阳故宫</div>
+        <p class="cdesc">清入关前皇宫，与北京故宫并列的世界遗产。大政殿与十王亭的八旗格局全国独一无二，红墙金瓦，气势庄严。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E6%B2%88%E9%98%B3%E6%95%85%E5%AE%AB" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%B2%88%E9%98%B3%E6%95%85%E5%AE%AB" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#0C8A67,#13A585)"><span class="ph">🏛️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Former%20residence%20of%20Zhang%20Zuolin%20in%20Shenyang%20seen%20from%20the%20yard.JPG?width=700" alt="张氏帅府（大帅府）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🏛️</span>张氏帅府（大帅府）</div>
+        <p class="cdesc">张作霖、张学良父子官邸，中西合璧的建筑群，是近代东北军政风云最直观的见证。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%BC%A0%E6%B0%8F%E5%B8%85%E5%BA%9C%EF%BC%88%E5%A4%A7%E5%B8%85%E5%BA%9C%EF%BC%89" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%BC%A0%E6%B0%8F%E5%B8%85%E5%BA%9C%EF%BC%88%E5%A4%A7%E5%B8%85%E5%BA%9C%EF%BC%89" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>中街 & 老北市</b><span>中国最早商业街之一，老北市庙会烟火气足，晚上逛吃首选</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%B2%88%E9%98%B3%E4%B8%AD%E8%A1%97" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%B2%88%E9%98%B3%E4%B8%AD%E8%A1%97" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>北陵公园（昭陵）</b><span>皇太极陵寝，古松参天的皇家园林</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%B2%88%E9%98%B3%E5%8C%97%E9%99%B5%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%B2%88%E9%98%B3%E5%8C%97%E9%99%B5%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>中国工业博物馆 / 1905文创园</b><span>铁西老工业记忆与文创新生</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E4%B8%AD%E5%9B%BD%E5%B7%A5%E4%B8%9A%E5%8D%9A%E7%89%A9%E9%A6%86%20%E6%B2%88%E9%98%B3" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E4%B8%AD%E5%9B%BD%E5%B7%A5%E4%B8%9A%E5%8D%9A%E7%89%A9%E9%A6%86%20%E6%B2%88%E9%98%B3" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>老边饺子、杨家吊炉饼、沈阳鸡架配老雪、西塔朝鲜族一条街。</div><div class="fi"><b>🏨 住宿</b>沈阳沈河区（故宫/中街附近）。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E6%B2%88%E9%98%B3%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 沈阳</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E6%B2%88%E9%98%B3%E6%95%85%E5%AE%AB%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div></section><section class="seg" style="--c1:#3F7C4E;--c2:#5BA06B;--sbg:#EEF4EC;--chip:#3F7C4E">
+      <div class="shead"><div class="sicon">🌲</div><div><h2>吉林 · 高句丽 · 长白山 · 朝鲜族边境</h2><p>世界遗产 · 天池花海 · 一眼望三国 · Day 2–8</p></div></div>
+      <div class="day" id="day2">
+      <div class="dhead"><div class="dnum">D2</div>
+        <div><h3>沈阳 → 集安 · 世界遗产高句丽</h3>
+        <div class="dmeta"><span>🚗 沈阳 → 集安（约 350km，4.5h）</span><span>🧭 约 350km</span></div></div></div>
+      <p class="dsum">经通化进入吉林，抵达鸭绿江畔的“东北小江南”集安，午后探访 1600 年前的高句丽古国。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🔺</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Tomb%20of%20the%20General%201.jpg?width=700" alt="将军坟（东方金字塔）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🔺</span>将军坟（东方金字塔）</div>
+        <p class="cdesc">高句丽王陵，巨石垒砌的方坛阶梯石室墓，被誉为“东方金字塔”，气势恢宏，世界文化遗产。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%B0%86%E5%86%9B%E5%9D%9F%EF%BC%88%E4%B8%9C%E6%96%B9%E9%87%91%E5%AD%97%E5%A1%94%EF%BC%89" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%B0%86%E5%86%9B%E5%9D%9F%EF%BC%88%E4%B8%9C%E6%96%B9%E9%87%91%E5%AD%97%E5%A1%94%EF%BC%89" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>好太王碑 & 太王陵</b><span>高 6 米余、1775 字铭文记录高句丽开疆史的国宝石碑</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%A5%BD%E5%A4%AA%E7%8E%8B%E7%A2%91%20%E9%9B%86%E5%AE%89" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%A5%BD%E5%A4%AA%E7%8E%8B%E7%A2%91%20%E9%9B%86%E5%AE%89" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>丸都山城 & 国内城</b><span>高句丽山城与平原都城遗址，登城俯瞰集安</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E4%B8%B8%E9%83%BD%E5%B1%B1%E5%9F%8E" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E4%B8%B8%E9%83%BD%E5%B1%B1%E5%9F%8E" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>集安鸭绿江边境</b><span>隔江与朝鲜满浦相望，江畔散步看对岸</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%9B%86%E5%AE%89%E9%B8%AD%E7%BB%BF%E6%B1%9F" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%9B%86%E5%AE%89%E9%B8%AD%E7%BB%BF%E6%B1%9F" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>集安冷面、边条鱼、江鱼锅、山葡萄酒。</div><div class="fi"><b>🏨 住宿</b>集安市区。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E9%9B%86%E5%AE%89%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 集安</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E9%9B%86%E5%AE%89%20%E9%AB%98%E5%8F%A5%E4%B8%BD%20%E4%BA%94%E5%A5%B3%E5%B3%B0%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day3">
+      <div class="dhead"><div class="dnum">D3</div>
+        <div><h3>集安 → 长白山（二道白河）</h3>
+        <div class="dmeta"><span>🚗 集安 → 二道白河（约 260km，5h 山路）</span><span>🧭 约 260km</span></div></div></div>
+      <p class="dsum">翻越老岭、穿行林海的山区公路，抵达长白山北坡门户小镇二道白河。今天以行车与美景为主。</p>
+      
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>五女峰国家森林公园</b><span>集安北郊秀丽山岳，奇峰云海、原始红松林，夏日徒步清凉（半日可选）</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E4%BA%94%E5%A5%B3%E5%B3%B0%E5%9B%BD%E5%AE%B6%E6%A3%AE%E6%9E%97%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E4%BA%94%E5%A5%B3%E5%B3%B0%E5%9B%BD%E5%AE%B6%E6%A3%AE%E6%9E%97%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>老岭 / 长白山林海公路</b><span>穿越连绵林海的山区公路，溪流村落，进山序曲</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E8%80%81%E5%B2%AD" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E8%80%81%E5%B2%AD" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>二道白河小镇（美人松苑）</b><span>长白山脚清新小镇，河水清澈、美人松成林，探山大本营</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E4%BA%8C%E9%81%93%E7%99%BD%E6%B2%B3%20%E7%BE%8E%E4%BA%BA%E6%9D%BE" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E4%BA%8C%E9%81%93%E7%99%BD%E6%B2%B3%20%E7%BE%8E%E4%BA%BA%E6%9D%BE" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>长白山山珍（榛蘑、猴头菇、林下参）、冷水鱼。</div><div class="fi"><b>🏨 住宿</b>二道白河镇（连住 2–3 晚作基地）。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E4%BA%8C%E9%81%93%E7%99%BD%E6%B2%B3%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 二道白河</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day4">
+      <div class="dhead"><div class="dnum">D4</div>
+        <div><h3>长白山 · 北坡登顶天池</h3>
+        <div class="dmeta"><span>🚗 二道白河 → 北坡景区（约 35km）</span><span>🧭 景区换乘越野车/环保车</span></div></div></div>
+      <p class="dsum">北坡是设施最完善的经典一坡。天池、瀑布、温泉、地下森林一线串联。（暑期需提前网上实名预约门票+车）</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">💧</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Baitou%20Mountain%20Tianchi.jpg?width=700" alt="天池（北坡）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>💧</span>天池（北坡）</div>
+        <p class="cdesc">中国最深火山口湖、松花江之源。换乘越野车登主峰，碧蓝天池镶于群峰之间——能否见池全看天气与运气，清晨与晴天概率更高。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%A4%A9%E6%B1%A0%EF%BC%88%E5%8C%97%E5%9D%A1%EF%BC%89" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%A4%A9%E6%B1%A0%EF%BC%88%E5%8C%97%E5%9D%A1%EF%BC%89" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🏞️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Changbai%20chute1.JPG?width=700" alt="长白瀑布" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🏞️</span>长白瀑布</div>
+        <p class="cdesc">天池水溢出形成的 68 米落差瀑布，轰鸣奔泻，沿步道近观震撼，是长白山的标志景观。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E9%95%BF%E7%99%BD%E7%80%91%E5%B8%83" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E7%99%BD%E7%80%91%E5%B8%83" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>聚龙温泉群 & 温泉煮蛋</b><span>地表沸泉群蒸汽缭绕，可买温泉煮的蛋和玉米</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E7%99%BD%E5%B1%B1%E8%81%9A%E9%BE%99%E6%B8%A9%E6%B3%89" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E7%99%BD%E5%B1%B1%E8%81%9A%E9%BE%99%E6%B8%A9%E6%B3%89" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>绿渊潭 / 小天池 / 地下森林</b><span>乳绿瀑潭与幽静谷底原始森林，清凉秘境</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E5%9C%B0%E4%B8%8B%E6%A3%AE%E6%9E%97" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E5%9C%B0%E4%B8%8B%E6%A3%AE%E6%9E%97" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>二道白河镇山珍菌汤锅、铁锅炖。</div><div class="fi"><b>🏨 住宿</b>二道白河。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E4%BA%8C%E9%81%93%E7%99%BD%E6%B2%B3%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 二道白河</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E5%8C%97%E5%9D%A1%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day5">
+      <div class="dhead"><div class="dnum">D5</div>
+        <div><h3>长白山 · 西坡花海大峡谷</h3>
+        <div class="dmeta"><span>🚗 二道白河 ⇄ 西坡（约 100km，2h）</span><span>🧭 约 120km</span></div></div></div>
+      <p class="dsum">西坡视野开阔，1442 级阶梯登顶看天池全貌；7–8 月高山花海是夏日限定盛景。这是本行程第二次冲天池的机会。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🏔️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Heaven%20Lake%2C%20Changbai.jpg?width=700" alt="天池（西坡）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🏔️</span>天池（西坡）</div>
+        <p class="cdesc">西坡登顶视野更开阔，可俯瞰天池与中朝界碑。台阶较多，量力而行——与北坡是完全不同的观池角度。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%A4%A9%E6%B1%A0%EF%BC%88%E8%A5%BF%E5%9D%A1%EF%BC%89" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%A4%A9%E6%B1%A0%EF%BC%88%E8%A5%BF%E5%9D%A1%EF%BC%89" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>高山花园</b><span>海拔 2000 米以上高山草甸，7–8 月百花齐放，东北夏日限定花海</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E9%AB%98%E5%B1%B1%E8%8A%B1%E5%9B%AD" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E9%AB%98%E5%B1%B1%E8%8A%B1%E5%9B%AD" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>锦江大峡谷</b><span>火山与流水切割出的森林大峡谷，怪石林立</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E9%94%A6%E6%B1%9F%E5%A4%A7%E5%B3%A1%E8%B0%B7" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E9%94%A6%E6%B1%9F%E5%A4%A7%E5%B3%A1%E8%B0%B7" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>王池 / 梯子河</b><span>西坡沿线的高山湿地与幽深地缝（可选）</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E7%8E%8B%E6%B1%A0" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E7%8E%8B%E6%B1%A0" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>松江河/西坡山门餐饮、长白山黑木耳。</div><div class="fi"><b>🏨 住宿</b>二道白河或松江河。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E6%9D%BE%E6%B1%9F%E6%B2%B3%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 松江河</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E8%A5%BF%E5%9D%A1%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day6">
+      <div class="dhead"><div class="dnum">D6</div>
+        <div><h3>长白山 · 机动休整日（天池备看）</h3>
+        <div class="dmeta"><span>🚗 二道白河周边（30–60km 内）</span><span>🧭 约 60km</span></div></div></div>
+      <p class="dsum">预留的机动日：若北坡、西坡两天都被云雾挡住看不到天池，今天可再冲一次（哪坡天气好去哪坡）；天气好则悠闲玩魔界、木屋村、泡温泉。这是全程最值的一天缓冲。</p>
+      
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>天池·补看（机动）</b><span>前两日未见天池时的第三次机会，出发前查景区实时天气再定去哪坡</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E7%99%BD%E5%B1%B1%E5%A4%A9%E6%B1%A0" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E7%99%BD%E5%B1%B1%E5%A4%A9%E6%B1%A0" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>魔界风景区（日出晨雾）</b><span>清晨薄雾中枯树立于水面，光影如仙，摄影圣地（需 5–6 点早起）</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E9%AD%94%E7%95%8C%E9%A3%8E%E6%99%AF%E5%8C%BA" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E7%99%BD%E5%B1%B1%20%E9%AD%94%E7%95%8C%E9%A3%8E%E6%99%AF%E5%8C%BA" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>锦江木屋村 & 讷殷古城</b><span>保存完好的满族木屋古村落与满族文化古城，民俗活化石</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%94%A6%E6%B1%9F%E6%9C%A8%E5%B1%8B%E6%9D%91" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%94%A6%E6%B1%9F%E6%9C%A8%E5%B1%8B%E6%9D%91" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>长白山温泉 / 聚龙温泉</b><span>森林温泉泡汤，为连日登山解乏</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E7%99%BD%E5%B1%B1%E6%B8%A9%E6%B3%89" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E7%99%BD%E5%B1%B1%E6%B8%A9%E6%B3%89" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>木屋村农家菜、长白山山珍。</div><div class="fi"><b>🏨 住宿</b>二道白河。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E4%BA%8C%E9%81%93%E7%99%BD%E6%B2%B3%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 二道白河</a></div>
+    </div><div class="day" id="day7">
+      <div class="dhead"><div class="dnum">D7</div>
+        <div><h3>长白山 → 延吉 · 朝鲜族之都</h3>
+        <div class="dmeta"><span>🚗 二道白河 → 延吉（约 270km，4h）</span><span>🧭 约 270km</span></div></div></div>
+      <p class="dsum">驶出林海，来到色彩明快、美食爆棚的延边州府延吉，傍晚 city walk 看霓虹夜景。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🏙️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E5%BB%B6%E5%90%89%20%E5%BB%B6%E8%BE%B9%E5%A4%A7%E5%AD%A6%E7%BD%91%E7%BA%A2%E5%A2%99.jpg?width=700" alt="延吉网红打卡墙 & 夜景" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🏙️</span>延吉网红打卡墙 & 夜景</div>
+        <p class="cdesc">“中国朝鲜族第一城”，双语招牌、彩色建筑、网红墙与布尔哈通河夜景，随手一拍都出片。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%BB%B6%E5%90%89%E7%BD%91%E7%BA%A2%E6%89%93%E5%8D%A1%E5%A2%99%20%26%20%E5%A4%9C%E6%99%AF" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%BB%B6%E5%90%89%E7%BD%91%E7%BA%A2%E6%89%93%E5%8D%A1%E5%A2%99%20%26%20%E5%A4%9C%E6%99%AF" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>帽儿山夜景</b><span>登高俯瞰延吉璀璨灯火与霓虹招牌</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%BB%B6%E5%90%89%20%E5%B8%BD%E5%84%BF%E5%B1%B1" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%BB%B6%E5%90%89%20%E5%B8%BD%E5%84%BF%E5%B1%B1" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>延吉恐龙博物馆 / 延边博物馆</b><span>了解朝鲜族迁徙民俗与延边历史</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%BB%B6%E8%BE%B9%E5%8D%9A%E7%89%A9%E9%A6%86" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%BB%B6%E8%BE%B9%E5%8D%9A%E7%89%A9%E9%A6%86" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>延吉冷面、米肠、辣白菜、烤肉、明太鱼、打糕——朝鲜族美食天堂。</div><div class="fi"><b>🏨 住宿</b>延吉市区（连住 2 晚）。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E5%BB%B6%E5%90%89%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 延吉</a></div>
+    </div><div class="day" id="day8">
+      <div class="dhead"><div class="dnum">D8</div>
+        <div><h3>延吉 · 民俗与美食慢游</h3>
+        <div class="dmeta"><span>🚗 延吉市区及近郊</span><span>🧭 市内</span></div></div></div>
+      <p class="dsum">穿民族服装、逛市场、吃地道朝鲜族美食，悠闲深度体验延边风情的一天。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🍲</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Yanji%20West%20Market.jpg?width=700" alt="延吉水上市场" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🍲</span>延吉水上市场</div>
+        <p class="cdesc">本地人的烟火菜市场，现做米肠、打糕、辣酱与各种小吃，是觅食与感受市井生活的最佳去处。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%BB%B6%E5%90%89%E6%B0%B4%E4%B8%8A%E5%B8%82%E5%9C%BA" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%BB%B6%E5%90%89%E6%B0%B4%E4%B8%8A%E5%B8%82%E5%9C%BA" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🌆</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Yanji%2C%20China.jpg?width=700" alt="延吉城市风情" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🌆</span>延吉城市风情</div>
+        <p class="cdesc">中国朝鲜族民俗园可租传统服饰拍照，帽儿山下双语街景独具异域风情。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%BB%B6%E5%90%89%20%E4%B8%AD%E5%9B%BD%E6%9C%9D%E9%B2%9C%E6%97%8F%E6%B0%91%E4%BF%97%E5%9B%AD" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%BB%B6%E5%90%89%20%E4%B8%AD%E5%9B%BD%E6%9C%9D%E9%B2%9C%E6%97%8F%E6%B0%91%E4%BF%97%E5%9B%AD" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>延边大学 & 局子街</b><span>网红打卡与老街小吃</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%BB%B6%E8%BE%B9%E5%A4%A7%E5%AD%A6" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%BB%B6%E8%BE%B9%E5%A4%A7%E5%AD%A6" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>延吉夜市</b><span>烧烤、格瓦斯、玛乳达，越夜越热闹</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%BB%B6%E5%90%89%E5%A4%9C%E5%B8%82" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%BB%B6%E5%90%89%E5%A4%9C%E5%B8%82" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>继续横扫朝鲜族美食；喝格瓦斯。</div><div class="fi"><b>🏨 住宿</b>延吉。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E5%BB%B6%E5%90%89%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 延吉</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E5%BB%B6%E5%90%89%20%E4%B8%AD%E5%9B%BD%E6%9C%9D%E9%B2%9C%E6%97%8F%E6%B0%91%E4%BF%97%E5%9B%AD%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day9">
+      <div class="dhead"><div class="dnum">D9</div>
+        <div><h3>延吉 → 珲春 · 一眼望三国</h3>
+        <div class="dmeta"><span>🚗 延吉 → 珲春 → 防川（约 200km，2.5h）</span><span>🧭 约 200km</span></div></div></div>
+      <p class="dsum">来到中俄朝三国交界的防川，一眼望三国，是自驾东北最独特的边境体验。（务必带身份证）</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🌐</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Tumen%20River%20Bridge%20in%202018.jpg?width=700" alt="防川 · 图们江边境（一眼望三国）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🌐</span>防川 · 图们江边境（一眼望三国）</div>
+        <p class="cdesc">登龙虎阁远眺，脚下中国、左侧俄罗斯、右侧朝鲜尽收眼底，图们江在此入海望向日本海，边境感震撼。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E9%98%B2%E5%B7%9D%20%E4%B8%80%E7%9C%BC%E6%9C%9B%E4%B8%89%E5%9B%BD" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%98%B2%E5%B7%9D%20%E4%B8%80%E7%9C%BC%E6%9C%9B%E4%B8%89%E5%9B%BD" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>土字牌 & 中俄界碑</b><span>1886 年勘界所立界碑，中俄边界的历史见证</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%98%B2%E5%B7%9D%20%E5%9C%9F%E5%AD%97%E7%89%8C" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%98%B2%E5%B7%9D%20%E5%9C%9F%E5%AD%97%E7%89%8C" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>敬信湿地</b><span>珲春南部湿地，候鸟翔集、芦苇田园</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%95%AC%E4%BF%A1%E6%B9%BF%E5%9C%B0%20%E7%8F%B2%E6%98%A5" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%95%AC%E4%BF%A1%E6%B9%BF%E5%9C%B0%20%E7%8F%B2%E6%98%A5" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>珲春口岸 & 俄式风情</b><span>口岸国门与俄货，帝王蟹/松叶蟹海鲜</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E7%8F%B2%E6%98%A5%E5%8F%A3%E5%B2%B8" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E7%8F%B2%E6%98%A5%E5%8F%A3%E5%B2%B8" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>珲春俄式风味、帝王蟹、朝鲜族菜。</div><div class="fi"><b>🏨 住宿</b>珲春或返延吉。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E7%8F%B2%E6%98%A5%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 珲春</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E9%98%B2%E5%B7%9D%20%E4%B8%80%E7%9C%BC%E6%9C%9B%E4%B8%89%E5%9B%BD%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div></section><section class="seg" style="--c1:#3D5A93;--c2:#5E7BBE;--sbg:#EDF1F8;--chip:#3D5A93">
+      <div class="shead"><div class="sicon">❄️</div><div><h2>黑龙江 · 火山湖泊 · 欧陆哈尔滨 · 鹤乡</h2><p>镜泊湖 · 中央大街 · 扎龙丹顶鹤 · Day 9–13</p></div></div>
+      <div class="day" id="day10">
+      <div class="dhead"><div class="dnum">D10</div>
+        <div><h3>珲春 → 敦化 → 镜泊湖</h3>
+        <div class="dmeta"><span>🚗 珲春 → 敦化 → 镜泊湖（约 360km，5h）</span><span>🧭 约 360km</span></div></div></div>
+      <p class="dsum">沿途经敦化拜金鼎大佛，进入黑龙江，游览火山喷发堰塞而成的镜泊湖与壮观的吊水楼瀑布。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">🪞</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Jingpo%20Lake%20Maogong%20Mountain.JPG?width=700" alt="镜泊湖" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🪞</span>镜泊湖</div>
+        <p class="cdesc">世界最大的高山堰塞湖之一，湖面如镜、群峰倒影，可乘游船览湖光山色，夏季清凉宜人。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E9%95%9C%E6%B3%8A%E6%B9%96" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%9C%E6%B3%8A%E6%B9%96" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">💦</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/DiuSeoiLau%20Waterfall.JPG?width=700" alt="吊水楼瀑布" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>💦</span>吊水楼瀑布</div>
+        <p class="cdesc">镜泊湖出水口的宽幅瀑布，夏季丰水期气势磅礴，有高台跳水人跳瀑表演，震撼必看。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%90%8A%E6%B0%B4%E6%A5%BC%E7%80%91%E5%B8%83" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%90%8A%E6%B0%B4%E6%A5%BC%E7%80%91%E5%B8%83" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>敦化六鼎山 · 金鼎大佛</b><span>世界最高坐佛之一（48 米），依山而建的佛教文化区</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%95%A6%E5%8C%96%20%E5%85%AD%E9%BC%8E%E5%B1%B1%E9%87%91%E9%BC%8E%E5%A4%A7%E4%BD%9B" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%95%A6%E5%8C%96%20%E5%85%AD%E9%BC%8E%E5%B1%B1%E9%87%91%E9%BC%8E%E5%A4%A7%E4%BD%9B" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>镜泊湖火山口地下森林</b><span>火山口内生长的原始森林，地质奇观</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%9C%E6%B3%8A%E6%B9%96%20%E7%81%AB%E5%B1%B1%E5%8F%A3%E5%9C%B0%E4%B8%8B%E6%A3%AE%E6%9E%97" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%9C%E6%B3%8A%E6%B9%96%20%E7%81%AB%E5%B1%B1%E5%8F%A3%E5%9C%B0%E4%B8%8B%E6%A3%AE%E6%9E%97" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>镜泊湖胖头鱼全鱼宴、敦化煎粉。</div><div class="fi"><b>🏨 住宿</b>镜泊湖景区或牡丹江市区。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E7%89%A1%E4%B8%B9%E6%B1%9F%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 牡丹江</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E9%95%9C%E6%B3%8A%E6%B9%96%20%E5%90%8A%E6%B0%B4%E6%A5%BC%E7%80%91%E5%B8%83%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day11">
+      <div class="dhead"><div class="dnum">D11</div>
+        <div><h3>镜泊湖 → 哈尔滨 · 东方莫斯科</h3>
+        <div class="dmeta"><span>🚗 牡丹江 → 哈尔滨（约 350km，4.5h）</span><span>🧭 约 350km</span></div></div></div>
+      <p class="dsum">途经俄式小镇横道河子，傍晚抵达哈尔滨，漫步中央大街感受欧陆夜色与冰棍红肠。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">🍦</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Kitaiskaia%20Street%20in%20Harbin.JPG?width=700" alt="中央大街（夜）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🍦</span>中央大街（夜）</div>
+        <p class="cdesc">亚洲最长步行街之一，百年方石路两侧巴洛克与文艺复兴建筑林立，必吃马迭尔冰棍、红肠、大列巴。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E4%B8%AD%E5%A4%AE%E5%A4%A7%E8%A1%97%EF%BC%88%E5%A4%9C%EF%BC%89" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E4%B8%AD%E5%A4%AE%E5%A4%A7%E8%A1%97%EF%BC%88%E5%A4%9C%EF%BC%89" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>横道河子俄式小镇</b><span>中东铁路百年俄式小镇与东北虎林园，途中停留半日</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%A8%AA%E9%81%93%E6%B2%B3%E5%AD%90" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%A8%AA%E9%81%93%E6%B2%B3%E5%AD%90" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>圣·阿列克谢耶夫教堂</b><span>另一座精美东正教堂，人少好拍</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%93%88%E5%B0%94%E6%BB%A8%20%E9%98%BF%E5%88%97%E5%85%8B%E8%B0%A2%E8%80%B6%E5%A4%AB%E6%95%99%E5%A0%82" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%93%88%E5%B0%94%E6%BB%A8%20%E9%98%BF%E5%88%97%E5%85%8B%E8%B0%A2%E8%80%B6%E5%A4%AB%E6%95%99%E5%A0%82" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>马迭尔冰棍、红肠、大列巴、哈啤；华梅西餐厅俄式大餐。</div><div class="fi"><b>🏨 住宿</b>哈尔滨中央大街附近（连住 2 晚）。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E5%93%88%E5%B0%94%E6%BB%A8%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 哈尔滨</a></div>
+    </div><div class="day" id="day12">
+      <div class="dhead"><div class="dnum">D12</div>
+        <div><h3>哈尔滨 · 欧陆风情深度</h3>
+        <div class="dmeta"><span>🚗 哈尔滨市区</span><span>🧭 市内</span></div></div></div>
+      <p class="dsum">教堂、老街、江畔、太阳岛，用一整天读懂这座“东方小巴黎”。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">⛪</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Saint%20Sophia%20Cathedral%20Harbin.JPG?width=700" alt="圣索菲亚大教堂" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>⛪</span>圣索菲亚大教堂</div>
+        <p class="cdesc">拜占庭风格的远东最大东正教堂，红砖穹顶、成群白鸽，是哈尔滨最经典的地标与拍照点。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%9C%A3%E7%B4%A2%E8%8F%B2%E4%BA%9A%E5%A4%A7%E6%95%99%E5%A0%82" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%9C%A3%E7%B4%A2%E8%8F%B2%E4%BA%9A%E5%A4%A7%E6%95%99%E5%A0%82" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">🌊</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Harbin%20Memorial%20Tower.JPG?width=700" alt="松花江 & 防洪纪念塔" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🌊</span>松花江 & 防洪纪念塔</div>
+        <p class="cdesc">临江的斯大林公园与防洪纪念塔，可乘缆车或轮渡上太阳岛，看江上帆影与俄式风情园。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%93%88%E5%B0%94%E6%BB%A8%20%E9%98%B2%E6%B4%AA%E7%BA%AA%E5%BF%B5%E5%A1%94" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%93%88%E5%B0%94%E6%BB%A8%20%E9%98%B2%E6%B4%AA%E7%BA%AA%E5%BF%B5%E5%A1%94" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>老道外中华巴洛克街区</b><span>中西合璧老建筑群，市井烟火与老字号小吃</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E8%80%81%E9%81%93%E5%A4%96%20%E4%B8%AD%E5%8D%8E%E5%B7%B4%E6%B4%9B%E5%85%8B" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E8%80%81%E9%81%93%E5%A4%96%20%E4%B8%AD%E5%8D%8E%E5%B7%B4%E6%B4%9B%E5%85%8B" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>太阳岛风景区</b><span>江北绿意岛屿，俄罗斯风情小镇</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%93%88%E5%B0%94%E6%BB%A8%20%E5%A4%AA%E9%98%B3%E5%B2%9B" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%93%88%E5%B0%94%E6%BB%A8%20%E5%A4%AA%E9%98%B3%E5%B2%9B" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>伏尔加庄园</b><span>近郊俄式主题庄园，重建圣尼古拉教堂（可选）</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E4%BC%8F%E5%B0%94%E5%8A%A0%E5%BA%84%E5%9B%AD%20%E5%93%88%E5%B0%94%E6%BB%A8" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E4%BC%8F%E5%B0%94%E5%8A%A0%E5%BA%84%E5%9B%AD%20%E5%93%88%E5%B0%94%E6%BB%A8" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>锅包肉、杀猪菜、砂锅、俄餐；夜市烧烤。</div><div class="fi"><b>🏨 住宿</b>哈尔滨。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E5%93%88%E5%B0%94%E6%BB%A8%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 哈尔滨</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E5%93%88%E5%B0%94%E6%BB%A8%20%E5%9C%A3%E7%B4%A2%E8%8F%B2%E4%BA%9A%E6%95%99%E5%A0%82%20%E5%A4%AA%E9%98%B3%E5%B2%9B%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day13">
+      <div class="dhead"><div class="dnum">D13</div>
+        <div><h3>哈尔滨 → 齐齐哈尔 · 丹顶鹤之乡</h3>
+        <div class="dmeta"><span>🚗 哈尔滨 → 齐齐哈尔（约 300km，3.5h）</span><span>🧭 约 300km</span></div></div></div>
+      <p class="dsum">西行来到鹤乡齐齐哈尔，在亚洲最大芦苇湿地看丹顶鹤放飞——本行程最灵动的自然一幕。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">🕊️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E9%BB%91%E9%BE%99%E6%B1%9F%E6%89%8E%E9%BE%99%E5%9B%BD%E5%AE%B6%E7%BA%A7%E8%87%AA%E7%84%B6%E4%BF%9D%E6%8A%A4%E5%8C%BA.jpg?width=700" alt="扎龙国家级自然保护区" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🕊️</span>扎龙国家级自然保护区</div>
+        <p class="cdesc">中国最大的丹顶鹤繁育栖息地，广袤芦苇湿地。每日定时放飞，仙鹤翩跹掠过苇海，唯美震撼。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E6%89%8E%E9%BE%99%E5%9B%BD%E5%AE%B6%E7%BA%A7%E8%87%AA%E7%84%B6%E4%BF%9D%E6%8A%A4%E5%8C%BA" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%89%8E%E9%BE%99%E5%9B%BD%E5%AE%B6%E7%BA%A7%E8%87%AA%E7%84%B6%E4%BF%9D%E6%8A%A4%E5%8C%BA" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>齐齐哈尔龙沙公园</b><span>东北最古老的公园之一，湖山亭榭</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%BD%90%E9%BD%90%E5%93%88%E5%B0%94%20%E9%BE%99%E6%B2%99%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%BD%90%E9%BD%90%E5%93%88%E5%B0%94%20%E9%BE%99%E6%B2%99%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>明月岛</b><span>嫩江江心岛，芦苇湿地风光</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%BD%90%E9%BD%90%E5%93%88%E5%B0%94%20%E6%98%8E%E6%9C%88%E5%B2%9B" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%BD%90%E9%BD%90%E5%93%88%E5%B0%94%20%E6%98%8E%E6%9C%88%E5%B2%9B" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>齐齐哈尔烤肉（名声在外）、杀猪菜、鹤城冷面。</div><div class="fi"><b>🏨 住宿</b>齐齐哈尔。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E9%BD%90%E9%BD%90%E5%93%88%E5%B0%94%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 齐齐哈尔</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E6%89%8E%E9%BE%99%E8%87%AA%E7%84%B6%E4%BF%9D%E6%8A%A4%E5%8C%BA%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div></section><section class="seg" style="--c1:#C0812B;--c2:#E3A03C;--sbg:#FAF3E4;--chip:#C0812B">
+      <div class="shead"><div class="sicon">⛴️</div><div><h2>返程吉林 · 收官辽宁 · 渡海回临沂</h2><p>末代皇宫 · 大连 · 渤海轮渡 · 到家 · Day 13–19</p></div></div>
+      <div class="day" id="day14">
+      <div class="dhead"><div class="dnum">D14</div>
+        <div><h3>齐齐哈尔 → 长春 · 末代皇宫</h3>
+        <div class="dmeta"><span>🚗 齐齐哈尔 → 长春（约 450km，5.5h）</span><span>🧭 约 450km</span></div></div></div>
+      <p class="dsum">南下回到吉林省会长春，探访伪满皇宫与森林湖泊净月潭，节奏放缓。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">🏛️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Manchukuo%20palace.jpg?width=700" alt="伪满皇宫博物院" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🏛️</span>伪满皇宫博物院</div>
+        <p class="cdesc">末代皇帝溥仪任伪满“执政”“皇帝”时的宫殿旧址，保存完整，是警醒的近代史教育基地。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E4%BC%AA%E6%BB%A1%E7%9A%87%E5%AE%AB%E5%8D%9A%E7%89%A9%E9%99%A2" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E4%BC%AA%E6%BB%A1%E7%9A%87%E5%AE%AB%E5%8D%9A%E7%89%A9%E9%99%A2" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">🌲</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Nanhu-See%20im%20Nanhu-Park%2C%20Changchun.jpg?width=700" alt="净月潭国家森林公园" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🌲</span>净月潭国家森林公园</div>
+        <p class="cdesc">亚洲最大人工森林之一环抱的清澈潭湖，环潭绿道骑行、林间栈道，长春的城市绿肺。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E9%95%BF%E6%98%A5%20%E5%87%80%E6%9C%88%E6%BD%AD" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E6%98%A5%20%E5%87%80%E6%9C%88%E6%BD%AD" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>这有山</b><span>室内山形文旅综合体，逛吃拍照</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E6%98%A5%20%E8%BF%99%E6%9C%89%E5%B1%B1" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E6%98%A5%20%E8%BF%99%E6%9C%89%E5%B1%B1" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>长影世纪城 / 长影旧址</b><span>新中国电影摇篮（可选）</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E9%95%BF%E6%98%A5%20%E9%95%BF%E5%BD%B1%E4%B8%96%E7%BA%AA%E5%9F%8E" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%95%BF%E6%98%A5%20%E9%95%BF%E5%BD%B1%E4%B8%96%E7%BA%AA%E5%9F%8E" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>长春锅包肉、蒜蓉粉、鼎丰真糕点、朝鲜族菜。</div><div class="fi"><b>🏨 住宿</b>长春。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E9%95%BF%E6%98%A5%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 长春</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E4%BC%AA%E6%BB%A1%E7%9A%87%E5%AE%AB%20%E5%87%80%E6%9C%88%E6%BD%AD%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day15">
+      <div class="dhead"><div class="dnum">D15</div>
+        <div><h3>长春 → 沈阳（可绕吉林市松花湖）</h3>
+        <div class="dmeta"><span>🚗 长春 → 沈阳（约 300km，3.5h）</span><span>🧭 约 300km</span></div></div></div>
+      <p class="dsum">返回辽宁的过渡日。时间与体力充裕可绕行吉林市松花湖看山水；否则直达沈阳休整。</p>
+      
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>松花湖（吉林市 · 可选）</b><span>丰满水电站形成的狭长山水湖，青山碧水、夏季游船避暑（绕行约多 1.5h）</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%9D%BE%E8%8A%B1%E6%B9%96%20%E5%90%89%E6%9E%97%E5%B8%82" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%9D%BE%E8%8A%B1%E6%B9%96%20%E5%90%89%E6%9E%97%E5%B8%82" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>吉林市北山公园</b><span>古庙群与市井烟火</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%90%89%E6%9E%97%E5%B8%82%20%E5%8C%97%E5%B1%B1%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%90%89%E6%9E%97%E5%B8%82%20%E5%8C%97%E5%B1%B1%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>沈阳 · 彩电塔夜市</b><span>回到沈阳吃鸡架喝老雪，轻松一晚</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%B2%88%E9%98%B3%20%E5%BD%A9%E7%94%B5%E5%A1%94%E5%A4%9C%E5%B8%82" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%B2%88%E9%98%B3%20%E5%BD%A9%E7%94%B5%E5%A1%94%E5%A4%9C%E5%B8%82" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>吉林市杀猪菜、沈阳烤鸡架。</div><div class="fi"><b>🏨 住宿</b>沈阳。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E6%B2%88%E9%98%B3%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 沈阳</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E6%9D%BE%E8%8A%B1%E6%B9%96%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day16">
+      <div class="dhead"><div class="dnum">D16</div>
+        <div><h3>沈阳 → 大连 · 浪漫海滨</h3>
+        <div class="dmeta"><span>🚗 沈阳 → 大连（约 400km，4h）</span><span>🧭 约 400km</span></div></div></div>
+      <p class="dsum">沿沈海高速南下抵达大连——渡海回山东前的最后一座城市。傍晚沿海岸线暴走看海。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">🎏</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Dalian%20China%20Xinghai-Square-01.jpg?width=700" alt="星海广场 & 滨海路" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🎏</span>星海广场 & 滨海路</div>
+        <p class="cdesc">亚洲最大城市广场之一，百年城雕与跨海大桥；滨海路木栈道悬于海崖，是大连兜风看海的经典路段。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E5%A4%A7%E8%BF%9E%20%E6%98%9F%E6%B5%B7%E5%B9%BF%E5%9C%BA" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%A4%A7%E8%BF%9E%20%E6%98%9F%E6%B5%B7%E5%B9%BF%E5%9C%BA" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>老虎滩海洋公园</b><span>滨海海洋主题公园与跨海索道</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%A4%A7%E8%BF%9E%20%E8%80%81%E8%99%8E%E6%BB%A9" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%A4%A7%E8%BF%9E%20%E8%80%81%E8%99%8E%E6%BB%A9" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>俄罗斯风情街</b><span>百年俄式建筑群，异域拍照</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%A4%A7%E8%BF%9E%20%E4%BF%84%E7%BD%97%E6%96%AF%E9%A3%8E%E6%83%85%E8%A1%97" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%A4%A7%E8%BF%9E%20%E4%BF%84%E7%BD%97%E6%96%AF%E9%A3%8E%E6%83%85%E8%A1%97" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>东港音乐喷泉 & 夜景</b><span>海边夜色与灯光秀</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%A4%A7%E8%BF%9E%20%E4%B8%9C%E6%B8%AF" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%A4%A7%E8%BF%9E%20%E4%B8%9C%E6%B8%AF" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>焖子、鲅鱼馅饺子、海胆焖蛋、东港海鲜大排档。</div><div class="fi"><b>🏨 住宿</b>大连中山区/星海一带。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E5%A4%A7%E8%BF%9E%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 大连</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E5%A4%A7%E8%BF%9E%20%E8%80%81%E8%99%8E%E6%BB%A9%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day17">
+      <div class="dhead"><div class="dnum">D17</div>
+        <div><h3>大连 · 旅顺口近代史</h3>
+        <div class="dmeta"><span>🚗 大连 ⇄ 旅顺口（约 45km，往返 90km）</span><span>🧭 约 90km</span></div></div></div>
+      <p class="dsum">旅顺是中国近代史的浓缩之地：军港、要塞、监狱，一整天的人文历史深度游。（带身份证）</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">⛓️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E6%97%85%E9%A1%BA%E7%9B%91%E7%8B%B1%E5%BB%BA%E7%AD%91.jpg?width=700" alt="旅顺日俄监狱旧址" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>⛓️</span>旅顺日俄监狱旧址</div>
+        <p class="cdesc">日俄战争与殖民时期遗址，现为爱国主义教育基地，沉重而真实的近代记忆。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E6%97%85%E9%A1%BA%E6%97%A5%E4%BF%84%E7%9B%91%E7%8B%B1" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%97%85%E9%A1%BA%E6%97%A5%E4%BF%84%E7%9B%91%E7%8B%B1" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>白玉山 & 旅顺军港</b><span>白玉山塔登高俯瞰天然良港与渤黄海分界</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%97%85%E9%A1%BA%20%E7%99%BD%E7%8E%89%E5%B1%B1" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%97%85%E9%A1%BA%20%E7%99%BD%E7%8E%89%E5%B1%B1" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>203高地 / 东鸡冠山</b><span>日俄战争主战场遗址，堡垒炮台</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%97%85%E9%A1%BA%20203%E9%AB%98%E5%9C%B0" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%97%85%E9%A1%BA%20203%E9%AB%98%E5%9C%B0" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>旅顺博物馆</b><span>馆藏丰富，含新疆文物与大谷探险队收集品</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%97%85%E9%A1%BA%E5%8D%9A%E7%89%A9%E9%A6%86" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%97%85%E9%A1%BA%E5%8D%9A%E7%89%A9%E9%A6%86" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>旅顺海鲜（虾爬子、海肠、杂色蛤）；市区俄式西餐。</div><div class="fi"><b>🏨 住宿</b>大连。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E5%A4%A7%E8%BF%9E%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 大连</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E6%97%85%E9%A1%BA%20%E6%97%A5%E4%BF%84%E7%9B%91%E7%8B%B1%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div><div class="day" id="day18">
+      <div class="dhead"><div class="dnum">D18</div>
+        <div><h3>大连 · 金石滩 + 傍晚登船渡海</h3>
+        <div class="dmeta"><span>🚗 大连市区 → 金石滩（约 55km）→ 大连港</span><span>🧭 约 110km + 登船</span></div></div></div>
+      <p class="dsum">上午看亿年海蚀奇石，午后到大连港办理车辆登船手续，傍晚乘渤海轮渡夜航驶向山东烟台。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">🪨</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E6%B5%B7%E7%99%BE%E5%90%88.JPG?width=700" alt="金石滩国家地质公园" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🪨</span>金石滩国家地质公园</div>
+        <p class="cdesc">“神力雕塑公园”——海百合、龟裂石、恐龙探海等六亿年海蚀奇石，海岸线奇绝，大连地质名片。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E9%87%91%E7%9F%B3%E6%BB%A9%E5%9C%B0%E8%B4%A8%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%87%91%E7%9F%B3%E6%BB%A9%E5%9C%B0%E8%B4%A8%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>渤海轮渡（大连港 → 烟台港）</b><span>客滚船载车过海，航程约 7–9 小时，有日班/夜班；轿车约 900–1400 元、乘客约 150–400 元/人（按舱位，出行前请再核实）</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%A4%A7%E8%BF%9E%E6%B8%AF%E5%AE%A2%E8%BF%90%E7%AB%99" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%A4%A7%E8%BF%9E%E6%B8%AF%E5%AE%A2%E8%BF%90%E7%AB%99" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>发现王国主题公园</b><span>金石滩人气游乐园（时间充裕可选）</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E5%A4%A7%E8%BF%9E%20%E5%8F%91%E7%8E%B0%E7%8E%8B%E5%9B%BD" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E5%A4%A7%E8%BF%9E%20%E5%8F%91%E7%8E%B0%E7%8E%8B%E5%9B%BD" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>金石滩海鲜；船上简餐，建议自备干粮饮水。</div><div class="fi"><b>🏨 住宿</b>渤海轮渡船舱（夜航过海）。</div></div>
+      <div class="bkbar"><a class="bk ferry" href="https://www.baidu.com/s?wd=%E6%B8%A4%E6%B5%B7%E8%BD%AE%E6%B8%A1%20%E5%A4%A7%E8%BF%9E%20%E7%83%9F%E5%8F%B0%20%E8%88%B9%E7%A5%A8%20%E8%AE%A2%E7%A5%A8" target="_blank" rel="noopener">🚢 订轮渡船票（车+人）</a></div>
+    </div><div class="day" id="day19">
+      <div class="dhead"><div class="dnum">D19</div>
+        <div><h3>烟台上岸 → 临沂 · 到家（青岛顺路可选）</h3>
+        <div class="dmeta"><span>🚗 烟台港 → 临沂（约 460km，5h）｜或经青岛住一晚</span><span>🧭 约 460km</span></div></div></div>
+      <p class="dsum">清晨渤海轮渡抵达烟台，取车沿沈海高速一路向南——约 5 小时直达临沂的家，当天到家，为这趟跨越辽吉黑三省、约 19 天的东北大环线画上圆满句点。若不赶时间，强烈建议在顺路的青岛住一晚、玩半天海滨（即轻松的 2 天 / 20 天版），次日再回临沂。</p>
+      <div class="cards"><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">🌉</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Qingdao%20Zhan%20Qiao.jpg?width=700" alt="青岛栈桥（顺路 · 可选）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>🌉</span>青岛栈桥（顺路 · 可选）</div>
+        <p class="cdesc">南下顺路的海滨名城青岛。百年木质长桥探入胶州湾，海鸥翔集，“红瓦绿树、碧海蓝天”的城市名片，途中值得停一停吃顿海鲜。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E9%9D%92%E5%B2%9B%E6%A0%88%E6%A1%A5" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%9D%92%E5%B2%9B%E6%A0%88%E6%A1%A5" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div><div class="card2">
+      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">⛰️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Laoshan%20taiqing%20gong%20gate.jpg?width=700" alt="崂山 / 青岛海滨（加一晚可选）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="cbody">
+        <div class="ctitle"><span>⛰️</span>崂山 / 青岛海滨（加一晚可选）</div>
+        <p class="cdesc">若选 2 天版，在青岛住一晚：登海上名山崂山，或泡海水浴场、逛八大关老城，给长途环线一个惬意的海滨收尾。</p>
+        <div class="clinks">
+          <a class="b map" href="https://www.amap.com/search?query=%E9%9D%92%E5%B2%9B%20%E5%B4%82%E5%B1%B1" target="_blank" rel="noopener">📍 高德定位</a>
+          <a class="b pic" href="https://image.baidu.com/search/index?tn=baiduimage&word=%E9%9D%92%E5%B2%9B%20%E5%B4%82%E5%B1%B1" target="_blank" rel="noopener">🔍 看实景图</a>
+        </div>
+      </div>
+    </div></div>
+      <div class="more"><div class="more-h">➕ 其他亮点 / 可选（点 📍 定位、🔍 看图）</div><div class="mrow">
+      <div class="mtxt"><b>烟台山（上岸顺游）</b><span>下船先逛近代开埠灯塔与海滨，再南下</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E7%83%9F%E5%8F%B0%E5%B1%B1" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E7%83%9F%E5%8F%B0%E5%B1%B1" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>日照万平口（顺路海滨）</b><span>青岛南下约 1.5h 的宽阔金沙滩，最后的赶海时光</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%97%A5%E7%85%A7%20%E4%B8%87%E5%B9%B3%E5%8F%A3" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%97%A5%E7%85%A7%20%E4%B8%87%E5%B9%B3%E5%8F%A3" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>回临沂里程</b><span>烟台→临沂约 460km/5h（直达）；青岛→临沂约 300km/3.5h；日照→临沂约 90km/1.2h</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E4%B8%B4%E6%B2%82" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E4%B8%B4%E6%B2%82" target="_blank" rel="noopener">🔍</a></div>
+    </div><div class="mrow">
+      <div class="mtxt"><b>到家贴士</b><span>整理东北带回的木耳、蓝莓、红肠等特产，给爱车做个检查</span></div>
+      <div class="mlinks"><a href="https://www.amap.com/search?query=%E6%B1%BD%E8%BD%A6%E4%BF%9D%E5%85%BB" target="_blank" rel="noopener">📍</a><a href="https://image.baidu.com/search/index?tn=baiduimage&word=%E6%B1%BD%E8%BD%A6%E4%BF%9D%E5%85%BB" target="_blank" rel="noopener">🔍</a></div>
+    </div></div>
+      <div class="dfoot"><div class="fi"><b>🍜 美食</b>青岛啤酒海鲜、日照海鲜、临沂糁汤与炒鸡——到家吃顿家常饭最治愈。</div><div class="fi"><b>🏨 住宿</b>当天回到临沂的家 🏡（或青岛住一晚 = 20 天版）。</div></div>
+      <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E9%9D%92%E5%B2%9B%28%E5%8F%AF%E9%80%89%E4%BD%8F%E4%B8%80%E6%99%9A%29%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 青岛(可选住一晚)</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E5%B4%82%E5%B1%B1%E9%A3%8E%E6%99%AF%E5%8C%BA%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
+    </div></section>
+  <div class="card" style="margin-top:36px">
+    <h2 class="s">🧭 实用信息 & 自驾贴士</h2>
+    <div class="tips">
+      <div class="tip"><b>⛽ 加油</b>山区与边境加油站较疏，进长白山/边境路段前加满油。</div>
+      <div class="tip"><b>📶 离线地图</b>长白山、防川个别路段信号弱，提前离线下载高德/百度地图。</div>
+      <div class="tip"><b>🦌 行车安全</b>山区/林区公路防野生动物与雾气，尽量不夜间开山路；界江口岸勿越界拍摄哨所。</div>
+      <div class="tip"><b>🐟 美食主线</b>沈阳鸡架→集安/延吉朝鲜族→哈尔滨俄餐红肠→齐齐哈尔烤肉→胶东海鲜，一路不重样。</div>
+      <div class="tip"><b>💰 预算参考</b>2 人约 1.0–1.6 万/20 天（含油过路、住宿、门票、餐饮、轮渡），旺季住宿偏贵。</div>
+      <div class="tip"><b>🚗 备选返程</b>不坐船也可陆路绕行：大连→山海关→潍坊→回家（约多 1 天、1000km+）。</div>
+    </div>
+  </div>
+  <div class="card">
+    <h2 class="s">🔀 弹性方案</h2>
+    <div class="tips">
+      <div class="tip"><b>⏱️ 天数微调</b>长白山前两天已看到天池 → 可省机动日（D6），约 18 天到家；想在青岛看海住一晚 → 约 20 天。</div>
+      <div class="tip"><b>➕ 想更野</b>体力充沛可在哈尔滨后北上五大连池火山（+2 天），或直插漠河北极村“找北”（+4–5 天，全程约一个月）。</div>
+      <div class="tip"><b>🌊 若已玩过大连</b>来时若已游大连，D15–17 可压缩为 1 天补给后直接登船，把省下的天数留给长白山或延边。</div>
+    </div>
+    <p class="note" style="margin-top:11px">说明：里程与车程为高德常规路线概算，实际以当天路况、天气与景区/轮渡预约为准；门票与航班政策请出行前再核实一次。</p>
+  </div>
+  <footer>东北三省自驾环线 · 图文手册　|　景点图片来源：维基共享资源（Wikimedia Commons）等公开来源，点击「🔍看实景图」查看更多照片<br>定位由高德地图提供 · 行程仅供参考，请以实时官方信息为准</footer>
+</div>
+<a class="top" href="#" title="回到顶部">↑</a>
+</body></html>

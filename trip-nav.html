@@ -1,0 +1,66 @@
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>旅游中心 · 导航</title>
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#1E2733;--soft:#7C8794;--line:#E5EAE8;--bg:#EFF2F1;--paper:#FFFFFF;--jade:#0C9370;--jade-deep:#0A6E54;--gold-deep:#C0812B;
+  --display:"Fraunces",Georgia,"Songti SC",serif;--font:"Noto Sans SC",-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:22px 15px 60px}
+.head{text-align:center;margin-bottom:18px}
+.head .k{font-family:var(--display);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--jade-deep);font-weight:700}
+.head h1{font-family:var(--display);font-size:24px;font-weight:900;letter-spacing:-.01em;margin:4px 0 3px}
+.head p{color:var(--soft);font-size:12.5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media(min-width:640px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.nc{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px 15px 14px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px rgba(20,35,28,.04)}
+.nc:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,35,28,.10);border-color:#CFE6DD}
+.nc .em{font-size:30px;line-height:1}
+.nc b{font-size:15px;font-weight:800;letter-spacing:-.01em}
+.nc p{font-size:11.8px;color:var(--soft);line-height:1.55;flex:1}
+.nc .tag{align-self:flex-start;font-size:10px;font-weight:800;border-radius:999px;padding:2px 9px;background:#E3F0EA;color:var(--jade-deep)}
+.nc .tag.g{background:#FAF1E0;color:#8a560f}
+.sec{font-family:var(--display);font-weight:900;font-size:14px;color:var(--soft);letter-spacing:.06em;margin:20px 2px 9px}
+footer{text-align:center;color:var(--soft);font-size:11px;margin-top:24px;line-height:1.7}
+</style></head><body>
+<div class="wrap">
+  <div class="head">
+    <div class="k">Travel Hub</div>
+    <h1>🧳 旅游中心</h1>
+    <p>所有行程一览 · 点卡片直达</p>
+  </div>
+
+  <div class="sec">▍马来西亚周边</div>
+  <div class="grid">
+    <div class="nc" data-go="lk"><span class="em">🦅</span><b>兰卡威 3天2晚</b><p>KL 直飞 1h · 天空之桥 + 芭雅岛浮潜 + 免税扫货 · 11月–3月正当季</p><span class="tag">当季推荐</span></div>
+    <div class="nc" data-go="pg"><span class="em">🏝</span><b>槟城 3天2晚</b><p>TBS 大巴来回 · 乔治市老城 + 猫猫沙滩 + Monkey Beach · 住 Cititel</p></div>
+    <div class="nc" data-go="mel1"><span class="em">☀️</span><b>马六甲 1 日</b><p>KL 当天来回：荷兰红屋 + 鸡场街 + 海峡清真寺，带推荐路线</p></div>
+    <div class="nc" data-go="mel"><span class="em">🌙</span><b>马六甲 2天1晚</b><p>慢节奏版：加夜游鸡场街夜市 + 河畔日落 + 更多景点</p></div>
+  </div>
+
+  <div class="sec">▍跨国行程</div>
+  <div class="grid">
+    <div class="nc" data-go="sg2"><span class="em">🇸🇬</span><b>新加坡 2天1夜</b><p>8/19–21 定制版：大巴去 + 凌晨机回中国 · 含存包攻略</p><span class="tag g">按你时间表</span></div>
+    <div class="nc" data-go="sg"><span class="em">🌃</span><b>新加坡 3天2夜</b><p>完整版：入境必办清单 + TBS 过关流程 + 16 站景点大图</p></div>
+  </div>
+
+  <div class="sec">▍中国</div>
+  <div class="grid">
+    <div class="nc" data-go="db"><span class="em">🚗</span><b>东北三省自驾</b><p>自驾路线手册：行程 + 路书 + 攻略（含可下载 PDF/Word 版）</p></div>
+  </div>
+
+  <footer>点卡片直接切换到对应行程页</footer>
+</div>
+<script>
+document.querySelectorAll('.nc').forEach(function(c){
+  c.addEventListener('click',function(){
+    var go=c.getAttribute('data-go');
+    if(go){try{parent.postMessage({tripGo:go},'*');}catch(e){}}
+  });
+});
+</script>
+</body></html>

@@ -1,0 +1,239 @@
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>卷饼公式 · 照你的吃法规划</title>
+<meta name="theme-color" content="#0C9370">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#1E2733;--soft:#7C8794;--line:#E5EAE8;--bg:#EFF2F1;--paper:#FFFFFF;--paper-2:#F1F4F3;--accent:#0FA37A;--jade:#0C9370;--jade-deep:#0A6E54;--gold:#E8A23C;--gold-deep:#C0812B;
+  --p:#C2564A;--c:#D8912E;--f:#2C8FA3;--bad:#C2564A;--bad-bg:#FAEBE7;--ok-bg:#E3F0EA;
+  --display:"Fraunces",Georgia,"Songti SC",serif;--font:"Noto Sans SC",-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;padding-bottom:56px}
+.wrap{max-width:760px;margin:0 auto;padding:0 15px}
+.hero{position:relative;color:#fff;padding:42px 20px 34px;text-align:center;overflow:hidden;background:linear-gradient(150deg,#0FA37A 0%,#0C9370 46%,#0A6E54 100%)}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 15% 12%,rgba(255,255,255,.22),transparent 46%),radial-gradient(circle at 88% 82%,rgba(232,162,60,.22),transparent 50%)}
+.hin{position:relative;max-width:760px;margin:0 auto}
+.hero .k{font-family:var(--display);font-size:11px;letter-spacing:.26em;text-transform:uppercase;opacity:.95;font-weight:700}
+.hero h1{font-family:var(--display);font-size:31px;margin:9px 0 6px;font-weight:900;letter-spacing:-.01em}
+.hero .sub{font-size:13.5px;opacity:.95}
+.hstat{display:flex;gap:9px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.hstat div{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:8px 15px;backdrop-filter:blur(2px)}
+.hstat b{font-family:var(--display);font-size:19px;font-weight:900;display:block}
+.hstat span{font-size:11px;opacity:.92}
+.sec-h{font-family:var(--display);font-weight:900;font-size:20px;letter-spacing:-.01em;margin:30px 2px 4px;display:flex;align-items:center;gap:8px}
+.sec-sub{color:var(--soft);font-size:12.5px;margin:0 2px 12px;line-height:1.6}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:17px;margin:12px 0;box-shadow:0 1px 2px rgba(20,35,28,.04),0 10px 26px rgba(20,35,28,.05)}
+
+/* 评分 */
+.score{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.score .big{font-family:var(--display);font-weight:900;font-size:44px;color:var(--jade);line-height:1}
+.score .big small{font-size:16px;color:var(--soft)}
+.score p{font-size:13px;line-height:1.6;color:#37464e}
+.pill-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.pill{font-size:11.5px;font-weight:700;border-radius:999px;padding:4px 12px}
+.pill.g{background:var(--ok-bg);color:var(--jade-deep)}
+.pill.y{background:#FAF1E0;color:#8a560f}
+.tl .trow{display:flex;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line);align-items:flex-start}
+.tl .trow:last-child{border:0}
+.tl .tt{flex:none;width:64px;font-weight:800;font-size:12.5px;padding-top:1px}
+.tl .tt.g{color:var(--jade-deep)}.tl .tt.y{color:#8a560f}.tl .tt.r{color:var(--bad)}
+.tl .td{font-size:13px;line-height:1.6}
+.tl .td b{font-weight:700}
+.tl .td small{display:block;color:var(--soft);font-size:11.5px}
+
+/* 公式槽位 */
+.slots{display:grid;gap:11px}
+.slot{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.slot-h{display:flex;align-items:baseline;gap:9px;padding:10px 14px;background:var(--paper-2);border-bottom:1px solid var(--line)}
+.slot-h .n{font-family:var(--display);font-weight:900;font-size:15px;color:var(--jade-deep)}
+.slot-h .d{font-size:11.5px;color:var(--soft)}
+.opts{padding:7px 14px 11px}
+.opt{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.opt:last-child{border:0}
+.opt .on b{font-weight:700}
+.opt .on small{color:var(--soft);font-size:11px;margin-left:4px}
+.opt .op{flex:none;color:var(--soft);font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.opt.star .on b{color:var(--jade-deep)}
+.opt.star .on:before{content:"⭐";margin-right:4px;font-size:11px}
+
+/* 7天轮换 */
+.wd{background:var(--paper);border:1px solid var(--line);border-radius:14px;margin:10px 0;overflow:hidden}
+.wd-h{display:flex;align-items:center;gap:10px;padding:10px 15px;color:#fff;background:linear-gradient(120deg,#0C8A67,#13A585)}
+.wd-h .dn{font-family:var(--display);font-weight:900;font-size:15px}
+.wd-h .nm{font-weight:800;font-size:14px}
+.wd-h .mac{margin-left:auto;font-size:10.5px;opacity:.95;font-variant-numeric:tabular-nums}
+.wd-b{padding:9px 15px 12px}
+.wd-b .ing{font-size:13px;line-height:1.65}
+.wd-b .ing b{font-weight:700}
+.wd-b .tip2{font-size:11.5px;color:var(--soft);margin-top:5px;line-height:1.55}
+.wd:nth-child(even) .wd-h{background:linear-gradient(120deg,#C0812B,#E3A03C)}
+
+/* 蔬果丰富 */
+.rich{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:11px}
+.rg{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.rg b.h{display:block;font-size:12.5px;margin-bottom:6px;color:var(--jade-deep)}
+.rg div{font-size:12.5px;display:flex;justify-content:space-between;gap:8px;padding:2.5px 0}
+.rg span{color:var(--soft);font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.gobuy{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:12.5px;font-weight:700;color:var(--jade-deep);background:#E3F0EA;border:1px solid #CFE6DD;border-radius:999px;padding:7px 15px;text-decoration:none}
+.gobuy:hover{background:var(--jade);color:#fff}
+.warn{background:linear-gradient(135deg,#FFF9EE,#FFF4E0);border:1px solid #F0DDB0;border-radius:13px;padding:13px 15px;font-size:12.5px;color:#5a4a1e;line-height:1.7;margin-top:14px}
+.warn b{color:#4a3810}
+.linkrow{display:grid;gap:10px;margin-top:14px}
+.biglink{display:block;text-align:center;background:linear-gradient(150deg,#0FA37A,#0C9370);color:#fff;font-weight:800;font-size:14px;border-radius:14px;padding:14px;text-decoration:none;box-shadow:0 8px 20px rgba(12,147,112,.25)}
+.biglink small{display:block;font-weight:600;font-size:11.5px;opacity:.9;margin-top:2px}
+.biglink.alt{background:var(--paper);color:var(--jade-deep);box-shadow:none;border:1.5px solid var(--jade)}
+footer{text-align:center;color:var(--soft);font-size:11.5px;margin-top:24px;padding:14px;line-height:1.8}
+footer b{color:var(--ink)}
+@media(max-width:560px){.hero h1{font-size:25px}}
+.pf{border:1px solid #CFE6DD;background:#E3F0EA;color:var(--jade-deep);font-family:inherit;font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 8px;cursor:pointer;vertical-align:1px}
+.pf:hover{background:var(--jade);color:#fff}
+#wlb{display:none;position:fixed;inset:0;background:rgba(10,18,15,.93);z-index:99;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+#wlb.on{display:flex}
+#wlb img{max-width:96vw;max-height:84vh;border-radius:10px}
+#wlb button{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;font-family:inherit;font-size:14px;font-weight:700;border-radius:999px;padding:8px 18px;cursor:pointer}
+</style></head><body>
+
+<div class="hero"><div class="hin">
+  <div class="k">照你的吃法规划 · Jaya Grocer 实拍价</div>
+  <h1>🌯 卷饼公式</h1>
+  <div class="sub">你发的那只卷已经接近满分 · 这页把它变成一套吃法</div>
+  <div class="hstat"><div><b>≈330</b><span>kcal / 只</span></div><div><b>22g</b><span>蛋白 / 只</span></div><div><b>7天</b><span>不重样轮换</span></div><div><b>RM≈5</b><span>一只成本</span></div></div>
+</div></div>
+
+<div class="wrap">
+
+  <!-- 评分 -->
+  <div class="sec-h">📸 你这只卷，打几分</div>
+  <div class="card">
+    <div class="score"><div class="big">9<small>/10</small></div>
+      <p><b>低碳饼 + 水煮蛋 + 鹰嘴豆 + 罗马生菜 + 黄芥末</b>——这个组合本身就是教科书级减脂餐：双蛋白（蛋+豆）扛饿，高纤维饼皮碳水只有普通饼的一半，最妙的是<b>用黄芥末代替沙拉酱</b>（芥末≈0卡，蛋黄酱一勺就90kcal）。</p>
+    </div>
+    <div class="pill-row">
+      <span class="pill g">✓ 低碳高纤饼皮</span><span class="pill g">✓ 蛋+豆双蛋白</span><span class="pill g">✓ 芥末0卡酱</span><span class="pill g">✓ 有蔬菜</span>
+      <span class="pill y">△ 蔬菜可以再塞1倍</span><span class="pill y">△ 颜色太单一（见下面丰富清单）</span>
+    </div>
+  </div>
+
+  <!-- 采购点评 -->
+  <div class="sec-h">🧾 这单采购点评（RM 245.70）</div>
+  <p class="sec-sub">24 样里 19 样都是减脂好货，采购思路已经很专业了。</p>
+  <div class="card"><div class="tl">
+    <div class="trow"><span class="tt g">✅ 绿灯</span><span class="td"><b>低碳饼皮、鸡蛋30枚、燕麦750g、鹰嘴豆、红腰豆、两块瘦牛肉（chuck tender + topside 都是瘦切）、橄榄油喷雾、白醋、黄芥末、生菜、黄瓜、胡萝卜、蒜、葱、苹果、吞拿藜麦沙拉盒</b><small>橄榄油喷雾尤其聪明——喷两下≈1g油，比倒油省一半热量；黄芥末当酱是本单最佳选择</small></span></div>
+    <div class="trow"><span class="tt y">⚠️ 黄灯</span><span class="td"><b>全脂牛奶 1L</b>（可以喝，一天别超过一杯 250ml；下次可换低脂）<small>牛奶本身不是坏东西，只是这 10 天热量额度金贵</small></span></div>
+    <div class="trow"><span class="tt r">🚫 红灯</span><span class="td"><b>泡面 ×3 袋装（康师傅×2 + 日清）+ 炸物零食（pucuk goreng）</b><small>这 4 样 ≈ RM49.45，占整单 20%——也是唯一会拖后腿的 20%</small></span></div>
+  </div>
+  <div class="warn"><b>🍜 泡面已经买了怎么办（自救法）：</b>不用扔。① 10 天冲刺期<b>一周最多 1 包</b>，当「应急餐」不当正餐；② 煮的时候<b>调料只放半包、油包整包扔</b>；③ 必须<b>加 2 个蛋 + 一大把青菜</b>一起煮（把它改造成蛋白餐）；④ <b>汤最多喝两口</b>——钠都在汤里，喝完第二天体重虚涨半斤。炸物零食请藏到 D10 之后。</div>
+
+  <!-- 万能公式 -->
+  <div class="sec-h">🌯 万能卷饼公式（5 步填空）</div>
+  <p class="sec-sub">每一步选 1 样，怎么选都≈250–350 kcal、蛋白 17–30g。⭐=你已经买了。</p>
+  <div class="card"><div class="slots">
+    <div class="slot"><div class="slot-h"><span class="n">① 饼皮</span><span class="d">固定 1 张，摊开</span></div><div class="opts">
+      <div class="opt star"><span class="on"><b>Mission 低碳饼皮</b><small>≈110kcal/张 · 纤维7g</small></span><span class="op">RM13.50/包6张</span></div>
+      <div class="opt"><span class="on"><b>Mission 洋葱香葱饼皮</b><small>换口味用</small></span><span class="op">RM8.60（超市目录）</span></div>
+    </div></div>
+    <div class="slot"><div class="slot-h"><span class="n">② 主蛋白</span><span class="d">选 1 份铺中间</span></div><div class="opts">
+      <div class="opt star"><span class="on"><b>水煮蛋 2 个</b><small><button class="pf" type="button" data-p="11">&#128247;P11</button> · 你的30枚装</small></span><span class="op">≈RM0.90</span></div>
+      <div class="opt star"><span class="on"><b>瘦牛肉片 80g</b><small><button class="pf" type="button" data-p="79">&#128247;P79</button> · 喷雾煎1分钟</small></span><span class="op">≈RM6.80</span></div>
+      <div class="opt"><span class="on"><b>吞拿鱼水浸 1 罐</b><small><button class="pf" type="button" data-p="12">&#128247;P12</button> · 开罐即食</small></span><span class="op">RM6.50</span></div>
+      <div class="opt"><span class="on"><b>手撕鸡黑椒味 半罐</b><small><button class="pf" type="button" data-p="12">&#128247;P12</button> · 开罐即食</small></span><span class="op">RM7.70/罐</span></div>
+      <div class="opt"><span class="on"><b>沙丁鱼 半罐</b><small><button class="pf" type="button" data-p="12">&#128247;P12</button>+Omega3</small></span><span class="op">RM4.40/罐</span></div>
+      <div class="opt"><span class="on"><b>三文鱼罐头(洋葱番茄) 半罐</b><small>换口味</small></span><span class="op">RM6.90/罐</span></div>
+    </div></div>
+    <div class="slot"><div class="slot-h"><span class="n">③ 豆子</span><span class="d">2–3 勺，加纤维和饱腹</span></div><div class="opts">
+      <div class="opt star"><span class="on"><b>鹰嘴豆</b><small>你的 Ciao 400g 罐</small></span><span class="op">RM5.60/罐</span></div>
+      <div class="opt star"><span class="on"><b>红腰豆</b><small>你的 Cirio 380g 利乐包</small></span><span class="op">RM5.29/包</span></div>
+    </div></div>
+    <div class="slot"><div class="slot-h"><span class="n">④ 蔬菜</span><span class="d">塞到快包不住（至少 2 样）</span></div><div class="opts">
+      <div class="opt star"><span class="on"><b>罗马生菜 + 黄瓜条 + 胡萝卜丝</b><small>你都买了</small></span><span class="op">—</span></div>
+      <div class="opt"><span class="on"><b>芝麻菜 / 罗勒 / 薄荷</b><small>香气担当，一把换个风味</small></span><span class="op">RM2.70–5.00</span></div>
+      <div class="opt"><span class="on"><b>酸黄瓜片 / 腌洋葱 / 橄榄</b><small>解腻神器，几片就够</small></span><span class="op">RM7.99–12.90</span></div>
+    </div></div>
+    <div class="slot"><div class="slot-h"><span class="n">⑤ 酱</span><span class="d">挤一条，都≈0–15 kcal</span></div><div class="opts">
+      <div class="opt star"><span class="on"><b>Heinz 黄芥末</b><small>≈0卡 · 你的主力酱</small></span><span class="op">已有</span></div>
+      <div class="opt"><span class="on"><b>是拉差辣酱（玲甘）</b><small>辣口换味</small></span><span class="op">RM6.30</span></div>
+      <div class="opt"><span class="on"><b>黑醋 / 白醋 + 黑椒</b><small>牛肉卷绝配</small></span><span class="op">已有</span></div>
+      <div class="opt"><span class="on"><b>墨西哥辣酱 La Costena</b><small>0卡辣感</small></span><span class="op">RM5.80</span></div>
+    </div></div>
+  </div></div>
+
+  <!-- 7天轮换 -->
+  <div class="sec-h">📅 7 天不重样轮换</div>
+  <p class="sec-sub">午餐吃法：<b>卷 ×2</b>，或 <b>卷 ×1 + 希腊优格 + 1 个水果</b>（都≈550–650 kcal）。晚餐照旧跟「10天执行」的晚餐走。</p>
+  <div class="wd"><div class="wd-h"><span class="dn">周一</span><span class="nm">经典蛋豆卷（你发的那只）</span><span class="mac"><button class="pf" type="button" data-p="11">&#128247;P11</button> · ≈330kcal/只</span></div><div class="wd-b"><div class="ing"><b>蛋2 + 鹰嘴豆3勺 + 生菜 + 黄芥末 + 黑椒</b></div><div class="tip2">复刻你的成名作，蛋提前一次煮 6 个放冰箱，早上 2 分钟卷好</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周二</span><span class="nm">吞拿鱼黄瓜卷</span><span class="mac"><button class="pf" type="button" data-p="12">&#128247;P12</button> · ≈270kcal/只</span></div><div class="wd-b"><div class="ing"><b>吞拿鱼水浸1罐 + 红腰豆2勺 + 黄瓜条 + 生菜 + 是拉差</b></div><div class="tip2">吞拿鱼沥干水，拌一点点黑椒和醋，比蛋黄酱版少 100kcal</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周三</span><span class="nm">牛肉洋葱卷</span><span class="mac"><button class="pf" type="button" data-p="79">&#128247;P79</button> · ≈250kcal/只</span></div><div class="wd-b"><div class="ing"><b>topside牛肉片80g（喷雾煎）+ 洋葱丝 + 芝麻菜 + 黑醋+黑椒</b></div><div class="tip2">牛肉片薄切大火 40 秒一面；你买的两块牛肉正好切片分 5 顿用</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周四</span><span class="nm">手撕鸡胡萝卜卷</span><span class="mac"><button class="pf" type="button" data-p="12">&#128247;P12</button> · ≈220kcal/只</span></div><div class="wd-b"><div class="ing"><b>手撕鸡黑椒味半罐 + 胡萝卜丝 + 酸黄瓜片 + 生菜</b></div><div class="tip2">全程不开火，办公室也能卷；剩半罐明天用</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周五</span><span class="nm">沙丁鱼薄荷卷</span><span class="mac"><button class="pf" type="button" data-p="12">&#128247;P12</button> · ≈240kcal/只</span></div><div class="wd-b"><div class="ing"><b>沙丁鱼半罐 + 洋葱圈 + 薄荷叶 + 挤柠檬/白醋</b></div><div class="tip2">薄荷+酸压住鱼腥，Omega-3 一周至少吃两次鱼</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周六</span><span class="nm">三文鱼番茄卷</span><span class="mac"><button class="pf" type="button" data-p="16">&#128247;P16</button> · ≈250kcal/只</span></div><div class="wd-b"><div class="ing"><b>JW三文鱼(洋葱番茄酱)半罐 + 生菜 + 黄瓜 + 黑椒</b></div><div class="tip2">这罐自带洋葱番茄风味，不用另外加酱</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周日</span><span class="nm">蛋牛油果卷（放纵版）</span><span class="mac"><button class="pf" type="button" data-p="78">&#128247;P78</button> · ≈300kcal/只</span></div><div class="wd-b"><div class="ing"><b>蛋2 + 牛油果1/4压泥 + 圣女果 + 芝麻菜 + 黄芥末</b></div><div class="tip2">牛油果当酱抹在饼上，周日犒劳自己；只吃 1 只+优格+水果</div></div></div>
+
+  <!-- 蔬果丰富 -->
+  <div class="sec-h">🥬 蔬果升级清单（你现在只有 4 样）</div>
+  <p class="sec-sub">生菜黄瓜胡萝卜苹果吃一周会腻。下面都是超市实拍有价的，按用途分组，每次买 2–3 样换着来。</p>
+  <div class="card"><div class="rich">
+    <div class="rg"><b class="h">🥬 卷进饼里（生吃）</b>
+      <div>罗马生菜 / 小罗马 <span>RM4.40</span></div>
+      <div>芝麻菜（微苦超配牛肉）<span>RM5.00/50g</span></div>
+      <div>罗勒（配番茄蛋）<span>RM5.00/50g</span></div>
+      <div>薄荷叶（配鱼卷）<span>RM2.70/80g</span></div>
+      <div>酸黄瓜片（解腻）<span>RM12.90/520g</span></div>
+      <div>卡拉马塔橄榄（切碎）<span>RM10.90</span></div>
+      <div>酸豆 capers（提味）<span>RM8.90/110g</span></div>
+    </div>
+    <div class="rg"><b class="h">🍳 晚餐热配菜</b>
+      <div>西兰花 <span>RM3.20</span></div>
+      <div>Ciao番茄碎罐头（炖蛋/烩豆）<span>RM6.20</span></div>
+      <div>Cirio樱桃番茄罐头 <span>RM7.40</span></div>
+      <div>口蘑/菠菜（湿巴刹更便宜）<span>—</span></div>
+      <div>💡 番茄罐头+红腰豆+蛋 = 一锅shakshuka</div>
+    </div>
+    <div class="rg"><b class="h">🍎 水果加餐（每天1–2份）</b>
+      <div>脆红苹果（你买了2个）<span>RM2.90/个</span></div>
+      <div>黄金啤梨 <span>RM4.20</span></div>
+      <div>芒果（1个分2天吃）<span>RM15.90</span></div>
+      <div>蒟蒻果冻（低卡解馋）<span>RM4.99</span></div>
+      <div>⚠️ 糖水菠萝罐头别当水果</div>
+    </div>
+    <div class="rg"><b class="h">🥣 即食救急（没空做饭）</b>
+      <div>希腊沙拉盒 200g <span>RM9.20</span></div>
+      <div>菠菜藜麦沙拉盒 <span>RM9.20</span></div>
+      <div>JW吞拿藜麦沙拉（你买过）<span>RM17.90</span></div>
+      <div>Lactel希腊优格 <span>RM5.05</span></div>
+      <div>Fernleaf低脂优格 <span>RM1.75</span></div>
+    </div>
+  </div>
+  <a class="gobuy" href="kl-prices.html" target="_blank" rel="noopener">📍 全部 786 种实拍价格 · ⭐推荐分类 →</a>
+  </div>
+
+  <!-- 和10天执行怎么配 -->
+  <div class="sec-h">🔗 和「10天执行」怎么配</div>
+  <div class="card"><div class="tl">
+    <div class="trow"><span class="tt g">2顿日</span><span class="td"><b>12:00 = 卷×2</b>（约600kcal，比原计划的午餐清单省事）· 18:00 晚餐照旧</span></div>
+    <div class="trow"><span class="tt g">3顿日</span><span class="td"><b>10:00 = 燕麦早餐照旧 · 14:00 = 卷×2 · 18:00 晚餐照旧</b>（高碳日 D5 午餐仍建议糙米饭，碳水才够）</span></div>
+    <div class="trow"><span class="tt g">备餐</span><span class="td">周日一次：<b>煮蛋6个 + 牛肉切片分袋冷冻 + 豆子开罐后换盒冷藏（3天内吃完）</b>，之后每天卷饼 3 分钟搞定</span></div>
+  </div>
+  <div class="linkrow">
+    <a class="biglink" href="jianzhi-exec10.html" target="_blank" rel="noopener">🎯 回到 10天傻瓜执行版<small>每天几点吃几点练 · 打卡表 →</small></a>
+    <a class="biglink alt" href="jianzhi-kl.html" target="_blank" rel="noopener">🇲🇾 吉隆坡生活化减脂<small>营养计算 · 照超市实拍买什么 →</small></a>
+  </div>
+  </div>
+
+  <footer>卷饼公式 · 基于你 2026-08-15 Jaya Grocer 实拍小票 + 786 种超市实拍价<br><b>非医学建议</b> · 价格随门店浮动，以现场为准。</footer>
+</div>
+<div id="wlb"><img id="wlbImg" alt="货架实拍"><button id="wlbC" type="button">&#10005; 关闭</button></div>
+<script>
+(function(){
+  var lb=document.getElementById('wlb'),im=document.getElementById('wlbImg');
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.pf');
+    if(b){var p=parseInt(b.getAttribute('data-p'),10);im.src='shop-photos/p'+(p<10?'0':'')+p+'.jpg';lb.classList.add('on');}
+  });
+  document.getElementById('wlbC').onclick=function(){lb.classList.remove('on');};
+  lb.addEventListener('click',function(e){if(e.target===lb)lb.classList.remove('on');});
+})();
+</script>
+</body></html>

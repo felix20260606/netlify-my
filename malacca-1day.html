@@ -1,0 +1,306 @@
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>马六甲一日游 · 古城暴走精华</title>
+<meta name="theme-color" content="#0C9370">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#1E2733;--soft:#7C8794;--line:#E5EAE8;
+    --bg:#EFF2F1;--paper:#FFFFFF;--paper-2:#F1F4F3;
+    --accent:#0FA37A;--jade:#0C9370;--jade-deep:#0A6E54;--gold:#E8A23C;--gold-deep:#C0812B;
+    --display:"Fraunces", Georgia, "Songti SC", serif;
+    --font:"Noto Sans SC", -apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 16px 70px}
+
+  /* ---- Hero ---- */
+  .hero{position:relative;color:#fff;padding:60px 22px 52px;text-align:center;overflow:hidden;
+    background:linear-gradient(150deg,#0FA37A 0%,#0C9370 46%,#0A6E54 100%)}
+  .hero:before{content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 16% 12%,rgba(255,255,255,.22),transparent 46%),radial-gradient(circle at 88% 80%,rgba(232,162,60,.22),transparent 50%)}
+  .hin{position:relative;max-width:1000px;margin:0 auto}
+  .hero .k{font-family:var(--display);font-size:12px;letter-spacing:.28em;text-transform:uppercase;opacity:.95;font-weight:700}
+  .hero h1{font-family:var(--display);font-size:40px;margin:12px 0 8px;font-weight:900;letter-spacing:-.01em;text-shadow:0 2px 16px rgba(0,0,0,.18)}
+  .hero .sub{font-size:16px;opacity:.95;margin-bottom:22px}
+  .stats{display:flex;flex-wrap:wrap;gap:11px;justify-content:center}
+  .stat{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);border-radius:14px;padding:12px 18px;min-width:104px;backdrop-filter:blur(2px)}
+  .stat b{display:block;font-family:var(--display);font-size:24px;font-weight:900;letter-spacing:-.01em}
+  .stat span{font-size:12px;opacity:.92}
+  .rl{margin-top:22px;font-size:13.5px;opacity:.97;background:rgba(0,0,0,.16);display:inline-block;padding:11px 18px;border-radius:16px;line-height:2;max-width:820px}
+
+  /* ---- Cards ---- */
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;margin:20px 0;
+    box-shadow:0 1px 2px rgba(20,35,28,.04),0 10px 26px rgba(20,35,28,.05)}
+  .card h2.s{font-family:var(--display);font-weight:900;font-size:21px;letter-spacing:-.01em;margin-bottom:6px;display:flex;gap:8px;align-items:center}
+  .note{font-size:13.8px;color:var(--soft)}
+  .note b{color:var(--ink);font-weight:700}
+  .tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px;margin-top:14px}
+  .tip{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:13.5px}
+  .tip b{display:block;margin-bottom:3px}
+
+  /* ---- Section (time block) ---- */
+  .seg{margin-top:34px}
+  .shead{display:flex;align-items:center;gap:15px;color:#fff;border-radius:16px;padding:17px 22px;margin-bottom:14px;box-shadow:0 6px 18px rgba(0,0,0,.10)}
+  .seg.am .shead{background:linear-gradient(120deg,#0C8A67,#13A585)}
+  .seg.pm .shead{background:linear-gradient(120deg,#C0812B,#E3A03C)}
+  .seg.ev .shead{background:linear-gradient(120deg,#0A6E54,#0C9370)}
+  .sicon{font-size:32px}
+  .shead h2{font-family:var(--display);font-size:22px;font-weight:900;letter-spacing:-.01em}
+  .shead p{opacity:.95;font-size:13px;margin-top:1px}
+
+  /* ---- Spot card (with photo) ---- */
+  .spot{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:13px 0;transition:.15s}
+  .spot:hover{box-shadow:0 8px 20px rgba(20,35,28,.09);transform:translateY(-1px)}
+  .spot .ph{display:block;line-height:0}
+  .spot img{width:100%;height:200px;object-fit:cover;display:block;background:var(--paper-2)}
+  .sb{padding:14px 17px 16px}
+  .sh{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .sn{background:var(--jade);color:#fff;width:23px;height:23px;border-radius:50%;flex:none;
+    display:inline-flex;align-items:center;justify-content:center;font-family:var(--display);font-size:12px;font-weight:900}
+  .sh b{font-size:16px;font-weight:800}
+  .stag{margin-left:auto;font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;background:#E3F0EA;color:var(--jade-deep);white-space:nowrap}
+  .se{color:var(--gold-deep);font-family:var(--display);font-size:12.5px;letter-spacing:.02em;font-weight:600;margin:5px 0 0 32px}
+  .spot p{margin:9px 0 0;font-size:13.5px;color:#37464e;line-height:1.65}
+  .gmap{display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-size:12.5px;font-weight:700;
+    color:var(--jade-deep);background:#E3F0EA;border:1px solid #CFE6DD;border-radius:999px;padding:6px 14px;text-decoration:none;transition:.15s}
+  .gmap:hover{background:var(--jade);color:#fff;border-color:var(--jade)}
+  @media(min-width:620px){
+    .spot{display:flex}
+    .spot .ph{flex:none;width:270px}
+    .spot img{height:100%;min-height:180px}
+    .sb{flex:1;min-width:0}
+  }
+  .seg.pm .sn{background:var(--gold-deep)} .seg.pm .stag{background:#FAF1E0;color:#8a560f}
+  .seg.pm .se{color:var(--jade-deep)}
+
+  html{scroll-behavior:smooth}
+  .spot{scroll-margin-top:14px}
+  .route-card .note{margin-bottom:2px}
+  .rgrp{display:flex;gap:10px;margin-top:12px;align-items:flex-start}
+  .rlab{flex:0 0 auto;font-family:var(--display);font-weight:900;font-size:12px;color:#fff;border-radius:8px;padding:5px 10px;margin-top:2px;white-space:nowrap}
+  .rlab.c1{background:#0C8A67} .rlab.c2{background:#C0812B} .rlab.c3{background:#0A6E54}
+  .rflow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .rflow a{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink);
+    background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:5px 12px;text-decoration:none;transition:.15s}
+  .rflow a b{font-family:var(--display);font-weight:900;color:var(--jade)}
+  .rflow a:hover{border-color:var(--jade);color:var(--jade-deep);background:#E3F0EA}
+  .rflow .arw{color:var(--soft);font-size:11px}
+  footer{text-align:center;color:var(--soft);font-size:12px;margin-top:34px;padding:18px;line-height:1.8}
+  footer b{color:var(--ink)}
+  footer a{color:var(--jade)}
+  @media(max-width:640px){.hero h1{font-size:29px}.hero{padding:44px 16px 40px}.stat{min-width:92px}}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head><body>
+
+<div class="hero">
+  <div class="hin">
+    <div class="k">Melaka · 古城暴走 · One Day</div>
+    <h1>马六甲一日游</h1>
+    <div class="sub">世界遗产古城精华 · 一天走透 · 全程步行圈</div>
+    <div class="stats">
+      <div class="stat"><b>1天</b><span>暴走精华</span></div>
+      <div class="stat"><b>15站</b><span>核心景点</span></div>
+      <div class="stat"><b>6km</b><span>步行为主</span></div>
+      <div class="stat"><b>日落</b><span>水上清真寺</span></div>
+    </div>
+    <div class="rl">🚩 荷兰红屋 → 圣保罗山 → A Famosa → 鸡场街午餐 → 和谐街 → 娘惹老宅 → 河畔壁画 → 🕌 水上清真寺看日落 → 夜市 → 河上游船</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="card route-card">
+    <h2 class="s">🗺 推荐浏览路线</h2>
+    <p class="note">按顺序走最顺，点任意一站直接跳到详情。</p>
+    <div class="rgrp"><span class="rlab c1">上午</span><div class="rflow">
+      <a href="#s1"><b>1</b>荷兰红屋</a><span class="arw">→</span>
+      <a href="#s2"><b>2</b>基督堂</a><span class="arw">→</span>
+      <a href="#s3"><b>3</b>圣保罗教堂</a><span class="arw">→</span>
+      <a href="#s4"><b>4</b>圣地亚哥城门</a><span class="arw">→</span>
+      <a href="#s5"><b>5</b>苏丹王宫</a>
+    </div></div>
+    <div class="rgrp"><span class="rlab c2">午后</span><div class="rflow">
+      <a href="#s6"><b>6</b>鸡场街午餐</a><span class="arw">→</span>
+      <a href="#s7"><b>7</b>椰糖煎蕊</a><span class="arw">→</span>
+      <a href="#s8"><b>8</b>青云亭</a><span class="arw">→</span>
+      <a href="#s9"><b>9</b>甘榜吉灵清真寺</a><span class="arw">→</span>
+      <a href="#s10"><b>10</b>娘惹博物馆</a><span class="arw">→</span>
+      <a href="#s11"><b>11</b>河畔壁画街</a><span class="arw">→</span>
+      <a href="#s12"><b>12</b>观景塔</a>
+    </div></div>
+    <div class="rgrp"><span class="rlab c3">傍晚·夜</span><div class="rflow">
+      <a href="#s13"><b>13</b>海峡水上清真寺</a><span class="arw">→</span>
+      <a href="#s14"><b>14</b>鸡场街夜市</a><span class="arw">→</span>
+      <a href="#s15"><b>15</b>马六甲河游船</a>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <h2 class="s">📖 一天怎么玩</h2>
+    <p class="note">从<b>荷兰红屋</b>出发顺时针绕古城一圈：上午扫红墙地标与圣保罗山，中午在<b>鸡场街</b>吃鸡饭粒，下午逛<b>和谐街</b>（一街三教）、娘惹老宅与河畔壁画，傍晚打车去<b>海峡水上清真寺</b>看日落，晚上回鸡场街夜市 + 坐河上游船收尾。除了水上清真寺要 Grab，其余<b>全部步行可达，总步行约 6 公里</b>。</p>
+    <div class="tips">
+      <div class="tip"><b>🚗 怎么到</b>吉隆坡 TBS 长途巴士到 Melaka Sentral 约 2 小时，再坐 17 路巴士（RM2）或 Grab（RM10-15）进古城</div>
+      <div class="tip"><b>🎟 联票省钱</b>红屋售票处有约 <b>RM20 联票</b>（红屋+海事博物馆+苏丹王宫等），比单买划算</div>
+      <div class="tip"><b>⏱ 赶时间就砍</b>观景塔、海事博物馆、三宝山这几个可省；核心是红屋区 + 鸡场街 + 水上清真寺</div>
+      <div class="tip"><b>☀️ 天气</b>8 月很晒 + 午后常雷阵雨，室内景点已排在下午，带伞 + 防晒 + 水</div>
+    </div>
+  </div>
+
+  <!-- 上午 -->
+  <section class="seg am">
+    <div class="shead">
+      <div class="sicon">🏛️</div>
+      <div><h2>上午 · 荷兰城 & 圣保罗山</h2><p>红墙地标暴走 · 山顶遗迹 · 09:00–11:30</p></div>
+    </div>
+
+    <div class="spot" id="s1">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Melaka_Malaysia_Stadthuys-01.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Melaka%20Malaysia%20Stadthuys-01.jpg?width=760" alt="荷兰红屋 Stadthuys"></a>
+      <div class="sb"><div class="sh"><span class="sn">1</span><b>荷兰红屋</b><span class="stag">RM10 含博物馆</span></div>
+        <div class="se">Stadthuys · Dutch Square · 09:00</div>
+        <p>1650 年荷兰总督府，东南亚现存最古老的荷兰建筑。红屋广场上的钟楼、维多利亚喷泉、彩绘三轮车全在这一圈，是整座城的起点。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Stadthuys%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s2">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:CHRIST_CHURCH_MALACCA_0872.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/CHRIST%20CHURCH%20MALACCA%200872.jpg?width=760" alt="基督堂"></a>
+      <div class="sb"><div class="sh"><span class="sn">2</span><b>基督堂</b><span class="stag">免费入内</span></div>
+        <div class="se">Christ Church Melaka · 09:30</div>
+        <p>1753 年荷兰人所建，全马最古老的新教教堂。屋顶横梁是整根木料、没有一颗钉子；红砖立面是马六甲最出名的一张照片。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Christ%20Church%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s3">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Melaka_Malaysia_St-Paul%27s-Church-01.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Melaka%20Malaysia%20St-Paul%27s-Church-01.jpg?width=760" alt="圣保罗教堂遗址"></a>
+      <div class="sb"><div class="sh"><span class="sn">3</span><b>圣保罗教堂遗址</b><span class="stag">免费</span></div>
+        <div class="se">St. Paul's Church · 10:00</div>
+        <p>1521 年葡萄牙人建在山顶。圣方济各·沙勿略曾短暂葬于此，如今只剩无顶石墙和一排荷兰墓碑。爬 10 分钟台阶，山顶能望见马六甲海峡。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=St%20Paul%27s%20Church%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s4">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:2016_Malakka%2C_A_Famosa_%2801%29.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/2016%20Malakka%2C%20A%20Famosa%20%2801%29.jpg?width=760" alt="圣地亚哥城堡门 A Famosa"></a>
+      <div class="sb"><div class="sh"><span class="sn">4</span><b>圣地亚哥城堡门</b><span class="stag">免费</span></div>
+        <div class="se">A Famosa · Porta de Santiago · 10:35</div>
+        <p>下山正对着的这道门，是 1511 年葡萄牙人所建大城堡唯一残存的部分，马来西亚最老的欧洲建筑遗迹。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=A%20Famosa%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s5">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Muzium_Istana_Kesultanan_Melaka.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Muzium%20Istana%20Kesultanan%20Melaka.jpg?width=760" alt="马六甲苏丹王宫博物馆"></a>
+      <div class="sb"><div class="sh"><span class="sn">5</span><b>苏丹王宫博物馆</b><span class="stag">RM10 · 室内</span></div>
+        <div class="se">Melaka Sultanate Palace · 10:55</div>
+        <p>按 15 世纪《马来纪年》复原的木造王宫，全靠榫卯不用钉子。里面是马六甲王朝的服饰、兵器、朝堂场景，有冷气，正好避晒。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Melaka%20Sultanate%20Palace" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+  </section>
+
+  <!-- 午后 -->
+  <section class="seg pm">
+    <div class="shead">
+      <div class="sicon">🍜</div>
+      <div><h2>午后 · 鸡场街 & 和谐街 & 河畔</h2><p>娘惹美食 · 一街三教 · 壁画出片 · 12:00–17:00</p></div>
+    </div>
+
+    <div class="spot" id="s6">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Malacca_Malaysia_Jonker-Walk-Arch-and-Tamil-Methodist-Church-01.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Malacca%20Malaysia%20Jonker-Walk-Arch-and-Tamil-Methodist-Church-01.jpg?width=760" alt="鸡场街 Jonker Street"></a>
+      <div class="sb"><div class="sh"><span class="sn">6</span><b>鸡场街 · 午餐</b><span class="stag">午餐时间</span></div>
+        <div class="se">Jonker Street · 12:00</div>
+        <p>过桥就是牌坊。午餐首选：和记鸡饭粒、中华茶室，或 Jonker 88 的娘惹叻沙。周五六日 18:00 后封街变夜市。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Jonker%20Street%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s7">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Cendol_Melaka_Johor_Bahru.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Cendol%20Melaka%20Johor%20Bahru.jpg?width=760" alt="煎蕊 Cendol"></a>
+      <div class="sb"><div class="sh"><span class="sn">7</span><b>椰糖煎蕊</b><span class="stag">RM6-12</span></div>
+        <div class="se">Cendol Melaka · 13:00</div>
+        <p>刨冰 + 椰糖 + 椰浆 + 绿色斑斓粉条，马六甲版本椰糖给得特别猛。Jonker 88、三叔公旁边那几家都行，饭后解暑必点。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Jonker%2088%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s8">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:2016_Malakka%2C_%C5%9Awi%C4%85tynia_Cheng_Hoon_Teng_%2805%29.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/2016%20Malakka%2C%20%C5%9Awi%C4%85tynia%20Cheng%20Hoon%20Teng%20%2805%29.jpg?width=760" alt="青云亭"></a>
+      <div class="sb"><div class="sh"><span class="sn">8</span><b>青云亭 · 和谐街</b><span class="stag">免费</span></div>
+        <div class="se">Cheng Hoon Teng · Harmony St. · 14:00</div>
+        <p>1645 年建，马来西亚最古老的华人庙宇，木雕屋脊得过联合国教科文组织保护奖。同一条「和谐街」上华人庙、清真寺、印度庙并立，3 分钟走完。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Cheng%20Hoon%20Teng%20Temple%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s9">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:2016_Malakka%2C_Meczet_Kampung_Kling_%2801%29.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/2016%20Malakka%2C%20Meczet%20Kampung%20Kling%20%2801%29.jpg?width=760" alt="甘榜吉灵清真寺"></a>
+      <div class="sb"><div class="sh"><span class="sn">9</span><b>甘榜吉灵清真寺</b><span class="stag">免费 · 需遮肩膝</span></div>
+        <div class="se">Masjid Kampung Kling · 14:25</div>
+        <p>1748 年，宝塔式三层屋顶 + 苏门答腊木构 + 英式吊灯 + 葡萄牙瓷砖，一栋楼塞了四种文化，就在青云亭同一条街。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Kampung%20Kling%20Mosque%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s10">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Baba_Nyonya_Heritage_Museum.JPG" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Baba%20Nyonya%20Heritage%20Museum.JPG?width=760" alt="峇峇娘惹祖屋博物馆"></a>
+      <div class="sb"><div class="sh"><span class="sn">10</span><b>峇峇娘惹祖屋博物馆</b><span class="stag">RM18</span></div>
+        <div class="se">Baba & Nyonya Heritage Museum · 15:00</div>
+        <p>荷兰街上三间打通的老侨商宅邸，保留完整的娘惹家具、瓷器、婚服。只能跟导览进，约 45 分钟——马六甲最值得进的一间馆。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Baba%20Nyonya%20Heritage%20Museum%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s11">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Malacca_Malaysia_Pittoresque-houses-along-Sungai-Melaka-01.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Malacca%20Malaysia%20Pittoresque-houses-along-Sungai-Melaka-01.jpg?width=760" alt="河畔壁画街"></a>
+      <div class="sb"><div class="sh"><span class="sn">11</span><b>河畔壁画街</b><span class="stag">免费 · 出片</span></div>
+        <div class="se">Melaka River Art Street · 16:00</div>
+        <p>Jalan Kampung Pantai 沿河一段，整排老屋后墙全是巨幅壁画和涂鸦，是马六甲最好出片的地方，傍晚光线最舒服。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Jalan%20Kampung%20Pantai%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s12">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Taming_Sari_Tower.JPG" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Taming%20Sari%20Tower.JPG?width=760" alt="打昔淡美拉观景塔"></a>
+      <div class="sb"><div class="sh"><span class="sn">12</span><b>打昔淡美拉观景塔</b><span class="stag">RM25 · 可选</span></div>
+        <div class="se">Menara Taming Sari · 16:40</div>
+        <p>80 米高的旋转观景台，7 分钟升到顶，360° 俯瞰古城红屋、海峡和整条马六甲河。赶时间可省。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Menara%20Taming%20Sari%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+  </section>
+
+  <!-- 傍晚 · 夜 -->
+  <section class="seg ev">
+    <div class="shead">
+      <div class="sicon">🕌</div>
+      <div><h2>傍晚·夜 · 海峡日落 & 夜市游船</h2><p>水上清真寺日落 · 鸡场街夜市 · 河上游船 · 18:30–22:00</p></div>
+    </div>
+
+    <div class="spot" id="s13">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Malacca_Malaysia_Malacca-Straits-Mosque-01.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Malacca%20Malaysia%20Malacca-Straits-Mosque-01.jpg?width=760" alt="马六甲海峡清真寺"></a>
+      <div class="sb"><div class="sh"><span class="sn">13</span><b>海峡水上清真寺</b><span class="stag">免费 · Grab RM12-15</span></div>
+        <div class="se">Masjid Selat Melaka · 看日落 18:40</div>
+        <p>建在人工岛上的水上清真寺，涨潮时像浮在海面。这里是马六甲看日落最好的位置（8 月日落约 19:20），逆光剪影非常出片，进入需遮肩膝。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Masjid%20Selat%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s14">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Melaka_Malaysia_Geographer-Cafe-at-Jonker-Walk-01.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Melaka%20Malaysia%20Geographer-Cafe-at-Jonker-Walk-01.jpg?width=760" alt="鸡场街夜市"></a>
+      <div class="sb"><div class="sh"><span class="sn">14</span><b>鸡场街夜市</b><span class="stag">周五六日</span></div>
+        <div class="se">Jonker Night Market · 20:00</div>
+        <p>周五六日 18:00 封街摆摊到半夜：烤鱿鱼、蚝煎、菠萝挞、鸡蛋仔、娘惹糕。街角百年老屋 Geographer Cafe 晚上有 Live 乐队。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Jonker%20Walk%20Night%20Market%20Melaka" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+    <div class="spot" id="s15">
+      <a class="ph" href="https://commons.wikimedia.org/wiki/File:Malacca_Monorail_station_and_river_cruise_boats.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Malacca%20Monorail%20station%20and%20river%20cruise%20boats.jpg?width=760" alt="马六甲河游船"></a>
+      <div class="sb"><div class="sh"><span class="sn">15</span><b>马六甲河游船</b><span class="stag">约 RM30</span></div>
+        <div class="se">Melaka River Cruise · 20:30 收尾</div>
+        <p>Muara Jetty 上船，45 分钟来回 9 公里。夜里两岸老屋点灯、壁画打光，是白天走过的同一条河完全不同的样子，给一日游画个句号。</p>
+        <a class="gmap" href="https://www.google.com/maps/search/?api=1&query=Melaka%20River%20Cruise" target="_blank" rel="noopener">📍 Google 地图</a></div>
+    </div>
+  </section>
+
+  <div class="card">
+    <h2 class="s">💡 省时 & 小贴士</h2>
+    <div class="tips">
+      <div class="tip"><b>⏱ 时间不够砍这些</b>观景塔、海事博物馆、三宝山（在山坡上暴晒很累）</div>
+      <div class="tip"><b>➕ 还有余力可加</b>海事博物馆花之海号大帆船、独立宣言纪念馆、三宝山三宝井</div>
+      <div class="tip"><b>💵 现金零钱</b>17 路巴士、夜市小摊、老咖啡店多只收现金或 TNG 扫码</div>
+      <div class="tip"><b>🚶 都靠走</b>古城区任意两点步行基本不超过 20 分钟，只有水上清真寺要 Grab</div>
+      <div class="tip"><b>🍧 别错过</b>鸡饭粒、娘惹叻沙、椰糖煎蕊、沙嗲朱律（Satay Celup 一锅涮串）</div>
+      <div class="tip"><b>💰 单人预算</b>门票+游船约 RM50-70，加餐饮交通一天约 RM120-180</div>
+    </div>
+  </div>
+
+  <footer>
+    马六甲一日游 · 古城暴走精华路线<br>
+    <b>开放时间与票价以现场为准</b>，夜市与游船受天气 / 假日影响。照片来自 Wikimedia Commons（CC BY-SA 等自由授权），点图可跳转原图页。
+  </footer>
+
+</div>
+</body></html>
