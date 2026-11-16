@@ -24,6 +24,7 @@
   jianzhi-14day.html     减脂·2周冲刺计划（减脂 → 2周计划，默认；16:8断食+高低碳+每天训练）
   jianzhi-10day.html     10天具体食谱（每顿吃啥·份量·随机搭·可换一批；从2周计划页按钮进）
   jianzhi-kl.html        减脂·吉隆坡版（减脂 → 吉隆坡；内含「照超市实拍买什么」）
+  shop-thumbs/           557 张单品实拍小图（从高清原图逐个裁出，价格清单每行左侧+卷饼页引用）
   shop-photos/           81 张超市货架实拍（kl-prices.html 图库引用，压缩版）
   kl-prices.html         吉隆坡超市价格清单（786种实拍·RM原价+可换算RMB，从减脂吉隆坡版链接进）
   jianzhi-linyi.html     减脂·临沂版（减脂 → 临沂）

@@ -88,11 +88,12 @@ body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1
 footer{text-align:center;color:var(--soft);font-size:11.5px;margin-top:24px;padding:14px;line-height:1.8}
 footer b{color:var(--ink)}
 @media(max-width:560px){.hero h1{font-size:25px}}
-.pf{border:1px solid #CFE6DD;background:#E3F0EA;color:var(--jade-deep);font-family:inherit;font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 8px;cursor:pointer;vertical-align:1px}
-.pf:hover{background:var(--jade);color:#fff}
+.pf{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid #CFE6DD;background:#fff;border-radius:9px;padding:2px;cursor:zoom-in;vertical-align:middle;margin:0 4px;overflow:hidden;transition:.15s}
+.pf img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;display:block}
+.pf:hover{border-color:var(--jade);box-shadow:0 4px 10px rgba(12,147,112,.2);transform:scale(1.06)}
 #wlb{display:none;position:fixed;inset:0;background:rgba(10,18,15,.93);z-index:99;align-items:center;justify-content:center;flex-direction:column;gap:10px}
 #wlb.on{display:flex}
-#wlb img{max-width:96vw;max-height:84vh;border-radius:10px}
+#wlb img{width:min(88vw,420px);max-height:76vh;object-fit:contain;border-radius:14px;background:#fff}
 #wlb button{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;font-family:inherit;font-size:14px;font-weight:700;border-radius:999px;padding:8px 18px;cursor:pointer}
 </style></head><body>
 
@@ -136,11 +137,11 @@ footer b{color:var(--ink)}
       <div class="opt"><span class="on"><b>Mission 洋葱香葱饼皮</b><small>换口味用</small></span><span class="op">RM8.60（超市目录）</span></div>
     </div></div>
     <div class="slot"><div class="slot-h"><span class="n">② 主蛋白</span><span class="d">选 1 份铺中间</span></div><div class="opts">
-      <div class="opt star"><span class="on"><b>水煮蛋 2 个</b><small><button class="pf" type="button" data-p="11">&#128247;P11</button> · 你的30枚装</small></span><span class="op">≈RM0.90</span></div>
-      <div class="opt star"><span class="on"><b>瘦牛肉片 80g</b><small><button class="pf" type="button" data-p="79">&#128247;P79</button> · 喷雾煎1分钟</small></span><span class="op">≈RM6.80</span></div>
-      <div class="opt"><span class="on"><b>吞拿鱼水浸 1 罐</b><small><button class="pf" type="button" data-p="12">&#128247;P12</button> · 开罐即食</small></span><span class="op">RM6.50</span></div>
-      <div class="opt"><span class="on"><b>手撕鸡黑椒味 半罐</b><small><button class="pf" type="button" data-p="12">&#128247;P12</button> · 开罐即食</small></span><span class="op">RM7.70/罐</span></div>
-      <div class="opt"><span class="on"><b>沙丁鱼 半罐</b><small><button class="pf" type="button" data-p="12">&#128247;P12</button>+Omega3</small></span><span class="op">RM4.40/罐</span></div>
+      <div class="opt star"><span class="on"><b>水煮蛋 2 个</b><small><button class="pf" type="button" data-t="x-egg"><img src="shop-thumbs/x-egg.jpg" alt="实拍"></button> · 你的30枚装</small></span><span class="op">≈RM0.90</span></div>
+      <div class="opt star"><span class="on"><b>瘦牛肉片 80g</b><small><button class="pf" type="button" data-t="116"><img src="shop-thumbs/116.jpg" alt="实拍"></button> · 喷雾煎1分钟</small></span><span class="op">≈RM6.80</span></div>
+      <div class="opt"><span class="on"><b>吞拿鱼水浸 1 罐</b><small><button class="pf" type="button" data-t="111"><img src="shop-thumbs/111.jpg" alt="实拍"></button> · 开罐即食</small></span><span class="op">RM6.50</span></div>
+      <div class="opt"><span class="on"><b>手撕鸡黑椒味 半罐</b><small><button class="pf" type="button" data-t="117"><img src="shop-thumbs/117.jpg" alt="实拍"></button> · 开罐即食</small></span><span class="op">RM7.70/罐</span></div>
+      <div class="opt"><span class="on"><b>沙丁鱼 半罐</b><small><button class="pf" type="button" data-t="114"><img src="shop-thumbs/114.jpg" alt="实拍"></button>+Omega3</small></span><span class="op">RM4.40/罐</span></div>
       <div class="opt"><span class="on"><b>三文鱼罐头(洋葱番茄) 半罐</b><small>换口味</small></span><span class="op">RM6.90/罐</span></div>
     </div></div>
     <div class="slot"><div class="slot-h"><span class="n">③ 豆子</span><span class="d">2–3 勺，加纤维和饱腹</span></div><div class="opts">
@@ -163,13 +164,13 @@ footer b{color:var(--ink)}
   <!-- 7天轮换 -->
   <div class="sec-h">📅 7 天不重样轮换</div>
   <p class="sec-sub">午餐吃法：<b>卷 ×2</b>，或 <b>卷 ×1 + 希腊优格 + 1 个水果</b>（都≈550–650 kcal）。晚餐照旧跟「10天执行」的晚餐走。</p>
-  <div class="wd"><div class="wd-h"><span class="dn">周一</span><span class="nm">经典蛋豆卷（你发的那只）</span><span class="mac"><button class="pf" type="button" data-p="11">&#128247;P11</button> · ≈330kcal/只</span></div><div class="wd-b"><div class="ing"><b>蛋2 + 鹰嘴豆3勺 + 生菜 + 黄芥末 + 黑椒</b></div><div class="tip2">复刻你的成名作，蛋提前一次煮 6 个放冰箱，早上 2 分钟卷好</div></div></div>
-  <div class="wd"><div class="wd-h"><span class="dn">周二</span><span class="nm">吞拿鱼黄瓜卷</span><span class="mac"><button class="pf" type="button" data-p="12">&#128247;P12</button> · ≈270kcal/只</span></div><div class="wd-b"><div class="ing"><b>吞拿鱼水浸1罐 + 红腰豆2勺 + 黄瓜条 + 生菜 + 是拉差</b></div><div class="tip2">吞拿鱼沥干水，拌一点点黑椒和醋，比蛋黄酱版少 100kcal</div></div></div>
-  <div class="wd"><div class="wd-h"><span class="dn">周三</span><span class="nm">牛肉洋葱卷</span><span class="mac"><button class="pf" type="button" data-p="79">&#128247;P79</button> · ≈250kcal/只</span></div><div class="wd-b"><div class="ing"><b>topside牛肉片80g（喷雾煎）+ 洋葱丝 + 芝麻菜 + 黑醋+黑椒</b></div><div class="tip2">牛肉片薄切大火 40 秒一面；你买的两块牛肉正好切片分 5 顿用</div></div></div>
-  <div class="wd"><div class="wd-h"><span class="dn">周四</span><span class="nm">手撕鸡胡萝卜卷</span><span class="mac"><button class="pf" type="button" data-p="12">&#128247;P12</button> · ≈220kcal/只</span></div><div class="wd-b"><div class="ing"><b>手撕鸡黑椒味半罐 + 胡萝卜丝 + 酸黄瓜片 + 生菜</b></div><div class="tip2">全程不开火，办公室也能卷；剩半罐明天用</div></div></div>
-  <div class="wd"><div class="wd-h"><span class="dn">周五</span><span class="nm">沙丁鱼薄荷卷</span><span class="mac"><button class="pf" type="button" data-p="12">&#128247;P12</button> · ≈240kcal/只</span></div><div class="wd-b"><div class="ing"><b>沙丁鱼半罐 + 洋葱圈 + 薄荷叶 + 挤柠檬/白醋</b></div><div class="tip2">薄荷+酸压住鱼腥，Omega-3 一周至少吃两次鱼</div></div></div>
-  <div class="wd"><div class="wd-h"><span class="dn">周六</span><span class="nm">三文鱼番茄卷</span><span class="mac"><button class="pf" type="button" data-p="16">&#128247;P16</button> · ≈250kcal/只</span></div><div class="wd-b"><div class="ing"><b>JW三文鱼(洋葱番茄酱)半罐 + 生菜 + 黄瓜 + 黑椒</b></div><div class="tip2">这罐自带洋葱番茄风味，不用另外加酱</div></div></div>
-  <div class="wd"><div class="wd-h"><span class="dn">周日</span><span class="nm">蛋牛油果卷（放纵版）</span><span class="mac"><button class="pf" type="button" data-p="78">&#128247;P78</button> · ≈300kcal/只</span></div><div class="wd-b"><div class="ing"><b>蛋2 + 牛油果1/4压泥 + 圣女果 + 芝麻菜 + 黄芥末</b></div><div class="tip2">牛油果当酱抹在饼上，周日犒劳自己；只吃 1 只+优格+水果</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周一</span><span class="nm">经典蛋豆卷（你发的那只）</span><span class="mac"><button class="pf" type="button" data-t="x-egg"><img src="shop-thumbs/x-egg.jpg" alt="实拍"></button> · ≈330kcal/只</span></div><div class="wd-b"><div class="ing"><b>蛋2 + 鹰嘴豆3勺 + 生菜 + 黄芥末 + 黑椒</b></div><div class="tip2">复刻你的成名作，蛋提前一次煮 6 个放冰箱，早上 2 分钟卷好</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周二</span><span class="nm">吞拿鱼黄瓜卷</span><span class="mac"><button class="pf" type="button" data-t="111"><img src="shop-thumbs/111.jpg" alt="实拍"></button> · ≈270kcal/只</span></div><div class="wd-b"><div class="ing"><b>吞拿鱼水浸1罐 + 红腰豆2勺 + 黄瓜条 + 生菜 + 是拉差</b></div><div class="tip2">吞拿鱼沥干水，拌一点点黑椒和醋，比蛋黄酱版少 100kcal</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周三</span><span class="nm">牛肉洋葱卷</span><span class="mac"><button class="pf" type="button" data-t="116"><img src="shop-thumbs/116.jpg" alt="实拍"></button> · ≈250kcal/只</span></div><div class="wd-b"><div class="ing"><b>topside牛肉片80g（喷雾煎）+ 洋葱丝 + 芝麻菜 + 黑醋+黑椒</b></div><div class="tip2">牛肉片薄切大火 40 秒一面；你买的两块牛肉正好切片分 5 顿用</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周四</span><span class="nm">手撕鸡胡萝卜卷</span><span class="mac"><button class="pf" type="button" data-t="117"><img src="shop-thumbs/117.jpg" alt="实拍"></button> · ≈220kcal/只</span></div><div class="wd-b"><div class="ing"><b>手撕鸡黑椒味半罐 + 胡萝卜丝 + 酸黄瓜片 + 生菜</b></div><div class="tip2">全程不开火，办公室也能卷；剩半罐明天用</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周五</span><span class="nm">沙丁鱼薄荷卷</span><span class="mac"><button class="pf" type="button" data-t="114"><img src="shop-thumbs/114.jpg" alt="实拍"></button> · ≈240kcal/只</span></div><div class="wd-b"><div class="ing"><b>沙丁鱼半罐 + 洋葱圈 + 薄荷叶 + 挤柠檬/白醋</b></div><div class="tip2">薄荷+酸压住鱼腥，Omega-3 一周至少吃两次鱼</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周六</span><span class="nm">三文鱼番茄卷</span><span class="mac"><button class="pf" type="button" data-t="109"><img src="shop-thumbs/109.jpg" alt="实拍"></button> · ≈250kcal/只</span></div><div class="wd-b"><div class="ing"><b>JW三文鱼(洋葱番茄酱)半罐 + 生菜 + 黄瓜 + 黑椒</b></div><div class="tip2">这罐自带洋葱番茄风味，不用另外加酱</div></div></div>
+  <div class="wd"><div class="wd-h"><span class="dn">周日</span><span class="nm">蛋牛油果卷（放纵版）</span><span class="mac"><button class="pf" type="button" data-t="x-avocado"><img src="shop-thumbs/x-avocado.jpg" alt="实拍"></button> · ≈300kcal/只</span></div><div class="wd-b"><div class="ing"><b>蛋2 + 牛油果1/4压泥 + 圣女果 + 芝麻菜 + 黄芥末</b></div><div class="tip2">牛油果当酱抹在饼上，周日犒劳自己；只吃 1 只+优格+水果</div></div></div>
 
   <!-- 蔬果丰富 -->
   <div class="sec-h">🥬 蔬果升级清单（你现在只有 4 样）</div>
@@ -230,7 +231,7 @@ footer b{color:var(--ink)}
   var lb=document.getElementById('wlb'),im=document.getElementById('wlbImg');
   document.addEventListener('click',function(e){
     var b=e.target.closest('.pf');
-    if(b){var p=parseInt(b.getAttribute('data-p'),10);im.src='shop-photos/p'+(p<10?'0':'')+p+'.jpg';lb.classList.add('on');}
+    if(b){im.src='shop-thumbs/'+b.getAttribute('data-t')+'.jpg';lb.classList.add('on');}
   });
   document.getElementById('wlbC').onclick=function(){lb.classList.remove('on');};
   lb.addEventListener('click',function(e){if(e.target===lb)lb.classList.remove('on');});
