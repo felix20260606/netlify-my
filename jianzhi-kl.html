@@ -366,6 +366,20 @@
   .fchip small{display:block;font-size:9.5px;font-weight:500;opacity:.8;line-height:1.2}
   .pden{display:inline-block;font-style:normal;font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:4px}
   .kchip i{font-style:normal;color:var(--muted)}
+  .en,.fchip small,.kchip i,.prow .pn > i,.pden{cursor:pointer}
+  .en::before,.fchip small::before,.kchip i::before,.prow .pn > i::before,.pden::before{content:"🔊 ";font-size:.9em;opacity:.75}
+  .en:hover,.kchip i:hover,.prow .pn > i:hover,.pden:hover{color:var(--primary-deep)}
+  .sayhint{font-size:12.5px;background:#FFF9EE;border:1px solid #F0DDB0;color:#5a4a1e;border-radius:12px;padding:9px 12px;margin:0 0 10px;line-height:1.6}
+  #sayBox{display:none;position:fixed;inset:0;z-index:200;background:rgba(10,18,15,.88);align-items:center;justify-content:center;padding:18px}
+  #sayBox.on{display:flex}
+  #sayBox .sb-card{background:#fff;border-radius:20px;max-width:460px;width:100%;padding:22px 20px 16px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+  .sb-zh{font-size:15px;color:var(--muted);font-weight:700;min-height:1em}
+  .sb-en{font-size:30px;font-weight:900;line-height:1.2;margin:8px 0 6px;color:var(--ink);word-break:break-word}
+  .sb-ms{font-size:21px;font-weight:800;color:var(--primary-deep);min-height:.5em}
+  .sb-btns{display:flex;gap:8px;margin-top:16px}
+  .sb-btns button{flex:1;font-family:inherit;font-size:14px;font-weight:800;border-radius:12px;padding:11px 6px;cursor:pointer;border:1px solid var(--line);background:var(--surface-2,#F1F4F3);color:var(--ink)}
+  .sb-btns button:first-child{background:var(--primary);border-color:var(--primary);color:#fff}
+  .sb-tip{font-size:11.5px;color:var(--muted);margin-top:10px}
 </style>
 </head>
 <body>
@@ -377,6 +391,7 @@
     <p class="lede">以体重为锚点，按每周运动量推算碳水、蛋白质、脂肪目标，并自动生成份量贴近目标的一日食谱。建议每 10 天按最新体重复算一次。</p>
     <span class="src">系数源自抖音 <b>@谭成义</b> 整理内容</span>
   </header>
+  <div class="sayhint">🔊 页面上所有<b>英文 / 马来文</b>都能点：会<b>读出来</b>并放大显示，可以直接给店员看。</div>
   <a class="klbanner" href="kl-prices.html"><span class="kb-e">🛒</span><span class="kb-t"><b>吉隆坡超市价格清单</b><small>786 种实拍价 · 下面每样食材都能点进对应商品 · 一键加购物清单</small></span><span class="kb-c" id="klCartN">去买 ›</span></a>
 
   <!-- 输入 -->
@@ -1119,6 +1134,58 @@
     if(e.target.id==='addAllKl'){var c2=ld();document.querySelectorAll('.prow.linked').forEach(function(r){var i=r.getAttribute('data-i');if(!c2[i])c2[i]=1;});sv(c2);sync();e.target.textContent='✓ 已全部加入';setTimeout(function(){e.target.textContent='＋ 上面全部加入购物清单';},1600);}
   });
   window.addEventListener('pageshow',sync);window.addEventListener('storage',sync);sync();
+})();
+</script>
+<div id="sayBox" aria-live="polite"><div class="sb-card"><div class="sb-zh" id="sbZh"></div><div class="sb-en" id="sbEn"></div><div class="sb-ms" id="sbMs"></div><div class="sb-btns"><button type="button" id="sbAgain">🔊 再读一遍</button><button type="button" id="sbSlow">🐢 慢读</button><button type="button" id="sbClose">✕ 关闭</button></div><div class="sb-tip">把屏幕给店员看也行 · Show this to the staff</div></div></div>
+<script>
+(function(){
+  var SEL='.en, .fchip small, .kchip i, .prow .pn > i, .pden, .plbsay';
+  var synth=window.speechSynthesis, voices=[];
+  function loadV(){try{voices=synth?synth.getVoices():[];}catch(e){voices=[];}}
+  loadV();if(synth&&'onvoiceschanged' in synth)synth.onvoiceschanged=loadV;
+  function pick(pref){for(var i=0;i<pref.length;i++){for(var j=0;j<voices.length;j++){if(voices[j].lang&&voices[j].lang.replace('_','-').toLowerCase().indexOf(pref[i])===0)return voices[j];}}return null;}
+  function tidy(t){
+    t=t.replace(/&/g,' and ').replace(/\s+/g,' ').trim();
+    if(t===t.toUpperCase()&&/[A-Z]{3}/.test(t))t=t.toLowerCase().replace(/\b[a-z]/g,function(c){return c.toUpperCase();});
+    return t.replace(/(\d+)\s?g\b/gi,'$1 grams').replace(/(\d+)\s?ml\b/gi,'$1 millilitres').replace(/(\d+)\s?kg\b/gi,'$1 kilograms');
+  }
+  function speak(en,ms,rate){
+    if(!synth){return;}
+    synth.cancel();
+    var q=[];
+    if(en)q.push([tidy(en),pick(['en-gb','en-au','en-us','en'])||null,'en-GB']);
+    if(ms)q.push([tidy(ms),pick(['ms','id'])||null,'ms-MY']);
+    q.forEach(function(x){var u=new SpeechSynthesisUtterance(x[0]);if(x[1])u.voice=x[1];u.lang=x[1]?x[1].lang:x[2];u.rate=rate||0.85;synth.speak(u);});
+  }
+  var cur={en:'',ms:''};
+  function zhOf(el){
+    var c=el.closest('.row,.fchip,.kchip,tr,.prow,.store-card,.plan-day,.tile,.card-head,.meals-head,.targets-head');if(!c)return '';
+    if(c.classList.contains('kchip')){return ((c.childNodes[c.querySelector('img')?1:0]||{}).textContent||'').replace(/🛒/g,'').trim();}
+    var n=c.querySelector('.fname,.fn,.pn,.sn')||c;var t=(n.childNodes[0]||{}).textContent||'';
+    return t.trim();
+  }
+  function open(el){
+    var raw=el.classList.contains('plbsay')?el.getAttribute('data-say'):el.textContent;
+    raw=raw.replace(/^🔊\s*/,'').trim();
+    var parts=raw.split(' · ');
+    var en=parts[0],ms=parts.length>1?parts.slice(1).join(' · '):'';
+    if(el.classList.contains('pden')){en=raw;ms='';}
+    cur={en:en,ms:ms};
+    document.getElementById('sbZh').textContent=el.getAttribute('data-zh')||zhOf(el);
+    document.getElementById('sbEn').textContent=en;
+    document.getElementById('sbMs').textContent=ms?('🇲🇾 '+ms):'';
+    document.getElementById('sayBox').classList.add('on');
+    if(!synth){document.getElementById('sbAgain').textContent='此浏览器不支持朗读';}
+    speak(en,ms);
+  }
+  document.addEventListener('click',function(e){
+    var el=e.target.closest(SEL);
+    if(el){e.preventDefault();e.stopPropagation();open(el);return;}
+  },true);
+  document.getElementById('sbAgain').onclick=function(){speak(cur.en,cur.ms);};
+  document.getElementById('sbSlow').onclick=function(){speak(cur.en,cur.ms,0.6);};
+  document.getElementById('sbClose').onclick=function(){document.getElementById('sayBox').classList.remove('on');if(synth)synth.cancel();};
+  document.getElementById('sayBox').addEventListener('click',function(e){if(e.target===this){this.classList.remove('on');if(synth)synth.cancel();}});
 })();
 </script>
 </body>

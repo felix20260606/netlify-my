@@ -71,6 +71,7 @@ body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1
 #plb .pi small{color:var(--soft);font-size:12px;display:block;margin-top:1px}
 #plb .pi .pp{font-family:var(--display);font-weight:900;font-size:19px;margin-top:6px}
 #plb .pi .pp span{font-family:inherit;font-size:13px;color:var(--jade);font-weight:700;margin-left:6px}
+.saybtn{margin-top:6px;border:1px solid #F0DDB0;background:#FFF6E6;color:#8a560f;font-family:inherit;font-size:12px;font-weight:800;border-radius:999px;padding:4px 12px;cursor:pointer}
 #plb .pb{display:flex;gap:8px;margin-top:11px}
 #plb .pb button{flex:1;border:1px solid var(--line);background:var(--paper-2);font-family:inherit;font-size:12.5px;font-weight:700;border-radius:999px;padding:8px;cursor:pointer;color:var(--ink)}
 #plb .pb button.g{background:#E3F0EA;border-color:#CFE6DD;color:var(--jade-deep)}
@@ -257,7 +258,7 @@ footer b{color:var(--ink)}
     </div></details>
   <button class="gal-toggle off" id="offBtn" type="button">&#128229; 离线保存（图片约 30MB，超市没信号也能看）</button>
   <div id="list"></div>
-  <div id="plb"><div class="pc"><img id="plbImg" alt="商品实拍"><div class="pi"><b id="plbCn"></b><small id="plbEn"></small><div class="pp" id="plbPr"></div><div class="pmy" id="plbMy"></div><div class="pb"><button class="g" id="plbAdd" type="button"></button><button id="plbFav" type="button"></button></div><div class="pb"><button class="g" id="plbShelf" type="button"></button><button class="g" id="plbRcp" type="button" style="background:#FFF6E6;border-color:#F0DDB0;color:#8a560f">&#127859; 做法</button><button id="plbClose" type="button">&#10005; 关闭</button></div></div></div></div>
+  <div id="plb"><div class="pc"><img id="plbImg" alt="商品实拍"><div class="pi"><b id="plbCn"></b><small id="plbEn"></small><button type="button" id="plbSay" class="saybtn">&#128266; 读英文名</button><div class="pp" id="plbPr"></div><div class="pmy" id="plbMy"></div><div class="pb"><button class="g" id="plbAdd" type="button"></button><button id="plbFav" type="button"></button></div><div class="pb"><button class="g" id="plbShelf" type="button"></button><button class="g" id="plbRcp" type="button" style="background:#FFF6E6;border-color:#F0DDB0;color:#8a560f">&#127859; 做法</button><button id="plbClose" type="button">&#10005; 关闭</button></div></div></div></div>
   <div id="rlb"><div class="rs"><div class="rh"><img id="rlbImg" alt=""><div class="rt"><b id="rlbCn"></b><small id="rlbSub"></small></div><button id="rlbClose" type="button">&#10005;</button></div><div class="rb" id="rlbBody"></div></div></div>
   <div id="cart"><div class="rs"><div class="rh"><div class="rt"><b>&#128722; 购物清单</b><small>按货架照片顺序排，进店顺着拿；点 &#11036; 打勾</small></div><button id="cartClose" type="button">&#10005;</button></div><div class="rb" id="cartBody"></div><div class="cf"><div id="cartTot"></div><div class="cfb"><button id="cartCopy" type="button">&#128203; 复制清单</button><button id="cartGotClr" type="button">&#8634; 取消全部勾选</button><button id="cartClear" type="button">&#128465; 清空</button></div></div></div></div>
   <button id="cartBar" type="button"></button><div id="toast"></div>
@@ -472,6 +473,7 @@ function openCard(i){
   if(r[8]){img.src='shop-thumbs/'+i+'.jpg';img.style.display='';}else{img.removeAttribute('src');img.style.display='none';}
   $id('plbCn').textContent=r[1];
   $id('plbEn').textContent=r[2]+(r[4]?' · '+r[4]:'');
+  $id('plbSay').setAttribute('data-t',r[2]);
   $id('plbPr').innerHTML='RM '+r[3].toFixed(2)+'<span>&#165;'+(r[3]*rt).toFixed(1)+'</span>';
   var sb=$id('plbShelf');sb.style.display=r[8]?'':'none';sb.setAttribute('data-p',r[8]);sb.innerHTML='&#128269; 看整个货架 P'+r[8];
   $id('plbRcp').style.display=RG[i]?'':'none';
@@ -528,6 +530,10 @@ $id('plbShelf').onclick=function(){var p=parseInt(this.getAttribute('data-p'),10
 $id('plbRcp').onclick=function(){$id('plb').classList.remove('on');showRecipes(plbI);};
 $id('plbFav').onclick=function(){if(FAV[plbI])delete FAV[plbI];else FAV[plbI]=1;sv('kl_fav',FAV);cardState();render();};
 $id('plbAdd').onclick=function(){setQ(plbI,1);cardState();render();toast('已加入购物清单');};
+$id('plbSay').onclick=function(){var t=this.getAttribute('data-t')||'';if(!window.speechSynthesis){toast('此浏览器不支持朗读');return;}
+  t=t.replace(/&/g,' and ');if(t===t.toUpperCase())t=t.toLowerCase().replace(/\b[a-z]/g,function(c){return c.toUpperCase();});
+  t=t.replace(/(\d+)\s?g\b/gi,'$1 grams').replace(/(\d+)\s?ml\b/gi,'$1 millilitres');
+  speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='en-GB';u.rate=.85;var v=speechSynthesis.getVoices().filter(function(x){return /^en/i.test(x.lang);});if(v.length)u.voice=v[0];speechSynthesis.speak(u);};
 $id('plbClose').onclick=function(){$id('plb').classList.remove('on');};
 $id('plb').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
 $id('rlbClose').onclick=function(){$id('rlb').classList.remove('on');};
