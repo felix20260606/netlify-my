@@ -549,6 +549,7 @@
   <div id="fat-region">
     <div class="seg-wrap">
       <button id="fat-nav" class="on" type="button">🧭 导航</button>
+      <button id="fat-calc" type="button">📐 营养计算</button>
       <button id="fat-wrap" type="button">🌯 卷饼公式</button>
       <button id="fat-x10" type="button">🎯 10天执行</button>
       <button id="fat-14d" type="button">📅 2周计划</button>
@@ -2877,8 +2878,8 @@ refresh(); // show seed words immediately, no waiting on storage
   var l1En=document.getElementById('l1-en'),l1Life=document.getElementById('l1-life');
   var tNb=document.getElementById('tab-notebook'),tFat=document.getElementById('tab-fat'),tTrip=document.getElementById('tab-trip'),tIelts=document.getElementById('tab-ielts');
   var fr=document.getElementById('fatframe'),tf=document.getElementById('tripframe');
-  var fatKl=document.getElementById('fat-kl'),fatLy=document.getElementById('fat-ly'),fatBkk=document.getElementById('fat-bkk'),fat14d=document.getElementById('fat-14d'),fatX10=document.getElementById('fat-x10'),fatWrap=document.getElementById('fat-wrap'),fatNav=document.getElementById('fat-nav');
-  var FAT_FILES={nav:'fat-nav.html',wrap:'jianzhi-wrap.html',x10:'jianzhi-exec10.html','14d':'jianzhi-14day.html',kl:'jianzhi-kl.html',ly:'jianzhi-linyi.html',bkk:'jianzhi-plan.html'};
+  var fatKl=document.getElementById('fat-kl'),fatLy=document.getElementById('fat-ly'),fatBkk=document.getElementById('fat-bkk'),fat14d=document.getElementById('fat-14d'),fatX10=document.getElementById('fat-x10'),fatWrap=document.getElementById('fat-wrap'),fatNav=document.getElementById('fat-nav'),fatCalc=document.getElementById('fat-calc');
+  var FAT_FILES={nav:'fat-nav.html',calc:'jianzhi-calc.html',wrap:'jianzhi-wrap.html',x10:'jianzhi-exec10.html','14d':'jianzhi-14day.html',kl:'jianzhi-kl.html',ly:'jianzhi-linyi.html',bkk:'jianzhi-plan.html'};
   var row=document.getElementById('triprow'),empty=document.getElementById('tripempty');
   var destDb=document.getElementById('dest-db'),destMel=document.getElementById('dest-mel'),destMel1=document.getElementById('dest-mel1'),destSg=document.getElementById('dest-sg'),destSg2=document.getElementById('dest-sg2'),destPg=document.getElementById('dest-pg'),destLk=document.getElementById('dest-lk'),destTnav=document.getElementById('dest-tnav');
   var MELAKA_FILE='malacca.html',MELAKA1_FILE='malacca-1day.html',SG_FILE='sg-trip.html',SG2_FILE='sg-2day.html',PG_FILE='penang-trip.html',LK_FILE='langkawi-trip.html',TNAV_FILE='trip-nav.html';
@@ -2935,6 +2936,7 @@ refresh(); // show seed words immediately, no waiting on storage
   }
   function setFatRegion(r){
     if(fatNav)fatNav.classList.toggle('on',r==='nav');
+    if(fatCalc)fatCalc.classList.toggle('on',r==='calc');
     if(fatWrap)fatWrap.classList.toggle('on',r==='wrap');
     if(fatX10)fatX10.classList.toggle('on',r==='x10');
     if(fat14d)fat14d.classList.toggle('on',r==='14d');
@@ -2992,6 +2994,7 @@ refresh(); // show seed words immediately, no waiting on storage
   if(tIelts)tIelts.onclick=function(){show('ielts');};
   tFat.onclick=function(){show('fat');};
   if(fatNav)fatNav.onclick=function(){setFatRegion('nav');};
+  if(fatCalc)fatCalc.onclick=function(){setFatRegion('calc');};
   if(fatWrap)fatWrap.onclick=function(){setFatRegion('wrap');};
   window.addEventListener('message',function(e){if(e&&e.data&&e.data.fatGo&&FAT_FILES[e.data.fatGo])setFatRegion(e.data.fatGo);});
   if(fatX10)fatX10.onclick=function(){setFatRegion('x10');};
