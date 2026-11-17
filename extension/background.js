@@ -33,7 +33,14 @@ async function translateMany(texts, tl, engine, sl) {
 
 // ---------- 查词 ----------
 const POS_ZH = { noun: "n.", verb: "v.", adjective: "adj.", adverb: "adv.", pronoun: "pron.", preposition: "prep.", conjunction: "conj.", interjection: "int.", determiner: "det.", exclamation: "excl.", abbreviation: "abbr.", article: "art.", numeral: "num.", particle: "part.", prefix: "pref.", suffix: "suf.", phrase: "phr." };
+// 查词结果存本地：同一个词第二次悬停不再联网；失败自动重试一次
 async function gWord(word, tl, sl) {
+  const k = "dc:" + tl + ":" + word, c = await chrome.storage.local.get(k); if (c[k]) return c[k];
+  let g; try { g = await gWordRaw(word, tl, sl); } catch (e) { await new Promise(r => setTimeout(r, 500)); g = await gWordRaw(word, tl, sl); }
+  if (g && g.t) chrome.storage.local.set({ [k]: g });
+  return g;
+}
+async function gWordRaw(word, tl, sl) {
   const u = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + encodeURIComponent(sl || "auto") + "&tl=" + encodeURIComponent(tl) + "&dt=t&dt=bd&q=" + encodeURIComponent(word);
   const r = await fetch(u); if (!r.ok) throw new Error("g" + r.status);
   const j = await r.json();

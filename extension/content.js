@@ -3,7 +3,7 @@
   let S = Object.assign({}, DEF);
   let revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
-  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true;
+  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false;
   const pendIdx = new Set(), retry = {};
 
   const $ = (s, r) => (r || document).querySelector(s);
@@ -357,6 +357,8 @@
     if (c.note) { oEl.innerHTML = '<span class="vs-note">' + esc(c.t) + "</span>"; setTrans(i); markPanel(i); syncStar(); return; }
     oEl.innerHTML = wordsHtml(c.t);
     setTrans(i); markPanel(i); syncStar();
+    // 提前查好这一句里的生词，悬停时直接显示
+    [...new Set([...oEl.querySelectorAll(".vs-u1,.vs-u2,.vs-lo,.vs-ln")].map(x => x.dataset.w))].slice(0, 6).forEach(w => liteLookup(w));
   }
   function setTrans(i) {
     if (i !== cur) return;
@@ -413,8 +415,22 @@
     if ((m = /^(i|you|he|she|it|we|they|that|there|here|what|who|where|how|when|why)'s$/i.exec(x))) return m[1] + " is";
     return null;
   }
-  const liteLookup = w => { const k = w.toLowerCase() + "|" + S.target; const ex = /['’]/.test(w) && !/\s/.test(w) ? expand(w) : null; if (ex && !lite.has(k)) lite.set(k, send({ type: "translate", text: ex, tl: S.target, engine: "google", sl: S.srcLang }).then(r => ({ t: r.t || "", zh: [], note: "= " + ex }))); if (!lite.has(k)) lite.set(k, (/\s/.test(w) ? send({ type: "translate", text: w, tl: S.target, engine: S.engine, sl: S.srcLang }).then(r => ({ t: r.t || "", zh: [] })) : send({ type: "wordLite", word: w, tl: S.target, sl: S.srcLang }).then(r => r.g || null))); return lite.get(k); };
-  const fullLookup = w => { const k = w.toLowerCase() + "|" + S.target; if (!full.has(k)) full.set(k, /\s/.test(w) ? liteLookup(w).then(g => ({ g, d: null })) : (/['’]/.test(w) && expand(w) ? liteLookup(w).then(g => ({ g, d: null })) : send({ type: "word", word: w, tl: S.target, sl: S.srcLang }).then(r => { if (r.g) lite.set(k, Promise.resolve(r.g)); return r; }))); return full.get(k); };
+  // 后台连不上（插件刚更新、后台休眠出错）或请求失败时，页面自己直接查一次；失败的结果不缓存，下次悬停会重查
+  const alive = () => { try { return !!chrome.runtime.id; } catch (e) { return false; } };
+  let warned = false;
+  async function gDirect(text, isWord) {
+    if (!alive() && !warned) { warned = true; toast("插件已更新，刷新页面后查词更快"); }
+    try {
+      const r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + encodeURIComponent(S.srcLang || "auto") + "&tl=" + encodeURIComponent(S.target) + "&dt=t" + (isWord ? "&dt=bd" : "") + "&q=" + encodeURIComponent(text));
+      if (!r.ok) return null; const j = await r.json(), t = (j[0] || []).map(x => x[0]).join("");
+      const zh = !isWord || /['’]/.test(text) ? [] : (j[1] || []).slice(0, 4).map(e => ({ pos: e[0], words: (e[1] || []).filter(x => !/[。！？.!?]$/.test(x) && x.length <= 12).slice(0, 5) })).filter(z => z.words.length);
+      return t ? { t, zh } : null;
+    } catch (e) { return null; }
+  }
+  const okG = g => !!(g && (g.t || (g.zh || []).length));
+  const liteLookup = w => { const k0 = w.toLowerCase() + "|" + S.target, p = liteLookup0(w); p.then(g => { if (!okG(g) && lite.get(k0) === p) lite.delete(k0); }); return p; };
+  const liteLookup0 = w => { const k = w.toLowerCase() + "|" + S.target; const ex = /['’]/.test(w) && !/\s/.test(w) ? expand(w) : null; if (ex && !lite.has(k)) lite.set(k, send({ type: "translate", text: ex, tl: S.target, engine: "google", sl: S.srcLang }).then(r => ({ t: r.t || "", zh: [], note: "= " + ex }))); if (!lite.has(k)) lite.set(k, (/\s/.test(w) ? send({ type: "translate", text: w, tl: S.target, engine: S.engine, sl: S.srcLang }).then(r => (r.t ? { t: r.t, zh: [] } : gDirect(w, false).then(g => g || { t: "", zh: [] }))) : send({ type: "wordLite", word: w, tl: S.target, sl: S.srcLang }).then(r => (okG(r.g) ? r.g : gDirect(w.toLowerCase(), true))))); return lite.get(k); };
+  const fullLookup = w => { const k = w.toLowerCase() + "|" + S.target; if (!full.has(k)) full.set(k, /\s/.test(w) ? liteLookup(w).then(g => ({ g, d: null })) : (/['’]/.test(w) && expand(w) ? liteLookup(w).then(g => ({ g, d: null })) : send({ type: "word", word: w, tl: S.target, sl: S.srcLang }).then(r => { if (r.g) lite.set(k, Promise.resolve(r.g)); return r; }))); const fp = full.get(k); fp.then(r => { if (!(r && (okG(r.g) || r.d)) && full.get(k) === fp) full.delete(k); }); return fp; };
   const meanings = g => { const out = []; const add = x => { x = String(x || "").trim(); if (x && !out.includes(x)) out.push(x); }; if (g) { add(g.t); (g.zh || []).forEach(z => z.words.forEach(add)); } return out; };
   const freqBar = w => { const r = vsRank(w), f = r === Infinity ? 1 : Math.max(0.16, Math.min(1, r / 6000)); return '<span class="fb"><i style="width:' + Math.round(f * 100) + '%"></i></span>'; };
   // ---------- 短语识别 ----------
@@ -720,8 +736,9 @@
       const items = [...savedSet].map((w, n) => ({ w, at: (savedCtx[w] || {}).at || 0, n })).concat(savedSents.map((x, si) => ({ x, si, at: x.at || 0, n: si })));
       items.sort((a, b) => b.at - a.at || (!a.x === !b.x ? b.n - a.n : a.x ? 1 : -1));
       listEl.innerHTML = '<div class="svb"><button class="svall">☰　查看全部</button></div><div class="svh"><span>最近保存:</span><span class="cxt">显示上下文<i class="tg' + (showCtx ? " on" : "") + '"></i></span></div>' +
-        (items.map(o => { if (o.x) return '<div class="it sv"' + (o.x.v === vidId ? ' data-s="' + o.x.s + '"' : "") + '><i class="ty">p</i><div class="en">' + wordsHtml(o.x.t) + '</div><i class="rm" data-si="' + o.si + '" title="移除">×</i></div>'; const c = savedCtx[o.w], ctx = showCtx && c && c.t; return '<div class="it sv"' + (ctx && c.v === vidId ? ' data-s="' + c.s + '"' : "") + '><i class="ty">w</i><div class="en">' + wordsHtml(ctx ? c.t : o.w) + '</div><i class="rm" data-w="' + esc(o.w) + '" title="移除">×</i></div>'; }).join("") || '<div class="it"><span class="cnt">还没有保存的内容。右键点击单词，或点字幕右侧的 ☆</span></div>') +
+        (items.map(o => { if (o.x) return '<div class="it sv"' + (o.x.v === vidId ? ' data-s="' + o.x.s + '"' : "") + '><i class="ty">p</i><div class="en">' + wordsHtml(o.x.t) + '</div><i class="rm" data-si="' + o.si + '" title="移除">×</i></div>'; let c = savedCtx[o.w]; if (showCtx && !(c && c.t)) { const ci = cues.findIndex(q => !q.note && (q.t.match(WORD_RE) || []).some(x => x.toLowerCase() === o.w || vsLemma(x.toLowerCase()) === o.w || vsLemma(x.toLowerCase()) === vsLemma(o.w))); if (ci >= 0) { c = { t: cues[ci].t, v: vidId, s: cues[ci].s, at: (c || {}).at || 0 }; savedCtx[o.w] = c; ctxDirty = true; } } const ctx = showCtx && c && c.t; return '<div class="it sv"' + (ctx && c.v === vidId ? ' data-s="' + c.s + '"' : "") + '><i class="ty">w</i><div class="en">' + wordsHtml(ctx ? c.t : o.w) + '</div><i class="rm" data-w="' + esc(o.w) + '" title="移除">×</i></div>'; }).join("") || '<div class="it"><span class="cnt">还没有保存的内容。右键点击单词，或点字幕右侧的 ☆</span></div>') +
         '<div class="hd">生词本待整理队列 <a id="vs-qc" style="cursor:pointer;color:#0FA37A;margin-left:8px">复制全部</a></div><div class="chips" id="vs-q"><span class="cnt">读取中…</span></div>';
+      if (ctxDirty) { ctxDirty = false; chrome.storage.local.set({ savedCtx }); }
       send({ type: "pending" }).then(r => { const q = $("#vs-q", panel); if (!q || tab !== "saved") return; const p = r.pending; q.innerHTML = !p ? '<span class="cnt">读取失败</span>' : p.length ? p.map(w => '<span class="chip" style="padding-right:10px">' + esc(w) + "</span>").join("") : '<span class="cnt">队列是空的</span>'; const c = $("#vs-qc", panel); if (c) c.onclick = () => navigator.clipboard.writeText((p || []).join("\n")).then(() => toast("已复制 " + (p || []).length + " 个词")); });
     }
   }
