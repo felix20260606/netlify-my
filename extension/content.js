@@ -670,12 +670,12 @@
   }
   function setMark(word, m) { // m: known | ignore | learn | ""
     const k = word.toLowerCase();
-    if (m === "learn") { { const L = vsLemma(k); Object.keys(VS_MARKS).forEach(x => { if (x === k || vsLemma(x) === L) delete VS_MARKS[x]; }); } savedSet.add(k); send({ type: "add", word }); noteCtx(k); chrome.storage.local.set({ savedCtx }); }
+    if (m === "learn") { Object.keys(VS_MARKS).forEach(x => { if (vsSame(x, k)) delete VS_MARKS[x]; }); savedSet.add(k); send({ type: "add", word }); noteCtx(k); chrome.storage.local.set({ savedCtx }); }
     else {
       // 按原形取消：标 wrote 为已掌握时，之前保存的 write / written 也一起移出“正在学习”
-      const L = vsLemma(k), gone = [...savedSet].filter(x => x === k || vsLemma(x) === L);
+      const gone = [...savedSet].filter(x => vsSame(x, k));
       if (gone.length) { gone.forEach(x => savedSet.delete(x)); chrome.storage.local.get({ saved: [] }, v => chrome.storage.local.set({ saved: v.saved.filter(x => !gone.includes(x.toLowerCase())) })); }
-      Object.keys(VS_MARKS).forEach(x => { if (x !== k && vsLemma(x) === L) delete VS_MARKS[x]; });
+      Object.keys(VS_MARKS).forEach(x => { if (x !== k && vsSame(x, k)) delete VS_MARKS[x]; });
       if (m) VS_MARKS[k] = m; else delete VS_MARKS[k];
     }
     chrome.storage.local.set({ marks: VS_MARKS }); refreshMarks();
@@ -684,6 +684,7 @@
   document.addEventListener("contextmenu", e => {
     const w = e.target.closest && e.target.closest(".vs-w"); if (!w || !S.enabled) return;
     e.preventDefault(); e.stopPropagation();
+    if (!alive()) { toast("插件刚更新过，请刷新这个页面后再标记"); return; } // 插件重新加载后，旧页面里的标记保存不了
     const lw = w.dataset.w.toLowerCase(), on = vsMarkOf(lw) === "learn"; setMark(w.dataset.w, on ? "known" : "learn"); // 没有框的词：右键直接加入学习；已在学习的词：右键标为已掌握
   }, true);
   function speak(word) { try { const u = new SpeechSynthesisUtterance(word); u.lang = S.srcLang === "en" ? "en-US" : S.srcLang; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (x) {} }

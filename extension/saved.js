@@ -130,9 +130,9 @@ function drawAll() {
 }
 function setMark(w, m) { // learn | known | ignore | ""
   w = w.toLowerCase();
-  const L = lem(w); Object.keys(marks).forEach(x => { if (x === w || lem(x) === L) delete marks[x]; });
+  Object.keys(marks).forEach(x => { if (vsSame(x, w)) delete marks[x]; });
   if (m === "learn") { if (vsMarkOf(w) !== "learn") { saved.push(w); ctx[w] = ctx[w] || { at: Date.now() }; send({ type: "add", word: w }); } }
-  else { saved = saved.filter(x => x !== w && lem(x) !== L); if (m) marks[w] = m; VS_SAVED = new Set(saved); }
+  else { saved = saved.filter(x => !vsSame(x, w)); if (m) marks[w] = m; VS_SAVED = new Set(saved); }
 }
 // 改动前先重新读一遍存储：这个页面可能开了很久，期间在视频里新保存的词不能被旧数据覆盖掉
 function fresh(fn) { load(() => { fn(); }); }

@@ -35,6 +35,8 @@ function vsKeys(x) {
   if (l === x && /(ed|ing|es|s)$/.test(x) && !(typeof VS_NOSTEM !== "undefined" && VS_NOSTEM.has(x)) && typeof vsStems === "function") vsStems(x).forEach(function (s) { if (s.length >= 4 && out.indexOf(s) < 0) out.push(s); });
   return out;
 }
+// 两个词形是不是同一个词（write / wrote，reinvent / reinvented）
+function vsSame(a, b) { a = String(a).toLowerCase(); b = String(b).toLowerCase(); if (a === b) return true; var A = vsKeys(a), B = vsKeys(b); A.push(a); B.push(b); for (var i = 0; i < A.length; i++) if (B.indexOf(A[i]) >= 0) return true; return false; }
 function vsMarkOf(k) {
   k = String(k).toLowerCase();
   var keys = Object.keys(VS_MARKS);
