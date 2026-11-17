@@ -82,12 +82,14 @@ function start() {
 }
 // 例句按需准备：当前这张等它，后面两张提前取
 function need(c) { if (!c.p) c.p = sentenceFor(c.w, c.used).then(s => (c.s = s)).catch(() => (c.s = { en: c.w, tr: "" })); return c.p; }
-function stopAll() { try { speechSynthesis.cancel(); } catch (e) {} if (player) { try { player.pause(); } catch (e) {} player = null; } }
+function stopAll() { speak.n = (speak.n || 0) + 1; try { speechSynthesis.cancel(); } catch (e) {} if (player) { try { player.pause(); } catch (e) {} player = null; } }
 function say(c) { stopAll(); const a = c.s && c.s.md && c.s.md.aud; if (a) { try { player = new Audio(a); player.playbackRate = rate; player.play().catch(() => speak(c.s.en)); return; } catch (e) {} } speak(c.s.en); }
 const tm = x => Math.floor(x / 60) + ":" + String(Math.floor(x % 60)).padStart(2, "0");
 function mediaTop(c) { const m = c.s.md; return m && m.img ? '<img class="shot" src="' + m.img + '" alt="">' : ""; }
 function mediaSrc(c) { const m = c.s.md; if (!m) return '<span class="src syn">例句来自例句库 · 合成语音</span>'; return '<a class="src" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=' + encodeURIComponent(m.v) + "&t=" + Math.max(0, Math.floor(m.s)) + 's" title="打开视频的这一句">' + (m.aud ? "原声" : "合成语音") + " · " + esc(m.title || "YouTube") + (m.ch ? " · " + esc(m.ch) : "") + " · " + tm(m.s) + "</a>"; }
-function speak(t) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = S.srcLang === "en" ? "en-US" : S.srcLang; u.rate = 0.95 * rate; speechSynthesis.speak(u); } catch (e) {} }
+function speakLocal(t) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = S.srcLang === "en" ? "en-US" : S.srcLang; u.rate = 0.95 * rate; const vs = speechSynthesis.getVoices().filter(x => x.lang && x.lang.toLowerCase().startsWith(u.lang.slice(0, 2).toLowerCase())), pick = vs.find(x => /Samantha|Google US English|Microsoft Aria|Alex/i.test(x.name)) || vs.find(x => x.lang === u.lang && x.localService) || vs[0]; if (pick) u.voice = pick; speechSynthesis.speak(u); } catch (e) {} }
+// 没有原声时：用在线朗读（单词用词典真人录音），取不到再用浏览器自带语音
+async function speak(t) { const my = (speak.n = (speak.n || 0) + 1); try { const r = await send({ type: "tts", text: t, lang: S.srcLang }); if (my !== speak.n) return; if (r.a) { if (player) { try { player.pause(); } catch (e) {} } player = new Audio(r.a); player.playbackRate = rate; await player.play(); return; } } catch (e) {} if (my === speak.n) speakLocal(t); }
 function grade(c, ok) {
   if (c.done) return; c.done = true; c.ok = ok;
   if (c.sg && !saved.includes(c.w)) { day.n++; sess[ok ? "ok" : "bad"]++; chrome.storage.local.set({ reviewDay: day }); return; }

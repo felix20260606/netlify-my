@@ -32,7 +32,12 @@ function load(cb) {
     });
   });
 }
-function say(text, m) { try { speechSynthesis.cancel(); if (player) player.pause(); } catch (e) {} if (m && m.aud) { player = new Audio(m.aud); player.play().catch(() => {}); return; } try { const u = new SpeechSynthesisUtterance(text); u.lang = "en-US"; speechSynthesis.speak(u); } catch (e) {} }
+function say(text, m) {
+  try { speechSynthesis.cancel(); if (player) player.pause(); } catch (e) {}
+  if (m && m.aud) { player = new Audio(m.aud); player.play().catch(() => {}); return; }
+  if (!text) return; const my = (say.n = (say.n || 0) + 1);
+  send({ type: "tts", text, lang: S.srcLang }).then(r => { if (my !== say.n) return; if (r.a) { player = new Audio(r.a); player.play().catch(() => {}); return; } try { const u = new SpeechSynthesisUtterance(text); u.lang = "en-US"; speechSynthesis.speak(u); } catch (e) {} });
+}
 function srcCell(m, c) {
   const o = m || c; if (!o || !o.v) return '<span class="no">—</span>';
   const url = "https://www.youtube.com/watch?v=" + encodeURIComponent(o.v) + "&t=" + Math.max(0, Math.floor(o.s || 0)) + "s", title = (m && m.title) || "YouTube";

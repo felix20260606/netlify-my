@@ -33,6 +33,23 @@ async function translateMany(texts, tl, engine, sl) {
 
 // ---------- 查词 ----------
 const POS_ZH = { noun: "n.", verb: "v.", adjective: "adj.", adverb: "adv.", pronoun: "pron.", preposition: "prep.", conjunction: "conj.", interjection: "int.", determiner: "det.", exclamation: "excl.", abbreviation: "abbr.", article: "art.", numeral: "num.", particle: "part.", prefix: "pref.", suffix: "suf.", phrase: "phr." };
+// 朗读：单个英文单词优先用词典的真人录音，其余用 Google 的在线朗读；浏览器自带的合成语音只作最后的后备
+const ttsMem = new Map();
+async function tts(text, lang) {
+  text = String(text || "").trim().slice(0, 190); if (!text) return ""; lang = String(lang || "en").split("-")[0];
+  const k = lang + "|" + text.toLowerCase(); if (ttsMem.has(k)) return ttsMem.get(k);
+  const urls = []; if (lang === "en" && /^[a-z]+$/i.test(text)) urls.push("https://ssl.gstatic.com/dictionary/static/sounds/oxford/" + text.toLowerCase() + "--_us_1.mp3");
+  urls.push("https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=" + encodeURIComponent(lang) + "&q=" + encodeURIComponent(text));
+  for (const u of urls) {
+    try {
+      const r = await fetch(u, { referrerPolicy: "no-referrer" }); if (!r.ok) continue;
+      const u8 = new Uint8Array(await r.arrayBuffer()); if (u8.length < 500) continue;
+      let bin = ""; for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+      const d = "data:audio/mpeg;base64," + btoa(bin); ttsMem.set(k, d); if (ttsMem.size > 150) ttsMem.delete(ttsMem.keys().next().value); return d;
+    } catch (e) {}
+  }
+  return "";
+}
 // 复习用的例句：来自 Tatoeba 例句库（CC-BY），带中文翻译；结果存本地
 async function sentences(word, tl, sl) {
   if (sl && sl !== "en") return [];
@@ -155,6 +172,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "openSettings") { chrome.windows.create({ url: chrome.runtime.getURL("popup.html"), type: "popup", width: 340, height: 760 }); send({}); }
   else if (m.type === "openLevel") { chrome.runtime.openOptionsPage(); send({}); }
   else if (m.type === "openSaved") { chrome.tabs.create({ url: chrome.runtime.getURL("saved.html") }); send({}); }
+  else if (m.type === "tts") tts(m.text, m.lang).then(a => send({ a })).catch(() => send({ a: "" }));
   else if (m.type === "openReview") { chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); send({}); }
   else if (m.type === "sentences") sentences(m.word, m.tl, m.sl).then(s => send({ s })).catch(() => send({ s: [] }));
   else if (m.type === "add") addWord(m.word).then(send);

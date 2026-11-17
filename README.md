@@ -434,6 +434,7 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 - 整句翻译：YouTube 自动翻译；可选 Google 翻译、微软翻译。
 - 单词释义：Google 翻译的词典数据；英文释义和短语检查来自 Wiktionary。
 - 音标：Datamuse。
+- 朗读：单个英文单词用 Google 词典的真人录音，句子和查不到录音的词用 Google 的在线朗读；都取不到时才用浏览器自带的合成语音。
 - 复习例句：[Tatoeba](https://tatoeba.org)（CC-BY 2.0 FR）。
 
 这些都是公开接口，没有服务保证，可能被限流或改动。

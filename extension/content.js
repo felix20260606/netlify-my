@@ -58,6 +58,7 @@
     if (e.source !== window || !e.data || e.data.src !== "VS") return;
     if (e.data.type === "dev-level" && e.data.level >= 0) { chrome.storage.sync.set({ level: +e.data.level, ratio: +e.data.ratio || 1.5 }); return; } // 开发用：只允许改词汇水平和比率
     if (e.data.type === "dev-state") { window.postMessage({ src: "VS-R", level: S.level, ratio: S.ratio, merge: S.merge, engine: S.engine, hideMode: S.hideMode, showHuman: S.showHuman, target: S.target }, "*"); return; }
+    if (e.data.type === "dev-tts") { send({ type: "tts", text: e.data.text, lang: S.srcLang }).then(r => window.postMessage({ src: "VS-T", text: e.data.text, kb: Math.round((r.a || "").length / 1024), head: (r.a || "").slice(0, 22) }, "*")); return; }
     if (e.data.type === "dev-cap") { needCapture("med:__test", +e.data.ci); return; }
     if (e.data.type === "dev-media") { chrome.storage.local.get(null, v => { const m = Object.keys(v).filter(k => k.startsWith("med:")).map(k => k.slice(4) + " img=" + ((v[k].img || "").length > 100 ? 1 : 0) + " aud=" + ((v[k].aud || "").length > 100 ? Math.round(v[k].aud.length / 1024) + "KB" : 0) + " " + new Date(v[k].at).toTimeString().slice(0, 5)); window.postMessage({ src: "VS-M", saveMedia: S.saveMedia, cur, recording: recR ? recR._i : null, clips: Object.keys(clips).map(k => k + ":" + Math.round(clips[k].length / 1024) + "KB"), pend: Object.keys(pendMed), med: m, saved: (v.saved || []).length }, "*"); }); return; }
     if (e.data.type === "reload-ext") { send({ type: "reloadSelf" }); return; } // 开发用：让插件重新加载自身（仅重启插件，不涉及数据）
@@ -723,7 +724,23 @@
     if (!alive()) { toast("插件刚更新过，请刷新这个页面后再标记"); return; } // 插件重新加载后，旧页面里的标记保存不了
     const lw = w.dataset.w.toLowerCase(), on = vsMarkOf(lw) === "learn"; setMark(w.dataset.w, on ? "known" : "learn"); // 没有框的词：右键直接加入学习；已在学习的词：右键标为已掌握
   }, true);
-  function speak(word) { try { const u = new SpeechSynthesisUtterance(word); u.lang = S.srcLang === "en" ? "en-US" : S.srcLang; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (x) {} }
+  // 朗读：先用后台取回的真人录音 / 在线朗读（经 AudioContext 播放，不受页面限制）；取不到再用浏览器自带语音
+  let actx = null, ttsNode = null;
+  function speakLocal(word) { try { const u = new SpeechSynthesisUtterance(word); u.lang = S.srcLang === "en" ? "en-US" : S.srcLang; const vs = speechSynthesis.getVoices().filter(x => x.lang && x.lang.toLowerCase().startsWith(u.lang.toLowerCase().slice(0, 2))), pick = vs.find(x => /Samantha|Google US English|Microsoft Aria|Alex/i.test(x.name)) || vs.find(x => x.lang === u.lang && x.localService) || vs[0]; if (pick) u.voice = pick; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (x) {} }
+  async function speak(word) {
+    const my = (speak.n = (speak.n || 0) + 1);
+    try {
+      const r = await send({ type: "tts", text: word, lang: S.srcLang }); if (my !== speak.n) return;
+      if (r.a) {
+        actx = actx || new AudioContext(); if (actx.state === "suspended") await actx.resume();
+        const bin = atob(r.a.split(",")[1]), u8 = new Uint8Array(bin.length); for (let k = 0; k < bin.length; k++) u8[k] = bin.charCodeAt(k);
+        const buf = await actx.decodeAudioData(u8.buffer); if (my !== speak.n) return;
+        if (ttsNode) { try { ttsNode.stop(); } catch (e) {} }
+        ttsNode = actx.createBufferSource(); ttsNode.buffer = buf; ttsNode.connect(actx.destination); ttsNode.start(); return;
+      }
+    } catch (e) {}
+    speakLocal(word);
+  }
   function setRate(r) { const v = video(); if (!v) return; r = Math.max(0.25, Math.min(2, r)); v.playbackRate = r; if (S.rate !== r) chrome.storage.sync.set({ rate: r }); toast("播放速度 " + r + "x"); }
   // ---------- 循环 / 跳句 / 快捷键 ----------
   function toggleLoop() {
