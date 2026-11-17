@@ -85,6 +85,16 @@ body.dict .wrap{margin-right:440px}body.dict .jump{right:444px}body.dict .tabs{m
 .tabs .ex{display:inline-flex;align-items:center;gap:7px;border:1px solid #4a4f57;border-radius:8px;padding:5px 12px;font-size:14px;margin-right:8px}.tabs .ex:hover{background:#33373d}.tabs .ex .vi{font-size:16px}
 #dict .his{display:flex;flex-wrap:wrap;gap:6px 10px;padding:4px 14px 8px;font-size:13.5px}#dict .his[hidden]{display:none}#dict .his a{cursor:pointer;color:var(--pur2)}#dict .his span{color:var(--mut)}
 .wr .rt{flex:1;color:#c9ced4;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wr .sn{margin-left:0}
+/* 对齐 LR 网站量到的数值 */
+:root{--bg:#141618;--bar:#1c1e21;--ink:#E2E5E9}
+body{font-family:"Noto Sans",Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;font-size:16px}
+.tabs b{height:36px;padding:0 14px 0 11px;border-radius:50px;font-size:15px}.tabs b.on{background:rgba(255,255,255,.1)}
+.q{border-radius:4px}.q input{padding:8.5px 0 8.5px 2px;font-size:16px}
+.chip{height:30px;border-radius:15px;font-size:13px;font-weight:500;padding:0 12px}
+th{font-size:11px;font-weight:500;color:rgba(255,255,255,.38);padding:3px 10px 6px}
+td{padding:10px}td.w{font-size:15px}td.t{font-size:15px}td.x{font-size:15px}
+.day{background:#1c1e21;font-size:12px}
+#dict{background:#1c1e21}#dict .card{background:#141618}
 </style>
 <div class="tabs"><b data-t="words" class="on"></b><b data-t="sents"></b><b data-t="all"></b><span class="sp"></span><button class="ex" id="exp" title="导出为 Anki 可导入的文件">导出</button><button class="rv" id="rv">复习</button></div>
 <div class="wrap" id="wrap"></div>
