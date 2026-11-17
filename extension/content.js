@@ -3,7 +3,7 @@
   let S = Object.assign({}, DEF);
   let revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
-  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false;
+  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
   const pendIdx = new Set(), retry = {};
 
   const $ = (s, r) => (r || document).querySelector(s);
@@ -579,7 +579,7 @@
   }
   document.addEventListener("mousedown", e => { if (tip && !tip.contains(e.target) && !(root && root.contains(e.target)) && !(panel && panel.contains(e.target))) { closeTip(); if (pausedByUs) { const v = video(); if (v) v.play(); pausedByUs = false; } } }, true);
 
-  function refreshMarks() { const keep = cur; cur = -1; if (keep >= 0 && cues[keep] && oEl && !cues[keep].note) { cur = keep; oEl.innerHTML = wordsHtml(cues[keep].t); } else cur = keep; if (panel) { const st = listEl.scrollTop; buildPanel(); listEl.scrollTop = st; markPanel(cur, true); } if (tip) drawDict(tip.dataset.word, tipData); }
+  function refreshMarks() { const keep = cur; cur = -1; if (keep >= 0 && cues[keep] && oEl && !cues[keep].note) { cur = keep; oEl.innerHTML = wordsHtml(cues[keep].t); } else cur = keep; if (panel) { const st = listEl.scrollTop; const fl = follow; buildPanel(); autoScrollT = Date.now() + 300; listEl.scrollTop = st; markPanel(cur, fl); } if (tip) drawDict(tip.dataset.word, tipData); }
   function noteCtx(k) {
     const has = c => c && !c.note && (c.t.match(WORD_RE) || []).some(x => x.toLowerCase() === k || vsLemma(x.toLowerCase()) === k);
     const ci = has(cues[cur]) ? cur : cues.findIndex(has);
@@ -641,7 +641,7 @@
   function togglePanel() {
     if (!panel) {
       panel = document.createElement("div"); panel.id = "vs-panel";
-      panel.innerHTML = '<div class="mn" title="展开"><span>字幕（隐藏）</span><i>⌄</i></div><div class="ph"><span class="tabs"><b data-t="subs" class="on">字幕</b><b data-t="words">词语</b><b data-t="saved">已保存</b></span><span class="pr"><span id="vs-pf" title="载入字幕文件（.srt .vtt .ass .ssa）">📄</span><span id="vs-pr" title="修复：重新获取字幕">↻</span><span id="vs-pe" title="导出">⤓</span><span id="vs-pg" title="设置">⚙</span><span id="vs-px" title="隐藏">✕</span></span></div><div class="em"><a data-k="html">打印（HTML）</a><a data-k="excel">Excel</a><a data-k="saved">已保存项目</a></div><input type="file" id="vs-file" accept=".srt,.vtt,.ass,.ssa" hidden><div class="ls"></div>';
+      panel.innerHTML = '<div class="mn" title="展开"><span>字幕（隐藏）</span><i>⌄</i></div><div class="ph"><span class="tabs"><b data-t="subs" class="on">字幕</b><b data-t="words">词语</b><b data-t="saved">已保存</b></span><span class="pr"><span id="vs-pf" title="载入字幕文件（.srt .vtt .ass .ssa）">📄</span><span id="vs-pr" title="修复：重新获取字幕">↻</span><span id="vs-pe" title="导出">⤓</span><span id="vs-pg" title="设置">⚙</span><span id="vs-px" title="隐藏">✕</span></span></div><div class="em"><a data-k="html">打印（HTML）</a><a data-k="excel">Excel</a><a data-k="saved">已保存项目</a></div><input type="file" id="vs-file" accept=".srt,.vtt,.ass,.ssa" hidden><div class="ls"></div><i id="vs-back" title="回到当前字幕">⌖</i>';
       listEl = $(".ls", panel); mountPanel();
       // ✕ 不是关闭，而是收起成一条“字幕（隐藏）”，点一下再展开
       const setMin = v => { panelMin = v; panel.classList.toggle("min", v); chrome.storage.local.set({ panelMin: v }); hideMini(); mountPanel(); if (!v) markPanel(cur, true); };
@@ -657,7 +657,16 @@
       $(".tabs", panel).addEventListener("click", e => { const t = e.target.dataset.t; if (!t) return; tab = t; panel.querySelectorAll(".tabs b").forEach(x => x.classList.toggle("on", x.dataset.t === t)); buildPanel(); markPanel(cur, true); });
       listEl.addEventListener("mouseover", e => { const w = e.target.closest(".vs-w"), it = e.target.closest(".it.sb"); if (it) { showSide(it, w); return; } if (w) showMini(w); });
       listEl.addEventListener("mouseout", e => { if (mini && mini.id === "vs-side") { if (!e.relatedTarget || !listEl.contains(e.relatedTarget) || !e.relatedTarget.closest(".it.sb")) hideMini(); return; } if (e.target.closest(".vs-w")) hideMini(); });
-      listEl.addEventListener("scroll", () => { if (mini && mini.id === "vs-side") hideMini(); }, { passive: true });
+      // 手动滚动后停止自动跟随，出现“回到当前”按钮；点它或滚回当前句就恢复跟随
+      listEl.addEventListener("scroll", () => {
+        if (mini && mini.id === "vs-side") hideMini();
+        if (tab !== "subs" || Date.now() - userScrollT > 1500) return;
+        const it = listEl.children[cur]; if (!it || !it.classList.contains("sb")) return;
+        const mid = it.offsetTop + it.offsetHeight / 2, vis = mid >= listEl.scrollTop && mid <= listEl.scrollTop + listEl.clientHeight;
+        follow = vis; panel.classList.toggle("away", !vis);
+      }, { passive: true });
+      ["wheel", "touchmove", "pointerdown", "keydown"].forEach(ev => listEl.addEventListener(ev, () => { userScrollT = Date.now(); }, { passive: true }));
+      $("#vs-back", panel).onclick = () => { userScrollT = 0; markPanel(cur, true); };
       listEl.addEventListener("click", e => {
         const st = e.target.closest(".st"), w = e.target.closest(".vs-w"), it = e.target.closest(".it"), rm = e.target.closest(".rm");
         if (rm) { if (rm.dataset.w) { savedSet.delete(rm.dataset.w.toLowerCase()); chrome.storage.local.get({ saved: [] }, v => chrome.storage.local.set({ saved: v.saved.filter(x => x.toLowerCase() !== rm.dataset.w.toLowerCase()) })); } else { savedSents.splice(+rm.dataset.si, 1); chrome.storage.local.set({ savedSents }); } buildPanel(); cur = -1; return; }
@@ -758,8 +767,10 @@
   }
   function updPanelTr(i) { if (!listEl || tab !== "subs") return; const it = listEl.children[i]; if (it && $(".tr", it)) $(".tr", it).textContent = trans[i] || ""; if (mini && mini.id === "vs-side" && +mini.dataset.i === i) $(".sn", mini).textContent = trans[i] || ""; }
   function markPanel(i, force) {
-    if (!panel || !panel.classList.contains("show") || tab !== "subs") return;
+    if (!panel) return; if (tab !== "subs") { panel.classList.remove("away"); return; }
+    if (!panel.classList.contains("show")) return;
     const old = $(".it.cur", listEl); if (old) old.classList.remove("cur");
-    const it = listEl.children[i]; if (it) { it.classList.add("cur"); listEl.scrollTo({ top: it.offsetTop - listEl.clientHeight / 2 + it.offsetHeight / 2, behavior: force ? "auto" : "smooth" }); }
+    if (force) { follow = true; panel.classList.remove("away"); }
+    const it = listEl.children[i]; if (it) { it.classList.add("cur"); if (!follow) return; autoScrollT = Date.now() + 900; listEl.scrollTo({ top: it.offsetTop - listEl.clientHeight / 2 + it.offsetHeight / 2, behavior: force ? "auto" : "smooth" }); }
   }
 })();

@@ -235,3 +235,7 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 #vs-panel.min .ph,#vs-panel.min .ls,#vs-panel.min .em{display:none!important}
 #vs-panel.min .mn{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font-size:16px;font-weight:600;color:#fff;cursor:pointer}
 #vs-panel .mn i{font-style:normal;width:22px;height:22px;border-radius:50%;background:#fff;color:#16191e;font-size:17px;font-weight:900;line-height:19px;text-align:center}
+
+#vs-back{display:none;position:absolute;right:22px;top:58px;z-index:6;width:30px;height:30px;border-radius:50%;background:#9A62C4;color:#fff;font:normal 19px/29px system-ui;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+#vs-back:hover{background:#ad78d4}
+#vs-panel.away:not(.min) #vs-back{display:block}
