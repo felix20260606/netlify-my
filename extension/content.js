@@ -253,7 +253,7 @@
     const my = vidId, ask = () => window.postMessage({ src: "VS-C", type: "get-last" }, "*");
     setTimeout(ask, 300); setTimeout(ask, 1500);
     [2500, 6000, 11000].forEach((ms, n) => setTimeout(() => {
-      if (raw.length || custom || my !== vidId) return;
+      if (raw.length || custom || my !== vidId || lastStatus === 429 || limitTry) return; // 被限流时不再反复开关 CC，免得越请求越被限
       const b = $(".ytp-subtitles-button"); if (!b) return;
       if (b.getAttribute("aria-pressed") === "false") b.click();
       else if (n > 0) { b.click(); setTimeout(() => b.click(), 400); }
