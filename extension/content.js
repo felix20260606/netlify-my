@@ -3,7 +3,7 @@
   let S = Object.assign({}, DEF);
   let revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
-  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false;
+  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false;
   const pendIdx = new Set(), retry = {};
 
   const $ = (s, r) => (r || document).querySelector(s);
@@ -30,7 +30,7 @@
     else if (raw.length && (S.engine !== old.engine || S.target !== old.target || S.merge !== old.merge || S.showHuman !== old.showHuman)) buildCues();
   });
   chrome.storage.onChanged.addListener((c, a) => { if (a === "local" && c.audioPick && c.audioPick.newValue) window.postMessage({ src: "VS-C", type: "set-audio", index: c.audioPick.newValue.i }, "*"); });
-  chrome.storage.local.get({ saved: [], savedSents: [], marks: {}, savedCtx: {}, showCtx: false, wtipOff: false }, v => { savedCtx = v.savedCtx || {}; showCtx = !!v.showCtx; wtip = !v.wtipOff; savedSet = new Set(v.saved.map(w => w.toLowerCase())); VS_SAVED = savedSet; VS_MARKS = v.marks || {}; savedSents = v.savedSents; cur = -1; });
+  chrome.storage.local.get({ saved: [], savedSents: [], marks: {}, savedCtx: {}, showCtx: false, wtipOff: false, panelMin: false }, v => { panelMin = !!v.panelMin; if (panel) panel.classList.toggle("min", panelMin); savedCtx = v.savedCtx || {}; showCtx = !!v.showCtx; wtip = !v.wtipOff; savedSet = new Set(v.saved.map(w => w.toLowerCase())); VS_SAVED = savedSet; VS_MARKS = v.marks || {}; savedSents = v.savedSents; cur = -1; });
 
   // ---------- 字幕获取 ----------
   window.addEventListener("message", e => {
@@ -391,10 +391,18 @@
     if (++tk % 10 === 0) { mountPill(); const shown = !!(panel && panel.classList.contains("show")), wantP = !!(S.panelOpen && S.enabled); if (wantP !== shown) { if (panel) { panel.classList.toggle("show", wantP); if (wantP) { mountPanel(); markPanel(cur, true); } } else if (wantP) togglePanel(); } else if (panel && panel.classList.contains("show")) mountPanel(); }
     const t = v.currentTime; if (root && tk % 10 === 0) build();
     if (loopOn && loopIdx >= 0 && cues[loopIdx] && t >= cues[loopIdx].e - 0.08) { v.currentTime = cues[loopIdx].s; return; }
-    if (S.autoPause && !loopOn && cur >= 0 && pauseDone !== cur && !v.paused && t >= cues[cur].e - 0.12) { pauseDone = cur; v.pause(); }
+    if (S.autoPause && !loopOn && cur >= 0 && cues[cur]) {
+      const nx = cues[cur + 1], end = Math.min(cues[cur].e, nx ? nx.s : Infinity);
+      if (pauseDone !== cur && !v.paused) {
+        // 句末自动暂停：暂停后停在当前句，绝不提前换成下一句
+        if (t >= end - 0.12 && t < end + 1) { pauseDone = cur; v.pause(); if (t > end - 0.03) v.currentTime = Math.max(cues[cur].s, end - 0.03); return; }
+        const rem = (end - 0.12 - t) / (v.playbackRate || 1); if (rem > 0 && rem < 0.1) { clearTimeout(apT); apT = setTimeout(tick, rem * 1000 + 2); }
+      } else if (pauseDone === cur && v.paused && t >= cues[cur].s - 0.1 && t < end + 0.5) return; // 自动暂停期间保持当前句
+    }
     const i = findCue(t);
     if (i !== cur) { pauseDone = -1; cur = i; if (loopOn && i >= 0) loopIdx = i; render(i); }
   }
+  let apT = null;
   setInterval(tick, 100);
 
   // ---------- 悬停 / 查词卡片 ----------
@@ -631,9 +639,13 @@
   function togglePanel() {
     if (!panel) {
       panel = document.createElement("div"); panel.id = "vs-panel";
-      panel.innerHTML = '<div class="ph"><span class="tabs"><b data-t="subs" class="on">字幕</b><b data-t="words">词语</b><b data-t="saved">已保存</b></span><span class="pr"><span id="vs-pf" title="载入字幕文件（.srt .vtt .ass .ssa）">📄</span><span id="vs-pr" title="修复：重新获取字幕">↻</span><span id="vs-pe" title="导出">⤓</span><span id="vs-pg" title="设置">⚙</span><span id="vs-px" title="关闭">✕</span></span></div><div class="em"><a data-k="html">打印（HTML）</a><a data-k="excel">Excel</a><a data-k="saved">已保存项目</a></div><input type="file" id="vs-file" accept=".srt,.vtt,.ass,.ssa" hidden><div class="ls"></div>';
+      panel.innerHTML = '<div class="mn" title="展开"><span>字幕（隐藏）</span><i>⌄</i></div><div class="ph"><span class="tabs"><b data-t="subs" class="on">字幕</b><b data-t="words">词语</b><b data-t="saved">已保存</b></span><span class="pr"><span id="vs-pf" title="载入字幕文件（.srt .vtt .ass .ssa）">📄</span><span id="vs-pr" title="修复：重新获取字幕">↻</span><span id="vs-pe" title="导出">⤓</span><span id="vs-pg" title="设置">⚙</span><span id="vs-px" title="隐藏">✕</span></span></div><div class="em"><a data-k="html">打印（HTML）</a><a data-k="excel">Excel</a><a data-k="saved">已保存项目</a></div><input type="file" id="vs-file" accept=".srt,.vtt,.ass,.ssa" hidden><div class="ls"></div>';
       listEl = $(".ls", panel); mountPanel();
-      $("#vs-px", panel).onclick = togglePanel;
+      // ✕ 不是关闭，而是收起成一条“字幕（隐藏）”，点一下再展开
+      const setMin = v => { panelMin = v; panel.classList.toggle("min", v); chrome.storage.local.set({ panelMin: v }); hideMini(); mountPanel(); if (!v) markPanel(cur, true); };
+      panel.classList.toggle("min", panelMin);
+      $("#vs-px", panel).onclick = () => setMin(true);
+      $(".mn", panel).onclick = () => setMin(false);
       $("#vs-pg", panel).onclick = openSettings;
       $("#vs-pr", panel).onclick = repair;
       $("#vs-pf", panel).onclick = () => $("#vs-file", panel).click();
@@ -673,7 +685,7 @@
     const host = sec && sec.offsetWidth > 200 ? sec : document.body;
     if (panel.parentNode !== host || (host !== document.body && host.firstElementChild !== panel)) host.prepend(panel);
     panel.classList.toggle("dock", host !== document.body);
-    const p = player(); panel.style.height = host !== document.body && p ? Math.max(320, p.offsetHeight) + "px" : "";
+    const p = player(); panel.style.height = !panelMin && host !== document.body && p ? Math.max(320, p.offsetHeight) + "px" : "";
   }
   const sentKey = c => vidId + "|" + c.t;
   function syncStar() { const sv = box && box.querySelector(".vs-sv"); if (!sv) return; const on = cur >= 0 && cues[cur] && savedSents.some(x => x.k === sentKey(cues[cur])); sv.textContent = on ? "★" : "☆"; sv.classList.toggle("on", !!on); }

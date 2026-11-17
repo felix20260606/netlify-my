@@ -229,3 +229,9 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 #vs-panel .it.sv{display:flex;align-items:center;gap:12px;padding:7px 34px 7px 16px;font-size:16px;line-height:1.5}
 #vs-panel .it.sv .ty{font-style:normal;flex:0 0 18px;height:18px;line-height:16px;text-align:center;font-size:11px;color:#4f8fd0;border:1px solid #2f5f93;border-radius:4px}
 #vs-panel .it.sv .rm{top:50%;margin-top:-12px;opacity:0}#vs-panel .it.sv:hover .rm{opacity:1}
+
+#vs-panel .mn{display:none}
+#vs-panel.min{height:auto!important;bottom:auto}
+#vs-panel.min .ph,#vs-panel.min .ls,#vs-panel.min .em{display:none!important}
+#vs-panel.min .mn{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font-size:16px;font-weight:600;color:#fff;cursor:pointer}
+#vs-panel .mn i{font-style:normal;width:22px;height:22px;border-radius:50%;background:#fff;color:#16191e;font-size:17px;font-weight:900;line-height:19px;text-align:center}
