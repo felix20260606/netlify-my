@@ -340,3 +340,35 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 #vs-panel .it.sb .st{right:26px}
 #vs-panel.tr-in .it.sb .tr{font-size:13px;line-height:1.45;margin-top:0;color:#b9bcc0}
 #vs-panel .mn{background:#181818}
+
+/* 控制条上的开关：和 LR 一样 30px 高、半透明黑底、无描边 */
+#vs-pill{height:30px;border:0;background:rgba(0,0,0,.18);border-radius:21px;padding:0 9px 0 4px;gap:7px;font-size:11px}
+#vs-pill .ic{height:22px;min-width:30px;font-size:11px;border-radius:11px;padding:0 5px}
+#vs-pill .st{opacity:.7;min-width:18px;color:#fff}
+#vs-pill .gr{font-size:17px;opacity:.7}#vs-pill .gr:hover{opacity:1}
+/* 播放器右上角：展开 / 收起字幕栏 */
+#vs-tv{position:absolute;right:0;top:35px;z-index:65;width:34px;height:35px;border-radius:15px 0 0 15px;background:rgba(255,255,255,.2);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .2s}
+#movie_player:hover #vs-tv{opacity:.7}#movie_player #vs-tv:hover{opacity:1}
+#movie_player.vs-off #vs-tv{display:none}
+#vs-mv{right:10px;width:44px;align-items:center;opacity:0}#movie_player:hover #vs-mv{opacity:.5}#movie_player #vs-mv:hover{opacity:1}
+/* 词语页：按 LR 实测值对齐 */
+#vs-panel .wtip{margin:8px 10px 4px;padding:18px 16px 14px;background:#1c1c1c;border-radius:10px;font-size:15px;color:rgba(255,255,255,.667)}
+#vs-panel .wtip b{font-weight:400}#vs-panel .wtip ul{margin:12px 0 0;padding-left:22px;line-height:1.55}
+#vs-panel .wtip .ok{right:11px;bottom:11px;background:#383838;border-radius:4px;padding:5px 20px;font-size:15px;height:32px}
+#vs-panel .wv{margin:12px auto 8px;background:#2a2a2a;border-radius:16px;padding:2px}
+#vs-panel .wv b{font-weight:400;font-size:12px;line-height:16px;color:rgba(255,255,255,.6);padding:4px 12px;border-radius:14px}
+#vs-panel .wv b.on{background:rgba(255,255,255,.14);color:#fff}
+#vs-panel .pgs{padding:14px 16px 12px}#vs-panel .pgs .pt{font-size:13px;color:rgba(255,255,255,.667)}
+#vs-panel .pgs .pb{background:#2a2a2a;margin:9px 0 14px}#vs-panel .pgs .pb i.g{background:#8a6a48}
+#vs-panel .sec{background:#181818;color:#aaa;font-size:13px;padding:9px 0;margin-bottom:4px}
+#vs-panel .sec::before,#vs-panel .sec::after{background:#3a3a3a;margin:0 20px}
+#vs-panel .sec::before{margin-right:0}#vs-panel .sec::after{margin-left:0}
+#vs-panel .wh{margin:10px 16px 2px;padding:0 0 0 6px;background:#181818;border-radius:9px;min-height:31px;overflow:hidden}
+#vs-panel .wh .no{min-width:22px;height:22px;line-height:22px;background:rgba(255,255,255,.133);color:rgba(255,255,255,.533)}
+#vs-panel .wh .cx{color:#80ff80;background:rgba(128,255,128,.1);border-radius:12px;padding:2px 7px;line-height:13px}
+#vs-panel .wh .mt{font-size:14px;color:rgba(255,255,255,.8)}
+#vs-panel .wh .bk{align-self:stretch;display:flex;align-items:center;background:#2a2a2a;border-radius:0 16px 16px 0;padding:0 10px;color:#FFA826;font-size:17px;margin-left:4px}
+#vs-panel .wh .bk:hover{background:#3a3a3a}
+#vs-panel .it.sb .vs-w.hl,#vs-panel .it.sb .vs-w.hl.vs-u1,#vs-panel .it.sb .vs-w.hl.vs-ln{background:rgba(255,255,255,.14);border-radius:3px}
+#vs-panel .wv~.it.sb{background:#000;margin:0;padding:6px 20px 6px 28px;border-bottom:1px solid #2a2a2a;border-radius:0}
+#vs-panel .wv~.it.sb .tr{display:none}

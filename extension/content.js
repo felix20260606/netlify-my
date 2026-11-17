@@ -311,6 +311,8 @@
       if (a === "ap") chrome.storage.sync.set({ autoPause: !S.autoPause });
     });
     p.append(bar, nav); const apEl = nav.querySelector("#vs-ap"); apEl.addEventListener("click", e => { e.stopPropagation(); chrome.storage.sync.set({ autoPause: !S.autoPause }); }); p.append(apEl);
+    // 播放器右上角的小按钮：展开 / 收起右侧字幕栏（和 LR 的位置、大小一致）
+    { const old = document.getElementById("vs-tv"); if (old) old.remove(); const tv = document.createElement("div"); tv.id = "vs-tv"; tv.dataset.tip = "展开 / 收起字幕栏"; tv.innerHTML = I("list"); tv.onclick = e => { e.stopPropagation(); if (!panel || !panel.classList.contains("show")) { chrome.storage.sync.set({ panelOpen: true }); return; } const b = panel.querySelector(panelMin ? ".mn" : "#vs-px"); if (b) b.click(); }; p.append(tv); }
     const mv = document.createElement("div"); mv.id = "vs-mv"; mv.dataset.tip = "移动/切换控件"; mv.innerHTML = "<span>" + I("up") + "</span><span>" + I("down") + "</span>";
     let drag = null;
     mv.addEventListener("pointerdown", e => { e.preventDefault(); e.stopPropagation(); drag = { y: e.clientY, b: S.posBottom, moved: false }; mv.setPointerCapture(e.pointerId); mv.classList.add("drag"); });
