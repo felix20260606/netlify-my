@@ -1,9 +1,10 @@
-const D = { showGram: true, enabled: true, srcLang: "en", target: "zh-CN", engine: "youtube", showTrans: true, showHuman: false, hideMode: "off", merge: true, showMarks: true, hoverPause: true, speakOnClick: true, dictUrls: "", autoPause: false, rate: 1, ctlHidden: false, hideBar: false, panelOpen: true, below: false, arrowKeys: false, font: "", origSize: 100, trSize: 100, trColor: "#FFD77A", bgColor: "#0E141C", bgOpacity: 78, posBottom: 11, level: -1 };
+const D = { showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, enabled: true, srcLang: "en", target: "zh-CN", engine: "youtube", showTrans: true, showHuman: false, hideMode: "off", merge: true, showMarks: true, hoverPause: true, speakOnClick: true, dictUrls: "", autoPause: false, rate: 1, ctlHidden: false, hideBar: false, panelOpen: true, below: false, arrowKeys: false, font: "", origSize: 100, trSize: 100, trColor: "#FFD77A", bgColor: "#0E141C", bgOpacity: 78, posBottom: 11, level: -1 };
 const LOOK = ["font", "origSize", "trSize", "trColor", "bgColor", "bgOpacity", "posBottom"];
 const $ = id => document.getElementById(id), els = [...document.querySelectorAll("[data-k]")];
 let V = Object.assign({}, D);
 function rgba(h, o) { h = h.replace("#", ""); const n = parseInt(h, 16); return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + o / 100 + ")"; }
 function paint() {
+  document.body.classList.toggle("nogram", !V.showGram);
   $("pvin").style.background = rgba(V.bgColor, V.bgOpacity); $("pvin").style.fontFamily = V.font || "";
   $("pvo").style.fontSize = 16 * V.origSize / 100 + "px"; $("pvt").style.fontSize = 14 * V.trSize / 100 + "px"; $("pvt").style.color = V.trColor;
   els.forEach(el => { if (el.type === "range") el.nextElementSibling.textContent = el.value + "%"; });
@@ -29,3 +30,5 @@ chrome.storage.local.get({ saved: [], trackLangs: [] }, v => {
 });
 chrome.storage.local.get({ audioTracks: [] }, v => { v.audioTracks.forEach((n, i) => { const o = document.createElement("option"); o.value = String(i); o.textContent = n; $("audio").append(o); }); });
 $("audio").onchange = e => chrome.storage.local.set({ audioPick: { i: e.target.value === "" ? -1 : +e.target.value, at: Date.now() } });
+
+document.addEventListener("click", e => { const i = e.target.closest(".inf"); if (!i) return; e.preventDefault(); const h = i.closest("label").nextElementSibling; if (h && h.classList.contains("hint")) h.classList.toggle("on"); });

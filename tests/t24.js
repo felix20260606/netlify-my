@@ -2,8 +2,8 @@ const { chromium } = require('playwright'); const fs=require('fs');
 (async () => {
   const ctx = await chromium.launchPersistentContext('/tmp/pw-prof24', { channel:'chromium', headless: true, args: ['--disable-extensions-except=/home/claude/ext','--load-extension=/home/claude/ext','--no-sandbox','--autoplay-policy=no-user-gesture-required'] });
   let sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent('serviceworker'); const id = sw.url().split('/')[2];
-  const pp = await ctx.newPage(); await pp.setViewportSize({width:420,height:900}); await pp.goto(`chrome-extension://${id}/popup.html`); await pp.waitForTimeout(300); await pp.evaluate(()=>chrome.storage.sync.set({merge:false,hoverPause:false,level:700,ratio:2})); await pp.waitForTimeout(200);
-  await pp.evaluate(()=>document.querySelector('.glg').scrollIntoView({block:'center'})); await pp.screenshot({path:'/tmp/t24p.png'});
+  const pp = await ctx.newPage(); await pp.setViewportSize({width:420,height:900}); await pp.goto(`chrome-extension://${id}/popup.html`); await pp.waitForTimeout(300); await pp.evaluate(()=>chrome.storage.sync.set({merge:false,hoverPause:false,level:700,ratio:2,g_art:false,g_pf:false})); await pp.waitForTimeout(200);
+  await pp.evaluate(()=>0); await pp.screenshot({path:'/tmp/t24p.png'});
   const L=["I have been working on this paper and it was written by a student.","He writes the papers and she is going to read them tomorrow.","I would have done it but I didn't know, so I'll try the bigger one.","And one day I woke up with three days until the deadline,","They're working harder because the tired students were given more time."];
   const ev=tr=>L.map((t,i)=>({tStartMs:i*3500,dDurationMs:3500,segs:[{utf8:tr?'译文'+i:t}]}));
   await ctx.route('https://www.youtube.com/**', r => { const u=r.request().url();
