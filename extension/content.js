@@ -166,7 +166,7 @@
   function openSettings() {
     let ov = document.getElementById("vs-set"); if (ov) { ov.remove(); return; }
     ov = document.createElement("div"); ov.id = "vs-set";
-    ov.innerHTML = '<div class="in"><div class="hd"><b>双语字幕 · 设置</b><span class="x">✕</span></div><iframe src="' + chrome.runtime.getURL("popup.html") + '"></iframe></div>';
+    ov.innerHTML = '<div class="in"><div class="hd"><b>字幕伴 · 设置</b><span class="x">✕</span></div><iframe src="' + chrome.runtime.getURL("popup.html") + '"></iframe></div>';
     ov.addEventListener("click", e => { if (e.target === ov || e.target.classList.contains("x")) ov.remove(); });
     document.body.append(ov);
   }
@@ -296,7 +296,7 @@
     const lc = $(".ytp-left-controls"); if (!lc) return;
     if (!pill) {
       pill = document.createElement("div"); pill.id = "vs-pill";
-      pill.innerHTML = '<span class="tg" data-a="tg" data-tip="双语字幕 - 开/关"><span class="ic" data-a="tg">字</span><span class="st" data-a="tg">ON</span></span><span class="gr" data-a="set" data-tip="双语字幕 - 设置">⚙</span>';
+      pill.innerHTML = '<span class="tg" data-a="tg" data-tip="字幕伴 - 开/关"><span class="ic" data-a="tg">伴</span><span class="st" data-a="tg">ON</span></span><span class="gr" data-a="set" data-tip="字幕伴 - 设置">⚙</span>';
       pill.addEventListener("click", e => {
         const a = e.target.dataset.a; if (!a) return; e.stopPropagation(); e.preventDefault();
         if (a === "tg") chrome.storage.sync.set({ enabled: !S.enabled }); else openSettings();
