@@ -48,6 +48,39 @@ i.tg{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(
 .tgb{display:inline-flex;align-items:center;gap:6px;color:var(--mut);font-size:12.5px;margin-left:6px}.sel .tgb button{width:20px;height:20px;padding:0;border-radius:50%;background:var(--tc,#3a3d43);font-size:11px;line-height:20px}
 .stg{display:inline-flex;align-items:center;gap:7px}.stg .vi{font-size:16px;color:#C9A36B}
 .wr{display:flex;align-items:center;gap:18px;padding:6px 8px;border-bottom:1px solid var(--line);font-size:15.5px}.wr .rk{width:56px;text-align:right;color:#B894C5;font-size:13px}.wr .sn{margin-left:auto;color:var(--mut);font-size:12.5px}.wr .vs-w{cursor:context-menu;color:#aeb5bd}.wr .a-k{color:#d9dde2}.wr .m-k{color:#9CFFCD}.wr .a-s{color:#FFB86B}.wr .a-r{color:#B894C5}.wr .m-i{color:#B894C5;text-decoration:line-through}
+body.dict .wrap{margin-right:440px}body.dict .jump{right:444px}body.dict .tabs{margin-right:440px}
+.vs-w{cursor:pointer}#wrap .vs-w:hover{background:#3b4048;box-shadow:0 0 0 3px #3b4048;border-radius:4px}
+.chips.duo{gap:14px}.pair{display:inline-flex}.pair .chip{border-radius:999px 0 0 999px;padding:3px 10px 3px 12px;opacity:.4}.pair .chip.on{opacity:1}.pair .chip.dot{border-radius:0 999px 999px 0;border-style:dotted;border-left-width:0;padding:3px 12px 3px 9px}
+.pair .chip.k.on{background:#9CFFCD;color:#12261b}.pair .chip.l.on{background:#FFBD80;color:#2b1c0c}.pair .chip.g.on{background:#B894C5;color:#22172a}
+.pair .chip.dot.k.on{background:rgba(156,255,205,.55)}.pair .chip.dot.l.on{background:rgba(255,189,128,.6)}.pair .chip.dot.g.on{background:rgba(184,148,197,.6)}
+.leg i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px}.leg .lg1{border:1.5px solid #FFBD80;background:rgba(255,189,128,.5)}.leg .lg2{border:1.5px dotted #FFBD80;border-radius:50%}
+#mini{position:fixed;z-index:50;background:#2f3238;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.5);padding:8px 10px 8px;min-width:76px;max-width:260px}
+#mini .ms div{font-size:17px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:12px;position:relative}#mini .ms div::before{content:"";position:absolute;left:0;top:.68em;width:4px;height:4px;border-radius:50%;background:#7f8994}
+#mini .qb{display:flex;gap:6px;margin-top:6px}#mini .qb button{flex:1;display:flex;justify-content:center;font-size:17px;padding:3px 10px;border-radius:5px;border:1.5px dotted}
+#mini .qb .k{color:#9CFFCD;background:rgba(156,255,205,.14)}#mini .qb .l{color:#FFBD80;background:rgba(255,189,128,.16)}#mini .qb .k.on{background:#9CFFCD;color:#12261b;border-style:solid}#mini .qb .l.on{background:#FFBD80;color:#2b1c0c;border-style:solid}
+#dict{position:fixed;top:0;right:0;bottom:0;width:440px;background:#202227;border-left:1px solid #33373d;z-index:20;display:flex;flex-direction:column}
+#dict .dh{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 0}#dict .dh b{font-size:15px;font-weight:500;border-bottom:2px solid #fff;padding:0 22px 8px}#dict .dh button{font-size:18px;color:#c9ced4;display:inline-flex}
+#dict .ds{display:flex;gap:8px;padding:10px 12px 6px;border-top:1px solid #33373d}#dict .ds label{flex:1;display:flex;align-items:center;background:#1b1d21;border:1px solid #3d4148;border-radius:6px;padding:0 8px}
+#dict .ds input{flex:1;background:none;border:0;outline:0;color:#fff;font:inherit;font-size:16px;padding:8px 4px}#dict .ds label button{font-size:16px;color:#8b95a1;display:inline-flex}
+#dict .rnd{width:36px;height:36px;border-radius:50%;border:1px solid #4a4f57;display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex:none}#dict .rnd.sm{width:24px;height:24px;font-size:11px;background:var(--pur);border:0;margin-left:8px}
+#dict .dm{display:flex;align-items:center;gap:8px;padding:6px 14px 10px}#dict .fbar{width:62px;height:4px;border-radius:2px;background:#3a3e45;overflow:hidden}#dict .fbar i{display:block;height:100%;background:#d5d9de}#dict .rk{color:#8b95a1;font-size:12.5px}#dict .sp{flex:1}
+#dict .mk{font-size:19px;padding:5px 11px;border-radius:7px;display:inline-flex;border:1.5px dotted transparent;background:#33373d;color:#c9ced4}
+#dict .mk.k.on{background:#9CFFCD;color:#12261b}#dict .mk.l.on{background:#FFBD80;color:#2b1c0c}#dict .mk.g.on{background:#B894C5;color:#22172a}
+#dict .more{font-size:17px;border:1px solid #4a4f57;border-radius:7px;padding:6px;display:inline-flex;margin-left:8px;transition:transform .15s}#dict .more.on{transform:rotate(180deg)}
+#dict .bd{flex:1;overflow:auto;padding:0 12px 30px}
+#dict .mx{padding:2px 4px 10px;border-bottom:1px solid #33373d;margin-bottom:10px}#dict .hint{color:#aab2ba;font-size:12.5px;margin:6px 0}
+#dict .bigm{display:flex;align-items:center;gap:10px;width:130px;padding:7px 12px;border-radius:7px;background:#33373d;font-size:13.5px;margin-top:10px;border:1.5px solid transparent}#dict .bigm .vi{font-size:17px}
+#dict .bigm.k{color:#9CFFCD}#dict .bigm.l{color:#FFBD80}#dict .bigm.g{color:#B894C5}#dict .bigm.k.on{border:1.5px dotted #9CFFCD;background:rgba(156,255,205,.16)}#dict .bigm.l.on{border-color:#FFBD80;background:rgba(255,189,128,.18)}#dict .bigm.g.on{border-color:#B894C5;background:rgba(184,148,197,.2)}
+#dict .bigm.nx{color:#fff;border:1px solid #6b7280;background:none}
+#dict .ex1{font-size:12.5px;color:#c9ced4;margin:6px 0 2px}#dict .ex1 span{border:1px solid #4a4f57;border-radius:4px;padding:0 6px;margin-right:8px}
+#dict .tgr{display:flex;gap:5px;margin-top:8px}#dict .tgr button{width:22px;height:22px;border-radius:4px;background:#33373d;color:var(--tc,#fff);font:700 13px ui-monospace,monospace;border:1.5px solid transparent}#dict .tgr button.on{border-color:var(--tc,#fff);background:#474c54}
+#dict .card{border:1px solid #33373d;border-radius:6px;padding:12px 14px;margin-top:10px;background:#1d1f23}
+#dict .zh{font-size:18px;font-weight:700;color:#F1D94B}#dict .ph{font-size:12.5px;font-weight:400;color:#8b95a1;margin-left:10px}
+#dict .ln{display:flex;gap:10px;margin-top:8px;line-height:1.55}#dict .ln i{flex:0 0 44px;color:#8b95a1;font-size:12.5px;font-style:normal}#dict .ln.en{font-size:14px}#dict .eq{color:#aab2ba;margin-top:3px}
+#dict .ct{font-size:12px;color:#8b95a1;margin-bottom:6px}#dict .eg{display:flex;gap:10px}#dict .eg img{width:112px;height:63px;object-fit:cover;border-radius:4px;flex:none}#dict .tr{color:#aab2ba;font-size:13.5px;margin-top:2px}#dict .eg .so{margin-top:6px}
+#dict .sx{padding:7px 0;border-top:1px solid #2b2e34;font-size:15px}#dict .sx:first-of-type{border-top:0}
+#dict .lk{display:flex;gap:18px}#dict .lk a{text-decoration:none;font-size:15px}
+@media(max-width:1100px){#dict{width:360px}body.dict .wrap,body.dict .tabs{margin-right:360px}body.dict .jump{right:364px}}
 </style>
 <div class="tabs"><b data-t="words" class="on"></b><b data-t="sents"></b><b data-t="all"></b><span class="sp"></span><button class="rv" id="rv">复习</button></div>
 <div class="wrap" id="wrap"></div>
