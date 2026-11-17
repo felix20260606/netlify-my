@@ -1,4 +1,7 @@
 <!doctype html><meta charset="utf-8"><style>
+.glg{display:flex;flex-wrap:wrap;gap:6px 14px;padding:2px 0 10px;font-size:12px;color:#7C8794}.glg b{font-weight:600;color:inherit;margin-right:5px;text-decoration-thickness:2px;text-underline-offset:3px}
+.g-pa{text-decoration:underline solid #5BB0FF}.g-pf{text-decoration:underline double #35D0BA}.g-pg{text-decoration:underline wavy #8EE05A}.g-md{text-decoration:underline dashed #FF8FC7}.g-pv{text-decoration:underline solid #FF7A59;text-decoration-thickness:3px!important}.g-s3{text-decoration:underline dotted #5BB0FF}.g-pl{text-decoration:underline dotted #B0B7C0}.g-art{text-decoration:underline dotted #E8D36B}.g-cmp{text-decoration:underline dashed #C9A0FF}.g-neg{box-shadow:inset 0 2px 0 #FF5C5C}
+
 body{margin:0;width:340px;max-width:100%;box-sizing:border-box;padding:14px;font:14px/1.5 system-ui,"PingFang SC",sans-serif;color:#1E2733;background:#fff}
 h1{font-size:15px;margin:0 0 8px}h2{font-size:12px;color:#7C8794;margin:14px 0 2px;padding-top:10px;border-top:1px solid #E6EAEC;letter-spacing:.04em}
 label{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:7px 0}label>span.t{flex:1}
@@ -46,6 +49,8 @@ button.big{width:100%;margin:6px 0 4px;padding:8px;border:0;border-radius:10px;b
 <label><span class="t">显示字幕控件</span><input type="checkbox" data-k="ctlHidden" data-inv="1"></label>
 <label><span class="t">隐藏播放栏</span><input type="checkbox" data-k="hideBar"></label>
 <label><span class="t">显示字幕列表视图</span><input type="checkbox" data-k="panelOpen"></label>
+<label><span class="t">语法下划线（时态、被动、复数、冠词等）</span><input type="checkbox" data-k="showGram"></label>
+<div class="glg"><span><b class="g-pa">wrote</b>过去时</span><span><b class="g-pf">have written</b>完成时</span><span><b class="g-pg">is writing</b>进行时</span><span><b class="g-md">will, would</b>将来 / 情态</span><span><b class="g-pv">was written</b>被动语态</span><span><b class="g-s3">writes</b>第三人称单数</span><span><b class="g-pl">papers</b>复数</span><span><b class="g-art">a, the</b>冠词</span><span><b class="g-cmp">bigger</b>比较级 / 最高级</span><span><b class="g-neg">didn't</b>否定缩写</span></div>
 <label><span class="t">在视频下方显示字幕</span><input type="checkbox" data-k="below"></label>
 <label><span class="t">覆盖方向键</span><input type="checkbox" data-k="arrowKeys"></label>
 <div class="hint">← 上一句　↓ 重复　→ 下一句</div>

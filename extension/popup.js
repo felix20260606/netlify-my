@@ -1,4 +1,4 @@
-const D = { enabled: true, srcLang: "en", target: "zh-CN", engine: "youtube", showTrans: true, showHuman: false, hideMode: "off", merge: true, showMarks: true, hoverPause: true, speakOnClick: true, dictUrls: "", autoPause: false, rate: 1, ctlHidden: false, hideBar: false, panelOpen: true, below: false, arrowKeys: false, font: "", origSize: 100, trSize: 100, trColor: "#FFD77A", bgColor: "#0E141C", bgOpacity: 78, posBottom: 11, level: -1 };
+const D = { showGram: true, enabled: true, srcLang: "en", target: "zh-CN", engine: "youtube", showTrans: true, showHuman: false, hideMode: "off", merge: true, showMarks: true, hoverPause: true, speakOnClick: true, dictUrls: "", autoPause: false, rate: 1, ctlHidden: false, hideBar: false, panelOpen: true, below: false, arrowKeys: false, font: "", origSize: 100, trSize: 100, trColor: "#FFD77A", bgColor: "#0E141C", bgOpacity: 78, posBottom: 11, level: -1 };
 const LOOK = ["font", "origSize", "trSize", "trColor", "bgColor", "bgOpacity", "posBottom"];
 const $ = id => document.getElementById(id), els = [...document.querySelectorAll("[data-k]")];
 let V = Object.assign({}, D);

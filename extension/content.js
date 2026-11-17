@@ -1,5 +1,5 @@
 (function () {
-  const DEF = { target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: false, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
+  const DEF = { showGram: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: false, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
   let revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
@@ -24,7 +24,7 @@
     const old = Object.assign({}, S);
     for (const k in c) S[k] = c[k].newValue;
     applyBar(); { const k0 = cur; cur = -1; if (k0 >= 0 && cues[k0] && root) { cur = k0; render(k0); } }
-    if (["level", "ratio", "greenKnown", "fadeRare", "showMarks", "showSuggest", "showLearn", "showLearnOutline", "showIgnore", "showSpecial"].some(k => S[k] !== old[k])) refreshMarks();
+    if (["level", "ratio", "greenKnown", "fadeRare", "showMarks", "showSuggest", "showLearn", "showLearnOutline", "showIgnore", "showSpecial", "showGram"].some(k => S[k] !== old[k])) refreshMarks();
     if (S.rate !== old.rate) { const v = video(); if (v && v.playbackRate !== S.rate) v.playbackRate = S.rate; }
     if (S.srcLang !== old.srcLang) { key = ""; loadedLang = ""; askTracks(); }
     else if (raw.length && (S.engine !== old.engine || S.target !== old.target || S.merge !== old.merge || S.showHuman !== old.showHuman)) buildCues();
@@ -348,7 +348,8 @@
   }
 
   const WORD_RE = VS_WORD_RE;
-  const wordsHtml = t => vsMark(esc(t), S);
+  const wordsHtml = t => { const h = vsMark(esc(t), S); return S.showGram !== false && /\s/.test(t) ? vsGramHtml(h) : h; };
+  const gramLine = el => { const g = [...el.classList].filter(c => /^g-/.test(c)).map(c => VS_GRAM_NAME[c.slice(2)]).filter(Boolean); return g.length ? '<div class="gm">语法：' + g.join(" · ") + "</div>" : ""; };
   // ---------- 渲染当前句 ----------
   function render(i) {
     if (!build()) return;
@@ -476,7 +477,7 @@
   function showMini(el) {
     hideMini(); const word = el.dataset.w, p = player(), inP = !!(p && p.contains(el));
     mini = document.createElement("div"); mini.id = "vs-mini"; mini.className = inP ? "" : "fx";
-    mini.innerHTML = '<div class="pz"></div><div class="hd wd" style="display:none"></div><div class="ms">…</div>' + freqBar(word);
+    mini.innerHTML = '<div class="pz"></div><div class="hd wd" style="display:none"></div><div class="ms">…</div>' + gramLine(el) + freqBar(word);
     (inP ? p : document.body).append(mini);
     const base = inP ? p.getBoundingClientRect() : { left: 0, top: 0 };
     const my = mini, fix = () => {
@@ -501,7 +502,7 @@
     if (mini && mini.id === "vs-side" && mini._it === it && mini._w === (word ? w : null)) return;
     hideMini();
     const my = mini = document.createElement("div"); my.id = "vs-side"; my._it = it; my._w = word ? w : null; my.dataset.i = i;
-    my.innerHTML = '<div class="pz"></div>' + (word ? '<div class="wr">' + freqBar(word) + "<b>" + esc(word) + '</b> : <span class="ms">…</span></div>' : "") + '<div class="sn' + (word ? " ln" : "") + '">' + esc(trans[i] || "…") + "</div>";
+    my.innerHTML = '<div class="pz"></div>' + (word ? '<div class="wr">' + freqBar(word) + "<b>" + esc(word) + '</b> : <span class="ms">…</span></div>' : "") + (word ? gramLine(w) : "") + '<div class="sn' + (word ? " ln" : "") + '">' + esc(trans[i] || "…") + "</div>";
     document.body.append(my);
     const fix = () => { if (mini !== my) return; const pr = panel.getBoundingClientRect(), r = it.getBoundingClientRect(), vw = document.documentElement.clientWidth; my.style.maxWidth = Math.max(160, Math.min(440, pr.left - 24)) + "px"; my.style.right = vw - pr.left + 10 + "px"; my.style.top = Math.max(6, Math.min(r.top - 4, innerHeight - my.offsetHeight - 6)) + "px"; };
     fix();
