@@ -10,6 +10,25 @@
   const video = () => $("video.html5-main-video") || $("video");
   const player = () => document.getElementById("movie_player");
   const vId = () => new URLSearchParams(location.search).get("v") || "";
+  // 统一的图标：全部 24×24 画布、2px 圆头描边、跟随文字颜色
+  const IC = {
+    next: '<path d="M9 5l7 7-7 7"/>', prev: '<path d="M15 5l-7 7 7 7"/>', up: '<path d="M5 15l7-7 7 7"/>', down: '<path d="M5 9l7 7 7-7"/>',
+    replay: '<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+    x: '<path d="M6 6l12 12M18 6L6 18"/>',
+    file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
+    down2: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+    play: '<path class="f" d="M8 5.2v13.6a1 1 0 0 0 1.5.86l11.3-6.8a1 1 0 0 0 0-1.72L9.5 4.34A1 1 0 0 0 8 5.2z"/>',
+    star: '<path class="s" d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/>',
+    say: '<path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+    book: '<path d="M12 6v14"/><path d="M12 6C10.5 4.7 8.3 4 5 4H3v14h2c3.3 0 5.5.7 7 2 1.5-1.3 3.7-2 7-2h2V4h-2c-3.3 0-5.5.7-7 2z"/>',
+    ban: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+    target: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+    list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+    loop: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'
+  };
+  const I = n => '<svg class="vi" viewBox="0 0 24 24" aria-hidden="true">' + IC[n] + "</svg>";
   const send = m => new Promise(res => { try { chrome.runtime.sendMessage(m, r => res(r || {})); } catch (e) { res({}); } });
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const baseOf = l => String(l || "").toLowerCase().split(/[-_]/)[0];
@@ -166,7 +185,7 @@
   function openSettings() {
     let ov = document.getElementById("vs-set"); if (ov) { ov.remove(); return; }
     ov = document.createElement("div"); ov.id = "vs-set";
-    ov.innerHTML = '<div class="in"><div class="hd"><b>双语字幕 · 设置</b><span class="x">✕</span></div><iframe src="' + chrome.runtime.getURL("popup.html") + '"></iframe></div>';
+    ov.innerHTML = '<div class="in"><div class="hd"><b>双语字幕 · 设置</b><span class="x">' + I("x") + '</span></div><iframe src="' + chrome.runtime.getURL("popup.html") + '"></iframe></div>';
     ov.addEventListener("click", e => { if (e.target === ov || e.target.classList.contains("x")) ov.remove(); });
     document.body.append(ov);
   }
@@ -242,8 +261,8 @@
     oEl = document.createElement("div"); oEl.className = "vs-o";
     tEl = document.createElement("div"); tEl.className = "vs-t";
     hEl = document.createElement("div"); hEl.className = "vs-h";
-    const rp = document.createElement("i"); rp.className = "vs-rp"; rp.textContent = "▶"; rp.dataset.tip = "重播本句 (S)";
-    const sv = document.createElement("i"); sv.className = "vs-sv"; sv.textContent = "☆"; sv.dataset.tip = "保存当前字幕 (R)";
+    const rp = document.createElement("i"); rp.className = "vs-rp"; rp.innerHTML = I("play"); rp.dataset.tip = "重播本句 (S)";
+    const sv = document.createElement("i"); sv.className = "vs-sv"; sv.innerHTML = I("star"); sv.dataset.tip = "保存当前字幕 (R)";
     rp.addEventListener("click", e => { e.stopPropagation(); replay(); });
     sv.addEventListener("click", e => { e.stopPropagation(); if (cur >= 0) { toggleSent(cur); syncStar(); } });
     // 隐藏字幕：鼠标移到或点击哪一行，就显示哪一行，之后保持显示，直到换句
@@ -258,7 +277,7 @@
     oEl.addEventListener("click", e => { const w = e.target.closest(".vs-w"); if (w) showTip(w.dataset.w, null, true, undefined, w); });
     oEl.addEventListener("mouseover", e => { const w = e.target.closest(".vs-w"); if (w) hoverWord(w); });
     bar = document.createElement("div"); bar.id = "vs-bar";
-    bar.innerHTML = '<button data-a="tr" title="显示/隐藏翻译">译</button><button data-a="pause" title="悬停时暂停">悬停暂停</button><button data-a="loop" title="单句循环 (R)">🔁</button><button data-a="list" title="字幕列表 (L)">📜</button><button data-a="lvl" title="设置词汇水平">词汇</button>';
+    bar.innerHTML = '<button data-a="tr" title="显示/隐藏翻译">译</button><button data-a="pause" title="悬停时暂停">悬停暂停</button><button data-a="loop" title="单句循环 (R)">' + I("loop") + '</button><button data-a="list" title="字幕列表 (L)">📜</button><button data-a="lvl" title="设置词汇水平">词汇</button>';
     bar.addEventListener("click", e => {
       const a = e.target.dataset.a; if (!a) return;
       if (a === "tr") chrome.storage.sync.set({ showTrans: !S.showTrans });
@@ -268,14 +287,14 @@
       if (a === "lvl") send({ type: "openLevel" });
     });
     nav = document.createElement("div"); nav.id = "vs-nav";
-    nav.innerHTML = '<button data-a="next" data-tip="下一句 (D)">›</button><button data-a="rep" data-tip="重播本句 (S)">↻</button><button data-a="prev" data-tip="上一句 (A)">‹</button><div id="vs-ap" data-a="ap" data-tip="每句结束自动暂停"><span class="sw" data-a="ap"></span><span class="lb" data-a="ap">AP</span></div>';
+    nav.innerHTML = '<button data-a="next" data-tip="下一句 (D)">' + I("next") + '</button><button data-a="rep" data-tip="重播本句 (S)">' + I("replay") + '</button><button data-a="prev" data-tip="上一句 (A)">' + I("prev") + '</button><div id="vs-ap" data-a="ap" data-tip="每句结束自动暂停"><span class="sw" data-a="ap"></span><span class="lb" data-a="ap">AP</span></div>';
     nav.addEventListener("click", e => {
       const a = e.target.dataset.a; if (!a) return; e.stopPropagation();
       if (a === "prev") jump(-1); if (a === "next") jump(1); if (a === "rep") replay();
       if (a === "ap") chrome.storage.sync.set({ autoPause: !S.autoPause });
     });
     p.append(bar, nav); const apEl = nav.querySelector("#vs-ap"); apEl.addEventListener("click", e => { e.stopPropagation(); chrome.storage.sync.set({ autoPause: !S.autoPause }); }); p.append(apEl);
-    const mv = document.createElement("div"); mv.id = "vs-mv"; mv.dataset.tip = "移动/切换控件"; mv.innerHTML = "<span>⌃</span><span>⌄</span>";
+    const mv = document.createElement("div"); mv.id = "vs-mv"; mv.dataset.tip = "移动/切换控件"; mv.innerHTML = "<span>" + I("up") + "</span><span>" + I("down") + "</span>";
     let drag = null;
     mv.addEventListener("pointerdown", e => { e.preventDefault(); e.stopPropagation(); drag = { y: e.clientY, b: S.posBottom, moved: false }; mv.setPointerCapture(e.pointerId); mv.classList.add("drag"); });
     mv.addEventListener("pointermove", e => {
@@ -296,7 +315,7 @@
     const lc = $(".ytp-left-controls"); if (!lc) return;
     if (!pill) {
       pill = document.createElement("div"); pill.id = "vs-pill";
-      pill.innerHTML = '<span class="tg" data-a="tg" data-tip="双语字幕 - 开/关"><span class="ic" data-a="tg">BAN</span><span class="st" data-a="tg">ON</span></span><span class="gr" data-a="set" data-tip="双语字幕 - 设置">⚙</span>';
+      pill.innerHTML = '<span class="tg" data-a="tg" data-tip="双语字幕 - 开/关"><span class="ic" data-a="tg">BAN</span><span class="st" data-a="tg">ON</span></span><span class="gr" data-a="set" data-tip="双语字幕 - 设置">' + I("gear") + "</span>";
       pill.addEventListener("click", e => {
         const a = e.target.dataset.a; if (!a) return; e.stopPropagation(); e.preventDefault();
         if (a === "tg") chrome.storage.sync.set({ enabled: !S.enabled }); else openSettings();
@@ -362,7 +381,7 @@
     if (i < 0) { box.style.display = "none"; return; }
     const c = cues[i]; box.style.display = "";
     hEl.textContent = (!c.note && human[i]) || "";
-    if (c.note) { oEl.innerHTML = '<span class="vs-note">' + esc(c.t) + "</span>"; setTrans(i); markPanel(i); syncStar(); return; }
+    if (c.note) { oEl.innerHTML = '<span class="vs-note">' + vsMark(esc(c.t), S) + "</span>"; setTrans(i); markPanel(i); syncStar(); return; }
     oEl.innerHTML = wordsHtml(c.t);
     setTrans(i); markPanel(i); syncStar();
     // 提前查好这一句里的生词，悬停时直接显示
@@ -503,7 +522,7 @@
   // 侧栏悬停：气泡出现在侧栏左边 —— 短语、单词释义、整句翻译
   function showSide(it, w) {
     const i = +it.dataset.i, c = cues[i]; if (!c || !panel) return;
-    const word = w && !c.note ? w.dataset.w : "", inl = S.panelTrans === "inline";
+    const word = w ? w.dataset.w : "", inl = S.panelTrans === "inline";
     if (inl && !word) { if (mini && mini.id === "vs-side") hideMini(); return; }
     if (mini && mini.id === "vs-side" && mini._it === it && mini._w === (word ? w : null)) return;
     hideMini();
@@ -545,16 +564,16 @@
     const sk = new Set(savedSents.map(x => x.k));
     const users = String(S.dictUrls || "").split(/\n+/).map(u => u.trim()).filter(u => /^https?:\/\//.test(u) && u.includes("WORD"));
     const st = tip.querySelector(".bd") ? tip.querySelector(".bd").scrollTop : 0;
-    tip.innerHTML = '<div class="th"><b>词典</b><span data-a="x" title="关闭">✕</span></div><div class="bd">' +
-      '<div class="hw"><div><div class="w">' + esc(word) + (d && d.phonetic ? '<span class="ph">' + esc(d.phonetic) + "</span>" : "") + (d && d.lemma ? '<span class="ph">原形 ' + esc(d.lemma) + "</span>" : "") + '</div><div class="zh">' + (res ? esc(ms.slice(0, 4).join("，")) || "（无翻译）" : "…") + '</div></div><span class="sp" data-a="say" title="发音">🔊</span></div>' +
-      (isPhrase ? "" : '<div class="fr">' + freqBar(word) + '<span class="rk">' + (r === Infinity ? "生僻" : r) + '</span></div><div class="mk"><a data-a="mk" data-m="known" class="' + (cat === "known" ? "on" : "") + '" title="已掌握">✓</a><a data-a="mk" data-m="learn" class="' + (cat === "learn" ? "on" : "") + '" title="将要学习（加入生词本）">📖</a><a data-a="mk" data-m="ignore" class="' + (cat === "ignore" ? "on" : "") + '" title="不学习">⊘</a><a data-a="mk" data-m="" class="cl" title="取消标记">取消标记</a></div>') +
+    tip.innerHTML = '<div class="th"><b>词典</b><span data-a="x" title="关闭">' + I("x") + '</span></div><div class="bd">' +
+      '<div class="hw"><div><div class="w">' + esc(word) + (d && d.phonetic ? '<span class="ph">' + esc(d.phonetic) + "</span>" : "") + (d && d.lemma ? '<span class="ph">原形 ' + esc(d.lemma) + "</span>" : "") + '</div><div class="zh">' + (res ? esc(ms.slice(0, 4).join("，")) || "（无翻译）" : "…") + '</div></div><span class="sp" data-a="say" title="发音">' + I("say") + '</span></div>' +
+      (isPhrase ? "" : '<div class="fr">' + freqBar(word) + '<span class="rk">' + (r === Infinity ? "生僻" : r) + '</span></div><div class="mk"><a data-a="mk" data-m="known" class="' + (cat === "known" ? "on" : "") + '" title="已掌握">' + I("check") + '</a><a data-a="mk" data-m="learn" class="' + (cat === "learn" ? "on" : "") + '" title="将要学习（加入生词本）">' + I("book") + '</a><a data-a="mk" data-m="ignore" class="' + (cat === "ignore" ? "on" : "") + '" title="不学习">' + I("ban") + '</a><a data-a="mk" data-m="" class="cl" title="取消标记">取消标记</a></div>') +
       (tip.dataset.phrase && tip.dataset.phraseT ? '<div class="sec phz"><div class="lw">' + esc(tip.dataset.phrase) + '</div><div class="ln">' + esc(tip.dataset.phraseT) + "</div></div>" : "") +
       (tip.dataset.lemma && tip.dataset.lemmaT ? '<div class="sec phz"><div class="lw">' + esc(tip.dataset.lemma) + ' <span class="ph">（' + esc(word) + ' 的原形）</span></div><div class="ln">' + esc(tip.dataset.lemmaT) + "</div></div>" : "") +
       (g && g.zh && g.zh.length ? '<div class="sec"><div class="lw">' + esc(word) + "</div>" + g.zh.map(z => '<div class="ln"><i>(' + esc(z.pos) + ")</i>" + esc(z.words.join("，")) + "</div>").join("") + "</div>" : "") +
       (d && d.meanings && d.meanings.length ? '<div class="sec">' + d.meanings.map(m => m.defs.map((x, i) => '<div class="ln en"><i>' + (i ? "" : "(" + esc(m.pos) + ")") + "</i>" + vsMark(esc(x.def), S) + (x.example ? '<div class="eg">“' + vsMark(esc(x.example), S) + "”</div>" : "") + "</div>").join("")).join("") + "</div>" : "") +
       '<div class="sec lk">' + EXT.map(e => '<a target="_blank" rel="noopener" title="' + e[1] + '" href="' + e[2].replace("WORD", encodeURIComponent(word)) + '">' + e[0] + "</a>").join("") + users.map((u, n) => '<a target="_blank" rel="noopener" href="' + esc(u.replace(/WORD/g, encodeURIComponent(word))) + '">U' + (n + 1) + "</a>").join("") + "</div>" +
       '<div class="exh">示例：当前文本（' + ex.length + "）</div>" +
-      (ex.slice(0, 40).map(i => '<div class="ex' + (i === cur ? " cur" : "") + '" data-i="' + i + '" title="' + esc(trans[i] || human[i] || "") + '"><i class="pl" data-a="go" title="播放这句">▶</i><span class="tx">' + wordsHtml(cues[i].t) + '</span><i class="st' + (sk.has(sentKey(cues[i])) ? " on" : "") + '" data-a="star">' + (sk.has(sentKey(cues[i])) ? "★" : "☆") + "</i></div>").join("") || '<div class="ex"><span class="tx" style="color:#7f8994">本视频里没有其它例句</span></div>') + "</div>";
+      (ex.slice(0, 40).map(i => '<div class="ex' + (i === cur ? " cur" : "") + '" data-i="' + i + '" title="' + esc(trans[i] || human[i] || "") + '"><i class="pl" data-a="go" title="播放这句">' + I("play") + '</i><span class="tx">' + wordsHtml(cues[i].t) + '</span><i class="st' + (sk.has(sentKey(cues[i])) ? " on" : "") + '" data-a="star">' + I("star") + "</i></div>").join("") || '<div class="ex"><span class="tx" style="color:#7f8994">本视频里没有其它例句</span></div>') + "</div>";
     tip.querySelectorAll(".ex .vs-w").forEach(x => { if (isPhrase ? false : sameWord(x.dataset.w, base, F)) x.classList.add("hit"); });
     tip.querySelector(".bd").scrollTop = st;
   }
@@ -586,7 +605,7 @@
   }
   document.addEventListener("mousedown", e => { if (tip && !tip.contains(e.target) && !(root && root.contains(e.target)) && !(panel && panel.contains(e.target))) { closeTip(); if (pausedByUs) { const v = video(); if (v) v.play(); pausedByUs = false; } } }, true);
 
-  function refreshMarks() { const keep = cur; cur = -1; if (keep >= 0 && cues[keep] && oEl && !cues[keep].note) { cur = keep; oEl.innerHTML = wordsHtml(cues[keep].t); } else cur = keep; if (panel) { const st = listEl.scrollTop; const fl = follow; buildPanel(); autoScrollT = Date.now() + 300; listEl.scrollTop = st; markPanel(cur, fl); } if (tip) drawDict(tip.dataset.word, tipData); }
+  function refreshMarks() { const keep = cur; cur = -1; if (keep >= 0 && cues[keep] && oEl) { cur = keep; oEl.innerHTML = cues[keep].note ? '<span class="vs-note">' + vsMark(esc(cues[keep].t), S) + "</span>" : wordsHtml(cues[keep].t); } else cur = keep; if (panel) { const st = listEl.scrollTop; const fl = follow; buildPanel(); autoScrollT = Date.now() + 300; listEl.scrollTop = st; markPanel(cur, fl); } if (tip) drawDict(tip.dataset.word, tipData); }
   function noteCtx(k) {
     const has = c => c && !c.note && (c.t.match(WORD_RE) || []).some(x => x.toLowerCase() === k || vsLemma(x.toLowerCase()) === k);
     const ci = has(cues[cur]) ? cur : cues.findIndex(has);
@@ -648,7 +667,7 @@
   function togglePanel() {
     if (!panel) {
       panel = document.createElement("div"); panel.id = "vs-panel";
-      panel.innerHTML = '<div class="mn" title="展开"><span>字幕（隐藏）</span><i>⌄</i></div><div class="ph"><span class="tabs"><b data-t="subs" class="on">字幕</b><b data-t="words">词语</b><b data-t="saved">已保存</b></span><span class="pr"><span id="vs-pf" title="载入字幕文件（.srt .vtt .ass .ssa）">📄</span><span id="vs-pr" title="修复：重新获取字幕">↻</span><span id="vs-pe" title="导出">⤓</span><span id="vs-pg" title="设置">⚙</span><span id="vs-px" title="隐藏">✕</span></span></div><div class="em"><a data-k="html">打印（HTML）</a><a data-k="excel">Excel</a><a data-k="saved">已保存项目</a></div><input type="file" id="vs-file" accept=".srt,.vtt,.ass,.ssa" hidden><div class="ls"></div><i id="vs-back" title="回到当前字幕">⌖</i>';
+      panel.innerHTML = '<div class="mn" title="展开"><span>字幕（隐藏）</span><i>' + I("down") + '</i></div><div class="ph"><span class="tabs"><b data-t="subs" class="on">字幕</b><b data-t="words">词语</b><b data-t="saved">已保存</b></span><span class="pr"><span id="vs-pf" title="载入字幕文件（.srt .vtt .ass .ssa）">' + I("file") + '</span><span id="vs-pr" title="修复：重新获取字幕">' + I("replay") + '</span><span id="vs-pe" title="导出">' + I("down2") + '</span><span id="vs-pg" title="设置">' + I("gear") + '</span><span id="vs-px" title="隐藏">' + I("x") + '</span></span></div><div class="em"><a data-k="html">打印（HTML）</a><a data-k="excel">Excel</a><a data-k="saved">已保存项目</a></div><input type="file" id="vs-file" accept=".srt,.vtt,.ass,.ssa" hidden><div class="ls"></div><i id="vs-back" title="回到当前字幕">' + I("target") + "</i>";
       listEl = $(".ls", panel); mountPanel();
       // ✕ 不是关闭，而是收起成一条“字幕（隐藏）”，点一下再展开
       const setMin = v => { panelMin = v; panel.classList.toggle("min", v); chrome.storage.local.set({ panelMin: v }); hideMini(); mountPanel(); if (!v) markPanel(cur, true); };
@@ -707,17 +726,17 @@
     const p = player(); panel.style.height = !panelMin && host !== document.body && p ? Math.max(320, p.offsetHeight) + "px" : "";
   }
   const sentKey = c => vidId + "|" + c.t;
-  function syncStar() { const sv = box && box.querySelector(".vs-sv"); if (!sv) return; const on = cur >= 0 && cues[cur] && savedSents.some(x => x.k === sentKey(cues[cur])); sv.textContent = on ? "★" : "☆"; sv.classList.toggle("on", !!on); }
+  function syncStar() { const sv = box && box.querySelector(".vs-sv"); if (!sv) return; const on = cur >= 0 && cues[cur] && savedSents.some(x => x.k === sentKey(cues[cur])); sv.classList.toggle("on", !!on); }
   function toggleSent(i) {
     const c = cues[i]; if (!c) return; const k = sentKey(c), at = savedSents.findIndex(x => x.k === k);
     if (at >= 0) savedSents.splice(at, 1); else savedSents.push({ k, v: vidId, s: c.s, t: c.t, tr: trans[i] || "", at: Date.now() });
     chrome.storage.local.set({ savedSents });
-    if (listEl) listEl.querySelectorAll('.st[data-i="' + i + '"]').forEach(el => { el.textContent = at >= 0 ? "☆" : "★"; el.classList.toggle("on", at < 0); });
+    if (listEl) listEl.querySelectorAll('.st[data-i="' + i + '"]').forEach(el => { el.classList.toggle("on", at < 0); });
   }
   function rowHtml(i, sk, hl) {
-    const c = cues[i], on = sk.has(sentKey(c)); let en = c.note ? esc(c.t) : wordsHtml(c.t);
+    const c = cues[i], on = sk.has(sentKey(c)); let en = c.note ? vsMark(esc(c.t), S) : wordsHtml(c.t);
     if (hl) en = en.replace(/<span class="vs-w ([^"]*)" data-w="([^"]+)">/g, (a, cl, w) => { const lw = w.toLowerCase(); return hl.f.has(lw) || vsLemma(lw) === hl.w ? '<span class="vs-w hl ' + cl + '" data-w="' + w + '">' : a; });
-    return '<div class="it sb" data-i="' + i + '" data-s="' + c.s + '"><i class="pl" title="从这句播放">▶</i><i class="st' + (on ? " on" : "") + '" data-i="' + i + '" title="保存短语">' + (on ? "★" : "☆") + '</i><div class="tm">' + fmt(c.s) + '</div><div class="en' + (c.note ? " nt" : "") + '">' + en + '</div><div class="tr">' + esc(trans[i] || "") + "</div></div>";
+    return '<div class="it sb" data-i="' + i + '" data-s="' + c.s + '"><i class="pl" title="从这句播放">' + I("play") + '</i><i class="st' + (on ? " on" : "") + '" data-i="' + i + '" title="保存短语">' + I("star") + '</i><div class="tm">' + fmt(c.s) + '</div><div class="en' + (c.note ? " nt" : "") + '">' + en + '</div><div class="tr">' + esc(trans[i] || "") + "</div></div>";
   }
   function videoWords() {
     const m = new Map(); let tot = 0; const SS = S.level >= 0 ? S : Object.assign({}, S, { level: 2000 });
@@ -751,11 +770,11 @@
         const secOf = o => Math.floor(cues[o.i].s / 600); let no = wpage * 20;
         [...new Set(pg.map(secOf))].sort((a, b) => a - b).forEach(sx => {
           h += '<div class="sec">' + sx * 10 + "–" + (sx * 10 + 10) + " min</div>";
-          pg.filter(o => secOf(o) === sx).forEach(o => { no++; wlist.push(o.w); h += '<div class="wh"><i class="no">' + no + "</i>" + disp(o) + '<i class="cx">' + o.n + '×</i><span class="mt" data-m="' + esc(o.w) + '"></span><i class="bk" data-w="' + esc(o.w) + '" title="标记为正在学习">📖</i></div>' + o.cs.slice(0, 6).map(i => rowHtml(i, sk, o)).join(""); });
+          pg.filter(o => secOf(o) === sx).forEach(o => { no++; wlist.push(o.w); h += '<div class="wh"><i class="no">' + no + "</i>" + disp(o) + '<i class="cx">' + o.n + '×</i><span class="mt" data-m="' + esc(o.w) + '"></span><i class="bk" data-w="' + esc(o.w) + '" title="标记为正在学习">' + I("book") + "</i></div>" + o.cs.slice(0, 6).map(i => rowHtml(i, sk, o)).join(""); });
         });
-        if (pg.length) h += '<div class="wft"><button class="mkall">标记为正在学习 (' + pg.length + ')</button><span class="pgr"><i data-p="-1"' + (wpage ? "" : ' class="dis"') + ">‹</i><b>" + (wpage + 1) + '</b><i data-p="1"' + (wpage < pages - 1 ? "" : ' class="dis"') + ">›</i></span></div>";
+        if (pg.length) h += '<div class="wft"><button class="mkall">标记为正在学习 (' + pg.length + ')</button><span class="pgr"><i data-p="-1"' + (wpage ? "" : ' class="dis"') + ">" + I("prev") + "</i><b>" + (wpage + 1) + '</b><i data-p="1"' + (wpage < pages - 1 ? "" : ' class="dis"') + ">" + I("next") + "</i></span></div>";
       } else {
-        h += '<div class="flt">' + [["known", "✓"], ["learn", "📖"], ["ignore", "⊘"]].map(x => '<b data-f="' + x[0] + '" class="f-' + x[0] + (wfilter && wfilter !== x[0] ? " off" : "") + '">' + x[1] + " " + cnt[x[0]] + "</b>").join("") + '</div><div class="tot">/ ' + all.length + "</div>";
+        h += '<div class="flt">' + [["known", I("check")], ["learn", I("book")], ["ignore", I("ban")]].map(x => '<b data-f="' + x[0] + '" class="f-' + x[0] + (wfilter && wfilter !== x[0] ? " off" : "") + '">' + x[1] + " " + cnt[x[0]] + "</b>").join("") + '</div><div class="tot">/ ' + all.length + "</div>";
         const list = all.filter(o => !wfilter || o.g === wfilter), CB = [[100, "100+"], [50, "50+"], [20, "20+"], [10, "10+"], [5, "5+"], [4, "4"], [3, "3"], [2, "2"], [1, "1"]], bk = n => CB.find(x => n >= x[0]);
         const grp = (arr, letters) => CB.map(b => { const ws = arr.filter(o => bk(o.n) === b).sort((a, c) => (a.w < c.w ? -1 : 1)); if (!ws.length) return ""; let body = "", lt = ""; ws.forEach(o => { if (letters && ws.length > 30 && o.w[0].toUpperCase() !== lt) { lt = o.w[0].toUpperCase(); body += '<i class="lt">' + esc(lt) + "</i>"; } body += disp(o) + " "; }); return '<div class="rk"><i class="bd c' + b[0] + '">' + b[1] + '</i><div class="ws">' + body + "</div></div>"; }).join("");
         if (wview === "rank") { const R = [1, 101, 201, 301, 501, 701, 1001, 1501, 2001, 2501, 3001, 4001, 5001, 6001, 8001, Infinity]; for (let x = 0; x < R.length - 1; x++) { const arr = list.filter(o => o.r >= R[x] && (o.r < R[x + 1] || (x === R.length - 2))); if (arr.length) h += '<div class="sec">Rank ' + (x === R.length - 2 ? "8001+" : R[x] + " - " + (R[x + 1] - 1)) + "</div>" + grp(arr, false); } }
@@ -766,8 +785,8 @@
     } else {
       const items = [...savedSet].map((w, n) => ({ w, at: (savedCtx[w] || {}).at || 0, n })).concat(savedSents.map((x, si) => ({ x, si, at: x.at || 0, n: si })));
       items.sort((a, b) => b.at - a.at || (!a.x === !b.x ? b.n - a.n : a.x ? 1 : -1));
-      listEl.innerHTML = '<div class="svb"><button class="svall">☰　查看全部</button></div><div class="svh"><span>最近保存:</span><span class="cxt">显示上下文<i class="tg' + (showCtx ? " on" : "") + '"></i></span></div>' +
-        (items.map(o => { if (o.x) return '<div class="it sv"' + (o.x.v === vidId ? ' data-s="' + o.x.s + '"' : "") + '><i class="ty">p</i><div class="en">' + wordsHtml(o.x.t) + '</div><i class="rm" data-si="' + o.si + '" title="移除">×</i></div>'; let c = savedCtx[o.w]; if (showCtx && !(c && c.t)) { const ci = cues.findIndex(q => !q.note && (q.t.match(WORD_RE) || []).some(x => x.toLowerCase() === o.w || vsLemma(x.toLowerCase()) === o.w || vsLemma(x.toLowerCase()) === vsLemma(o.w))); if (ci >= 0) { c = { t: cues[ci].t, v: vidId, s: cues[ci].s, at: (c || {}).at || 0 }; savedCtx[o.w] = c; ctxDirty = true; } } const ctx = showCtx && c && c.t; return '<div class="it sv"' + (ctx && c.v === vidId ? ' data-s="' + c.s + '"' : "") + '><i class="ty">w</i><div class="en">' + wordsHtml(ctx ? c.t : o.w) + '</div><i class="rm" data-w="' + esc(o.w) + '" title="移除">×</i></div>'; }).join("") || '<div class="it"><span class="cnt">还没有保存的内容。右键点击单词，或点字幕右侧的 ☆</span></div>') +
+      listEl.innerHTML = '<div class="svb"><button class="svall">' + I("list") + '查看全部</button></div><div class="svh"><span>最近保存:</span><span class="cxt">显示上下文<i class="tg' + (showCtx ? " on" : "") + '"></i></span></div>' +
+        (items.map(o => { if (o.x) return '<div class="it sv"' + (o.x.v === vidId ? ' data-s="' + o.x.s + '"' : "") + '><i class="ty">p</i><div class="en">' + wordsHtml(o.x.t) + '</div><i class="rm" data-si="' + o.si + '" title="移除">' + I("x") + '</i></div>'; let c = savedCtx[o.w]; if (showCtx && !(c && c.t)) { const ci = cues.findIndex(q => !q.note && (q.t.match(WORD_RE) || []).some(x => x.toLowerCase() === o.w || vsLemma(x.toLowerCase()) === o.w || vsLemma(x.toLowerCase()) === vsLemma(o.w))); if (ci >= 0) { c = { t: cues[ci].t, v: vidId, s: cues[ci].s, at: (c || {}).at || 0 }; savedCtx[o.w] = c; ctxDirty = true; } } const ctx = showCtx && c && c.t; return '<div class="it sv"' + (ctx && c.v === vidId ? ' data-s="' + c.s + '"' : "") + '><i class="ty">w</i><div class="en">' + wordsHtml(ctx ? c.t : o.w) + '</div><i class="rm" data-w="' + esc(o.w) + '" title="移除">' + I("x") + '</i></div>'; }).join("") || '<div class="it"><span class="cnt">还没有保存的内容。右键点击单词，或点字幕右侧的 ☆</span></div>') +
         '<div class="hd">生词本待整理队列 <a id="vs-qc" style="cursor:pointer;color:#0FA37A;margin-left:8px">复制全部</a></div><div class="chips" id="vs-q"><span class="cnt">读取中…</span></div>';
       if (ctxDirty) { ctxDirty = false; chrome.storage.local.set({ savedCtx }); }
       send({ type: "pending" }).then(r => { const q = $("#vs-q", panel); if (!q || tab !== "saved") return; const p = r.pending; q.innerHTML = !p ? '<span class="cnt">读取失败</span>' : p.length ? p.map(w => '<span class="chip" style="padding-right:10px">' + esc(w) + "</span>").join("") : '<span class="cnt">队列是空的</span>'; const c = $("#vs-qc", panel); if (c) c.onclick = () => navigator.clipboard.writeText((p || []).join("\n")).then(() => toast("已复制 " + (p || []).length + " 个词")); });
