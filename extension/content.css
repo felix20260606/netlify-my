@@ -303,3 +303,14 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 #vs-panel .it.sb.cur .en{font-size:17px}
 #vs-panel .it.sb.cur .pl{background:#B77CE0;box-shadow:0 0 0 3px rgba(183,124,224,.3)}
 #vs-panel.tr-in .it.sb.cur .tr{color:#d9d2ea;font-weight:400}
+
+/* 保存的短语：整段带浅黄底和上下细线 */
+.vs-w.vs-ph{background:rgba(255,226,140,.13);box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A;border-radius:0;padding:0 2px}
+.vs-w.vs-ph.ph-s{border-radius:5px 0 0 5px;box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A,inset 1.5px 0 0 #E9CF8A}
+.vs-w.vs-ph.ph-e{border-radius:0 5px 5px 0;box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A,inset -1.5px 0 0 #E9CF8A}
+#vs-tip .mk2{display:flex;align-items:center;justify-content:space-between;padding:0 16px 10px;border-bottom:1px solid #3a3d42}
+#vs-tip .mk{border-bottom:0;padding-bottom:8px}
+#vs-tip .tgr{display:inline-flex;gap:5px}#vs-tip .tgr a{width:22px;height:22px;border-radius:4px;background:#3c4046;color:var(--tc,#fff);font:700 13px/20px ui-monospace,monospace;text-align:center;cursor:pointer;border:1.5px solid transparent}
+#vs-tip .tgr a.on{border-color:var(--tc,#fff);background:#4a4f56}
+#vs-tip .t-g{--tc:#8EE05A}#vs-tip .t-y{--tc:#F1E46B}#vs-tip .t-r{--tc:#FF6B5E}#vs-tip .t-b{--tc:#6FD3FF}
+#vs-tip .nx{cursor:pointer;border:1px solid #6b7280;border-radius:7px;padding:3px 10px;font-size:12.5px;color:#EDEFF2}#vs-tip .nx:hover{background:#3c4046}

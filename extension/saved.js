@@ -6,13 +6,14 @@ const IC = {
   mark: '<path class="f" d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/>', star: '<path class="f" d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/>', list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/>', play: '<path class="f" d="M8 5.2v13.6a1 1 0 0 0 1.5.86l11.3-6.8a1 1 0 0 0 0-1.72L9.5 4.34A1 1 0 0 0 8 5.2z"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7"/>', book: '<path d="M12 6v14"/><path d="M12 6C10.5 4.7 8.3 4 5 4H3v14h2c3.3 0 5.5.7 7 2 1.5-1.3 3.7-2 7-2h2V4h-2c-3.3 0-5.5.7-7 2z"/>', ban: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+  hist: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/>', exp: '<path d="M12 15V4M7 9l5-5 5 5M5 20h14"/>',
   down: '<path d="M5 9l7 7 7-7"/>', say: '<path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>', bolt: '<path class="f" d="M13 2L4 14h6l-1 8 9-12h-6z"/>',
   prev: '<path d="M15 5l-7 7 7 7"/>', next: '<path d="M9 5l7 7-7 7"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>'
 };
 const I = n => '<svg class="vi" viewBox="0 0 24 24">' + IC[n] + "</svg>";
 const DAY = 864e5, PER = 50, DONE = 5;
 let S = { level: -1, ratio: 1.5, target: "zh-CN", srcLang: "en" }, saved = [], ctx = {}, srs = {}, marks = {}, sents = [], med = {};
-let tab = "words", q = "", sort = "date", filt = "learn", src = "", page = 0, picked = new Set(), player = null, allShown = 1e9, tags = {}, tagF = new Set(), allSort = "freq", allView = "cell", allF = new Set(), dictW = "", miniT = null, miniW = null;
+let tab = "words", q = "", sort = "date", filt = "learn", src = "", page = 0, picked = new Set(), player = null, allShown = 1e9, tags = {}, tagF = new Set(), allSort = "freq", allView = "cell", allF = new Set(), dictW = "", miniT = null, miniW = null, hist = [];
 const TAGS = [["g", "#8EE05A", "绿色"], ["y", "#F1E46B", "黄色"], ["r", "#FF6B5E", "红色"], ["b", "#6FD3FF", "蓝色"]];
 const tagDot = k => (tags[k] ? '<i class="tg t-' + tags[k] + '"></i>' : "");
 const tagChips = () => '<span class="chip tg0' + (tagF.has("") ? " on" : "") + '" data-tg="" title="没有标签的">/</span>' + TAGS.map(t => '<span class="chip tgc t-' + t[0] + (tagF.has(t[0]) ? " on" : "") + '" data-tg="' + t[0] + '" title="' + t[2] + '标签">#</span>').join("");
@@ -26,7 +27,7 @@ const mOf = w => med["med:w:" + w] || null, sOf = x => med["med:s:" + x.k] || nu
 function load(cb) {
   chrome.storage.sync.get({ level: -1, ratio: 1.5, target: "zh-CN", srcLang: "en", greenKnown: false, fadeRare: true, showMarks: true }, s => { S = s;
     chrome.storage.local.get(null, v => {
-      saved = [...new Set((v.saved || []).map(w => w.toLowerCase()))]; ctx = v.savedCtx || {}; srs = v.srs || {}; marks = v.marks || {}; sents = v.savedSents || []; tags = v.tags || {};
+      saved = [...new Set((v.saved || []).map(w => w.toLowerCase()))]; ctx = v.savedCtx || {}; srs = v.srs || {}; marks = v.marks || {}; sents = v.savedSents || []; tags = v.tags || {}; hist = v.dictHist || [];
       med = {}; Object.keys(v).forEach(k => { if (k.startsWith("med:")) med[k] = v[k]; });
       VS_SAVED = new Set(saved); VS_MARKS = marks; cb();
     });
@@ -92,7 +93,7 @@ function drawSents() {
   let last = null, open = false;
   pg.forEach(o => { const d = dayOf(o.at), m = sOf(o.x);
     if (d !== last) { if (open) h += "</table>"; last = d; open = true; h += '<div class="day">' + d + "<span>" + list.filter(x => dayOf(x.at) === d).length + "</span></div><table><colgroup><col style=\"width:38px\"><col><col style=\"width:34%\"><col style=\"width:120px\"><col style=\"width:230px\"></colgroup><tr><th></th><th>短语</th><th>翻译</th><th>阶段</th><th>来源</th></tr>"; }
-    h += '<tr data-k="' + esc(o.x.k) + '"><td class="c"><input type="checkbox"' + (picked.has(o.x.k) ? " checked" : "") + '></td><td class="p"><span class="pl" title="' + (m && m.aud ? "播放原声" : "朗读") + '">' + I("play") + "</span>" + tagDot(o.x.k) + vsMark(esc(o.x.t), S) + (o.x.ctx ? '<div class="pc">' + esc(o.x.ctx) + "</div>" : "") + '</td><td class="t">' + esc(o.x.tr || (m && m.tr) || "") + '</td><td class="st"><span class="stg">' + I("book") + '—</span></td><td class="so"><div class="so">' + srcCell(m, o.x) + '<span class="rm" title="删除">' + I("x") + "</span></div></td></tr>"; });
+    h += '<tr data-k="' + esc(o.x.k) + '"><td class="c"><input type="checkbox"' + (picked.has(o.x.k) ? " checked" : "") + '></td><td class="p"><span class="pl" title="' + (m && m.aud ? "播放原声" : "朗读") + '">' + I("play") + "</span>" + tagDot(o.x.k) + vsMark(esc(o.x.t), S) + (o.x.ctx ? '<div class="pc">' + esc(o.x.ctx) + "</div>" : "") + '</td><td class="t">' + esc(o.x.tr || (m && m.tr) || "") + '</td><td class="st">' + stage("s:" + o.x.k) + '</td><td class="so"><div class="so">' + srcCell(m, o.x) + '<span class="rm" title="删除">' + I("x") + "</span></div></td></tr>"; });
   if (open) h += "</table>";
   $("#wrap").innerHTML = h; bind(list.length);
 }
@@ -110,7 +111,7 @@ function drawAll() {
   const k = q.toLowerCase(), lim = k ? W.length : allShown, jump = [];
   const cell = w => { const ct = catOf(w); return '<span class="vs-w ' + (ct === "m-l" ? "wb" : ct) + '" data-w="' + esc(w) + '">' + esc(w === "i" ? "I" : w) + "</span>"; };
   const NAME = { "m-k": "已掌握", "m-l": "学习中", "m-i": "不学习", "a-k": "已掌握（推测）", "a-s": "建议学习", "a-r": "罕见" };
-  const row = w => '<div class="wr"><span class="rk">' + vsRank(w) + "</span>" + cell(w) + '<span class="sn">' + NAME[catOf(w)] + "</span></div>";
+  const row = w => '<div class="wr"><span class="rk">' + vsRank(w) + "</span>" + cell(w) + '<span class="rt" data-rt="' + esc(w) + '"></span><span class="sn">' + NAME[catOf(w)] + "</span></div>";
   if (allSort === "freq") {
     for (let a = 0; a < lim; a += 100) {
       let ws = W.slice(a, a + 100); if (k) ws = ws.filter(w => w.includes(k)); if (!ws.length) continue;
@@ -129,6 +130,7 @@ function drawAll() {
   $("#q").oninput = e => { q = e.target.value.trim(); clearTimeout(drawAll.t); drawAll.t = setTimeout(() => { drawAll(); const i = $("#q"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); };
   $("#lvb").onclick = () => chrome.runtime.openOptionsPage();
   $$(".chip[data-af]").forEach(c => (c.onclick = () => { const f = c.dataset.af; if (allF.has(f)) allF.delete(f); else allF.add(f); drawAll(); }));
+  if (allView === "row") { if (drawAll.io) drawAll.io.disconnect(); drawAll.io = new IntersectionObserver(es => es.forEach(en => { if (!en.isIntersecting) return; const el = en.target; drawAll.io.unobserve(el); send({ type: "wordLite", word: el.dataset.rt, tl: S.target, sl: S.srcLang }).then(r => { el.textContent = meaningsOf(r.g).slice(0, 3).join(", "); }); }), { rootMargin: "200px" }); $$(".wr .rt").forEach(el => drawAll.io.observe(el)); }
   $("#asort").onclick = e => { const b = e.target.closest("b"); if (b) { allSort = b.dataset.v; drawAll(); } };
   $("#aview").onclick = e => { const b = e.target.closest("b"); if (b) { allView = b.dataset.v; drawAll(); } };
   $$(".jump a").forEach(a => (a.onclick = () => { const el = document.getElementById("r" + a.dataset.a); if (el) el.scrollIntoView(); }));
@@ -176,6 +178,16 @@ function removeKeys0(keys) {
 function draw() { head(); if (tab === "words") drawWords(); else if (tab === "sents") drawSents(); else drawAll(); }
 $$(".tabs b").forEach(b => (b.onclick = () => { tab = b.dataset.t; q = ""; src = ""; page = 0; picked.clear(); if (tab !== "words") sort = "date"; draw(); scrollTo(0, 0); }));
 $("#rv").onclick = () => (location.href = "review.html");
+// 导出：制表符分隔的文本，Anki 的“导入文件”可以直接读（正面 / 背面 / 例句 / 例句翻译 / 来源 / 标签）
+$("#exp").onclick = async () => {
+  const b = $("#exp"); b.disabled = true; const rows = [], clean = x => String(x || "").replace(/[\t\r\n]+/g, " ");
+  const tagName = k => ({ g: "green", y: "yellow", r: "red", b: "blue" }[tags[k]] || "");
+  for (const w of saved) { b.textContent = "导出中 " + (rows.length + 1) + "/" + (saved.length + sents.length); const r = await send({ type: "wordLite", word: w, tl: S.target, sl: S.srcLang }), m = mOf(w) || ctx[w] || {}; rows.push([w, meaningsOf(r.g).slice(0, 4).join(", "), m.t || "", m.tr || "", m.v ? "https://www.youtube.com/watch?v=" + m.v + "&t=" + Math.floor(m.s || 0) + "s" : "", tagName(w)].map(clean).join("\t")); }
+  sents.forEach(x => { const m = sOf(x) || {}; rows.push([x.t, x.tr || m.tr || "", x.ctx || "", "", x.v ? "https://www.youtube.com/watch?v=" + x.v + "&t=" + Math.floor(x.s || 0) + "s" : "", tagName(x.k)].map(clean).join("\t")); });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["#separator:tab\n#html:false\n#tags column:6\n" + rows.join("\n") + "\n"], { type: "text/tab-separated-values" })); a.download = "saved-items-anki.txt"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  b.disabled = false; b.innerHTML = I("exp") + "导出";
+};
+$("#exp").innerHTML = I("exp") + "导出";
 document.addEventListener("contextmenu", e => { const w = e.target.closest && e.target.closest(".lr .vs-w, .wr .vs-w, td.x .vs-w"); if (!w) return; e.preventDefault(); const k = w.dataset.w.toLowerCase(); fresh(() => { setMark(k, vsMarkOf(k) === "learn" ? "known" : "learn"); const y = scrollY; persist(() => { draw(); scrollTo(0, y); }); }); });
 
 // ---------- 悬停：小气泡（释义 + 快速标记）；点击：右侧词典 ----------
@@ -201,7 +213,7 @@ document.addEventListener("click", e => { const w = e.target.closest && e.target
 
 const EXT = [["Re", "Reverso", "https://context.reverso.net/translation/english-chinese/WORD"], ["Ca", "Cambridge", "https://dictionary.cambridge.org/dictionary/english/WORD"], ["Wr", "WordReference", "https://www.wordreference.com/enzh/WORD"], ["Gl", "Google", "https://translate.google.com/?sl=en&tl=zh-CN&text=WORD"], ["Wi", "Wiktionary", "https://en.wiktionary.org/wiki/WORD"]];
 async function openDict(word) {
-  word = String(word).trim(); if (!word) return; dictW = word.toLowerCase(); drawDict.res = null; drawDict.sent = null; drawDict.open = drawDict.open || false;
+  word = String(word).trim(); if (!word) return; dictW = word.toLowerCase(); hist = [dictW].concat(hist.filter(x => x !== dictW)).slice(0, 30); chrome.storage.local.set({ dictHist: hist }); drawDict.res = null; drawDict.sent = null; drawDict.open = drawDict.open || false;
   document.body.classList.add("dict"); drawDict(dictW, null);
   const me = dictW, r = await send({ type: "word", word: dictW, tl: S.target, sl: S.srcLang }); if (dictW !== me) return; drawDict.res = r; drawDict(dictW, r);
   const sx = await send({ type: "sentences", word: dictW, tl: S.target, sl: S.srcLang }); if (dictW !== me) return; drawDict.sent = sx.s || []; drawDict(dictW, r);
@@ -213,7 +225,7 @@ function drawDict(w, res) {
   const m = mOf(w) || (ctx[w] && ctx[w].t ? ctx[w] : null), f = r === Infinity ? 1 : Math.max(0.12, Math.min(1, r / 6000)), keep = d.querySelector(".bd") ? d.querySelector(".bd").scrollTop : 0;
   const big = (k, ic, name, tip) => '<button class="bigm ' + k + (st === (k === "k" ? "known" : k === "l" ? "learn" : "ignore") ? " on" : "") + '" data-m="' + (k === "k" ? "known" : k === "l" ? "learn" : "ignore") + '">' + I(ic) + name + '</button><div class="ex1"><span>' + esc(w) + "</span>" + tip + "</div>";
   d.innerHTML = '<div class="dh"><b>词典</b><button id="dx" title="关闭">' + I("x") + '</button></div>' +
-    '<div class="ds"><label><input id="dq" value="' + esc(w) + '" spellcheck="false" autocomplete="off"><button id="dqx" title="清空">' + I("x") + '</button></label><button id="dsay" class="rnd" title="朗读">' + I("say") + "</button></div>" +
+    '<div class="ds"><label><input id="dq" value="' + esc(w) + '" spellcheck="false" autocomplete="off"><button id="dqx" title="清空">' + I("x") + '</button></label><button id="dsay" class="rnd" title="朗读">' + I("say") + '</button><button id="dhis" class="rnd" title="查过的词">' + I("hist") + '</button></div><div class="his" id="hisl" hidden>' + (hist.map(x => '<a data-h="' + esc(x) + '">' + esc(x) + "</a>").join("") || "<span>还没有查过别的词</span>") + "</div>" +
     '<div class="dm"><span class="fbar"><i style="width:' + Math.round(f * 100) + '%"></i></span><span class="rk">' + (r === Infinity ? "生僻" : r) + '</span><span class="sp"></span><button class="mk k' + (st === "known" ? " on" : "") + '" data-m="known" title="已掌握">' + I("check") + '</button><button class="mk l' + (st === "learn" ? " on" : "") + '" data-m="learn" title="学习中">' + I("book") + '</button><button class="mk g' + (st === "ignore" ? " on" : "") + '" data-m="ignore" title="不学习">' + I("ban") + '</button><button id="dmore" class="more' + (drawDict.open ? " on" : "") + '" title="更多">' + I("down") + "</button></div>" +
     '<div class="bd">' + (drawDict.open ? '<div class="mx"><div class="hint">' + (r === Infinity ? "不在常用词表里" : "排名 " + r + " · " + (r <= lv ? "符合你的水平" : "高于你的水平（" + lv + "）")) + "</div>" +
       big("k", "check", "已掌握", "保存为已掌握。不会学习或推荐。") + big("l", "book", "学习中", "保存到你的项目，加入复习队列。") + big("g", "ban", "不学习", "不学习且不推荐。") +
@@ -228,6 +240,7 @@ function drawDict(w, res) {
   d.querySelector(".bd").scrollTop = keep;
   $("#dx").onclick = () => { dictW = ""; d.remove(); document.body.classList.remove("dict"); };
   $("#dq").onkeydown = e => { if (e.key === "Enter") openDict(e.target.value); }; $("#dqx").onclick = () => { $("#dq").value = ""; $("#dq").focus(); };
+  $("#dhis").onclick = () => ($("#hisl").hidden = !$("#hisl").hidden); $$("#hisl a").forEach(a => (a.onclick = () => openDict(a.dataset.h)));
   $("#dsay").onclick = () => say(w, null); if ($("#dorig")) $("#dorig").onclick = () => say("", mOf(w));
   $("#dmore").onclick = () => { drawDict.open = !drawDict.open; drawDict(w, res); };
   d.querySelectorAll("[data-m]").forEach(b => (b.onclick = () => fresh(() => { setMark(w, stateOf(w) === b.dataset.m ? "" : b.dataset.m); redraw(); })));

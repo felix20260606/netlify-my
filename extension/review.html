@@ -54,6 +54,10 @@ input[type=checkbox]:checked{background:#5d3f79}input[type=checkbox]:checked::af
 .card .shot{max-width:100%;max-height:200px;border-radius:6px;margin:-18px 0 22px;display:block}
 .card .src{position:absolute;left:16px;bottom:12px;max-width:70%;font-size:12.5px;color:#8b95a1;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
 .card a.src:hover{color:#B77CE0;text-decoration:underline}
+.tgs{display:inline-flex;gap:6px}.tgs b{font-weight:400;font-size:13px;border:1.5px solid var(--tc);color:#EDEFF2;border-radius:999px;padding:1px 10px 1px 22px;cursor:pointer;position:relative;opacity:.55}.tgs b::before{content:"";position:absolute;left:8px;top:50%;margin-top:-4px;width:8px;height:8px;border-radius:50%;background:var(--tc)}.tgs b.on{opacity:1;background:color-mix(in srgb,var(--tc) 22%,transparent)}
+.t-g{--tc:#8EE05A}.t-y{--tc:#F1E46B}.t-r{--tc:#FF6B5E}.t-b{--tc:#6FD3FF}
+.card .cst{position:absolute;right:14px;top:12px;font-size:22px;color:#8b95a1;cursor:pointer;display:inline-flex}.card .cst:hover{color:#fff}.card .cst.on{color:#FFD23F}.card .cst.on .s{fill:currentColor}.vi .s{fill:none}
+.card .pn{margin-top:12px;font-size:14.5px;color:#FFBD80}
 </style>
 <div id="home">
   <div class="hc">
@@ -71,7 +75,8 @@ input[type=checkbox]:checked{background:#5d3f79}input[type=checkbox]:checked::af
     <label class="row"><span><input type="checkbox" id="oListen">练习</span><small>先理解再显示</small></label>
     <div class="row sub"><span>练习数量</span><span class="seg" id="oNum"><b data-v="10">10</b><b data-v="20">20</b><b data-v="40">40</b><b data-v="60">60</b></span></div>
     <div class="row sub"><span>新项目</span><span class="seg" id="oNew"><b data-v="0">0 %</b><b data-v="15">15 %</b><b data-v="30">30 %</b><b data-v="50">50 %</b><b data-v="100">100 %</b></span></div>
-    <label class="row sub"><span><input type="checkbox" id="oSpeak">自动朗读句子</span><small>用浏览器的语音</small></label>
+    <div class="row sub"><span>筛选</span><span class="tgs" id="oTags"><b data-v="g" class="t-g">绿色</b><b data-v="y" class="t-y">黄色</b><b data-v="r" class="t-r">红色</b><b data-v="b" class="t-b">蓝色</b></span></div>
+    <label class="row sub"><span><input type="checkbox" id="oSpeak">自动播放</span><small>有原声放原声，否则在线朗读</small></label>
   </div>
 </div>
 <div id="play">

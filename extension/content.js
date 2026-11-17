@@ -1,7 +1,7 @@
 (function () {
   const DEF = { savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
-  let suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
+  let wtags = {}, suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
   let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
   const pendIdx = new Set(), retry = {};
@@ -51,7 +51,7 @@
   chrome.storage.onChanged.addListener((c, a) => { if (a === "local" && c.audioPick && c.audioPick.newValue) window.postMessage({ src: "VS-C", type: "set-audio", index: c.audioPick.newValue.i }, "*"); });
   // 一次性迁移：旧版本的 ✕ 会把侧栏彻底关掉，新版本改为收起，所以把被关掉的侧栏恢复出来
   chrome.storage.local.get({ pm1: false }, v => { if (!v.pm1) { chrome.storage.local.set({ pm1: true }); chrome.storage.sync.set({ panelOpen: true }); } });
-  chrome.storage.local.get({ saved: [], savedSents: [], marks: {}, savedCtx: {}, showCtx: false, wtipOff: false, panelMin: false }, v => { panelMin = !!v.panelMin; if (panel) panel.classList.toggle("min", panelMin); savedCtx = v.savedCtx || {}; showCtx = !!v.showCtx; wtip = !v.wtipOff; savedSet = new Set(v.saved.map(w => w.toLowerCase())); VS_SAVED = savedSet; VS_MARKS = v.marks || {}; savedSents = v.savedSents; cur = -1; });
+  chrome.storage.local.get({ saved: [], savedSents: [], marks: {}, savedCtx: {}, showCtx: false, wtipOff: false, panelMin: false, tags: {} }, v => { wtags = v.tags || {}; panelMin = !!v.panelMin; if (panel) panel.classList.toggle("min", panelMin); savedCtx = v.savedCtx || {}; showCtx = !!v.showCtx; wtip = !v.wtipOff; savedSet = new Set(v.saved.map(w => w.toLowerCase())); VS_SAVED = savedSet; VS_MARKS = v.marks || {}; savedSents = v.savedSents; cur = -1; });
 
   // ---------- 字幕获取 ----------
   window.addEventListener("message", e => {
@@ -389,7 +389,15 @@
   }
 
   const WORD_RE = VS_WORD_RE;
-  const wordsHtml = t => { const h = vsMark(esc(t), S); return S.showGram !== false && /\s/.test(t) ? vsGramHtml(h).replace(/ g-(\w+)(?=[ "])/g, (a, c) => (S["g_" + c] === false ? "" : a)) : h; };
+  const wordsHtml = t => { const h = vsMark(esc(t), S); return phMark(S.showGram !== false && /\s/.test(t) ? vsGramHtml(h).replace(/ g-(\w+)(?=[ "])/g, (a, c) => (S["g_" + c] === false ? "" : a)) : h); };
+  // 保存过的短语在字幕里整段标出来（连续的几个词一起带框）
+  function phMark(h) {
+    const phs = savedSents.filter(x => x.ph && x.t).map(x => x.t.toLowerCase().split(/\s+/)); if (!phs.length) return h;
+    const re = /<span class="vs-w ([^"]*)" data-w="([^"]+)">/g, ws = []; let m; while ((m = re.exec(h))) ws.push(m[2].toLowerCase()); if (ws.length < 2) return h;
+    const tag = {};
+    phs.forEach(p => { for (let i = 0; i + p.length <= ws.length; i++) { let ok = true; for (let k = 0; k < p.length; k++) if (ws[i + k] !== p[k] && !(k === 0 && vsLemma(ws[i + k]) === vsLemma(p[k]))) { ok = false; break; } if (ok) for (let k = 0; k < p.length; k++) tag[i + k] = "vs-ph" + (k === 0 ? " ph-s" : "") + (k === p.length - 1 ? " ph-e" : ""); } });
+    let n = 0; return h.replace(re, (a, cl, w) => { const t = tag[n++]; return t ? '<span class="vs-w ' + cl + " " + t + '" data-w="' + w + '">' : a; });
+  }
   const gramLine = el => { const g = [...el.classList].filter(c => /^g-/.test(c)).map(c => VS_GRAM_NAME[c.slice(2)]).filter(Boolean); return g.length ? '<div class="gm">语法：' + g.join(" · ") + "</div>" : ""; };
   // ---------- 渲染当前句 ----------
   function render(i) {
@@ -584,7 +592,7 @@
     const st = tip.querySelector(".bd") ? tip.querySelector(".bd").scrollTop : 0;
     tip.innerHTML = '<div class="th"><b>词典</b><span data-a="x" title="关闭">' + I("x") + '</span></div><div class="bd">' +
       '<div class="hw"><div><div class="w">' + esc(word) + (d && d.phonetic ? '<span class="ph">' + esc(d.phonetic) + "</span>" : "") + (d && d.lemma ? '<span class="ph">原形 ' + esc(d.lemma) + "</span>" : "") + '</div><div class="zh">' + (res ? esc(ms.slice(0, 4).join("，")) || "（无翻译）" : "…") + '</div></div><span class="sp" data-a="say" title="发音">' + I("say") + '</span></div>' +
-      (isPhrase ? "" : '<div class="fr">' + freqBar(word) + '<span class="rk">' + (r === Infinity ? "生僻" : r) + '</span></div><div class="mk"><a data-a="mk" data-m="known" class="' + (cat === "known" ? "on" : "") + '" title="已掌握">' + I("check") + '</a><a data-a="mk" data-m="learn" class="' + (cat === "learn" ? "on" : "") + '" title="将要学习（加入生词本）">' + I("book") + '</a><a data-a="mk" data-m="ignore" class="' + (cat === "ignore" ? "on" : "") + '" title="不学习">' + I("ban") + '</a><a data-a="mk" data-m="" class="cl" title="取消标记">取消标记</a></div>') +
+      (isPhrase ? "" : '<div class="fr">' + freqBar(word) + '<span class="rk">' + (r === Infinity ? "生僻" : r) + '</span></div><div class="mk"><a data-a="mk" data-m="known" class="' + (cat === "known" ? "on" : "") + '" title="已掌握">' + I("check") + '</a><a data-a="mk" data-m="learn" class="' + (cat === "learn" ? "on" : "") + '" title="将要学习（加入生词本）">' + I("book") + '</a><a data-a="mk" data-m="ignore" class="' + (cat === "ignore" ? "on" : "") + '" title="不学习">' + I("ban") + '</a><a data-a="mk" data-m="" class="cl" title="取消标记">取消标记</a></div><div class="mk2"><span class="tgr">' + [["", "/", "无标签"], ["g", "#", "绿色"], ["y", "#", "黄色"], ["r", "#", "红色"], ["b", "#", "蓝色"]].map(x => '<a data-a="tag" data-c="' + x[0] + '" class="t-' + (x[0] || "0") + ((wtags[base] || "") === x[0] ? " on" : "") + '" title="' + x[2] + (x[0] ? "标签" : "") + '">' + x[1] + '</a>').join("") + '</span><a data-a="next" class="nx" title="下一次复习从这个词开始">⚡ 下次学习</a></div>') +
       (tip.dataset.phrase && tip.dataset.phraseT ? '<div class="sec phz"><div class="lw">' + esc(tip.dataset.phrase) + '</div><div class="ln">' + esc(tip.dataset.phraseT) + "</div></div>" : "") +
       (tip.dataset.lemma && tip.dataset.lemmaT ? '<div class="sec phz"><div class="lw">' + esc(tip.dataset.lemma) + ' <span class="ph">（' + esc(word) + ' 的原形）</span></div><div class="ln">' + esc(tip.dataset.lemmaT) + "</div></div>" : "") +
       (g && g.zh && g.zh.length ? '<div class="sec"><div class="lw">' + esc(word) + "</div>" + g.zh.map(z => '<div class="ln"><i>(' + esc(z.pos) + ")</i>" + esc(z.words.join("，")) + "</div>").join("") + "</div>" : "") +
@@ -605,6 +613,8 @@
         const a = e.target.dataset.a, word = tip.dataset.word, row = e.target.closest(".ex");
         if (a === "x") { closeTip(); if (pausedByUs) { const v = video(); if (v) v.play(); pausedByUs = false; } return; }
         if (a === "say") { speak(word); return; }
+        if (a === "tag") { const k = word.toLowerCase(), cc = e.target.dataset.c; if (cc) wtags[k] = cc; else delete wtags[k]; chrome.storage.local.set({ tags: wtags }); drawDict(word, tipData); return; }
+        if (a === "next") { const k = word.toLowerCase(); if (vsMarkOf(k) !== "learn") setMark(word, "learn"); chrome.storage.local.get({ srs: {} }, v => { const key = [...savedSet].find(x => vsSame(x, k)) || k; v.srs[key] = Object.assign({ b: 0, n: 0 }, v.srs[key], { due: 1 }); chrome.storage.local.set({ srs: v.srs }, () => toast("已排到下次复习的最前面")); }); return; }
         if (a === "mk") { const mm = e.target.closest("[data-m]").dataset.m; if (mm === "learn" && S.savePhrase !== false && tip.dataset.phrase && vsMarkOf(word) !== "learn") addPhrase(tip.dataset.phrase, +tip.dataset.ci); setMark(word, mm); return; }
         if (a === "star" && row) { toggleSent(+row.dataset.i); drawDict(word, tipData); return; }
         if (a === "go" && row) { const v = video(); if (v) { v.currentTime = cues[+row.dataset.i].s + 0.01; pausedByUs = false; v.play(); } return; }
@@ -703,7 +713,7 @@
       if (savedSents.some(x => x.k === k)) return;
       savedSents.push({ k, v: cu ? vidId : "", s: cu ? cu.s : 0, t: ph, tr: (g && g.t) || "", at: Date.now(), ph: 1, ctx: cu ? cu.t : "" });
       chrome.storage.local.set({ savedSents }); if (cu) saveMedia("med:s:" + k, cues.indexOf(cu)); send({ type: "add", word: ph, queueOnly: true });
-      if (panel && tab === "saved") buildPanel();
+      refreshMarks();
       setTimeout(() => toast("短语 “" + ph + "” 也一起保存了"), 1900);
     } catch (e) {}
   }
