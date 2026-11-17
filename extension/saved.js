@@ -11,7 +11,7 @@ const IC = {
 const I = n => '<svg class="vi" viewBox="0 0 24 24">' + IC[n] + "</svg>";
 const DAY = 864e5, PER = 50, DONE = 5;
 let S = { level: -1, ratio: 1.5, target: "zh-CN", srcLang: "en" }, saved = [], ctx = {}, srs = {}, marks = {}, sents = [], med = {};
-let tab = "words", q = "", sort = "date", filt = "learn", src = "", page = 0, picked = new Set(), player = null, allShown = 1000, tags = {}, tagF = new Set(), allSort = "freq", allView = "cell";
+let tab = "words", q = "", sort = "date", filt = "learn", src = "", page = 0, picked = new Set(), player = null, allShown = 1e9, tags = {}, tagF = new Set(), allSort = "freq", allView = "cell";
 const TAGS = [["g", "#8EE05A", "绿色"], ["y", "#F1E46B", "黄色"], ["r", "#FF6B5E", "红色"], ["b", "#6FD3FF", "蓝色"]];
 const tagDot = k => (tags[k] ? '<i class="tg t-' + tags[k] + '"></i>' : "");
 const tagChips = () => '<span class="chip tg0' + (tagF.has("") ? " on" : "") + '" data-tg="" title="没有标签的">/</span>' + TAGS.map(t => '<span class="chip tgc t-' + t[0] + (tagF.has(t[0]) ? " on" : "") + '" data-tg="' + t[0] + '" title="' + t[2] + '标签">#</span>').join("");
@@ -96,7 +96,7 @@ function catOf(w) { const mk = vsMarkOf(w); if (mk) return mk === "learn" ? "m-l
 let LEMMAS = null; // 只列原形：going、went 归到 go 下面，和字幕里的匹配方式一致
 const allWords = () => LEMMAS || (LEMMAS = VS_WORDS.split(" ").filter(w => vsLemma(w) === w));
 function drawAll() {
-  const W = allWords(), n = { "m-k": 0, "m-l": 0, "m-i": 0, "a-k": 0, "a-s": 0, "a-r": 0 }; W.forEach(w => n[catOf(w)]++);
+  const W = allWords(), n = { "m-k": 0, "m-l": 0, "m-i": 0, "a-k": 0, "a-s": 0, "a-r": 0 }; W.forEach(w => n[catOf(w)]++); n["m-l"] = saved.length; n["m-k"] = Object.values(marks).filter(x => x === "known").length; n["m-i"] = Object.values(marks).filter(x => x === "ignore").length; // 自己标记的按实际数量算（有些词不在这张表里）
   let h = '<div class="lv"><b>英语</b><span>' + (S.level >= 0 ? "词汇水平 " + S.level : "未设置词汇水平（按 2000 估算）") + '</span><span>该语言最常用的 ' + W.length + ' 个单词（按原形）</span><button id="lvb">设置词汇水平</button></div>' +
     '<div class="tools"><label class="q"><input id="q" placeholder="搜索" value="' + esc(q) + '">' + I("search") + '</label><span class="seg" id="asort"><b data-v="freq"' + (allSort === "freq" ? ' class="on"' : "") + '>频率</b><b data-v="az"' + (allSort === "az" ? ' class="on"' : "") + '>A–Z</b></span><span class="seg" id="aview"><b data-v="cell"' + (allView === "cell" ? ' class="on"' : "") + '>单元格</b><b data-v="row"' + (allView === "row" ? ' class="on"' : "") + ">行</b></span></div>" +
     '<div class="chips"><span class="chip k on">' + I("check") + "已掌握 <b>" + n["m-k"] + "</b><i>自动 " + n["a-k"] + '</i></span><span class="chip l on">' + I("book") + "学习中 <b>" + n["m-l"] + "</b><i>建议 " + n["a-s"] + '</i></span><span class="chip g on">' + I("ban") + "不学习 <b>" + n["m-i"] + "</b><i>罕见 " + n["a-r"] + '</i></span></div><div class="leg">实线框里的数字是你自己标记的，斜体是按词汇水平推测的。右键点击单词：没有框的词加入学习，已在学习的词标为已掌握。</div>';
@@ -117,14 +117,12 @@ function drawAll() {
     let ws = W.slice(0, lim); if (k) ws = ws.filter(w => w.includes(k)); const by = {}; ws.slice().sort().forEach(w => { const c = /^[a-z]/.test(w) ? w[0].toUpperCase() : "#"; (by[c] = by[c] || []).push(w); });
     Object.keys(by).sort().forEach(c => { jump.push([c, c]); h += '<div class="sec" id="r' + c + '">' + esc(c) + "<span>" + by[c].length + "</span></div>" + (allView === "row" ? by[c].map(row).join("") : '<div class="lr"><div>' + by[c].map(cell).join(" ") + "</div></div>"); });
   }
-  if (!k && lim < W.length) h += '<div class="empty"><button id="more" style="border:1px solid #4a4f57;border-radius:6px;padding:6px 16px">再显示 1000 个（已显示到排名 ' + lim + "）</button></div>";
   h += '<div class="jump">' + jump.map(a => '<a data-a="' + a[0] + '">' + a[1] + "</a>").join("") + "</div>";
   $("#wrap").innerHTML = h;
   $("#q").oninput = e => { q = e.target.value.trim(); clearTimeout(drawAll.t); drawAll.t = setTimeout(() => { drawAll(); const i = $("#q"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); };
   $("#lvb").onclick = () => chrome.runtime.openOptionsPage();
   $("#asort").onclick = e => { const b = e.target.closest("b"); if (b) { allSort = b.dataset.v; drawAll(); } };
   $("#aview").onclick = e => { const b = e.target.closest("b"); if (b) { allView = b.dataset.v; drawAll(); } };
-  if ($("#more")) $("#more").onclick = () => { allShown += 1000; const y = scrollY; drawAll(); scrollTo(0, y); };
   $$(".jump a").forEach(a => (a.onclick = () => { const el = document.getElementById("r" + a.dataset.a); if (el) el.scrollIntoView(); }));
 }
 function setMark(w, m) { // learn | known | ignore | ""
