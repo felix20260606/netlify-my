@@ -92,7 +92,7 @@ function drawSents() {
   let last = null, open = false;
   pg.forEach(o => { const d = dayOf(o.at), m = sOf(o.x);
     if (d !== last) { if (open) h += "</table>"; last = d; open = true; h += '<div class="day">' + d + "<span>" + list.filter(x => dayOf(x.at) === d).length + "</span></div><table><colgroup><col style=\"width:38px\"><col><col style=\"width:34%\"><col style=\"width:120px\"><col style=\"width:230px\"></colgroup><tr><th></th><th>短语</th><th>翻译</th><th>阶段</th><th>来源</th></tr>"; }
-    h += '<tr data-k="' + esc(o.x.k) + '"><td class="c"><input type="checkbox"' + (picked.has(o.x.k) ? " checked" : "") + '></td><td class="p"><span class="pl" title="' + (m && m.aud ? "播放原声" : "朗读") + '">' + I("play") + "</span>" + tagDot(o.x.k) + vsMark(esc(o.x.t), S) + '</td><td class="t">' + esc(o.x.tr || (m && m.tr) || "") + '</td><td class="st"><span class="stg">' + I("book") + '—</span></td><td class="so"><div class="so">' + srcCell(m, o.x) + '<span class="rm" title="删除">' + I("x") + "</span></div></td></tr>"; });
+    h += '<tr data-k="' + esc(o.x.k) + '"><td class="c"><input type="checkbox"' + (picked.has(o.x.k) ? " checked" : "") + '></td><td class="p"><span class="pl" title="' + (m && m.aud ? "播放原声" : "朗读") + '">' + I("play") + "</span>" + tagDot(o.x.k) + vsMark(esc(o.x.t), S) + (o.x.ctx ? '<div class="pc">' + esc(o.x.ctx) + "</div>" : "") + '</td><td class="t">' + esc(o.x.tr || (m && m.tr) || "") + '</td><td class="st"><span class="stg">' + I("book") + '—</span></td><td class="so"><div class="so">' + srcCell(m, o.x) + '<span class="rm" title="删除">' + I("x") + "</span></div></td></tr>"; });
   if (open) h += "</table>";
   $("#wrap").innerHTML = h; bind(list.length);
 }

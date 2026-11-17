@@ -134,10 +134,12 @@ async function dict(word) {
 }
 
 // ---------- 加入生词本 ----------
-async function addWord(word) {
+async function addWord(word, queueOnly) {
   word = (word || "").trim(); if (!word) return { ok: false };
-  const st = await chrome.storage.local.get({ saved: [] });
-  if (!st.saved.some(w => w.toLowerCase() === word.toLowerCase())) { st.saved.push(word); await chrome.storage.local.set({ saved: st.saved }); }
+  if (!queueOnly) { // 短语只进待整理队列，不进“正在学习”的单词表
+    const st = await chrome.storage.local.get({ saved: [] });
+    if (!st.saved.some(w => w.toLowerCase() === word.toLowerCase())) { st.saved.push(word); await chrome.storage.local.set({ saved: st.saved }); }
+  }
   if (!BIN || !KEY) return { ok: true, cloud: false };
   try {
     const r = await fetch(BASE + "/latest", { headers: { "X-Access-Key": KEY, "X-Bin-Meta": "false" } });
@@ -175,7 +177,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "tts") tts(m.text, m.lang).then(a => send({ a })).catch(() => send({ a: "" }));
   else if (m.type === "openReview") { chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); send({}); }
   else if (m.type === "sentences") sentences(m.word, m.tl, m.sl).then(s => send({ s })).catch(() => send({ s: [] }));
-  else if (m.type === "add") addWord(m.word).then(send);
+  else if (m.type === "add") addWord(m.word, m.queueOnly).then(send);
   else return false;
   return true;
 });

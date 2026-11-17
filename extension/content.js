@@ -1,5 +1,5 @@
 (function () {
-  const DEF = { saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
+  const DEF = { savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
   let suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
@@ -605,7 +605,7 @@
         const a = e.target.dataset.a, word = tip.dataset.word, row = e.target.closest(".ex");
         if (a === "x") { closeTip(); if (pausedByUs) { const v = video(); if (v) v.play(); pausedByUs = false; } return; }
         if (a === "say") { speak(word); return; }
-        if (a === "mk") { setMark(word, e.target.dataset.m); return; }
+        if (a === "mk") { const mm = e.target.closest("[data-m]").dataset.m; if (mm === "learn" && S.savePhrase !== false && tip.dataset.phrase && vsMarkOf(word) !== "learn") addPhrase(tip.dataset.phrase, +tip.dataset.ci); setMark(word, mm); return; }
         if (a === "star" && row) { toggleSent(+row.dataset.i); drawDict(word, tipData); return; }
         if (a === "go" && row) { const v = video(); if (v) { v.currentTime = cues[+row.dataset.i].s + 0.01; pausedByUs = false; v.play(); } return; }
         const w = e.target.closest(".vs-w"); if (w) showTip(w.dataset.w, null, true, row ? +row.dataset.i : undefined, w);
@@ -695,6 +695,18 @@
       });
     } catch (e) {}
   }
+  // 保存短语：进“保存的短语”，带上所在的原句、原声、画面和出处
+  async function addPhrase(ph, ci) {
+    try {
+      ph = String(ph).toLowerCase().trim(); const k = "ph|" + ph; if (!ph || savedSents.some(x => x.k === k)) return;
+      const cu = cues[ci] || cues[cur] || null, g = await liteLookup(ph).catch(() => null);
+      if (savedSents.some(x => x.k === k)) return;
+      savedSents.push({ k, v: cu ? vidId : "", s: cu ? cu.s : 0, t: ph, tr: (g && g.t) || "", at: Date.now(), ph: 1, ctx: cu ? cu.t : "" });
+      chrome.storage.local.set({ savedSents }); if (cu) saveMedia("med:s:" + k, cues.indexOf(cu)); send({ type: "add", word: ph, queueOnly: true });
+      if (panel && tab === "saved") buildPanel();
+      setTimeout(() => toast("短语 “" + ph + "” 也一起保存了"), 1900);
+    } catch (e) {}
+  }
   function noteCtx(k) {
     const has = c => c && !c.note && (c.t.match(WORD_RE) || []).some(x => x.toLowerCase() === k || vsLemma(x.toLowerCase()) === k);
     const ci = has(cues[cur]) ? cur : cues.findIndex(has);
@@ -722,7 +734,9 @@
     const w = e.target.closest && e.target.closest(".vs-w"); if (!w || !S.enabled) return;
     e.preventDefault(); e.stopPropagation();
     if (!alive()) { toast("插件刚更新过，请刷新这个页面后再标记"); return; } // 插件重新加载后，旧页面里的标记保存不了
-    const lw = w.dataset.w.toLowerCase(), on = vsMarkOf(lw) === "learn"; setMark(w.dataset.w, on ? "known" : "learn"); // 没有框的词：右键直接加入学习；已在学习的词：右键标为已掌握
+    const lw = w.dataset.w.toLowerCase(), on = vsMarkOf(lw) === "learn";
+    if (!on && S.savePhrase !== false) { const it = w.closest(".it[data-i], .ex[data-i]"), ci = it ? +it.dataset.i : cur; findPhrase(w).then(ph => { if (ph && ph !== lw) addPhrase(ph, ci); }).catch(() => {}); } // 这个词在一个短语里：短语也一起保存
+    setMark(w.dataset.w, on ? "known" : "learn"); // 没有框的词：右键直接加入学习；已在学习的词：右键标为已掌握
   }, true);
   // 朗读：先用后台取回的真人录音 / 在线朗读（经 AudioContext 播放，不受页面限制）；取不到再用浏览器自带语音
   let actx = null, ttsNode = null;
