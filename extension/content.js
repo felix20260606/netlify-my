@@ -1,7 +1,7 @@
 (function () {
-  const DEF = { panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: false, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
+  const DEF = { panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
-  let srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
+  let suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
   let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
   const pendIdx = new Set(), retry = {};
@@ -234,7 +234,7 @@
       }
     }
     lazy = true;
-    human = [];
+    human = []; humanAt = {};
     if (S.showHuman) {
       const tb = baseOf(S.target), ht = tracks.find(t => t.kind !== "asr" && t.lang.toLowerCase() === String(S.target).toLowerCase()) || tracks.find(t => t.kind !== "asr" && baseOf(t.lang) === tb);
       if (ht && ht.baseUrl && baseUrl && baseOf(S.srcLang) !== tb && !srcVia) {
@@ -242,9 +242,11 @@
         new URL(baseUrl).searchParams.forEach((v, k) => { if (!u3.searchParams.has(k) && !/^(kind|lang|name|tlang|fmt)$/.test(k)) u3.searchParams.set(k, v); });
         u3.searchParams.set("fmt", "json3"); u3.searchParams.set("lv", "1"); u3.searchParams.delete("tlang");
         const j3 = await getJson(u3.href), h = j3 ? parse(j3) : []; if (my !== ver) return;
-        human = cues.map(g => zhFix(h.filter(x => !x.note && x.s >= g.s - 0.3 && x.s < g.e - 0.2).map(x => x.t).join(" ")));
+        // 有人工翻译的句子用人工翻译，没有的句子保留机器翻译；只显示一行
+        cues.forEach((g, i) => { const x = zhFix(h.filter(x => !x.note && x.s >= g.s - 0.3 && x.s < g.e - 0.2).map(x => x.t).join(" ")); if (x) { trans[i] = x; humanAt[i] = 1; } });
       }
     }
+    noteSugg();
     buildPanel();
     { const v = video(); if (v) { const i = findCue(v.currentTime); cur = i; if (root || i >= 0) render(i); } } // 翻译取回后重画当前句
   }
@@ -750,6 +752,16 @@
     const c = cues[i], on = sk.has(sentKey(c)); let en = c.note ? vsMark(esc(c.t), S) : wordsHtml(c.t);
     if (hl) en = en.replace(/<span class="vs-w ([^"]*)" data-w="([^"]+)">/g, (a, cl, w) => { const lw = w.toLowerCase(); return hl.f.has(lw) || vsLemma(lw) === hl.w ? '<span class="vs-w hl ' + cl + '" data-w="' + w + '">' : a; });
     return '<div class="it sb" data-i="' + i + '" data-s="' + c.s + '"><i class="pl" title="从这句播放">' + I("play") + '</i><i class="st' + (on ? " on" : "") + '" data-i="' + i + '" title="保存短语">' + I("star") + '</i><div class="tm">' + fmt(c.s) + '</div><div class="en' + (c.note ? " nt" : "") + '">' + en + '</div><div class="tr">' + esc(trans[i] || "") + "</div></div>";
+  }
+  // 把这个视频里最值得学的生词记下来，供复习页的“建议”使用（最多留 300 个）
+  function noteSugg() {
+    try {
+      if (S.level < 0 || !cues.length || suggDone === vidId) return; suggDone = vidId;
+      const { m } = videoWords(), sc = o => o.n / Math.pow(Math.log(Math.max(3, Math.min(o.r, 25000))), 0.9);
+      const top = [...m.values()].filter(o => (o.ct === "suggest" || o.ct === "rare") && o.r < 30000 && /^[a-z]+$/.test(o.w) && o.w.length > 2).sort((a, b) => sc(b) - sc(a)).slice(0, 15);
+      if (!top.length) return;
+      chrome.storage.local.get({ sugg: {} }, v => { const g = v.sugg; top.forEach(o => { const c = cues[o.cs[0]]; g[o.w] = { t: c.t, v: vidId, s: c.s, n: o.n, at: Date.now() }; }); const ks = Object.keys(g); if (ks.length > 300) ks.sort((a, b) => g[a].at - g[b].at).slice(0, ks.length - 300).forEach(k => delete g[k]); chrome.storage.local.set({ sugg: g }); });
+    } catch (e) {}
   }
   function videoWords() {
     const m = new Map(); let tot = 0; const SS = S.level >= 0 ? S : Object.assign({}, S, { level: 2000 });

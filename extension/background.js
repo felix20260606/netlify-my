@@ -38,7 +38,8 @@ async function sentences(word, tl, sl) {
   if (sl && sl !== "en") return [];
   const k = "sent:" + tl + ":" + word, c = await chrome.storage.local.get(k); if (c[k]) return c[k];
   const zh = /^zh/i.test(tl || "");
-  const r = await fetch("https://tatoeba.org/en/api_v0/search?from=eng&query=" + encodeURIComponent(word) + "&sort=relevance&word_count_max=14" + (zh ? "&to=cmn&trans_filter=limit&trans_to=cmn" : ""));
+  const ac = new AbortController(), tm = setTimeout(() => ac.abort(), 6000); // 例句库有时很慢，最多等 6 秒
+  const r = await fetch("https://tatoeba.org/en/api_v0/search?from=eng&query=" + encodeURIComponent(word) + "&sort=relevance&word_count_max=14" + (zh ? "&to=cmn&trans_filter=limit&trans_to=cmn" : ""), { signal: ac.signal }).finally(() => clearTimeout(tm));
   if (!r.ok) throw new Error("t" + r.status);
   const j = await r.json();
   const out = (j.results || []).map(x => { const ts = (x.translations || []).flat().filter(t => t && t.lang === "cmn"), t = ts.find(t => t.script === "Hans") || ts[0]; return { en: x.text, tr: zh && t ? t.text : "" }; }).filter(x => x.en && x.en.length <= 90).slice(0, 8);

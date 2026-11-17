@@ -47,19 +47,24 @@ input[type=checkbox]:checked{background:#5d3f79}input[type=checkbox]:checked::af
 .ctl button.bad{font-size:22px;color:#ff9d9d}.ctl button.bad.on{background:#6b2f2f;color:#fff}
 .ctl kbd{font:12px ui-monospace,monospace;color:var(--mut);border:1px solid #4a4f57;border-radius:3px;padding:0 5px}
 .done h2{font-size:24px;margin:0 0 10px}.done p{color:#c9ced4;margin:4px 0}.done button{margin-top:22px;background:var(--pur);color:#fff;font-weight:700;border-radius:8px;padding:10px 20px}
+.top .tb{min-width:34px;height:34px;border-radius:50%;border:1px solid #4a4f57;font-size:13px;font-weight:700;color:#EDEFF2;padding:0 6px}.top .tb:hover{background:#33373d}
+#keys{display:none;text-align:center;font-size:13px;color:#c9ced4;padding:10px;background:#202227}#keys.on{display:block}#keys b{background:#33373d;border-radius:4px;padding:1px 7px;margin-right:4px;font-weight:500;color:#fff}
+.spin{width:38px;height:38px;border-radius:50%;border:3px solid #4a4f57;border-top-color:#fff;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.card .sg{position:absolute;left:52px;top:15px;font-size:12.5px;color:#FFBD80;border:1px solid #7a5a36;border-radius:999px;padding:1px 10px;cursor:pointer}.card .sg:hover{background:rgba(255,189,128,.12)}.card .sg.on{color:#8EE5A1;border-color:#3f7a52;cursor:default}
 </style>
 <div id="home">
   <div class="hc">
     <h1>单词<b>复习</b></h1>
     <div class="today">今天<b id="tdn">0 张卡片</b></div>
     <div class="bar"><i id="tdb"></i></div>
-    <div class="stats"><div><small>待复习</small><b id="sDue">0</b><em id="sNew"></em></div><div><small>学习中</small><b id="sLrn">0</b></div><div><small>已学会</small><b id="sDone">0</b></div></div>
+    <div class="stats"><div><small>待复习</small><b id="sDue">0</b><em id="sNew"></em></div><div><small>学习中</small><b id="sLrn">0</b><em id="sQ"></em></div><div><small>已学会</small><b id="sDone">0</b></div></div>
     <div class="go"><button id="start">开始练习</button><span id="cnt"></span></div>
     <div class="empty" id="empty" hidden>还没有保存的单词。看视频时右键点击单词，把它加入“正在学习”，这里就会出现复习卡片。</div>
   </div>
   <div class="opt">
     <h3>会话</h3>
     <label class="row"><span><input type="checkbox" id="oQuiz">测验</span><small>填空题</small></label>
+    <label class="row"><span><input type="checkbox" id="oSugg">建议</span><small>来自你看过的视频的新词</small></label>
     <label class="row"><span><input type="checkbox" id="oListen">练习</span><small>先理解再显示</small></label>
     <div class="row sub"><span>练习数量</span><span class="seg" id="oNum"><b data-v="10">10</b><b data-v="20">20</b><b data-v="40">40</b><b data-v="60">60</b></span></div>
     <div class="row sub"><span>新项目</span><span class="seg" id="oNew"><b data-v="0">0 %</b><b data-v="15">15 %</b><b data-v="30">30 %</b><b data-v="50">50 %</b><b data-v="100">100 %</b></span></div>
@@ -67,7 +72,8 @@ input[type=checkbox]:checked{background:#5d3f79}input[type=checkbox]:checked::af
   </div>
 </div>
 <div id="play">
-  <div class="top"><button class="bk" id="back" title="返回"></button><div class="bar"><i id="pb"></i></div><span class="n" id="pn"></span></div>
+  <div class="top"><button class="bk" id="back" title="返回"></button><div class="bar"><i id="pb"></i></div><span class="n" id="pn"></span><button class="tb" id="kb" title="键盘快捷键">⌨</button><button class="tb" id="spd" title="朗读速度">1x</button></div>
+  <div id="keys"><b>A</b> 上一张　<b>S</b> 重听　<b>E</b> 显示原文 / 翻译 / 答案　<b>X</b> 还不会　<b>D</b> 下一张　<b>W</b> 把建议的词加入学习　<b>回车</b> 检查填空</div>
   <div class="hint" id="hint"></div>
   <div class="mid"><div class="card" id="card"></div></div>
   <div class="ctl" id="ctl"></div>
