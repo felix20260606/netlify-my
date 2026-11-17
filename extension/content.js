@@ -1,0 +1,645 @@
+(function () {
+  const DEF = { target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: false, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
+  let S = Object.assign({}, DEF);
+  let asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
+  let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
+  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [];
+  const pendIdx = new Set(), retry = {};
+
+  const $ = (s, r) => (r || document).querySelector(s);
+  const video = () => $("video.html5-main-video") || $("video");
+  const player = () => document.getElementById("movie_player");
+  const vId = () => new URLSearchParams(location.search).get("v") || "";
+  const send = m => new Promise(res => { try { chrome.runtime.sendMessage(m, r => res(r || {})); } catch (e) { res({}); } });
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const baseOf = l => String(l || "").toLowerCase().split(/[-_]/)[0];
+  const askTracks = () => window.postMessage({ src: "VS-C", type: "get-tracks" }, "*");
+  const zhFix = t => String(t || "").replace(/([\u3400-\u9fff\u3000-\u303f\uff00-\uffef“”‘’—…])\s+(?=[\u3400-\u9fff\u3000-\u303f\uff00-\uffef“”‘’—…])/g, "$1").trim();
+  const tlangOf = t => (t === "zh-CN" ? "zh-Hans" : t === "zh-TW" ? "zh-Hant" : t);
+
+  document.documentElement.classList.add("vs-on");
+  chrome.storage.sync.get(DEF, v => { S = v; applyBar(); });
+  chrome.storage.onChanged.addListener((c, a) => {
+    if (a !== "sync") return;
+    const old = Object.assign({}, S);
+    for (const k in c) S[k] = c[k].newValue;
+    applyBar(); { const k0 = cur; cur = -1; if (k0 >= 0 && cues[k0] && root) { cur = k0; render(k0); } }
+    if (["level", "ratio", "greenKnown", "fadeRare", "showMarks", "showSuggest", "showLearn", "showLearnOutline", "showIgnore", "showSpecial"].some(k => S[k] !== old[k])) refreshMarks();
+    if (S.rate !== old.rate) { const v = video(); if (v && v.playbackRate !== S.rate) v.playbackRate = S.rate; }
+    if (S.srcLang !== old.srcLang) { key = ""; loadedLang = ""; askTracks(); }
+    else if (raw.length && (S.engine !== old.engine || S.target !== old.target || S.merge !== old.merge || S.showHuman !== old.showHuman)) buildCues();
+  });
+  chrome.storage.onChanged.addListener((c, a) => { if (a === "local" && c.audioPick && c.audioPick.newValue) window.postMessage({ src: "VS-C", type: "set-audio", index: c.audioPick.newValue.i }, "*"); });
+  chrome.storage.local.get({ saved: [], savedSents: [], marks: {} }, v => { savedSet = new Set(v.saved.map(w => w.toLowerCase())); VS_SAVED = savedSet; VS_MARKS = v.marks || {}; savedSents = v.savedSents; cur = -1; });
+
+  // ---------- 字幕获取 ----------
+  window.addEventListener("message", e => {
+    if (e.source !== window || !e.data || e.data.src !== "VS") return;
+    if (e.data.type === "dev-level" && e.data.level >= 0) { chrome.storage.sync.set({ level: +e.data.level, ratio: +e.data.ratio || 1.5 }); return; } // 开发用：只允许改词汇水平和比率
+    if (e.data.type === "dev-state") { window.postMessage({ src: "VS-R", level: S.level, ratio: S.ratio, merge: S.merge, engine: S.engine, hideMode: S.hideMode, showHuman: S.showHuman, target: S.target }, "*"); return; }
+    if (e.data.type === "reload-ext") { send({ type: "reloadSelf" }); return; } // 开发用：让插件重新加载自身（仅重启插件，不涉及数据）
+    if (e.data.type === "audio") { chrome.storage.local.set({ audioTracks: e.data.names || [] }); return; }
+    if (e.data.type === "tracks") { tracks = e.data.tracks || []; chrome.storage.local.set({ trackLangs: tracks.filter(t => t.kind !== "asr").map(t => t.lang) }); pickTrack(e.data.cur); return; }
+    if (e.data.type === "timedtext") onTimedtext(e.data.url);
+  });
+  const dec = s => s.replace(/&#x([0-9a-f]+);/gi, (m, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);/g, (m, d) => String.fromCodePoint(+d)).replace(/&nbsp;/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
+  // 清洗字幕文本：实体、不可见字符、说话人标记、音效注释、--、引号、标点前空格
+  function clean(t) {
+    t = dec(t).replace(/[\u200b-\u200f\u2060\ufeff]/g, "").replace(/\u00a0/g, " ").replace(/\s*\n\s*/g, " ");
+    t = t.replace(/^\s*>>+\s*/, "").replace(/\s*>>+\s*/g, " ").replace(/^[-–]\s+/, "").trim();
+    const plain = t.replace(/[\[(][^\])]{1,40}[\])]/g, "").replace(/[♪♫]+/g, "").trim();
+    if (!plain.replace(/[^\p{L}\p{N}]/gu, "")) return { t, note: true };
+    let q = 0;
+    t = plain.replace(/\s+-{2,}\s+/g, " — ").replace(/-{2,}/g, "—").replace(/\s+([,.;:!?])/g, "$1")
+      .replace(/"/g, () => (q++ % 2 === 0 ? "“" : "”")).replace(/\s{2,}/g, " ").trim();
+    return { t, note: false };
+  }
+  function pickTrack(curLang) {
+    const want = baseOf(S.srcLang), c = tracks.filter(t => baseOf(t.lang) === want); if (!c.length) return;
+    if (baseOf(curLang) !== want) window.postMessage({ src: "VS-C", type: "set-track", lang: (c.find(t => t.kind !== "asr") || c[0]).lang }, "*");
+  }
+  function parse(j) {
+    const out = [];
+    (j.events || []).forEach(e => {
+      if (!e.segs) return;
+      const c = clean(e.segs.map(g => g.utf8 || "").join(""));
+      if (!c.t) return;
+      const st0 = e.tStartMs / 1000, dur = (e.dDurationMs || 0) / 1000;
+      out.push({ s: st0, e: st0 + (c.note ? Math.min(dur, 2) : dur), t: c.t, note: c.note }); // 音效标记最多显示 2 秒
+    });
+    out.sort((a, b) => a.s - b.s);
+    const res = [];
+    out.forEach((c, i) => {
+      const n = out[i + 1];
+      if (n && n.s > c.s && n.s < c.e) c.e = n.s; // 下一条开始时上一条让位（实测：音效标记会打断正在显示的句子，显示 2 秒后收起）
+      const p = res[res.length - 1];
+      if (p && p.t === c.t && !c.note && c.s <= p.e + 0.3) { p.e = Math.max(p.e, c.e); return; } // 只合并时间上相连的重复行
+      res.push(c);
+    });
+    res.sort((a, b) => a.s - b.s);
+    return res;
+  }
+  // 把被切断的字幕合并成完整句子（翻译更准，也更接近 Language Reactor）
+  function groupCues(c) {
+    const out = []; let g = null;
+    for (const x of c) {
+      if (x.note) { if (g) { out.push(g); g = null; } out.push({ s: x.s, e: x.e, t: x.t, n: 1, note: true }); continue; }
+      if (g) {
+        const ended = /[.?!…。？！]["”’')\]]*$/.test(g.t);
+        const tooLong = g.t.length + x.t.length > 170 || g.n >= 4;
+        if (!ended && x.s - g.e < 1.6 && !tooLong) { g.t += " " + x.t; g.e = x.e; g.n++; continue; }
+        out.push(g);
+      }
+      g = { s: x.s, e: x.e, t: x.t, n: 1 };
+    }
+    if (g) out.push(g);
+    return out;
+  }
+  // 自动生成的字幕：相邻两行合成一条（中间停顿较长则不合并）
+  function pairCues(c) {
+    const out = [];
+    for (let i = 0; i < c.length; i++) {
+      const a = c[i], b = c[i + 1];
+      if (!a.note && b && b.s - a.e < 1.5 && a.t.length + b.t.length < 110) { out.push({ s: a.s, e: b.e, t: a.t + " " + b.t, n: 2 }); i++; } // 第二行可以是 [Music] 这类标记
+      else out.push(Object.assign({ n: 1 }, a));
+    }
+    return out;
+  }
+  async function getJson(u) { try { const r = await fetch(u); if (!r.ok) return null; return await r.json(); } catch (e) { return null; } }
+  const tsec = x => { const m = /(?:(\d+):)?(\d+):(\d+)[.,](\d+)/.exec(x); return m ? (+(m[1] || 0)) * 3600 + +m[2] * 60 + +m[3] + +("0." + m[4]) : 0; };
+  function parseSubFile(txt, name) {
+    const out = [];
+    if (/\.(ass|ssa)$/i.test(name)) txt.split(/\r?\n/).forEach(l => { const m = /^Dialogue:\s*[^,]*,([^,]+),([^,]+),(?:[^,]*,){6}(.*)$/.exec(l); if (m) out.push({ s: tsec(m[1]), e: tsec(m[2]), t: m[3].replace(/\{[^}]*\}/g, "").replace(/\\N/gi, " ") }); });
+    else txt.replace(/\r/g, "").split(/\n\n+/).forEach(b => { const ls = b.split("\n"), i = ls.findIndex(l => l.includes("-->")); if (i < 0) return; const ab = ls[i].split("-->"); out.push({ s: tsec(ab[0]), e: tsec(ab[1]), t: ls.slice(i + 1).join(" ").replace(/<[^>]+>/g, "") }); });
+    return out.map(x => { const c = clean(x.t); return { s: x.s, e: x.e, t: c.t, note: c.note }; }).filter(x => x.t && x.e > x.s).sort((a, b) => a.s - b.s);
+  }
+  function loadSubFile(file) {
+    const fr = new FileReader();
+    fr.onload = async () => { const c = parseSubFile(String(fr.result), file.name); if (!c.length) { toast("没有读到字幕，请检查文件格式"); return; } custom = true; asr = false; raw = c; baseUrl = ""; await buildCues(); toast("已载入自定义字幕 " + cues.length + " 句"); };
+    fr.readAsText(file);
+  }
+  function repair() {
+    custom = false; key = ""; loadedLang = ""; raw = []; cues = []; trans = []; cur = -1; ver++; if (box) box.style.display = "none"; buildPanel(); toast("正在重新获取字幕…");
+    const b = $(".ytp-subtitles-button"); if (b) { if (b.getAttribute("aria-pressed") === "true") { b.click(); setTimeout(() => b.click(), 400); } else b.click(); }
+    setTimeout(askTracks, 1500);
+  }
+  async function fetchAllForce() { if (!lazy) return; for (let k = 0; k < cues.length; k += 8) await fetchTrans(k, 8); }
+  const dl = (name, text, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); };
+  const csv = rows => "\ufeff" + rows.map(r => r.map(x => '"' + String(x == null ? "" : x).replace(/"/g, '""') + '"').join(",")).join("\r\n");
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = t[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }; })();
+  function zipStore(files) {
+    const enc = new TextEncoder(), parts = [], cd = []; let off = 0;
+    const u16 = n => [n & 255, (n >> 8) & 255], u32 = n => [n & 255, (n >> 8) & 255, (n >> 16) & 255, (n >>> 24) & 255];
+    files.forEach(f => { const nm = enc.encode(f[0]), d = enc.encode(f[1]), crc = CRC(d);
+      const lh = new Uint8Array([0x50, 0x4b, 3, 4, 20, 0, 0, 8, 0, 0, 0, 0, 0x21, 0].concat(u32(crc), u32(d.length), u32(d.length), u16(nm.length), [0, 0]));
+      parts.push(lh, nm, d);
+      cd.push(new Uint8Array([0x50, 0x4b, 1, 2, 20, 0, 20, 0, 0, 8, 0, 0, 0, 0, 0x21, 0].concat(u32(crc), u32(d.length), u32(d.length), u16(nm.length), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], u32(off))), nm);
+      off += lh.length + nm.length + d.length; });
+    const cs = cd.reduce((a, x) => a + x.length, 0);
+    return new Blob(parts.concat(cd, [new Uint8Array([0x50, 0x4b, 5, 6, 0, 0, 0, 0].concat(u16(files.length), u16(files.length), u32(cs), u32(off), [0, 0]))]), { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+  function xlsx(rows) {
+    const x = t => String(t == null ? "" : t).replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const col = n => { let s = ""; n++; while (n) { s = String.fromCharCode(65 + (n - 1) % 26) + s; n = Math.floor((n - 1) / 26); } return s; };
+    const sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols><col min="1" max="1" width="8" customWidth="1"/><col min="2" max="4" width="60" customWidth="1"/></cols><sheetData>' + rows.map((r, i) => '<row r="' + (i + 1) + '">' + r.map((c, k) => '<c r="' + col(k) + (i + 1) + '" t="inlineStr"><is><t xml:space="preserve">' + x(c) + "</t></is></c>").join("") + "</row>").join("") + "</sheetData></worksheet>";
+    return zipStore([
+      ["[Content_Types].xml", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'],
+      ["_rels/.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+      ["xl/workbook.xml", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Subtitles" sheetId="1" r:id="rId1"/></sheets></workbook>'],
+      ["xl/_rels/workbook.xml.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'],
+      ["xl/worksheets/sheet1.xml", sheet]]);
+  }
+  const dlBlob = (name, blob) => { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); };
+  async function exportData(kind) {
+    const title = (document.title || "subtitles").replace(/ - YouTube$/, ""), safe = title.replace(/[\\/:*?"<>|]+/g, " ").slice(0, 60);
+    if (kind === "saved") { dlBlob(safe + " - 已保存.xlsx", xlsx([["类型", "内容", "翻译"]].concat([...savedSet].map(w => ["词", w, ""]), savedSents.map(x => ["句子", x.t, x.tr || ""])))); return; }
+    toast("正在准备导出…"); await fetchAllForce();
+    const rows = cues.filter(c => !c.note).map(c => { const i = cues.indexOf(c); return [fmt(c.s), c.t, S.showTrans ? trans[i] || "" : "", S.showHuman ? human[i] || "" : ""]; });
+    if (kind === "excel") { dlBlob(safe + ".xlsx", xlsx([["时间", "原文", "机器翻译", "人工翻译"]].concat(rows))); return; }
+    const hl = t => esc(t).replace(WORD_RE, w => (savedSet.has(w.toLowerCase()) ? "<mark>" + w + "</mark>" : w));
+    const html = '<!doctype html><meta charset="utf-8"><title>' + esc(title) + '</title><style>body{font:15px/1.6 system-ui,"PingFang SC",sans-serif;max-width:860px;margin:24px auto;padding:0 16px;color:#1E2733}h1{font-size:20px}table{border-collapse:collapse;width:100%}td{border-bottom:1px solid #E6EAEC;padding:7px 8px;vertical-align:top}td.t{color:#7C8794;white-space:nowrap;font-size:12px}td.z{color:#0C9370}mark{background:#FFF2B8;border-radius:3px;padding:0 2px}@media print{body{margin:0}}</style><h1>' + esc(title) + "</h1><p style=\"color:#7C8794\">" + esc(location.href) + "</p><table>" +
+      rows.map(r => '<tr><td class="t">' + r[0] + "</td><td>" + hl(r[1]) + (r[2] ? '<div class="z">' + esc(r[2]) + "</div>" : "") + (r[3] ? '<div class="z">' + esc(r[3]) + "</div>" : "") + "</td></tr>").join("") + "</table>";
+    dl(safe + ".html", html, "text/html");
+  }
+  function openSettings() {
+    let ov = document.getElementById("vs-set"); if (ov) { ov.remove(); return; }
+    ov = document.createElement("div"); ov.id = "vs-set";
+    ov.innerHTML = '<div class="in"><div class="hd"><b>双语字幕 · 设置</b><span class="x">✕</span></div><iframe src="' + chrome.runtime.getURL("popup.html") + '"></iframe></div>';
+    ov.addEventListener("click", e => { if (e.target === ov || e.target.classList.contains("x")) ov.remove(); });
+    document.body.append(ov);
+  }
+  async function onTimedtext(url) {
+    if (custom) return;
+    const u = new URL(url);
+    if (u.searchParams.get("lv") || u.searchParams.get("tlang")) return;
+    if (u.searchParams.get("v") !== vId()) return;
+    const lang = (u.searchParams.get("lang") || "").toLowerCase(), base = lang.split(/[-_]/)[0];
+    // 其他插件（如 Language Reactor）也会请求别的语言轨：忽略与翻译目标相同的语言；已载入英文轨后不再被其他语言覆盖
+    const want = baseOf(S.srcLang), tb = baseOf(S.target);
+    if (base && base === tb && want !== tb) return;
+    if ((tracks.some(t => baseOf(t.lang) === want) || loadedLang === want) && base !== want) return;
+    const k = [u.searchParams.get("v"), lang, u.searchParams.get("kind")].join("|");
+    if (k === key) return; key = k; loadedLang = base;
+    u.searchParams.set("fmt", "json3"); u.searchParams.set("lv", "1");
+    const j = await getJson(u.href); if (!j) { key = ""; return; }
+    const c = parse(j); if (!c.length) { key = ""; return; }
+    raw = c; baseUrl = u.href; asr = u.searchParams.get("kind") === "asr";
+    await buildCues();
+    toast("已载入 " + cues.length + " 句字幕");
+  }
+  async function buildCues() {
+    const my = ++ver;
+    cues = S.merge ? groupCues(raw) : asr ? pairCues(raw) : raw.map(x => Object.assign({ n: 1 }, x));
+    trans = []; pendIdx.clear(); for (const k in retry) delete retry[k]; cur = -1; loopIdx = -1; lazy = !(S.engine === "youtube" && baseUrl); // 等 YouTube 翻译取回后再决定哪些句子需要备用引擎
+
+    if (S.engine === "youtube" && baseUrl) {
+      const u2 = new URL(baseUrl); u2.searchParams.set("tlang", tlangOf(S.target));
+      const j2 = await getJson(u2.href); const t2 = j2 ? parse(j2) : [];
+      if (my !== ver) return;
+      if (t2.length) {
+        trans = cues.map((g, i) => zhFix(t2.filter(x => x.s >= g.s - 0.05 && x.s < g.e - 0.01).map(x => x.t).join(" ")) || undefined); // 没对上的句子稍后用备用引擎补
+      }
+    }
+    lazy = true;
+    human = [];
+    if (S.showHuman) {
+      const tb = baseOf(S.target), ht = tracks.find(t => t.kind !== "asr" && t.lang.toLowerCase() === String(S.target).toLowerCase()) || tracks.find(t => t.kind !== "asr" && baseOf(t.lang) === tb);
+      if (ht && ht.baseUrl && baseUrl && baseOf(S.srcLang) !== tb) {
+        const u3 = new URL(ht.baseUrl, location.href);
+        new URL(baseUrl).searchParams.forEach((v, k) => { if (!u3.searchParams.has(k) && !/^(kind|lang|name|tlang|fmt)$/.test(k)) u3.searchParams.set(k, v); });
+        u3.searchParams.set("fmt", "json3"); u3.searchParams.set("lv", "1"); u3.searchParams.delete("tlang");
+        const j3 = await getJson(u3.href), h = j3 ? parse(j3) : []; if (my !== ver) return;
+        human = cues.map(g => zhFix(h.filter(x => !x.note && x.s >= g.s - 0.3 && x.s < g.e - 0.2).map(x => x.t).join(" ")));
+      }
+    }
+    buildPanel();
+    { const v = video(); if (v) { const i = findCue(v.currentTime); cur = i; if (root || i >= 0) render(i); } } // 翻译取回后重画当前句
+  }
+  function ensureCaptionsOn() {
+    setTimeout(() => {
+      if (raw.length) return;
+      const b = $(".ytp-subtitles-button");
+      if (b && b.getAttribute("aria-pressed") === "false") b.click();
+    }, 2500);
+  }
+
+  // ---------- 界面 ----------
+  function build() {
+    const p = player(); if (!p) return false;
+    let host = p;
+    if (S.below && $("#below")) { host = document.getElementById("vs-below"); if (!host) { host = document.createElement("div"); host.id = "vs-below"; } const bl = $("#below"); if (host.nextElementSibling !== bl) bl.parentNode.insertBefore(host, bl); }
+    if (root && root.isConnected && nav && nav.isConnected) { if (root.parentNode !== host) { host.append(root); root.classList.toggle("below", host !== p); } return true; }
+    if (root) [root, bar, nav, document.getElementById("vs-ap"), document.getElementById("vs-mv")].forEach(x => x && x.remove());
+    root = document.createElement("div"); root.id = "vs-sub";
+    box = document.createElement("div"); box.className = "vs-box"; box.style.display = "none";
+    oEl = document.createElement("div"); oEl.className = "vs-o";
+    tEl = document.createElement("div"); tEl.className = "vs-t";
+    hEl = document.createElement("div"); hEl.className = "vs-h";
+    const rp = document.createElement("i"); rp.className = "vs-rp"; rp.textContent = "▶"; rp.dataset.tip = "重播本句 (S)";
+    const sv = document.createElement("i"); sv.className = "vs-sv"; sv.textContent = "☆"; sv.dataset.tip = "保存当前字幕 (R)";
+    rp.addEventListener("click", e => { e.stopPropagation(); replay(); });
+    sv.addEventListener("click", e => { e.stopPropagation(); if (cur >= 0) { toggleSent(cur); syncStar(); } });
+    [tEl, hEl].forEach(x => x.addEventListener("click", () => { if (S.hideMode !== "off") root.classList.add("reveal"); }));
+    oEl.addEventListener("click", e => { if (S.hideMode === "transFirst" && !e.target.closest(".vs-w")) root.classList.add("reveal"); });
+    box.append(rp, oEl, tEl, hEl, sv); root.append(box); host.append(root); root.classList.toggle("below", host !== p);
+    box.addEventListener("mouseenter", () => clearTimeout(hideT));
+    box.addEventListener("mouseleave", () => schedResume());
+    box.addEventListener("mouseup", () => {
+      const sel = String(getSelection() || "").trim();
+      if (sel && /\s/.test(sel) && sel.length < 120) showTip(sel, box.getBoundingClientRect(), true);
+    });
+    oEl.addEventListener("click", e => { const w = e.target.closest(".vs-w"); if (w) showTip(w.dataset.w, null, true, undefined, w); });
+    oEl.addEventListener("mouseover", e => { const w = e.target.closest(".vs-w"); if (w) hoverWord(w); });
+    bar = document.createElement("div"); bar.id = "vs-bar";
+    bar.innerHTML = '<button data-a="tr" title="显示/隐藏翻译">译</button><button data-a="pause" title="悬停时暂停">悬停暂停</button><button data-a="loop" title="单句循环 (R)">🔁</button><button data-a="list" title="字幕列表 (L)">📜</button><button data-a="lvl" title="设置词汇水平">词汇</button>';
+    bar.addEventListener("click", e => {
+      const a = e.target.dataset.a; if (!a) return;
+      if (a === "tr") chrome.storage.sync.set({ showTrans: !S.showTrans });
+      if (a === "pause") chrome.storage.sync.set({ hoverPause: !S.hoverPause });
+      if (a === "loop") toggleLoop();
+      if (a === "list") togglePanel();
+      if (a === "lvl") send({ type: "openLevel" });
+    });
+    nav = document.createElement("div"); nav.id = "vs-nav";
+    nav.innerHTML = '<button data-a="next" data-tip="下一句 (D)">›</button><button data-a="rep" data-tip="重播本句 (S)">↻</button><button data-a="prev" data-tip="上一句 (A)">‹</button><div id="vs-ap" data-a="ap" data-tip="每句结束自动暂停"><span class="sw" data-a="ap"></span><span class="lb" data-a="ap">AP</span></div>';
+    nav.addEventListener("click", e => {
+      const a = e.target.dataset.a; if (!a) return; e.stopPropagation();
+      if (a === "prev") jump(-1); if (a === "next") jump(1); if (a === "rep") replay();
+      if (a === "ap") chrome.storage.sync.set({ autoPause: !S.autoPause });
+    });
+    p.append(bar, nav); const apEl = nav.querySelector("#vs-ap"); apEl.addEventListener("click", e => { e.stopPropagation(); chrome.storage.sync.set({ autoPause: !S.autoPause }); }); p.append(apEl);
+    const mv = document.createElement("div"); mv.id = "vs-mv"; mv.dataset.tip = "移动/切换控件"; mv.innerHTML = "<span>⌃</span><span>⌄</span>";
+    let drag = null;
+    mv.addEventListener("pointerdown", e => { e.preventDefault(); e.stopPropagation(); drag = { y: e.clientY, b: S.posBottom, moved: false }; mv.setPointerCapture(e.pointerId); mv.classList.add("drag"); });
+    mv.addEventListener("pointermove", e => {
+      if (!drag) return; const dy = e.clientY - drag.y; if (Math.abs(dy) > 3) drag.moved = true; if (!drag.moved) return;
+      S.posBottom = Math.max(2, Math.min(80, drag.b - dy / p.offsetHeight * 100)); applyStyle();
+    });
+    const end = e => {
+      if (!drag) return; const d = drag; drag = null; mv.classList.remove("drag"); try { mv.releasePointerCapture(e.pointerId); } catch (x) {}
+      if (d.moved) { S.posBottom = Math.round(S.posBottom); chrome.storage.sync.set({ posBottom: S.posBottom }); }
+      else chrome.storage.sync.set({ ctlHidden: !S.ctlHidden });
+    };
+    mv.addEventListener("pointerup", end); mv.addEventListener("pointercancel", end);
+    mv.addEventListener("click", e => e.stopPropagation());
+    p.append(mv); mountPill(); applyBar();
+    return true;
+  }
+  function mountPill() {
+    const lc = $(".ytp-left-controls"); if (!lc) return;
+    if (!pill) {
+      pill = document.createElement("div"); pill.id = "vs-pill";
+      pill.innerHTML = '<span class="tg" data-a="tg" data-tip="双语字幕 - 开/关"><span class="ic" data-a="tg">字</span><span class="st" data-a="tg">ON</span></span><span class="gr" data-a="set" data-tip="双语字幕 - 设置">⚙</span>';
+      pill.addEventListener("click", e => {
+        const a = e.target.dataset.a; if (!a) return; e.stopPropagation(); e.preventDefault();
+        if (a === "tg") chrome.storage.sync.set({ enabled: !S.enabled }); else openSettings();
+      });
+    }
+    if (pill.parentNode !== lc) lc.append(pill);
+  }
+  function hexRgb(h) { h = String(h || "#000").replace("#", ""); if (h.length === 3) h = h.replace(/./g, "$&$&"); const n = parseInt(h, 16) || 0; return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  function applyStyle() {
+    if (!root) return;
+    const [r, g, b] = hexRgb(S.bgColor);
+    root.style.bottom = S.posBottom + "%"; ["trans", "orig", "transFirst", "origFirst"].forEach(m => root.classList.toggle("hm-" + m, S.hideMode === m));
+    root.style.fontFamily = S.font || "";
+    const de = document.documentElement.style; de.setProperty("--vs-ck", S.colKnown); de.setProperty("--vs-cs", S.colSuggest); de.setProperty("--vs-ci", S.colIgnore); de.setProperty("--vs-cp", S.colSpecial);
+    root.style.setProperty("--vs-tc", S.trColor);
+    root.style.setProperty("--vs-ts", String(S.trSize / 100));
+    root.style.setProperty("--vs-os", String(S.origSize / 100));
+    root.style.setProperty("--vs-bg", "rgba(" + r + "," + g + "," + b + "," + (S.bgOpacity / 100) + ")");
+  }
+  function applyBar() {
+    applyStyle();
+    if (!bar) return;
+    bar.querySelector('[data-a="tr"]').classList.toggle("on", !!S.showTrans);
+    bar.querySelector('[data-a="pause"]').classList.toggle("on", !!S.hoverPause);
+    bar.querySelector('[data-a="loop"]').classList.toggle("on", loopOn);
+    bar.querySelector('[data-a="list"]').classList.toggle("on", !!(panel && panel.classList.contains("show")));
+    { const ap = document.getElementById("vs-ap"); if (ap) ap.classList.toggle("on", !!S.autoPause); }
+    { const p = player(); if (p) { p.classList.toggle("vs-hidectl", !!S.ctlHidden); p.classList.toggle("vs-off", !S.enabled); p.classList.toggle("vs-hidebar", !!S.hideBar && !!S.enabled); } }
+    document.documentElement.classList.toggle("vs-on", !!S.enabled);
+    if (pill) { pill.classList.toggle("off", !S.enabled); pill.querySelector(".st").textContent = S.enabled ? "ON" : "OFF"; }
+    if (tEl) tEl.style.display = S.showTrans ? "" : "none";
+    if (hEl) hEl.style.display = S.showHuman ? "" : "none";
+  }
+  function toast(msg) {
+    const p = player(); if (!p) return;
+    let t = $("#vs-toast", p); if (t) t.remove();
+    t = document.createElement("div"); t.id = "vs-toast"; t.textContent = msg; p.append(t);
+    setTimeout(() => t.remove(), 1800);
+  }
+
+  const WORD_RE = VS_WORD_RE;
+  const wordsHtml = t => vsMark(esc(t), S);
+  // ---------- 渲染当前句 ----------
+  function render(i) {
+    if (!build()) return;
+    root.classList.remove("reveal");
+    if (i < 0) { box.style.display = "none"; return; }
+    const c = cues[i]; box.style.display = "";
+    hEl.textContent = (!c.note && human[i]) || "";
+    if (c.note) { oEl.innerHTML = '<span class="vs-note">' + esc(c.t) + "</span>"; setTrans(i); markPanel(i); syncStar(); return; }
+    oEl.innerHTML = wordsHtml(c.t);
+    setTrans(i); markPanel(i); syncStar();
+  }
+  function setTrans(i) {
+    if (i !== cur) return;
+    if (trans[i]) { tEl.textContent = trans[i]; if (lazy) fetchTrans(i + 1, 6); return; }
+    tEl.textContent = "";
+    if (lazy) fetchTrans(i, 6);
+  }
+  function fetchTrans(i, span) {
+    if (!lazy) return Promise.resolve();
+    const idx = [];
+    for (let k = i; k < Math.min(cues.length, i + (span || 6)); k++) if (cues[k] && trans[k] === undefined && !pendIdx.has(k)) idx.push(k);
+    if (!idx.length) return Promise.resolve();
+    const my = ver; idx.forEach(k => pendIdx.add(k));
+    return send({ type: "translateMany", texts: idx.map(k => cues[k].t), tl: S.target, engine: S.engine, sl: S.srcLang }).then(r => {
+      if (my !== ver) return;
+      let failed = false;
+      idx.forEach((k, n) => { pendIdx.delete(k); if (r.t && r.t[n]) { if (trans[k] === undefined) trans[k] = zhFix(r.t[n]); if (panel) updPanelTr(k); } else failed = true; });
+      if (cur >= 0 && idx.includes(cur) && trans[cur]) tEl.textContent = trans[cur];
+      if (failed && (retry[idx[0]] = (retry[idx[0]] || 0) + 1) <= 3) setTimeout(() => { if (my === ver) fetchTrans(idx[0], span); }, 1500 * retry[idx[0]]);
+    });
+  }
+  function findCue(t) {
+    let lo = 0, hi = cues.length - 1, r = -1;
+    while (lo <= hi) { const m = (lo + hi) >> 1; if (cues[m].s <= t + 0.05) { r = m; lo = m + 1; } else hi = m - 1; }
+    return r >= 0 && t < cues[r].e ? r : -1;
+  }
+  function tick() {
+    if (vId() !== vidId) { vidId = vId(); raw = []; cues = []; trans = []; key = ""; loadedLang = ""; cur = -1; loopIdx = -1; loopOn = false; lazy = false; ver++; if (panel) buildPanel(); tracks = []; human = []; custom = false; if (vidId && /\/watch/.test(location.pathname)) { ensureCaptionsOn(); setTimeout(askTracks, 1500); setTimeout(askTracks, 4500); setTimeout(() => window.postMessage({ src: "VS-C", type: "get-audio" }, "*"), 3000); setTimeout(() => { const v = video(); if (v && S.rate && S.rate !== 1) v.playbackRate = S.rate; }, 1200); } }
+    const v = video(); if (!v || !cues.length || !/\/watch/.test(location.pathname)) return;
+    if (++tk % 10 === 0) { mountPill(); const shown = !!(panel && panel.classList.contains("show")), wantP = !!(S.panelOpen && S.enabled); if (wantP !== shown) { if (panel) { panel.classList.toggle("show", wantP); if (wantP) { mountPanel(); markPanel(cur, true); } } else if (wantP) togglePanel(); } else if (panel && panel.classList.contains("show")) mountPanel(); }
+    const t = v.currentTime; if (root) { root.classList.toggle("paused", v.paused); if (tk % 10 === 0) build(); }
+    if (loopOn && loopIdx >= 0 && cues[loopIdx] && t >= cues[loopIdx].e - 0.08) { v.currentTime = cues[loopIdx].s; return; }
+    if (S.autoPause && !loopOn && cur >= 0 && pauseDone !== cur && !v.paused && t >= cues[cur].e - 0.12) { pauseDone = cur; v.pause(); }
+    const i = findCue(t);
+    if (i !== cur) { pauseDone = -1; cur = i; if (loopOn && i >= 0) loopIdx = i; render(i); }
+  }
+  setInterval(tick, 100);
+
+  // ---------- 悬停 / 查词卡片 ----------
+  let hoverTimer = null, tk = 0, mini = null, tipData = null;
+  const lite = new Map(), full = new Map();
+  // 缩写展开后再翻译（I'd 直接翻会被当成 ID）
+  function expand(w) {
+    const x = w.replace(/’/g, "'"), l = x.toLowerCase();
+    const fix = { "won't": "will not", "can't": "cannot", "shan't": "shall not", "ain't": "is not", "let's": "let us", "y'all": "you all" };
+    if (fix[l]) return fix[l];
+    let m;
+    if ((m = /^(.+)n't$/i.exec(x))) return m[1] + " not";
+    if ((m = /^(.+)'ll$/i.exec(x))) return m[1] + " will";
+    if ((m = /^(.+)'re$/i.exec(x))) return m[1] + " are";
+    if ((m = /^(.+)'ve$/i.exec(x))) return m[1] + " have";
+    if ((m = /^(.+)'m$/i.exec(x))) return m[1] + " am";
+    if ((m = /^(.+)'d$/i.exec(x))) return m[1] + " would";
+    if ((m = /^(i|you|he|she|it|we|they|that|there|here|what|who|where|how|when|why)'s$/i.exec(x))) return m[1] + " is";
+    return null;
+  }
+  const liteLookup = w => { const k = w.toLowerCase() + "|" + S.target; const ex = /['’]/.test(w) && !/\s/.test(w) ? expand(w) : null; if (ex && !lite.has(k)) lite.set(k, send({ type: "translate", text: ex, tl: S.target, engine: "google", sl: S.srcLang }).then(r => ({ t: r.t || "", zh: [], note: "= " + ex }))); if (!lite.has(k)) lite.set(k, (/\s/.test(w) ? send({ type: "translate", text: w, tl: S.target, engine: S.engine, sl: S.srcLang }).then(r => ({ t: r.t || "", zh: [] })) : send({ type: "wordLite", word: w, tl: S.target, sl: S.srcLang }).then(r => r.g || null))); return lite.get(k); };
+  const fullLookup = w => { const k = w.toLowerCase() + "|" + S.target; if (!full.has(k)) full.set(k, /\s/.test(w) ? liteLookup(w).then(g => ({ g, d: null })) : (/['’]/.test(w) && expand(w) ? liteLookup(w).then(g => ({ g, d: null })) : send({ type: "word", word: w, tl: S.target, sl: S.srcLang }).then(r => { if (r.g) lite.set(k, Promise.resolve(r.g)); return r; }))); return full.get(k); };
+  const meanings = g => { const out = []; const add = x => { x = String(x || "").trim(); if (x && !out.includes(x)) out.push(x); }; if (g) { add(g.t); (g.zh || []).forEach(z => z.words.forEach(add)); } return out; };
+  const freqBar = w => { const r = vsRank(w), f = r === Infinity ? 1 : Math.max(0.16, Math.min(1, r / 6000)); return '<span class="fb"><i style="width:' + Math.round(f * 100) + '%"></i></span>'; };
+  // ---------- 短语识别 ----------
+  const STOP = new Set("a an the of to in on at for and or but is are was were be been am i you he she it we they me him her us them my your his its our their this that these those do does did have has had not no so as if with by from".split(" "));
+  const NUMW = "(?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|\\d+|few|several|many|some)";
+  const UNIT = "(?:second|minute|hour|day|night|week|weekend|month|year|decade|century|moment|while)s?";
+  const TIME_RE = new RegExp("^(?:" + NUMW + " )?(?:(?:few|couple|couple of|number of|lot of|half) )?(?:of )?(?:" + NUMW + " )?" + UNIT + " (?:later|ago|earlier|before|after|long|from now|or so)$|^(?:every|each|last|next|this|that|the other|every single|the next|the last|the following|the previous) (?:second|minute|hour|day|night|week|weekend|month|year|decade|morning|evening|afternoon|time)$|^(?:the )?(?:day|week|month|year|night|morning) (?:before|after)$|^(?:all|the whole) (?:day|night|week|month|year|morning|afternoon|evening) long$|^(?:once|twice) (?:a|per|every) (?:day|week|month|year)$");
+  const pcache = new Map();
+  async function findPhrase(el) {
+    const host = el.parentNode; if (!host) return null;
+    const ws = [...host.children].filter(x => x.classList && x.classList.contains("vs-w")), i = ws.indexOf(el); if (i < 0) return null;
+    const adj = (a, b) => { let n = a.nextSibling, t = ""; while (n && n !== b) { t += n.textContent; n = n.nextSibling; } return n === b && /^\s+$/.test(t); };
+    const cands = [];
+    for (let n = 5; n >= 2; n--) for (let st = i - n + 1; st <= i; st++) {
+      if (st < 0 || st + n > ws.length) continue;
+      let ok = true; for (let k = st; k < st + n - 1; k++) if (!adj(ws[k], ws[k + 1])) { ok = false; break; }
+      if (!ok) continue;
+      const arr = ws.slice(st, st + n).map(x => x.dataset.w.toLowerCase());
+      if (!arr.every(w => STOP.has(w))) cands.push(arr);
+    }
+    if (!cands.length) return null;
+    for (const a of cands) if (TIME_RE.test(a.join(" "))) return a.join(" ");
+    const titles = new Set();
+    cands.filter(a => a.length <= 4).forEach(a => { titles.add(a.join(" ")); [vsLemma(a[0])].concat(vsStems(a[0]).slice(0, 3)).forEach(q => { if (q !== a[0]) titles.add([q].concat(a.slice(1)).join(" ")); }); if (a.length === 2 || a.length === 3) vsStems(a[a.length - 1]).slice(0, 2).forEach(q => titles.add(a.slice(0, -1).concat([q]).join(" "))); });
+    const need = [...titles].filter(t => !pcache.has(t));
+    if (need.length) { const r = await send({ type: "phrases", titles: need }); if (!r.exist) return null; const ex = new Set(r.exist); need.forEach(t => pcache.set(t, ex.has(t))); }
+    let best = null; titles.forEach(t => { if (pcache.get(t) && (!best || t.split(" ").length > best.split(" ").length)) best = t; });
+    if (best) { const a = best.split(" "); if (a.length >= 3 && STOP.has(a[a.length - 1])) { const pre = a.slice(0, -1).join(" "); if (pcache.get(pre)) best = pre; } }
+    return best;
+  }
+  function hideMini() { clearTimeout(hoverTimer); if (mini) { mini.remove(); mini = null; } }
+  // 悬停：只出小气泡（两三个意思 + 词频条）
+  function showMini(el) {
+    hideMini(); const word = el.dataset.w, p = player(), inP = !!(p && p.contains(el));
+    mini = document.createElement("div"); mini.id = "vs-mini"; mini.className = inP ? "" : "fx";
+    mini.innerHTML = '<div class="pz"></div><div class="hd wd" style="display:none"></div><div class="ms">…</div>' + freqBar(word);
+    (inP ? p : document.body).append(mini);
+    const base = inP ? p.getBoundingClientRect() : { left: 0, top: 0 };
+    const my = mini, fix = () => {
+      if (mini !== my) return;
+      const r = el.getBoundingClientRect(), H = my.offsetHeight, W = my.offsetWidth, lim = inP ? base.top + 6 : 6;
+      const holder = el.closest(".vs-box") || el.closest(".it") || el.closest(".ex") || el, hr = holder.getBoundingClientRect();
+      const cx = Math.max(base.left + W / 2 + 6, Math.min(r.left + r.width / 2, (inP ? base.left + base.width : innerWidth) - W / 2 - 6));
+      my.style.left = cx - base.left + "px"; my.style.setProperty("--ax", Math.max(14, Math.min(W - 14, r.left + r.width / 2 - (cx - W / 2))) + "px");
+      const up = r.top - 10 - H >= lim;
+      my.classList.toggle("dn", !up);
+      my.style.top = (up ? r.top - 10 : hr.bottom + 12) - base.top + "px";
+    };
+    fix();
+    { const lm = VS_IRR[word.toLowerCase()]; if (lm) liteLookup(lm).then(g => { if (mini !== my || !g) return; const x = meanings(g)[0]; if (!x) return; const d = document.createElement("div"); d.className = "lm"; d.textContent = lm + "：" + x; my.insertBefore(d, $(".fb", my)); fix(); }); }
+    findPhrase(el).then(ph => { if (mini !== my || !ph || ph === word.toLowerCase()) return; liteLookup(ph).then(g => { if (mini !== my || !g || !g.t || g.t.toLowerCase() === ph) return; $(".pz", my).innerHTML = '<div class="hd">' + esc(ph) + '</div><div class="pt">' + esc(g.t) + "</div>"; const wd = $(".wd", my); wd.textContent = word; wd.style.display = ""; my.dataset.phrase = ph; fix(); }); });
+    liteLookup(word).then(g => { if (mini !== my) return; setTimeout(fix, 0); const m = meanings(g).slice(0, 3); $(".ms", my).innerHTML = (g && g.note ? '<div class="m2" style="font-size:.8em">' + esc(g.note) + "</div>" : "") + (m.length ? m.map((x, i) => '<div class="m' + i + '">' + esc(x) + "</div>").join("") : "—"); fix(); });
+  }
+  function hoverWord(w) {
+    clearTimeout(hideT);
+    if (S.hoverPause && !pinned) { const v = video(); if (v && !v.paused) { v.pause(); pausedByUs = true; } }
+    clearTimeout(hoverTimer);
+    hoverTimer = setTimeout(() => showMini(w), 90);
+  }
+  function schedResume() {
+    clearTimeout(hideT);
+    hideT = setTimeout(() => {
+      hideMini(); if (pinned) return;
+      if (pausedByUs) { const v = video(); if (v) v.play(); pausedByUs = false; }
+    }, 250);
+  }
+  function closeTip() { if (tip) { tip.remove(); tip = null; } tipData = null; pinned = false; }
+  function placeTip() {}
+  const EXT = [["Re", "Reverso Context", "https://context.reverso.net/translation/english-chinese/WORD"], ["Ca", "Cambridge", "https://dictionary.cambridge.org/dictionary/english-chinese-simplified/WORD"], ["Wr", "WordReference", "https://www.wordreference.com/enzh/WORD"], ["Gl", "Google 翻译", "https://translate.google.com/?sl=auto&tl=zh-CN&text=WORD"], ["Wi", "Wiktionary", "https://en.wiktionary.org/wiki/WORD"], ["Ba", "百度翻译", "https://fanyi.baidu.com/#en/zh/WORD"]];
+  function sameWord(x, base, F) { const lx = x.toLowerCase(); if (lx === base || F.has(lx)) return true; const lb = vsLemma(base), ll = vsLemma(lx); if (ll === lb || ll === base || lx === lb) return true; const st = vsStems(lx); return st.includes(base) || st.some(q => F.has(q)); }
+  // 点击：打开停靠在右侧的完整词典
+  function drawDict(word, res) {
+    if (!tip) return;
+    const isPhrase = /\s/.test(word), g = res && res.g, d = res && res.d, ms = meanings(g), r = vsRank(word), cat = isPhrase ? "" : vsCat(word, S, false);
+    const base = word.toLowerCase(), F = new Set(vsStems(base));
+    const ex = []; if (!isPhrase) cues.forEach((c, i) => { if (!c.note && (c.t.match(WORD_RE) || []).some(x => sameWord(x, base, F))) ex.push(i); });
+    else cues.forEach((c, i) => { if (!c.note && c.t.toLowerCase().includes(base)) ex.push(i); });
+    const ci = +tip.dataset.ci; ex.sort((x, y) => (y === ci) - (x === ci) || x - y);
+    const sk = new Set(savedSents.map(x => x.k));
+    const users = String(S.dictUrls || "").split(/\n+/).map(u => u.trim()).filter(u => /^https?:\/\//.test(u) && u.includes("WORD"));
+    const st = tip.querySelector(".bd") ? tip.querySelector(".bd").scrollTop : 0;
+    tip.innerHTML = '<div class="th"><b>词典</b><span data-a="x" title="关闭">✕</span></div><div class="bd">' +
+      '<div class="hw"><div><div class="w">' + esc(word) + (d && d.phonetic ? '<span class="ph">' + esc(d.phonetic) + "</span>" : "") + (d && d.lemma ? '<span class="ph">原形 ' + esc(d.lemma) + "</span>" : "") + '</div><div class="zh">' + (res ? esc(ms.slice(0, 4).join("，")) || "（无翻译）" : "…") + '</div></div><span class="sp" data-a="say" title="发音">🔊</span></div>' +
+      (isPhrase ? "" : '<div class="fr">' + freqBar(word) + '<span class="rk">' + (r === Infinity ? "生僻" : r) + '</span></div><div class="mk"><a data-a="mk" data-m="known" class="' + (cat === "known" ? "on" : "") + '" title="已掌握">✓</a><a data-a="mk" data-m="learn" class="' + (cat === "learn" ? "on" : "") + '" title="将要学习（加入生词本）">📖</a><a data-a="mk" data-m="ignore" class="' + (cat === "ignore" ? "on" : "") + '" title="不学习">⊘</a><a data-a="mk" data-m="" class="cl" title="取消标记">取消标记</a></div>') +
+      (tip.dataset.phrase && tip.dataset.phraseT ? '<div class="sec phz"><div class="lw">' + esc(tip.dataset.phrase) + '</div><div class="ln">' + esc(tip.dataset.phraseT) + "</div></div>" : "") +
+      (tip.dataset.lemma && tip.dataset.lemmaT ? '<div class="sec phz"><div class="lw">' + esc(tip.dataset.lemma) + ' <span class="ph">（' + esc(word) + ' 的原形）</span></div><div class="ln">' + esc(tip.dataset.lemmaT) + "</div></div>" : "") +
+      (g && g.zh && g.zh.length ? '<div class="sec"><div class="lw">' + esc(word) + "</div>" + g.zh.map(z => '<div class="ln"><i>(' + esc(z.pos) + ")</i>" + esc(z.words.join("，")) + "</div>").join("") + "</div>" : "") +
+      (d && d.meanings && d.meanings.length ? '<div class="sec">' + d.meanings.map(m => m.defs.map((x, i) => '<div class="ln en"><i>' + (i ? "" : "(" + esc(m.pos) + ")") + "</i>" + vsMark(esc(x.def), S) + (x.example ? '<div class="eg">“' + vsMark(esc(x.example), S) + "”</div>" : "") + "</div>").join("")).join("") + "</div>" : "") +
+      '<div class="sec lk">' + EXT.map(e => '<a target="_blank" rel="noopener" title="' + e[1] + '" href="' + e[2].replace("WORD", encodeURIComponent(word)) + '">' + e[0] + "</a>").join("") + users.map((u, n) => '<a target="_blank" rel="noopener" href="' + esc(u.replace(/WORD/g, encodeURIComponent(word))) + '">U' + (n + 1) + "</a>").join("") + "</div>" +
+      '<div class="exh">示例：当前文本（' + ex.length + "）</div>" +
+      (ex.slice(0, 40).map(i => '<div class="ex' + (i === cur ? " cur" : "") + '" data-i="' + i + '" title="' + esc(trans[i] || human[i] || "") + '"><i class="pl" data-a="go" title="播放这句">▶</i><span class="tx">' + wordsHtml(cues[i].t) + '</span><i class="st' + (sk.has(sentKey(cues[i])) ? " on" : "") + '" data-a="star">' + (sk.has(sentKey(cues[i])) ? "★" : "☆") + "</i></div>").join("") || '<div class="ex"><span class="tx" style="color:#7f8994">本视频里没有其它例句</span></div>') + "</div>";
+    tip.querySelectorAll(".ex .vs-w").forEach(x => { if (isPhrase ? false : sameWord(x.dataset.w, base, F)) x.classList.add("hit"); });
+    tip.querySelector(".bd").scrollTop = st;
+  }
+  async function showTip(word, _rect, _pin, ci, el) {
+    const p = player(); if (!p) return;
+    hideMini(); pinned = true; { const v = video(); if (v && !v.paused) { v.pause(); pausedByUs = true; } }
+    if (S.speakOnClick && !/\s/.test(word)) speak(word);
+    if (!tip) {
+      tip = document.createElement("div"); tip.id = "vs-tip"; p.append(tip);
+      tip.addEventListener("click", e => {
+        const a = e.target.dataset.a, word = tip.dataset.word, row = e.target.closest(".ex");
+        if (a === "x") { closeTip(); if (pausedByUs) { const v = video(); if (v) v.play(); pausedByUs = false; } return; }
+        if (a === "say") { speak(word); return; }
+        if (a === "mk") { setMark(word, e.target.dataset.m); return; }
+        if (a === "star" && row) { toggleSent(+row.dataset.i); drawDict(word, tipData); return; }
+        if (a === "go" && row) { const v = video(); if (v) { v.currentTime = cues[+row.dataset.i].s + 0.01; pausedByUs = false; v.play(); } return; }
+        const w = e.target.closest(".vs-w"); if (w) showTip(w.dataset.w, null, true, row ? +row.dataset.i : undefined, w);
+      });
+      tip.addEventListener("mouseover", e => { const w = e.target.closest(".vs-w"); if (w) showMini(w); });
+      tip.addEventListener("mouseout", e => { if (e.target.closest(".vs-w")) hideMini(); });
+    }
+    tip.dataset.word = word; tip.dataset.ci = ci !== undefined ? ci : cur; tipData = null; tip.dataset.phrase = tip.dataset.phraseT = tip.dataset.lemma = tip.dataset.lemmaT = "";
+    if (el && !/\s/.test(word)) findPhrase(el).then(ph => { if (!ph || !tip || tip.dataset.word !== word) return; liteLookup(ph).then(g => { if (!tip || tip.dataset.word !== word || !g || !g.t || g.t.toLowerCase() === ph) return; tip.dataset.phrase = ph; tip.dataset.phraseT = g.t; drawDict(word, tipData); }); });
+    { const lm = VS_IRR[word.toLowerCase()]; if (lm) liteLookup(lm).then(g => { if (!tip || tip.dataset.word !== word || !g) return; tip.dataset.lemma = lm; tip.dataset.lemmaT = meanings(g).slice(0, 4).join("，"); drawDict(word, tipData); }); }
+    drawDict(word, null); if (tip.querySelector(".bd")) tip.querySelector(".bd").scrollTop = 0;
+    const res = await fullLookup(word);
+    if (!tip || tip.dataset.word !== word) return;
+    tipData = res; drawDict(word, res);
+  }
+  document.addEventListener("mousedown", e => { if (tip && !tip.contains(e.target) && !(root && root.contains(e.target)) && !(panel && panel.contains(e.target))) { closeTip(); if (pausedByUs) { const v = video(); if (v) v.play(); pausedByUs = false; } } }, true);
+
+  function refreshMarks() { const keep = cur; cur = -1; if (keep >= 0 && cues[keep] && oEl && !cues[keep].note) { cur = keep; oEl.innerHTML = wordsHtml(cues[keep].t); } else cur = keep; if (panel) { const st = listEl.scrollTop; buildPanel(); listEl.scrollTop = st; markPanel(cur, true); } if (tip) drawDict(tip.dataset.word, tipData); }
+  function setMark(word, m) { // m: known | ignore | learn | ""
+    const k = word.toLowerCase();
+    if (m === "learn") { delete VS_MARKS[k]; savedSet.add(k); send({ type: "add", word }); }
+    else {
+      if (savedSet.delete(k)) chrome.storage.local.get({ saved: [] }, v => chrome.storage.local.set({ saved: v.saved.filter(x => x.toLowerCase() !== k) }));
+      if (m) VS_MARKS[k] = m; else delete VS_MARKS[k];
+    }
+    chrome.storage.local.set({ marks: VS_MARKS }); refreshMarks();
+    toast(word + " → " + ({ learn: "将要学习", known: "已掌握", ignore: "不学习", "": "取消标记" })[m]);
+  }
+  document.addEventListener("contextmenu", e => {
+    const w = e.target.closest && e.target.closest(".vs-w"); if (!w || !S.enabled) return;
+    e.preventDefault(); e.stopPropagation();
+    const c = vsCat(w.dataset.w, S, false); setMark(w.dataset.w, c === "known" ? "learn" : "known");
+  }, true);
+  function speak(word) { try { const u = new SpeechSynthesisUtterance(word); u.lang = S.srcLang === "en" ? "en-US" : S.srcLang; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (x) {} }
+  function setRate(r) { const v = video(); if (!v) return; r = Math.max(0.25, Math.min(2, r)); v.playbackRate = r; if (S.rate !== r) chrome.storage.sync.set({ rate: r }); toast("播放速度 " + r + "x"); }
+  // ---------- 循环 / 跳句 / 快捷键 ----------
+  function toggleLoop() {
+    loopOn = !loopOn; loopIdx = loopOn ? Math.max(cur, 0) : -1; applyBar();
+    toast(loopOn ? "单句循环：开" : "单句循环：关");
+  }
+  function replay() { const v = video(); if (v && cur >= 0) { pauseDone = -1; v.currentTime = cues[cur].s; v.play(); } else jump(0); }
+  function jump(d) {
+    const v = video(); if (!v || !cues.length) return;
+    let i = cur >= 0 ? cur : (() => { let k = 0; while (k < cues.length && cues[k].s < v.currentTime) k++; return k - 1; })();
+    i = Math.max(0, Math.min(cues.length - 1, i + d));
+    v.currentTime = cues[i].s + 0.01; if (loopOn) loopIdx = i; if (v.paused) v.play();
+  }
+  document.addEventListener("keydown", e => {
+    const t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    if (!S.enabled) return;
+    const k = e.key.toLowerCase(), stop = () => { e.preventDefault(); e.stopPropagation(); };
+    if ((e.ctrlKey || e.metaKey) && k === "c" && !e.altKey && cur >= 0 && !String(getSelection() || "").trim()) { navigator.clipboard.writeText(cues[cur].t).then(() => toast("已复制当前句子"), () => {}); stop(); return; }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (S.arrowKeys && (k === "arrowleft" || k === "arrowright" || k === "arrowdown")) { k === "arrowleft" ? jump(-1) : k === "arrowright" ? jump(1) : replay(); stop(); return; }
+    if (k === "a") { jump(-1); stop(); }
+    else if (k === "d") { jump(1); stop(); }
+    else if (k === "s") { replay(); stop(); }
+    else if (k === "q") { chrome.storage.sync.set({ autoPause: !S.autoPause }); toast("自动暂停：" + (!S.autoPause ? "开" : "关")); stop(); }
+    else if (k === "r") { if (cur >= 0) { toggleSent(cur); syncStar(); toast(savedSents.some(x => x.k === sentKey(cues[cur])) ? "已保存当前字幕" : "已取消保存"); } stop(); }
+    else if (k === "o") { toggleLoop(); stop(); }
+    else if (k === "e") { if (root) root.classList.toggle("reveal"); stop(); }
+    else if (k === "z" || k === "x") { const v = video(); if (v) setRate(Math.round((v.playbackRate + (k === "x" ? 0.25 : -0.25)) * 100) / 100); stop(); }
+  }, true);
+
+  // ---------- 字幕列表 ----------
+  const fmt = s => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+  async function fetchAll() { for (let k = 0; k < cues.length && panel && panel.classList.contains("show") && lazy; k += 6) await fetchTrans(k, 6); }
+  function togglePanel() {
+    if (!panel) {
+      panel = document.createElement("div"); panel.id = "vs-panel";
+      panel.innerHTML = '<div class="ph"><span class="tabs"><b data-t="subs" class="on">字幕</b><b data-t="words">词语</b><b data-t="saved">已保存</b></span><span class="pr"><span id="vs-pf" title="载入字幕文件（.srt .vtt .ass .ssa）">📄</span><span id="vs-pr" title="修复：重新获取字幕">↻</span><span id="vs-pe" title="导出">⤓</span><span id="vs-pg" title="设置">⚙</span><span id="vs-px" title="关闭">✕</span></span></div><div class="em"><a data-k="html">打印（HTML）</a><a data-k="excel">Excel</a><a data-k="saved">已保存项目</a></div><input type="file" id="vs-file" accept=".srt,.vtt,.ass,.ssa" hidden><div class="ls"></div>';
+      listEl = $(".ls", panel); mountPanel();
+      $("#vs-px", panel).onclick = togglePanel;
+      $("#vs-pg", panel).onclick = openSettings;
+      $("#vs-pr", panel).onclick = repair;
+      $("#vs-pf", panel).onclick = () => $("#vs-file", panel).click();
+      $("#vs-file", panel).onchange = e => { const f = e.target.files[0]; if (f) loadSubFile(f); e.target.value = ""; };
+      $("#vs-pe", panel).onclick = () => $(".em", panel).classList.toggle("show");
+      $(".em", panel).onclick = e => { const k = e.target.dataset.k; if (!k) return; $(".em", panel).classList.remove("show"); exportData(k); };
+      $(".tabs", panel).addEventListener("click", e => { const t = e.target.dataset.t; if (!t) return; tab = t; panel.querySelectorAll(".tabs b").forEach(x => x.classList.toggle("on", x.dataset.t === t)); buildPanel(); markPanel(cur, true); });
+      listEl.addEventListener("mouseover", e => { const w = e.target.closest(".vs-w"); if (w) showMini(w); });
+      listEl.addEventListener("mouseout", e => { if (e.target.closest(".vs-w")) hideMini(); });
+      listEl.addEventListener("click", e => {
+        const st = e.target.closest(".st"), w = e.target.closest(".vs-w"), it = e.target.closest(".it"), rm = e.target.closest(".rm");
+        if (rm) { if (rm.dataset.w) { savedSet.delete(rm.dataset.w.toLowerCase()); chrome.storage.local.get({ saved: [] }, v => chrome.storage.local.set({ saved: v.saved.filter(x => x.toLowerCase() !== rm.dataset.w.toLowerCase()) })); } else { savedSents.splice(+rm.dataset.si, 1); chrome.storage.local.set({ savedSents }); } buildPanel(); cur = -1; return; }
+        if (st) { toggleSent(+st.dataset.i); return; }
+        if (w) { showTip(w.dataset.w, null, true, it && it.dataset.i !== undefined ? +it.dataset.i : undefined, w); return; }
+        if (it && it.dataset.s !== undefined) { const v = video(); if (v) { v.currentTime = +it.dataset.s + 0.01; v.play(); } }
+      });
+      buildPanel();
+    }
+    panel.classList.toggle("show"); applyBar();
+    const open = panel.classList.contains("show");
+    if (S.panelOpen !== open) { S.panelOpen = open; chrome.storage.sync.set({ panelOpen: open }); }
+    if (open) { mountPanel(); markPanel(cur, true); fetchAll(); }
+  }
+  function mountPanel() {
+    if (!panel) return;
+    const sec = /\/watch/.test(location.pathname) && ($("#secondary-inner") || $("#secondary"));
+    const host = sec && sec.offsetWidth > 200 ? sec : document.body;
+    if (panel.parentNode !== host || (host !== document.body && host.firstElementChild !== panel)) host.prepend(panel);
+    panel.classList.toggle("dock", host !== document.body);
+    const p = player(); panel.style.height = host !== document.body && p ? Math.max(320, p.offsetHeight) + "px" : "";
+  }
+  const sentKey = c => vidId + "|" + c.t;
+  function syncStar() { const sv = box && box.querySelector(".vs-sv"); if (!sv) return; const on = cur >= 0 && cues[cur] && savedSents.some(x => x.k === sentKey(cues[cur])); sv.textContent = on ? "★" : "☆"; sv.classList.toggle("on", !!on); }
+  function toggleSent(i) {
+    const c = cues[i]; if (!c) return; const k = sentKey(c), at = savedSents.findIndex(x => x.k === k);
+    if (at >= 0) savedSents.splice(at, 1); else savedSents.push({ k, v: vidId, s: c.s, t: c.t, tr: trans[i] || "" });
+    chrome.storage.local.set({ savedSents });
+    const el = listEl && listEl.querySelector('.st[data-i="' + i + '"]'); if (el) { el.textContent = at >= 0 ? "☆" : "★"; el.classList.toggle("on", at < 0); }
+  }
+  function buildPanel() {
+    if (!panel) return;
+    if (tab === "subs") {
+      const sk = new Set(savedSents.map(x => x.k));
+      listEl.innerHTML = cues.map((c, i) => '<div class="it" data-i="' + i + '" data-s="' + c.s + '"><i class="st' + (sk.has(sentKey(c)) ? " on" : "") + '" data-i="' + i + '" title="收藏这句">' + (sk.has(sentKey(c)) ? "★" : "☆") + '</i><div class="tm">' + fmt(c.s) + "</div><div class=\"en" + (c.note ? " nt" : "") + '">' + (c.note ? esc(c.t) : wordsHtml(c.t)) + '</div><div class="tr">' + esc(trans[i] || "") + "</div></div>").join("") || '<div class="it">还没有字幕。请打开视频的 CC 字幕。</div>';
+      if (panel.classList.contains("show")) fetchAll();
+    } else if (tab === "words") {
+      const m = new Map(), lv = S.level >= 0 ? S.level : 2000;
+      cues.forEach((c, i) => { if (c.note) return; (c.t.match(WORD_RE) || []).forEach(w => { const lw = w.toLowerCase(), k = vsLemma(lw), r = Math.min(vsRank(k), vsRank(lw)), ct = vsCat(k, S.level >= 0 ? S : Object.assign({}, S, { level: lv }), false); if (ct === "known" || ct === "special" || ct === "ignore" || /^[A-Z]/.test(w) && c.t.indexOf(w) > 0) return; const o = m.get(k) || { w: k, n: 0, r, i, f: new Set() }; o.n++; o.f.add(lw); m.set(k, o); }); });
+      const arr = [...m.values()].sort((a, b) => b.n - a.n || a.r - b.r);
+      listEl.innerHTML = '<div class="hd">本视频里高于你水平的词（' + arr.length + "）· 点击查词</div>" + (arr.map(o => '<div class="it wd" data-i="' + o.i + '">' + wordsHtml(o.w) + '<span class="cnt">×' + o.n + (o.r === Infinity ? "" : " · #" + o.r) + (o.f.size > 1 || !o.f.has(o.w) ? '<span class="cnt fm">（' + esc([...o.f].filter(x => x !== o.w).join(", ")) + "）</span>" : "") + "</span></div>").join("") || '<div class="it">没有生词。</div>');
+    } else {
+      const ws = [...savedSet];
+      listEl.innerHTML = '<div class="hd">收藏的词（' + ws.length + '）</div><div class="chips">' + (ws.map(w => '<span class="chip">' + wordsHtml(w) + '<i class="rm" data-w="' + esc(w) + '" title="移除">×</i></span>').join("") || '<span class="cnt">还没有</span>') + '</div><div class="hd">收藏的句子（' + savedSents.length + "）</div>" +
+        (savedSents.map((x, si) => '<div class="it"' + (x.v === vidId ? ' data-s="' + x.s + '"' : "") + '><i class="rm" data-si="' + si + '" title="移除">×</i><div class="en">' + esc(x.t) + '</div><div class="tr">' + esc(x.tr || "") + "</div></div>").join("") || '<div class="it"><span class="cnt">在“字幕”里点 ☆ 收藏句子</span></div>') +
+        '<div class="hd">生词本待整理队列 <a id="vs-qc" style="cursor:pointer;color:#0FA37A;margin-left:8px">复制全部</a></div><div class="chips" id="vs-q"><span class="cnt">读取中…</span></div>';
+      send({ type: "pending" }).then(r => { const q = $("#vs-q", panel); if (!q || tab !== "saved") return; const p = r.pending; q.innerHTML = !p ? '<span class="cnt">读取失败</span>' : p.length ? p.map(w => '<span class="chip" style="padding-right:10px">' + esc(w) + "</span>").join("") : '<span class="cnt">队列是空的</span>'; const c = $("#vs-qc", panel); if (c) c.onclick = () => navigator.clipboard.writeText((p || []).join("\n")).then(() => toast("已复制 " + (p || []).length + " 个词")); });
+    }
+  }
+  function updPanelTr(i) { if (!listEl || tab !== "subs") return; const it = listEl.children[i]; if (it && $(".tr", it)) $(".tr", it).textContent = trans[i] || ""; }
+  function markPanel(i, force) {
+    if (!panel || !panel.classList.contains("show") || tab !== "subs") return;
+    const old = $(".it.cur", listEl); if (old) old.classList.remove("cur");
+    const it = listEl.children[i]; if (it) { it.classList.add("cur"); listEl.scrollTo({ top: it.offsetTop - listEl.clientHeight / 2 + it.offsetHeight / 2, behavior: force ? "auto" : "smooth" }); }
+  }
+})();

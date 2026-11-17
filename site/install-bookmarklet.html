@@ -1,0 +1,67 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>安装「加生词」按钮</title>
+<style>
+  :root{--bg:#EFF2F1;--paper:#FFFFFF;--ink:#1E2733;--muted:#7C8794;--line:#E6EAEC;--accent:#0FA37A;--gold:#E8A23C;--jade:#0C9370}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:24px 14px 60px}
+  .wrap{max-width:560px;margin:0 auto}
+  h1{color:var(--ink);font-size:24px;margin:6px 0 4px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 22px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
+  .step{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 8px}
+  .bm{display:inline-block;background:var(--gold);color:#3a2c08;font-weight:800;font-size:18px;text-decoration:none;padding:14px 26px;border-radius:12px;border:2px solid #a87a16;cursor:grab;box-shadow:0 3px 0 #a87a16;user-select:none}
+  .bm:active{cursor:grabbing;transform:translateY(2px);box-shadow:0 1px 0 #a87a16}
+  .hint{font-size:13.5px;color:var(--muted);margin-top:12px}
+  kbd{background:var(--paper);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 7px;font-size:12px;font-family:ui-monospace,monospace;color:var(--ink)}
+  ol{margin:8px 0 0;padding-left:20px}
+  li{margin:6px 0;font-size:14.5px}
+  code.box{display:block;white-space:pre-wrap;word-break:break-all;background:#F0F3F4;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:11.5px;font-family:ui-monospace,monospace;color:var(--ink);margin-top:8px}
+  b{color:var(--ink)}
+  .accent{color:var(--accent)}
+  .note{background:#F0F3F4;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px;font-size:13px;color:var(--ink);margin-top:4px}
+</style>
+<div class="wrap">
+  <h1>📒 安装「加生词」按钮</h1>
+  <p class="sub">看 YouTube / 上网时，选中单词一键收进「待整理队列」，发给 Claude 做成完整词条</p>
+
+  <div class="card">
+    <p class="step">方法一 · 最简单（电脑）：拖一下</p>
+    <p style="margin:0 0 14px;font-size:14.5px">把下面这个按钮，<b>用鼠标拖到浏览器顶部的书签栏</b>上松手，就装好了：</p>
+    <p style="text-align:center;margin:18px 0">
+      <a class="bm" href="javascript:(function(){var u='https://amazing-horse-f15662.netlify.app/';var w=(window.getSelection().toString()||prompt('加入生词本：')||'').trim();if(w)window.open(u+'#add='+encodeURIComponent(w),'vocab','width=360,height=210');})()">📒 加生词</a>
+    </p>
+    <p class="hint">看不到书签栏？按 <kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> 显示出来（Windows 用 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>），再拖。</p>
+  </div>
+
+  <div class="card">
+    <p class="step">方法二 · 手动添加（拖不动时用）</p>
+    <ol>
+      <li>书签栏空白处<b>右键 → 添加页面 / Add page</b></li>
+      <li><b>名称</b>填：📒 加生词</li>
+      <li><b>网址</b>栏：把下面整段粘进去（务必含开头的 <code style="font-size:12px">javascript:</code>，被吞掉就手动补上）</li>
+      <li>保存</li>
+    </ol>
+    <code class="box">javascript:(function(){var u='https://amazing-horse-f15662.netlify.app/';var w=(window.getSelection().toString()||prompt('加入生词本：')||'').trim();if(w)window.open(u+'#add='+encodeURIComponent(w),'vocab','width=360,height=210');})()</code>
+  </div>
+
+  <div class="card">
+    <p class="step">怎么用</p>
+    <ol>
+      <li><b>看到能选的字</b>（标题/简介/评论/字幕）→ 选中单词 → 点书签</li>
+      <li><b>只是听到、没字可选</b> → 直接点书签 → 弹框里敲进去回车</li>
+    </ol>
+    <p class="hint">点完会弹一个小窗显示「<b>✓ 已收：词</b>」，约 1 秒<b>自动关闭</b>，不会展示整页笔记本。收的词进「待整理队列」（跨设备同步）。攒一批后，跟 Claude 说「<span class="accent">整理我的草稿</span>」，我做成完整词条再部署，它才进正式列表。</p>
+  </div>
+
+  <div class="card">
+    <p class="step">手机怎么办</p>
+    <p style="margin:0;font-size:14px">手机没有书签栏、书签难点。手机上直接打开 <b>amazing-horse-f15662.netlify.app</b>，用页面里「📥 快速收集」框粘词收集即可（同样进待整理队列）。</p>
+  </div>
+
+  <div class="card" style="background:#FFF8EC;border-color:#F3DDB4">
+    <p class="step">⚠️ 前提</p>
+    <p class="note" style="margin:0">这个「小窗确认、自动关、进队列」的效果，需要先把<b>最新版 index.html 部署到 Netlify</b>。还没部署的话，点书签弹出来的还是整页笔记本。</p>
+  </div>
+</div>

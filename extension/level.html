@@ -1,0 +1,52 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>设置词汇水平</title>
+<style>
+:root{--bg:#EFF2F1;--paper:#fff;--ink:#1E2733;--muted:#7C8794;--line:#E6EAEC;--jade:#0C9370;--soft:#E4F6EF}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,"PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:22px 16px 40px}
+h1{font-size:22px;margin:0 0 4px}.sub{color:var(--muted);margin:0 0 16px;font-size:14px}
+.grid{display:grid;grid-template-columns:1.05fr 1fr;gap:16px}@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px}
+.card h2{font-size:14px;margin:2px 4px 10px;color:var(--muted);font-weight:700}
+#tiers{max-height:520px;overflow:auto;padding-right:4px}
+.row{display:grid;grid-template-columns:54px 1fr 1fr 1fr;gap:4px;align-items:center;padding:8px 6px;border-radius:10px;cursor:pointer;border-bottom:1px dashed transparent;margin-bottom:3px;background:#F7F9F9}
+.row:hover{background:#EEF3F3}.row .n{color:var(--muted);font-size:12.5px;text-align:center;grid-row:span 2}
+.row .c{text-align:center;font-size:14px;line-height:1.7}
+.row.zero{display:block;text-align:center;color:var(--muted)}.row.zero .n{display:inline;margin-right:10px}
+.row.known{background:var(--soft)}.row.known .c{color:var(--jade);font-weight:600}.row.known .n{color:var(--jade)}
+.row.edge{box-shadow:0 2px 0 0 var(--jade)}
+#sample{font-size:16.5px;line-height:2;min-height:300px}
+#sample .w{padding:0 1px}
+:root{--ck:#0C9370;--cs:#E5821A;--ci:#8E5BD0;--cp:#0C9370}#sample{background:#16191e;color:#fff;border-radius:12px;padding:6px 16px}.vs-k{color:var(--ck)}.vs-u1,.vs-ln{color:var(--cs)}.vs-u2{color:var(--ci)}.vs-sp{color:var(--cp)}.vs-lo,.nm.lo{box-shadow:inset 0 0 0 1.5px #E9CF8A;border-radius:6px;padding:0 3px}.vs-rare{opacity:.55}
+.cats{margin-top:12px}.ct{display:flex;align-items:center;gap:8px;margin:7px 2px;font-size:14px}.ct .nm{font-weight:700;min-width:150px}.ct i{font-style:normal;color:var(--muted);font-size:12px}.ct input[type=color]{width:30px;height:22px;border:1px solid var(--line);border-radius:5px;padding:0}.ct .sp{width:30px}.ct input[type=checkbox]{width:17px;height:17px;accent-color:#0FA37A}.ct select{padding:3px 6px;border:1px solid var(--line);border-radius:6px}
+.opt{display:flex;align-items:center;gap:10px;margin:12px 4px 0;font-weight:600}.opt input{width:18px;height:18px;accent-color:#0FA37A}
+.opt.g{color:var(--jade)}.opt.p{color:#8E5BD0}
+.lg{margin:12px 4px 0;font-size:13px;color:var(--muted)}.lg b{font-weight:700}
+.bar{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px}
+button.save{border:0;border-radius:12px;background:#0FA37A;color:#fff;font-size:16px;font-weight:800;padding:12px 38px;cursor:pointer;box-shadow:0 3px 0 #0b7d5e}
+button.save:active{transform:translateY(2px);box-shadow:0 1px 0 #0b7d5e}
+#msg{color:var(--jade);font-weight:700}
+</style>
+<div class="wrap">
+<h1>📊 设置词汇水平</h1>
+<p class="sub">下面的词按常见程度从易到难排列。<b>点击你“全部认识”的最后一行</b>，它和上面所有行都会算作已知。字幕里不认识的词会着色提示（可滚动查看更多）。</p>
+<div class="grid">
+ <div class="card"><h2>选择你的水平</h2><div id="tiers"></div></div>
+ <div class="card"><h2>效果预览</h2><div id="sample"></div>
+  <div class="cats">
+   <div class="ct"><span class="nm" style="color:var(--ck)">已掌握词汇</span><input type="color" data-c="colKnown"><input type="checkbox" data-k="greenKnown"><i>等级状态取决于词汇水平或个人标记</i></div>
+   <div class="ct"><span class="nm" style="color:var(--cs)">建议的单词</span><input type="color" data-c="colSuggest"><input type="checkbox" data-k="showSuggest"><i>刚好高于你水平、最值得学的词</i></div>
+   <div class="ct"><span class="nm" style="color:var(--cs)">标记为将要学习</span><span class="sp"></span><input type="checkbox" data-k="showLearn"><i>你收进生词本的词</i></div>
+   <div class="ct"><span class="nm lo" style="color:var(--cs)">标记为将要学习 - 描边</span><span class="sp"></span><input type="checkbox" data-k="showLearnOutline"><i>给这些词加一个框</i></div>
+   <div class="ct"><span class="nm" style="color:var(--ci)">不学习</span><input type="color" data-c="colIgnore"><input type="checkbox" data-k="showIgnore"><i>更生僻的词，或你标记为不学的词</i></div>
+   <div class="ct"><span class="nm" style="color:var(--cp)">特殊词汇</span><input type="color" data-c="colSpecial"><input type="checkbox" data-k="showSpecial"><i>名称、地点、数字等</i></div>
+   <div class="ct"><span class="nm">淡化生僻词</span><span class="sp"></span><input type="checkbox" data-k="fadeRare"><i>非常生僻的词变淡</i></div>
+   <div class="ct"><span class="nm">建议词与已知词比率</span><select data-k="ratio"><option value="0.5">0.5x</option><option value="1">1.0x (推荐)</option><option value="1.5">1.5x</option><option value="2">2.0x</option><option value="3">3.0x</option><option value="4">4.0x</option></select><i>比率越大，橙色“建议”范围越宽</i></div>
+   <div class="ct"><span class="nm">单词颜色</span><a id="rc" href="#">重置</a></div>
+  </div>
+ </div>
+</div>
+<div class="bar"><button class="save" id="save">保存词汇水平</button><span id="msg"></span></div>
+</div>
+<script src="freq.js"></script><script src="vlevel.js"></script><script src="tiers.js"></script><script src="level.js"></script>
+</html>
