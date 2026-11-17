@@ -58,6 +58,7 @@
     if (e.source !== window || !e.data || e.data.src !== "VS") return;
     if (e.data.type === "dev-level" && e.data.level >= 0) { chrome.storage.sync.set({ level: +e.data.level, ratio: +e.data.ratio || 1.5 }); return; } // 开发用：只允许改词汇水平和比率
     if (e.data.type === "dev-state") { window.postMessage({ src: "VS-R", level: S.level, ratio: S.ratio, merge: S.merge, engine: S.engine, hideMode: S.hideMode, showHuman: S.showHuman, target: S.target }, "*"); return; }
+    if (e.data.type === "dev-cap") { needCapture("med:__test", +e.data.ci); return; }
     if (e.data.type === "dev-media") { chrome.storage.local.get(null, v => { const m = Object.keys(v).filter(k => k.startsWith("med:")).map(k => k.slice(4) + " img=" + ((v[k].img || "").length > 100 ? 1 : 0) + " aud=" + ((v[k].aud || "").length > 100 ? Math.round(v[k].aud.length / 1024) + "KB" : 0) + " " + new Date(v[k].at).toTimeString().slice(0, 5)); window.postMessage({ src: "VS-M", saveMedia: S.saveMedia, cur, recording: recR ? recR._i : null, clips: Object.keys(clips).map(k => k + ":" + Math.round(clips[k].length / 1024) + "KB"), pend: Object.keys(pendMed), med: m, saved: (v.saved || []).length }, "*"); }); return; }
     if (e.data.type === "reload-ext") { send({ type: "reloadSelf" }); return; } // 开发用：让插件重新加载自身（仅重启插件，不涉及数据）
     if (e.data.type === "audio") { chrome.storage.local.set({ audioTracks: e.data.names || [] }); return; }
@@ -431,6 +432,7 @@
     if (vId() !== vidId) { vidId = vId(); raw = []; cues = []; trans = []; key = ""; loadedLang = ""; cur = -1; loopIdx = -1; loopOn = false; lazy = false; ver++; if (panel) buildPanel(); tracks = []; human = []; custom = false; if (vidId && /\/watch/.test(location.pathname)) { ensureCaptionsOn(); setTimeout(askTracks, 1500); setTimeout(askTracks, 4500); setTimeout(() => window.postMessage({ src: "VS-C", type: "get-audio" }, "*"), 3000); setTimeout(() => { const v = video(); if (v && S.rate && S.rate !== 1) v.playbackRate = S.rate; }, 1200); } }
     const v = video(); if (!v || !cues.length || !/\/watch/.test(location.pathname)) return;
     if (++tk % 10 === 0) { mountPill(); const shown = !!(panel && panel.classList.contains("show")), wantP = !!(S.panelOpen && S.enabled); if (wantP !== shown) { if (panel) { panel.classList.toggle("show", wantP); if (wantP) { mountPanel(); markPanel(cur, true); } } else if (wantP) togglePanel(); } else if (panel && panel.classList.contains("show")) mountPanel(); }
+    if (capBusy) return; // 补录原声期间不切字幕、不触发自动暂停
     const t = v.currentTime; if (root && tk % 10 === 0) build();
     if (loopOn && loopIdx >= 0 && cues[loopIdx] && t >= cues[loopIdx].e - 0.08) { v.currentTime = cues[loopIdx].s; return; }
     if (S.autoPause && !loopOn && cur >= 0 && cues[cur]) {
@@ -623,26 +625,57 @@
   function refreshMarks() { const keep = cur; cur = -1; if (keep >= 0 && cues[keep] && oEl) { cur = keep; oEl.innerHTML = cues[keep].note ? '<span class="vs-note">' + vsMark(esc(cues[keep].t), S) + "</span>" : wordsHtml(cues[keep].t); } else cur = keep; if (panel) { const st = listEl.scrollTop; const fl = follow; buildPanel(); autoScrollT = Date.now() + 300; listEl.scrollTop = st; markPanel(cur, fl); } if (tip) drawDict(tip.dataset.word, tipData); }
   // ---------- 原声与截图 ----------
   // 每句字幕播放时顺手把这一句的声音录下来（只留最近几句在内存里）；保存单词或句子时，把原声、当前画面和出处一起存下
-  let recR = null, recV = null, recStream = null; const clips = {}, pendMed = {};
+  let recR = null, recV = null, recStream = null, capBusy = false; const clips = {}, pendMed = {}, capQ = [];
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const attach = (key, url) => chrome.storage.local.get(key, o => { if (o[key]) { o[key].aud = url; chrome.storage.local.set({ [key]: o[key] }); } });
+  const liveAudio = v => { if (!recStream || !recStream.getAudioTracks().some(t => t.readyState === "live")) recStream = v.captureStream(); return recStream.getAudioTracks().filter(t => t.readyState === "live"); };
+  const seekTo = (v, t) => new Promise(res => { let done = false; const f = () => { if (!done) { done = true; v.removeEventListener("seeked", f); res(); } }; v.addEventListener("seeked", f); v.currentTime = t; setTimeout(f, 2500); });
+  // 补录：保存的那一句没有录到原声时（没从头播过、或还没播到），在视频暂停时静音回放这一句把声音录下来，再回到原来的位置
+  function needCapture(key, ci) { if (!capQ.some(x => x.key === key)) capQ.push({ key, ci, vid: vidId }); const v = video(); if (v && v.paused) setTimeout(runCap, 400); }
+  async function runCap() {
+    if (capBusy || !capQ.length) return; const v = video(); if (!v || !v.paused || !v.captureStream || $(".ad-showing")) return;
+    const job = capQ.shift(); if (job.vid !== vidId || !cues[job.ci]) return runCap();
+    if (clips[job.ci]) { attach(job.key, clips[job.ci]); return runCap(); }
+    capBusy = true; const cu = cues[job.ci], t0 = v.currentTime, m0 = v.muted, r0 = v.playbackRate, hov0 = pausedByUs; let url = "";
+    toast("正在保存这一句的原声（静音回放一遍）…");
+    try {
+      recStop(false); v.muted = true; v.playbackRate = 1;
+      await seekTo(v, Math.max(0, cu.s - 0.06));
+      const at = liveAudio(v); if (!at.length) throw 0;
+      const r = new MediaRecorder(new MediaStream([at[0]]), { mimeType: "audio/webm;codecs=opus", audioBitsPerSecond: 32000 }), chunks = [];
+      r.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); }; const done = new Promise(res => (r.onstop = res));
+      r.start(); await v.play();
+      const end = Math.min(cueEnd(job.ci) + 0.1, cu.s + 20), lim = Date.now() + (end - cu.s) * 1000 + 4000;
+      while (v.currentTime < end && Date.now() < lim && !v.ended && job.vid === vidId) await sleep(40);
+      v.pause(); r.stop(); await done;
+      const b = new Blob(chunks, { type: "audio/webm" });
+      if (b.size > 900 && b.size < 600000) url = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(""); fr.readAsDataURL(b); });
+    } catch (e) {}
+    try { v.pause(); if (job.vid === vidId) await seekTo(v, t0); } catch (e) {}
+    v.muted = m0; v.playbackRate = r0; capBusy = false;
+    if (hov0 && !pausedByUs) v.play(); // 补录期间鼠标已经移开：照常继续播放
+    if (url) { clips[job.ci] = url; attach(job.key, url); (pendMed[job.ci] || []).forEach(k => attach(k, url)); delete pendMed[job.ci]; toast("原声已保存"); } else toast("这一句的原声没有录到");
+    setTimeout(runCap, 300);
+  }
   const cueEnd = i => (cues[i] ? Math.min(cues[i].e, cues[i + 1] ? Math.max(cues[i + 1].s, cues[i].s + 0.3) : Infinity) : 0); // 这一句实际显示到什么时候（下一句开始或自己结束）
   function recStop(full) { const r = recR; recR = null; if (r && r.state !== "inactive") { r._full = full; try { r.stop(); } catch (e) {} } }
   function recStart(i) {
     try {
-      if (S.saveMedia === false || custom) return; const v = video(); if (!v || !v.captureStream || v.paused || !cues[i] || cues[i].note) return;
+      if (S.saveMedia === false || custom || capBusy) return; const v = video(); if (!v || !v.captureStream || v.paused || !cues[i] || cues[i].note) return;
       if (Math.abs(v.currentTime - cues[i].s) > 0.6) return; // 只从句子开头录，保证是完整的一句
       recStop(false);
       if (recV !== v) { recV = v; recStream = null; 
         // 句末暂停：这一句录完了。句子中途暂停（比如悬停查词）：录音也暂停，继续播放时接着录，不丢这一句
-        v.addEventListener("pause", () => { const r = recR; if (!r) return; if (v.currentTime >= cueEnd(r._i) - 0.5) recStop(true); else if (r.state === "recording") { try { r.pause(); r._pt = v.currentTime; } catch (e) { recStop(false); } } });
-        v.addEventListener("playing", () => { const r = recR; if (r && r.state === "paused") { if (cur === r._i && Math.abs(v.currentTime - r._pt) < 0.5) { try { r.resume(); } catch (e) { recStop(false); } } else recStop(false); } if (!recR && cur >= 0) recStart(cur); });
-        v.addEventListener("seeking", () => { const r = recR; if (r && !(r.state === "paused" && Math.abs(v.currentTime - r._pt) < 0.5)) recStop(false); });
+        v.addEventListener("pause", () => { if (capBusy) return; if (capQ.length && !pausedByUs) setTimeout(runCap, 700); const r = recR; if (!r) return; if (v.currentTime >= cueEnd(r._i) - 0.5) recStop(true); else if (r.state === "recording") { try { r.pause(); r._pt = v.currentTime; } catch (e) { recStop(false); } } });
+        v.addEventListener("playing", () => { if (capBusy) return; const r = recR; if (r && r.state === "paused") { if (cur === r._i && Math.abs(v.currentTime - r._pt) < 0.5) { try { r.resume(); } catch (e) { recStop(false); } } else recStop(false); } if (!recR && cur >= 0) recStart(cur); });
+        v.addEventListener("seeking", () => { if (capBusy) return; const r = recR; if (r && !(r.state === "paused" && Math.abs(v.currentTime - r._pt) < 0.5)) recStop(false); });
       }
-      if (!recStream || !recStream.getAudioTracks().some(t => t.readyState === "live")) recStream = v.captureStream();
-      const at = recStream.getAudioTracks().filter(t => t.readyState === "live"); if (!at.length) return;
+      const at = liveAudio(v); if (!at.length) return;
       const r = new MediaRecorder(new MediaStream([at[0]]), { mimeType: "audio/webm;codecs=opus", audioBitsPerSecond: 32000 }), chunks = [], vid = vidId;
       r._i = i; r.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
       r.onstop = () => {
-        if (!r._full || vid !== vidId) return; const b = new Blob(chunks, { type: "audio/webm" }); if (b.size < 900 || b.size > 600000) return;
+        const lost = () => { (pendMed[i] || []).forEach(key => needCapture(key, i)); }; // 这一句没录完整：改为补录
+        if (vid !== vidId) return; if (!r._full) return lost(); const b = new Blob(chunks, { type: "audio/webm" }); if (b.size < 900 || b.size > 600000) return lost();
         const fr = new FileReader(); fr.onload = () => { clips[i] = fr.result; Object.keys(clips).filter(k => Math.abs(k - i) > 3).forEach(k => delete clips[k]); (pendMed[i] || []).forEach(key => chrome.storage.local.get(key, o => { if (o[key]) { o[key].aud = fr.result; chrome.storage.local.set({ [key]: o[key] }); } })); delete pendMed[i]; }; fr.readAsDataURL(b);
       };
       r.start(); recR = r;
@@ -654,8 +687,11 @@
       if (S.saveMedia === false || ci < 0 || !cues[ci] || custom) return; const cu = cues[ci], v = video(), near = v && v.currentTime >= cu.s - 0.3 && v.currentTime <= cu.e + 1.5;
       const ch = $("ytd-watch-metadata ytd-channel-name a, #owner ytd-channel-name a, #upload-info a");
       const o = { t: cu.t, tr: trans[ci] || "", v: vidId, s: cu.s, e: cu.e, title: document.title.replace(/^\(\d+\)\s*/, "").replace(/ - YouTube$/, ""), ch: ch ? ch.textContent.trim() : "", img: near ? frameShot() : "", aud: clips[ci] || "", at: Date.now() };
-      if (!o.aud) (pendMed[ci] = pendMed[ci] || []).push(key); // 这一句还没播完：录完后自动补上
-      chrome.storage.local.set({ [key]: o });
+      chrome.storage.local.set({ [key]: o }, () => {
+        if (o.aud) return;
+        (pendMed[ci] = pendMed[ci] || []).push(key);          // 这一句正在录：录完后自动补上
+        if (!(recR && recR._i === ci)) needCapture(key, ci);   // 这一句没在录：补录
+      });
     } catch (e) {}
   }
   function noteCtx(k) {
