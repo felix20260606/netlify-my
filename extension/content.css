@@ -372,3 +372,33 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 #vs-panel .it.sb .vs-w.hl,#vs-panel .it.sb .vs-w.hl.vs-u1,#vs-panel .it.sb .vs-w.hl.vs-ln{background:rgba(255,255,255,.14);border-radius:3px}
 #vs-panel .wv~.it.sb{background:#000;margin:0;padding:6px 20px 6px 28px;border-bottom:1px solid #2a2a2a;border-radius:0}
 #vs-panel .wv~.it.sb .tr{display:none}
+/* 词频 / 出现次数视图：按 LR 实测值对齐 */
+#vs-panel .flt{gap:2px;margin:14px 0 12px}
+#vs-panel .flt b{font-size:14px;padding:7px 16px;border:1px solid rgba(0,0,0,.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+#vs-panel .flt .f-known{border-radius:999px 4px 4px 999px}#vs-panel .flt .f-learn{border-radius:4px}#vs-panel .flt .f-ignore{background:#8c8c8c;border-radius:4px 999px 999px 4px}
+#vs-panel .tgs{display:flex;justify-content:center;gap:8px;margin:0 0 14px}
+#vs-panel .tgs b{font-weight:500;font-size:12px;line-height:20px;padding:0 9px;border:1px solid #c9ced4;border-radius:5px;color:#fff;cursor:pointer;background:transparent;margin:0;width:auto}
+#vs-panel .tgs b.off{opacity:.5}
+#vs-panel .tgs .tg-g{border-color:#2e9d1a;color:#3fbf26;background:rgba(46,157,26,.12)}#vs-panel .tgs .tg-y{border-color:#c9d400;color:#e6f000;background:rgba(201,212,0,.1)}
+#vs-panel .tgs .tg-r{border-color:#e0564a;color:#f0675b;background:rgba(224,86,74,.12)}#vs-panel .tgs .tg-b{border-color:#4fc6e8;color:#5fd3f5;background:rgba(79,198,232,.12)}
+#vs-panel .tgs b.on{box-shadow:0 0 0 2px rgba(255,255,255,.55)}
+#vs-panel .rk{position:relative;gap:16px;padding:8px 14px 12px 10px;font-size:16px}
+#vs-panel .rk::before{content:"";position:absolute;left:27px;top:32px;bottom:2px;width:2px;background:#1f1f1f}
+#vs-panel .rk .bd{flex:0 0 36px;font-size:11px;background:#1c1c1c}
+#vs-panel .rk .ws{line-height:2.15;word-spacing:14px;color:#95889a}
+#vs-panel .rk .ws{line-height:1.82}
+/* 已保存页：按 LR 实测值对齐 */
+#vs-panel .svb{gap:10px;padding:10px 13px 6px}
+#vs-panel .svb button{position:relative;height:44px;background:#383838;font-size:15px;padding:0 22px 0 10px;box-shadow:0 2px 0 #151515}
+#vs-panel .svb button:hover{background:#444}
+#vs-panel .svb button .vi{position:absolute;left:12px;top:50%;margin-top:-10px;font-size:20px}
+#vs-panel .svh{padding:12px 16px 10px 28px;font-size:16px;color:rgba(255,255,255,.467);border-bottom:1px solid #16263a}
+#vs-panel .cxt{font-size:15px;color:rgba(255,255,255,.467)}
+#vs-panel .it.sv{border-bottom:1px solid #16263a;padding:7px 34px 7px 28px;color:rgba(255,255,255,.62)}
+/* 字幕行：⋮ 菜单（复制），字间距与 LR 一致 */
+#vs-panel .it.sb .vs-w{padding:0}
+#vs-panel .it.sb .mo{position:absolute;right:6px;top:50%;margin-top:-9px;font-size:18px;color:#c9ced4;cursor:pointer;opacity:0;font-style:normal;display:flex}
+#vs-panel .it.sb:hover .mo{opacity:.8}#vs-panel .it.sb .mo:hover{opacity:1;color:#fff}
+#vs-panel .it.sb .cpm{position:absolute;right:36px;top:50%;z-index:6;background:#0b65a8;color:#fff;font-weight:400;font-size:14px;line-height:36px;padding:0 20px;border-radius:3px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+#vs-panel .it.sb .cpm:hover{background:#0d74c0}
+#vs-panel .wv~.it.sb .mo{display:none}

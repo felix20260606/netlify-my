@@ -3,7 +3,7 @@
   let S = Object.assign({}, DEF);
   let wtags = {}, suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
-  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
+  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wtag = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
   const pendIdx = new Set(), retry = {};
 
   const $ = (s, r) => (r || document).querySelector(s);
@@ -26,6 +26,8 @@
     ban: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
     target: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
     list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+    dots: '<path class="f" d="M12 4.5a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zm0 5.9a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zm0 5.9a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2z"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     loop: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'
   };
   const I = n => '<svg class="vi" viewBox="0 0 24 24" aria-hidden="true">' + IC[n] + "</svg>";
@@ -834,9 +836,14 @@
         const st = e.target.closest(".st"), w = e.target.closest(".vs-w"), it = e.target.closest(".it"), rm = e.target.closest(".rm");
         if (rm) { if (rm.dataset.w) { savedSet.delete(rm.dataset.w.toLowerCase()); chrome.storage.local.get({ saved: [] }, v => chrome.storage.local.set({ saved: v.saved.filter(x => x.toLowerCase() !== rm.dataset.w.toLowerCase()) })); } else { savedSents.splice(+rm.dataset.si, 1); chrome.storage.local.set({ savedSents }); } buildPanel(); cur = -1; return; }
         if (st) { toggleSent(+st.dataset.i); return; }
+        { const cp = e.target.closest(".cpm"), mo = e.target.closest(".mo"), old = listEl.querySelector(".cpm");
+          if (cp) { const c = cues[+cp.dataset.i]; if (c) navigator.clipboard.writeText(c.t).then(() => toast("已复制"), () => toast("复制失败")); cp.remove(); return; }
+          if (old) old.remove();
+          if (mo) { if (old && old.dataset.i === mo.dataset.i) return; const m = document.createElement("b"); m.className = "cpm"; m.dataset.i = mo.dataset.i; m.textContent = "复制"; mo.closest(".it").append(m); return; } }
         const q = x => e.target.closest(x);
         if (q(".wv b")) { wview = q(".wv b").dataset.v; wpage = 0; buildPanel(); listEl.scrollTop = 0; return; }
         if (q(".wtip .ok")) { wtip = false; chrome.storage.local.set({ wtipOff: true }); buildPanel(); return; }
+        if (q(".tgs b")) { const t = q(".tgs b").dataset.t; wtag = wtag === t ? "" : t; buildPanel(); return; }
         if (q(".flt b")) { const f = q(".flt b").dataset.f; wfilter = wfilter === f ? "" : f; buildPanel(); return; }
         if (q(".pgr i")) { if (!q(".pgr i").classList.contains("dis")) { wpage += +q(".pgr i").dataset.p; buildPanel(); listEl.scrollTop = 0; } return; }
         if (q(".mkall")) { if (wlist.length) markMany(wlist); return; }
@@ -874,7 +881,7 @@
   function rowHtml(i, sk, hl) {
     const c = cues[i], on = sk.has(sentKey(c)); let en = c.note ? vsMark(esc(c.t), S) : wordsHtml(c.t);
     if (hl) en = en.replace(/<span class="vs-w ([^"]*)" data-w="([^"]+)">/g, (a, cl, w) => { const lw = w.toLowerCase(); return hl.f.has(lw) || vsLemma(lw) === hl.w ? '<span class="vs-w hl ' + cl + '" data-w="' + w + '">' : a; });
-    return '<div class="it sb" data-i="' + i + '" data-s="' + c.s + '"><i class="pl" title="从这句播放">' + I("play") + '</i><i class="st' + (on ? " on" : "") + '" data-i="' + i + '" title="保存短语">' + I("star") + '</i><div class="tm">' + fmt(c.s) + '</div><div class="en' + (c.note ? " nt" : "") + '">' + en + '</div><div class="tr">' + esc(trans[i] || "") + "</div></div>";
+    return '<div class="it sb" data-i="' + i + '" data-s="' + c.s + '"><i class="pl" title="从这句播放">' + I("play") + '</i><i class="st' + (on ? " on" : "") + '" data-i="' + i + '" title="保存短语">' + I("star") + '</i><i class="mo" data-i="' + i + '" title="更多">' + I("dots") + '</i><div class="tm">' + fmt(c.s) + '</div><div class="en' + (c.note ? " nt" : "") + '">' + en + '</div><div class="tr">' + esc(trans[i] || "") + "</div></div>";
   }
   // 把这个视频里最值得学的生词记下来，供复习页的“建议”使用（最多留 300 个）
   function noteSugg() {
@@ -922,8 +929,8 @@
         });
         if (pg.length) h += '<div class="wft"><button class="mkall">标记为正在学习 (' + pg.length + ')</button><span class="pgr"><i data-p="-1"' + (wpage ? "" : ' class="dis"') + ">" + I("prev") + "</i><b>" + (wpage + 1) + '</b><i data-p="1"' + (wpage < pages - 1 ? "" : ' class="dis"') + ">" + I("next") + "</i></span></div>";
       } else {
-        h += '<div class="flt">' + [["known", I("check")], ["learn", I("book")], ["ignore", I("ban")]].map(x => '<b data-f="' + x[0] + '" class="f-' + x[0] + (wfilter && wfilter !== x[0] ? " off" : "") + '">' + x[1] + " " + cnt[x[0]] + "</b>").join("") + '</div><div class="tot">/ ' + all.length + "</div>";
-        const list = all.filter(o => !wfilter || o.g === wfilter), CB = [[100, "100+"], [50, "50+"], [20, "20+"], [10, "10+"], [5, "5+"], [4, "4"], [3, "3"], [2, "2"], [1, "1"]], bk = n => CB.find(x => n >= x[0]);
+        h += '<div class="flt">' + [["known", I("check")], ["learn", I("book")], ["ignore", I("ban")]].map(x => '<b data-f="' + x[0] + '" class="f-' + x[0] + (wfilter && wfilter !== x[0] ? " off" : "") + '">' + x[1] + " " + cnt[x[0]] + "</b>").join("") + '</div><div class="tgs"><b class="tot' + (wtag ? " off" : "") + '" data-t="">/ ' + all.length + "</b>" + ["g", "y", "r", "b"].map(c => '<b class="tg-' + c + (wtag === c ? " on" : "") + '" data-t="' + c + '"># ' + all.filter(o => wtags[o.w] === c).length + "</b>").join("") + "</div>";
+        const list = all.filter(o => (!wfilter || o.g === wfilter) && (!wtag || wtags[o.w] === wtag)), CB = [[100, "100+"], [50, "50+"], [20, "20+"], [10, "10+"], [5, "5+"], [4, "4"], [3, "3"], [2, "2"], [1, "1"]], bk = n => CB.find(x => n >= x[0]);
         const grp = (arr, letters) => CB.map(b => { const ws = arr.filter(o => bk(o.n) === b).sort((a, c) => (a.w < c.w ? -1 : 1)); if (!ws.length) return ""; let body = "", lt = ""; ws.forEach(o => { if (letters && ws.length > 30 && o.w[0].toUpperCase() !== lt) { lt = o.w[0].toUpperCase(); body += '<i class="lt">' + esc(lt) + "</i>"; } body += disp(o) + " "; }); return '<div class="rk"><i class="bd c' + b[0] + '">' + b[1] + '</i><div class="ws">' + body + "</div></div>"; }).join("");
         if (wview === "rank") { const R = [1, 101, 201, 301, 501, 701, 1001, 1501, 2001, 2501, 3001, 4001, 5001, 6001, 8001, Infinity]; for (let x = 0; x < R.length - 1; x++) { const arr = list.filter(o => o.r >= R[x] && (o.r < R[x + 1] || (x === R.length - 2))); if (arr.length) h += '<div class="sec">Rank ' + (x === R.length - 2 ? "8001+" : R[x] + " - " + (R[x + 1] - 1)) + "</div>" + grp(arr, false); } }
         else h += grp(list, true);
@@ -933,7 +940,7 @@
     } else {
       const items = [...savedSet].map((w, n) => ({ w, at: (savedCtx[w] || {}).at || 0, n })).concat(savedSents.map((x, si) => ({ x, si, at: x.at || 0, n: si })));
       items.sort((a, b) => b.at - a.at || (!a.x === !b.x ? b.n - a.n : a.x ? 1 : -1));
-      listEl.innerHTML = '<div class="svb"><button class="svall">' + I("list") + '查看全部</button><button class="svrev">' + I("replay") + '练习</button></div><div class="svh"><span>最近保存:</span><span class="cxt">显示上下文<i class="tg' + (showCtx ? " on" : "") + '"></i></span></div>' +
+      listEl.innerHTML = '<div class="svb"><button class="svall">' + I("list") + '查看全部</button><button class="svrev">' + I("clock") + '练习</button></div><div class="svh"><span>最近保存:</span><span class="cxt">显示上下文<i class="tg' + (showCtx ? " on" : "") + '"></i></span></div>' +
         (items.map(o => { if (o.x) return '<div class="it sv"' + (o.x.v === vidId ? ' data-s="' + o.x.s + '"' : "") + '><i class="ty">p</i><div class="en">' + wordsHtml(o.x.t) + '</div><i class="rm" data-si="' + o.si + '" title="移除">' + I("x") + '</i></div>'; let c = savedCtx[o.w]; if (showCtx && !(c && c.t)) { const ci = cues.findIndex(q => !q.note && (q.t.match(WORD_RE) || []).some(x => x.toLowerCase() === o.w || vsLemma(x.toLowerCase()) === o.w || vsLemma(x.toLowerCase()) === vsLemma(o.w))); if (ci >= 0) { c = { t: cues[ci].t, v: vidId, s: cues[ci].s, at: (c || {}).at || 0 }; savedCtx[o.w] = c; ctxDirty = true; } } const ctx = showCtx && c && c.t; return '<div class="it sv"' + (ctx && c.v === vidId ? ' data-s="' + c.s + '"' : "") + '><i class="ty">w</i><div class="en">' + wordsHtml(ctx ? c.t : o.w) + '</div><i class="rm" data-w="' + esc(o.w) + '" title="移除">' + I("x") + '</i></div>'; }).join("") || '<div class="it"><span class="cnt">还没有保存的内容。右键点击单词，或点字幕右侧的 ☆</span></div>') +
         '<div class="hd">生词本待整理队列 <a id="vs-qc" style="cursor:pointer;color:#0FA37A;margin-left:8px">复制全部</a></div><div class="chips" id="vs-q"><span class="cnt">读取中…</span></div>';
       if (ctxDirty) { ctxDirty = false; chrome.storage.local.set({ savedCtx }); }
