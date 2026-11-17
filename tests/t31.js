@@ -16,6 +16,7 @@ const { chromium } = require('playwright'); const fs=require('fs');
   await p.click('#vs-sub .vs-w[data-w=fisherman]',{button:'right'});      // 句子播放中保存：原声应在这句播完后补上
   const get=k=>pp.evaluate(k=>new Promise(r=>chrome.storage.local.get(k,v=>{const o=v[k];r(o?{t:o.t,tr:o.tr,title:o.title,ch:o.ch,s:o.s,img:(o.img||'').slice(0,22)+' '+(o.img||'').length,aud:(o.aud||'').slice(0,24)+' '+(o.aud||'').length}:null)})),k);
   console.log('刚保存:', JSON.stringify(await get('med:w:fisherman')));
+  await p.evaluate(()=>document.querySelector('video').pause()); await p.waitForTimeout(900); await p.evaluate(()=>document.querySelector('video').play());   // 模拟悬停查词：句子中途暂停再继续
   await p.waitForFunction(()=>document.querySelector('#vs-sub .vs-w[data-w=procrastinator]'),null,{timeout:10000}); await p.waitForTimeout(700);
   console.log('这句播完后:', JSON.stringify(await get('med:w:fisherman')));
   await p.waitForFunction(()=>document.querySelector('video').currentTime>7.3,null,{timeout:10000});

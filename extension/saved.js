@@ -134,7 +134,10 @@ function setMark(w, m) { // learn | known | ignore | ""
   if (m === "learn") { if (vsMarkOf(w) !== "learn") { saved.push(w); ctx[w] = ctx[w] || { at: Date.now() }; send({ type: "add", word: w }); } }
   else { saved = saved.filter(x => x !== w && lem(x) !== L); if (m) marks[w] = m; VS_SAVED = new Set(saved); }
 }
-function persist(cb) { chrome.storage.local.get({ saved: [] }, v => { const keep = new Set(saved), out = v.saved.filter(x => keep.has(x.toLowerCase())); saved.forEach(w => { if (!out.some(x => x.toLowerCase() === w)) out.push(w); }); chrome.storage.local.set({ saved: out, marks, savedCtx: ctx, savedSents: sents }, () => { VS_SAVED = new Set(saved); VS_MARKS = marks; cb && cb(); }); }); }
+// 改动前先重新读一遍存储：这个页面可能开了很久，期间在视频里新保存的词不能被旧数据覆盖掉
+function fresh(fn) { load(() => { fn(); }); }
+let selfWrite = 0;
+function persist(cb) { selfWrite = Date.now(); chrome.storage.local.get({ saved: [] }, v => { const keep = new Set(saved), out = v.saved.filter(x => keep.has(x.toLowerCase())); saved.forEach(w => { if (!out.some(x => x.toLowerCase() === w)) out.push(w); }); chrome.storage.local.set({ saved: out, marks, savedCtx: ctx, savedSents: sents }, () => { VS_SAVED = new Set(saved); VS_MARKS = marks; cb && cb(); }); }); }
 function bind(n) {
   const re = () => { picked.clear(); draw(); };
   $("#q").oninput = e => { q = e.target.value.trim(); page = 0; clearTimeout(bind.t); bind.t = setTimeout(() => { draw(); const i = $("#q"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); };
@@ -153,12 +156,13 @@ function bind(n) {
   $$("#sel button").forEach(b => (b.onclick = () => { const keys = [...picked], act = b.dataset.b;
     if (act === "copy") { const txt = tab === "words" ? keys.join("\n") : keys.map(k => { const x = sents.find(s => s.k === k); return x ? x.t + "\t" + (x.tr || "") : ""; }).join("\n"); navigator.clipboard.writeText(txt).then(() => (b.textContent = "已复制")); return; }
     if (act === "del") return removeKeys(keys);
-    if (act === "tag") { keys.forEach(k => { if (b.dataset.c) tags[k] = b.dataset.c; else delete tags[k]; }); chrome.storage.local.set({ tags }, re); return; }
-    keys.forEach(w => setMark(w, act)); persist(re);
+    if (act === "tag") { fresh(() => { keys.forEach(k => { if (b.dataset.c) tags[k] = b.dataset.c; else delete tags[k]; }); selfWrite = Date.now(); chrome.storage.local.set({ tags }, re); }); return; }
+    fresh(() => { keys.forEach(w => setMark(w, act)); persist(re); });
   }));
   upd();
 }
-function removeKeys(keys) {
+function removeKeys(keys) { fresh(() => removeKeys0(keys)); }
+function removeKeys0(keys) {
   if (keys.length > 1 && !confirm("确定要" + (tab === "words" && filt !== "learn" ? "取消标记" : "删除") + "这 " + keys.length + " 项吗？保存的原声和画面也会一起删除。")) return;
   if (tab === "words") { keys.forEach(w => { if (filt === "learn") { saved = saved.filter(x => x !== w); delete ctx[w]; delete srs[w]; delete med["med:w:" + w]; } else delete marks[w]; }); if (filt === "learn") chrome.storage.local.remove(keys.map(w => "med:w:" + w)); chrome.storage.local.set({ srs }); }
   else { sents = sents.filter(x => !keys.includes(x.k)); chrome.storage.local.remove(keys.map(k => "med:s:" + k)); }
@@ -167,7 +171,7 @@ function removeKeys(keys) {
 function draw() { head(); if (tab === "words") drawWords(); else if (tab === "sents") drawSents(); else drawAll(); }
 $$(".tabs b").forEach(b => (b.onclick = () => { tab = b.dataset.t; q = ""; src = ""; page = 0; picked.clear(); if (tab !== "words") sort = "date"; draw(); scrollTo(0, 0); }));
 $("#rv").onclick = () => (location.href = "review.html");
-document.addEventListener("contextmenu", e => { const w = e.target.closest && e.target.closest(".lr .vs-w, .wr .vs-w, td.x .vs-w"); if (!w) return; e.preventDefault(); const k = w.dataset.w.toLowerCase(); setMark(k, vsMarkOf(k) === "learn" ? "known" : "learn"); const y = scrollY; persist(() => { draw(); scrollTo(0, y); }); });
+document.addEventListener("contextmenu", e => { const w = e.target.closest && e.target.closest(".lr .vs-w, .wr .vs-w, td.x .vs-w"); if (!w) return; e.preventDefault(); const k = w.dataset.w.toLowerCase(); fresh(() => { setMark(k, vsMarkOf(k) === "learn" ? "known" : "learn"); const y = scrollY; persist(() => { draw(); scrollTo(0, y); }); }); });
 
 // ---------- 悬停：小气泡（释义 + 快速标记）；点击：右侧词典 ----------
 const meaningsOf = g => { const out = []; if (g) { if (g.t) out.push(g.t); (g.zh || []).forEach(z => z.words.forEach(x => { if (!out.includes(x)) out.push(x); })); } return out; };
@@ -183,7 +187,7 @@ function showMini(el) {
   place();
   send({ type: "wordLite", word: w, tl: S.target, sl: S.srcLang }).then(r => { if (!m.isConnected) return; const ms = meaningsOf(r.g).slice(0, 3); m.querySelector(".ms").innerHTML = ms.length ? ms.map(x => "<div>" + esc(x) + "</div>").join("") : "<div>—</div>"; place(); });
   m.onmouseenter = () => clearTimeout(miniT); m.onmouseleave = () => (miniT = setTimeout(hideMini, 180));
-  m.querySelectorAll("button").forEach(b => (b.onclick = () => { const cur = stateOf(w); setMark(w, cur === b.dataset.m ? "" : b.dataset.m); hideMini(); redraw(); }));
+  m.querySelectorAll("button").forEach(b => (b.onclick = () => fresh(() => { const cur = stateOf(w); setMark(w, cur === b.dataset.m ? "" : b.dataset.m); hideMini(); redraw(); })));
 }
 document.addEventListener("mouseover", e => { const w = e.target.closest && e.target.closest("#wrap .vs-w, #dict .bd .vs-w"); if (!w || w === miniW) return; clearTimeout(miniT); miniT = setTimeout(() => showMini(w), 260); });
 document.addEventListener("mouseout", e => { const w = e.target.closest && e.target.closest("#wrap .vs-w, #dict .bd .vs-w"); if (!w) return; clearTimeout(miniT); miniT = setTimeout(hideMini, 220); });
@@ -221,8 +225,11 @@ function drawDict(w, res) {
   $("#dq").onkeydown = e => { if (e.key === "Enter") openDict(e.target.value); }; $("#dqx").onclick = () => { $("#dq").value = ""; $("#dq").focus(); };
   $("#dsay").onclick = () => say(w, null); if ($("#dorig")) $("#dorig").onclick = () => say("", mOf(w));
   $("#dmore").onclick = () => { drawDict.open = !drawDict.open; drawDict(w, res); };
-  d.querySelectorAll("[data-m]").forEach(b => (b.onclick = () => { setMark(w, stateOf(w) === b.dataset.m ? "" : b.dataset.m); redraw(); }));
-  d.querySelectorAll("[data-tg]").forEach(b => (b.onclick = () => { if (b.dataset.tg) tags[w] = b.dataset.tg; else delete tags[w]; chrome.storage.local.set({ tags }, redraw); }));
-  if ($("#dnext")) $("#dnext").onclick = () => { if (stateOf(w) !== "learn") setMark(w, "learn"); const key = saved.find(x => x === w || lem(x) === lem(w)) || w; srs[key] = Object.assign({ b: 0, n: 0 }, srs[key], { due: 1 }); chrome.storage.local.set({ srs }, () => { $("#dnext").lastChild.textContent = "已排到下次复习的最前面"; redraw(); }); };
+  d.querySelectorAll("[data-m]").forEach(b => (b.onclick = () => fresh(() => { setMark(w, stateOf(w) === b.dataset.m ? "" : b.dataset.m); redraw(); })));
+  d.querySelectorAll("[data-tg]").forEach(b => (b.onclick = () => fresh(() => { if (b.dataset.tg) tags[w] = b.dataset.tg; else delete tags[w]; selfWrite = Date.now(); chrome.storage.local.set({ tags }, redraw); })));
+  if ($("#dnext")) $("#dnext").onclick = () => fresh(() => { if (stateOf(w) !== "learn") setMark(w, "learn"); const key = saved.find(x => x === w || lem(x) === lem(w)) || w; srs[key] = Object.assign({ b: 0, n: 0 }, srs[key], { due: 1 }); chrome.storage.local.set({ srs }, () => { redraw(); }); });
 }
+// 别处（视频页、复习页）改了数据：这里自动跟着刷新
+let extT = null;
+chrome.storage.onChanged.addListener((c, a) => { if (a !== "local" || Date.now() - selfWrite < 1500) return; if (!Object.keys(c).some(k => /^(saved|savedSents|savedCtx|marks|srs|tags)$/.test(k) || k.startsWith("med:"))) return; clearTimeout(extT); extT = setTimeout(() => { const y = scrollY; load(() => { draw(); scrollTo(0, y); if (dictW) drawDict(dictW, drawDict.res); }); }, 400); });
 load(draw);

@@ -58,6 +58,7 @@
     if (e.source !== window || !e.data || e.data.src !== "VS") return;
     if (e.data.type === "dev-level" && e.data.level >= 0) { chrome.storage.sync.set({ level: +e.data.level, ratio: +e.data.ratio || 1.5 }); return; } // 开发用：只允许改词汇水平和比率
     if (e.data.type === "dev-state") { window.postMessage({ src: "VS-R", level: S.level, ratio: S.ratio, merge: S.merge, engine: S.engine, hideMode: S.hideMode, showHuman: S.showHuman, target: S.target }, "*"); return; }
+    if (e.data.type === "dev-media") { chrome.storage.local.get(null, v => { const m = Object.keys(v).filter(k => k.startsWith("med:")).map(k => k.slice(4) + " img=" + ((v[k].img || "").length > 100 ? 1 : 0) + " aud=" + ((v[k].aud || "").length > 100 ? Math.round(v[k].aud.length / 1024) + "KB" : 0) + " " + new Date(v[k].at).toTimeString().slice(0, 5)); window.postMessage({ src: "VS-M", saveMedia: S.saveMedia, cur, recording: recR ? recR._i : null, clips: Object.keys(clips).map(k => k + ":" + Math.round(clips[k].length / 1024) + "KB"), pend: Object.keys(pendMed), med: m, saved: (v.saved || []).length }, "*"); }); return; }
     if (e.data.type === "reload-ext") { send({ type: "reloadSelf" }); return; } // 开发用：让插件重新加载自身（仅重启插件，不涉及数据）
     if (e.data.type === "audio") { chrome.storage.local.set({ audioTracks: e.data.names || [] }); return; }
     if (e.data.type === "tracks") { tracks = e.data.tracks || []; chrome.storage.local.set({ trackLangs: tracks.filter(t => t.kind !== "asr").map(t => t.lang) }); pickTrack(e.data.cur); if (pendUrl && tracks.length) { const p = pendUrl; pendUrl = ""; onTimedtext(p); } return; }
@@ -441,7 +442,7 @@
       } else if (pauseDone === cur && v.paused && t >= cues[cur].s - 0.1 && t < end + 0.5) return; // 自动暂停期间保持当前句
     }
     const i = findCue(t);
-    if (i !== cur) { { const k = recR && recR._i; recStop(k != null && cues[k] && t >= cues[k].e - 0.5); } pauseDone = -1; cur = i; if (loopOn && i >= 0) loopIdx = i; render(i); if (i >= 0) recStart(i); }
+    if (i !== cur) { { const k = recR && recR._i; recStop(k != null && !!cues[k] && t >= cueEnd(k) - 0.5 && t < cueEnd(k) + 1.5); } pauseDone = -1; cur = i; if (loopOn && i >= 0) loopIdx = i; render(i); if (i >= 0) recStart(i); }
   }
   let apT = null;
   setInterval(tick, 100);
@@ -623,19 +624,25 @@
   // ---------- 原声与截图 ----------
   // 每句字幕播放时顺手把这一句的声音录下来（只留最近几句在内存里）；保存单词或句子时，把原声、当前画面和出处一起存下
   let recR = null, recV = null, recStream = null; const clips = {}, pendMed = {};
+  const cueEnd = i => (cues[i] ? Math.min(cues[i].e, cues[i + 1] ? Math.max(cues[i + 1].s, cues[i].s + 0.3) : Infinity) : 0); // 这一句实际显示到什么时候（下一句开始或自己结束）
   function recStop(full) { const r = recR; recR = null; if (r && r.state !== "inactive") { r._full = full; try { r.stop(); } catch (e) {} } }
   function recStart(i) {
     try {
       if (S.saveMedia === false || custom) return; const v = video(); if (!v || !v.captureStream || v.paused || !cues[i] || cues[i].note) return;
-      if (Math.abs(v.currentTime - cues[i].s) > 0.45) return; // 只从句子开头录，保证是完整的一句
+      if (Math.abs(v.currentTime - cues[i].s) > 0.6) return; // 只从句子开头录，保证是完整的一句
       recStop(false);
-      if (recV !== v) { recV = v; recStream = null; v.addEventListener("pause", () => { const k = recR && recR._i; recStop(k != null && cues[k] && v.currentTime >= cues[k].e - 0.5); }); v.addEventListener("playing", () => { if (!recR && cur >= 0) recStart(cur); }); v.addEventListener("seeking", () => recStop(false)); }
+      if (recV !== v) { recV = v; recStream = null; 
+        // 句末暂停：这一句录完了。句子中途暂停（比如悬停查词）：录音也暂停，继续播放时接着录，不丢这一句
+        v.addEventListener("pause", () => { const r = recR; if (!r) return; if (v.currentTime >= cueEnd(r._i) - 0.5) recStop(true); else if (r.state === "recording") { try { r.pause(); r._pt = v.currentTime; } catch (e) { recStop(false); } } });
+        v.addEventListener("playing", () => { const r = recR; if (r && r.state === "paused") { if (cur === r._i && Math.abs(v.currentTime - r._pt) < 0.5) { try { r.resume(); } catch (e) { recStop(false); } } else recStop(false); } if (!recR && cur >= 0) recStart(cur); });
+        v.addEventListener("seeking", () => { const r = recR; if (r && !(r.state === "paused" && Math.abs(v.currentTime - r._pt) < 0.5)) recStop(false); });
+      }
       if (!recStream || !recStream.getAudioTracks().some(t => t.readyState === "live")) recStream = v.captureStream();
       const at = recStream.getAudioTracks().filter(t => t.readyState === "live"); if (!at.length) return;
       const r = new MediaRecorder(new MediaStream([at[0]]), { mimeType: "audio/webm;codecs=opus", audioBitsPerSecond: 32000 }), chunks = [], vid = vidId;
       r._i = i; r.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
       r.onstop = () => {
-        if (!r._full || vid !== vidId) return; const b = new Blob(chunks, { type: "audio/webm" }); if (b.size < 1500 || b.size > 600000) return;
+        if (!r._full || vid !== vidId) return; const b = new Blob(chunks, { type: "audio/webm" }); if (b.size < 900 || b.size > 600000) return;
         const fr = new FileReader(); fr.onload = () => { clips[i] = fr.result; Object.keys(clips).filter(k => Math.abs(k - i) > 3).forEach(k => delete clips[k]); (pendMed[i] || []).forEach(key => chrome.storage.local.get(key, o => { if (o[key]) { o[key].aud = fr.result; chrome.storage.local.set({ [key]: o[key] }); } })); delete pendMed[i]; }; fr.readAsDataURL(b);
       };
       r.start(); recR = r;
