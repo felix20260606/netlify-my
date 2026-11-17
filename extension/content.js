@@ -1,7 +1,7 @@
 (function () {
   const DEF = { target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: false, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
-  let asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
+  let revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
   let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [];
   const pendIdx = new Set(), retry = {};
@@ -239,8 +239,8 @@
     const sv = document.createElement("i"); sv.className = "vs-sv"; sv.textContent = "☆"; sv.dataset.tip = "保存当前字幕 (R)";
     rp.addEventListener("click", e => { e.stopPropagation(); replay(); });
     sv.addEventListener("click", e => { e.stopPropagation(); if (cur >= 0) { toggleSent(cur); syncStar(); } });
-    [tEl, hEl].forEach(x => x.addEventListener("click", () => { if (S.hideMode !== "off") root.classList.add("reveal"); }));
-    oEl.addEventListener("click", e => { if (S.hideMode === "transFirst" && !e.target.closest(".vs-w")) root.classList.add("reveal"); });
+    // 隐藏字幕：鼠标移到或点击哪一行，就显示哪一行，之后保持显示，直到换句
+    ["mouseenter", "click"].forEach(ev => { oEl.addEventListener(ev, () => { if (!revO) { revO = true; applyHide(); } }); [tEl, hEl].forEach(x => x.addEventListener(ev, () => { if (!revT) { revT = true; applyHide(); } })); });
     box.append(rp, oEl, tEl, hEl, sv); root.append(box); host.append(root); root.classList.toggle("below", host !== p);
     box.addEventListener("mouseenter", () => clearTimeout(hideT));
     box.addEventListener("mouseleave", () => schedResume());
@@ -297,11 +297,26 @@
     }
     if (pill.parentNode !== lc) lc.append(pill);
   }
+  // 隐藏字幕（与 Language Reactor 一致）：被隐藏的行用模糊遮住；暂停不会显示；
+  // 隐藏翻译→翻译模糊；隐藏字幕→原文模糊；先翻译后字幕 / 先字幕后翻译→两行都模糊，按 E 依次显示
+  function applyHide() {
+    if (!oEl) return;
+    const m = S.hideMode, both = m === "transFirst" || m === "origFirst";
+    oEl.classList.toggle("hid", (m === "orig" || both) && !revO);
+    const ht = (m === "trans" || both) && !revT;
+    tEl.classList.toggle("hid", ht); hEl.classList.toggle("hid", ht);
+  }
+  function revealNext() {
+    const m = S.hideMode; if (m === "off" || !oEl) return;
+    const order = m === "transFirst" ? ["T", "O"] : m === "origFirst" ? ["O", "T"] : m === "trans" ? ["T"] : ["O"];
+    for (const x of order) { if (x === "T" && !revT) { revT = true; break; } if (x === "O" && !revO) { revO = true; break; } }
+    applyHide();
+  }
   function hexRgb(h) { h = String(h || "#000").replace("#", ""); if (h.length === 3) h = h.replace(/./g, "$&$&"); const n = parseInt(h, 16) || 0; return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
   function applyStyle() {
     if (!root) return;
     const [r, g, b] = hexRgb(S.bgColor);
-    root.style.bottom = S.posBottom + "%"; ["trans", "orig", "transFirst", "origFirst"].forEach(m => root.classList.toggle("hm-" + m, S.hideMode === m));
+    root.style.bottom = S.posBottom + "%"; applyHide();
     root.style.fontFamily = S.font || "";
     const de = document.documentElement.style; de.setProperty("--vs-ck", S.colKnown); de.setProperty("--vs-cs", S.colSuggest); de.setProperty("--vs-ci", S.colIgnore); de.setProperty("--vs-cp", S.colSpecial);
     root.style.setProperty("--vs-tc", S.trColor);
@@ -335,7 +350,7 @@
   // ---------- 渲染当前句 ----------
   function render(i) {
     if (!build()) return;
-    root.classList.remove("reveal");
+    revO = revT = false; applyHide();
     if (i < 0) { box.style.display = "none"; return; }
     const c = cues[i]; box.style.display = "";
     hEl.textContent = (!c.note && human[i]) || "";
@@ -372,7 +387,7 @@
     if (vId() !== vidId) { vidId = vId(); raw = []; cues = []; trans = []; key = ""; loadedLang = ""; cur = -1; loopIdx = -1; loopOn = false; lazy = false; ver++; if (panel) buildPanel(); tracks = []; human = []; custom = false; if (vidId && /\/watch/.test(location.pathname)) { ensureCaptionsOn(); setTimeout(askTracks, 1500); setTimeout(askTracks, 4500); setTimeout(() => window.postMessage({ src: "VS-C", type: "get-audio" }, "*"), 3000); setTimeout(() => { const v = video(); if (v && S.rate && S.rate !== 1) v.playbackRate = S.rate; }, 1200); } }
     const v = video(); if (!v || !cues.length || !/\/watch/.test(location.pathname)) return;
     if (++tk % 10 === 0) { mountPill(); const shown = !!(panel && panel.classList.contains("show")), wantP = !!(S.panelOpen && S.enabled); if (wantP !== shown) { if (panel) { panel.classList.toggle("show", wantP); if (wantP) { mountPanel(); markPanel(cur, true); } } else if (wantP) togglePanel(); } else if (panel && panel.classList.contains("show")) mountPanel(); }
-    const t = v.currentTime; if (root) { root.classList.toggle("paused", v.paused); if (tk % 10 === 0) build(); }
+    const t = v.currentTime; if (root && tk % 10 === 0) build();
     if (loopOn && loopIdx >= 0 && cues[loopIdx] && t >= cues[loopIdx].e - 0.08) { v.currentTime = cues[loopIdx].s; return; }
     if (S.autoPause && !loopOn && cur >= 0 && pauseDone !== cur && !v.paused && t >= cues[cur].e - 0.12) { pauseDone = cur; v.pause(); }
     const i = findCue(t);
@@ -565,7 +580,7 @@
     else if (k === "q") { chrome.storage.sync.set({ autoPause: !S.autoPause }); toast("自动暂停：" + (!S.autoPause ? "开" : "关")); stop(); }
     else if (k === "r") { if (cur >= 0) { toggleSent(cur); syncStar(); toast(savedSents.some(x => x.k === sentKey(cues[cur])) ? "已保存当前字幕" : "已取消保存"); } stop(); }
     else if (k === "o") { toggleLoop(); stop(); }
-    else if (k === "e") { if (root) root.classList.toggle("reveal"); stop(); }
+    else if (k === "e") { revealNext(); stop(); }
     else if (k === "z" || k === "x") { const v = video(); if (v) setRate(Math.round((v.playbackRate + (k === "x" ? 0.25 : -0.25)) * 100) / 100); stop(); }
   }, true);
 

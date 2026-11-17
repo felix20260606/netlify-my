@@ -85,10 +85,6 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 #movie_player.vs-hidectl #vs-nav,#movie_player.vs-hidectl #vs-ap{display:none}
 #vs-sub .vs-h{color:#fff;font-size:calc(clamp(14px,1.8vw,24px) * var(--vs-ts,1));line-height:1.4;margin-top:2px;opacity:.92}
 #vs-sub .vs-h:empty{display:none}
-#vs-sub.hm-trans .vs-t,#vs-sub.hm-trans .vs-h{display:none!important}
-#vs-sub.hm-orig .vs-o{display:none}
-#vs-sub.hm-transFirst .vs-o,#vs-sub.hm-origFirst .vs-t,#vs-sub.hm-origFirst .vs-h{filter:blur(8px);transition:filter .15s}
-#vs-sub.paused.hm-transFirst .vs-o,#vs-sub.hm-transFirst .vs-box:hover .vs-o,#vs-sub.paused.hm-origFirst .vs-t,#vs-sub.paused.hm-origFirst .vs-h,#vs-sub.hm-origFirst .vs-box:hover .vs-t,#vs-sub.hm-origFirst .vs-box:hover .vs-h{filter:none}
 #movie_player.vs-off #vs-sub,#movie_player.vs-off #vs-nav,#movie_player.vs-off #vs-ap,#movie_player.vs-off #vs-mv,#movie_player.vs-off #vs-tip{display:none!important}
 #vs-pill{display:inline-flex;align-items:center;gap:8px;height:34px;margin:auto 10px;padding:0 10px 0 4px;border:1.5px solid rgba(255,255,255,.45);border-radius:999px;color:#fff;font:600 13px/1 system-ui,sans-serif;align-self:center;vertical-align:middle;position:relative}
 #vs-pill .tg{display:inline-flex;align-items:center;gap:7px;cursor:pointer;position:relative}
@@ -103,8 +99,6 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 #vs-sub .vs-w.vs-u1,#vs-panel .vs-w.vs-u1,#vs-sub .vs-w.vs-ln,#vs-panel .vs-w.vs-ln{color:var(--vs-cs,#FFB86B)}
 #vs-sub .vs-w.vs-u2,#vs-panel .vs-w.vs-u2{color:var(--vs-ci,#CDA8F7)}
 #vs-sub .vs-w.vs-sp,#vs-panel .vs-w.vs-sp{color:var(--vs-cp,#7CE3B8)}
-#vs-sub.reveal .vs-o,#vs-sub.reveal .vs-t,#vs-sub.reveal .vs-h{filter:none!important}
-#vs-sub.reveal.hm-trans .vs-t,#vs-sub.reveal.hm-trans .vs-h,#vs-sub.reveal.hm-orig .vs-o{display:block!important}
 #movie_player.vs-hidebar .ytp-chrome-bottom,#movie_player.vs-hidebar .ytp-gradient-bottom{opacity:0!important;transition:opacity .2s}
 #movie_player.vs-hidebar .ytp-chrome-bottom:hover{opacity:1!important}
 #vs-below{margin:10px 0 4px}
@@ -170,3 +164,5 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 #vs-panel .cnt.fm{opacity:.75}
 #vs-sub .vs-note{color:var(--vs-cp,#7CE3B8);font-style:normal;font-weight:600;opacity:.95}
 #vs-panel .it .nt{color:var(--vs-cp,#7CE3B8);font-style:normal}
+#vs-sub .vs-o,#vs-sub .vs-t,#vs-sub .vs-h{transition:filter .18s}
+#vs-sub .vs-o.hid,#vs-sub .vs-t.hid,#vs-sub .vs-h.hid{filter:blur(.23em);cursor:pointer}
