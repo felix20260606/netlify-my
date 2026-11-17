@@ -218,11 +218,16 @@
     { const v = video(); if (v) { const i = findCue(v.currentTime); cur = i; if (root || i >= 0) render(i); } } // 翻译取回后重画当前句
   }
   function ensureCaptionsOn() {
-    setTimeout(() => {
-      if (raw.length) return;
-      const b = $(".ytp-subtitles-button");
-      if (b && b.getAttribute("aria-pressed") === "false") b.click();
-    }, 2500);
+    // 先问页面脚本有没有已经发出过的字幕请求（本脚本启动得晚会错过）；还没有就打开 CC；CC 开着却一直没拿到，就关开一次强制重取
+    const my = vidId, ask = () => window.postMessage({ src: "VS-C", type: "get-last" }, "*");
+    setTimeout(ask, 300); setTimeout(ask, 1500);
+    [2500, 6000, 11000].forEach((ms, n) => setTimeout(() => {
+      if (raw.length || custom || my !== vidId) return;
+      const b = $(".ytp-subtitles-button"); if (!b) return;
+      if (b.getAttribute("aria-pressed") === "false") b.click();
+      else if (n > 0) { b.click(); setTimeout(() => b.click(), 400); }
+      else ask();
+    }, ms));
   }
 
   // ---------- 界面 ----------

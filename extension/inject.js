@@ -1,7 +1,8 @@
 // 运行在页面环境：拦截播放器自己请求的字幕地址，交给 content.js
 (function () {
+  var last = ""; // 最近一次字幕请求的地址：content.js 启动得晚，错过了可以回头来问
   function report(url) {
-    try { if (/\/api\/timedtext/.test(url)) window.postMessage({ src: "VS", type: "timedtext", url: new URL(url, location.href).href }, "*"); } catch (e) {}
+    try { if (/\/api\/timedtext/.test(url)) { last = new URL(url, location.href).href; window.postMessage({ src: "VS", type: "timedtext", url: last }, "*"); } } catch (e) {}
   }
   var open = XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open = function (m, url) { report(String(url)); return open.apply(this, arguments); };
@@ -12,6 +13,7 @@
   };
   window.addEventListener("message", function (e) {
     if (e.source !== window || !e.data || e.data.src !== "VS-C") return;
+    if (e.data.type === "get-last") { if (last) window.postMessage({ src: "VS", type: "timedtext", url: last }, "*"); return; }
     var pl = document.getElementById("movie_player"); if (!pl) return;
     if (e.data.type === "get-tracks") {
       var tracks = [], cur = null;
