@@ -1,5 +1,5 @@
 // 生词本同步配置放在 config.js（不进仓库；参照 config.example.js 创建）
-let VS_SYNC = { bin: "", key: "" };
+let VS_SYNC = { bin: "", key: "", site: "" };
 try { importScripts("config.js"); } catch (e) {}
 const BIN = VS_SYNC.bin, KEY = VS_SYNC.key;
 const BASE = "https://api.jsonbin.io/v3/b/" + BIN;
@@ -225,6 +225,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "openReview") { chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); send({}); }
   else if (m.type === "sentences") sentences(m.word, m.tl, m.sl).then(s => send({ s })).catch(() => send({ s: [] }));
   else if (m.type === "add") addWord(m.word, m.queueOnly, m).then(send);
+  else if (m.type === "capUp") { if (!VS_SYNC.site || !KEY) send({ ok: false }); else fetch(VS_SYNC.site.replace(/\/$/, "") + "/.netlify/functions/cap", { method: "POST", headers: { "Content-Type": "application/json", "X-Key": KEY }, body: JSON.stringify(m.body) }).then(r => r.json()).then(send).catch(() => send({ ok: false })); }
   else if (m.type === "syncAll") syncAll(m.tl).then(send);
   else return false;
   return true;

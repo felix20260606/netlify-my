@@ -1,5 +1,5 @@
 (function () {
-  const DEF = { savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 12, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
+  const DEF = { capSync: true, savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 12, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
   let tagOpen = false, wtags = {}, suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
@@ -446,6 +446,7 @@
   function tick() {
     if (vId() !== vidId) { vidId = vId(); raw = []; cues = []; trans = []; key = ""; loadedLang = ""; cur = -1; loopIdx = -1; loopOn = false; lazy = false; ver++; if (panel) buildPanel(); tracks = []; human = []; custom = false; if (vidId && /\/watch/.test(location.pathname)) { ensureCaptionsOn(); setTimeout(askTracks, 1500); setTimeout(askTracks, 4500); setTimeout(() => window.postMessage({ src: "VS-C", type: "get-audio" }, "*"), 3000); setTimeout(() => { const v = video(); if (v && S.rate && S.rate !== 1) v.playbackRate = S.rate; }, 1200); } }
     const v = video(); if (!v || !cues.length || !/\/watch/.test(location.pathname)) return;
+    if (tk % 50 === 0) capSync(v);
     if (++tk % 10 === 0) { const pp = player(); if (pp && root) root.style.setProperty("--vs-fs", Math.max(13, pp.offsetHeight * 0.0373).toFixed(2) + "px"); // 字号跟播放器高度走，和 LR 同一比例
       mountPill(); const shown = !!(panel && panel.classList.contains("show")), wantP = !!(S.panelOpen && S.enabled); if (wantP !== shown) { if (panel) { panel.classList.toggle("show", wantP); if (wantP) { mountPanel(); markPanel(cur, true); } } else if (wantP) togglePanel(); } else if (panel && panel.classList.contains("show")) mountPanel(); }
     if (capBusy) return; // 补录原声期间不切字幕、不触发自动暂停
@@ -703,6 +704,22 @@
     } catch (e) { recR = null; }
   }
   function frameShot() { try { const v = video(); if (!v || !v.videoWidth) return ""; const w = 360, h = Math.round(w * v.videoHeight / v.videoWidth), cv = document.createElement("canvas"); cv.width = w; cv.height = h; cv.getContext("2d").drawImage(v, 0, 0, w, h); return cv.toDataURL("image/jpeg", 0.62); } catch (e) { return ""; } }
+  // 把这个视频的字幕 + 译文存到生词本网站，手机上打开就能边看边学
+  let capSent = "", capSeen = "", capSince = 0;
+  function capSync(v) {
+    if (S.capSync === false || custom || !vidId || capSent === vidId || cues.length < 10 || v.paused) return;
+    if (capSeen !== vidId) { capSeen = vidId; capSince = Date.now(); return; }
+    if (Date.now() - capSince < 20000) return; // 真的在看才同步
+    capSent = vidId; const my = vidId, mv = ver, k = "cap:" + my;
+    chrome.storage.local.get(k, async o => {
+      if (o[k] && o[k].n === cues.length && o[k].tr >= cues.length * 0.9) return;
+      try { await fetchAllForce(); } catch (e) {}
+      if (vidId !== my || ver !== mv) { capSent = ""; return; }
+      const ch = $("ytd-watch-metadata ytd-channel-name a, #owner ytd-channel-name a, #upload-info a");
+      const body = { v: my, title: document.title.replace(/^\(\d+\)\s*/, "").replace(/ - YouTube$/, ""), author: ch ? ch.textContent.trim() : "", lang: S.srcLang, tl: S.target, cues: cues.filter(c => !c.note).map(c => ({ s: +c.s.toFixed(2), e: +cueEnd(cues.indexOf(c)).toFixed(2), t: c.t, r: trans[cues.indexOf(c)] || "" })) };
+      send({ type: "capUp", body }).then(r => { if (r && r.ok) chrome.storage.local.set({ [k]: { n: cues.length, tr: body.cues.filter(c => c.r).length, at: Date.now() } }); else capSent = ""; });
+    });
+  }
   function saveMedia(key, ci) {
     try {
       if (S.saveMedia === false || ci < 0 || !cues[ci] || custom) return; const cu = cues[ci], v = video(), near = v && v.currentTime >= cu.s - 0.3 && v.currentTime <= cu.e + 1.5;
