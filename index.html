@@ -700,13 +700,13 @@
     <div class="sec-head"><div class="sec-badge">✍️</div><h2>写作评分标准速查</h2></div>
     <p class="sub">四项各占 25%，取平均分（四舍五入到 0.5）</p>
     <div class="card">
-      <table>
+      <div class="tscroll"><table class="wide">
         <tr><th>分项</th><th>看什么</th><th>Band 7 关键词</th></tr>
         <tr><td><b>TR</b><span>任务回应</span></td><td>是否完整回应题目、观点是否明确</td><td><i>clear position throughout</i></td></tr>
         <tr><td><b>CC</b><span>连贯衔接</span></td><td>段落逻辑、连接词是否自然</td><td><i>logically organised, clear progression</i></td></tr>
         <tr><td><b>LR</b><span>词汇丰富度</span></td><td>用词是否多样、是否精准</td><td><i>sufficient range, some flexibility</i></td></tr>
         <tr><td><b>GRA</b><span>语法准确度</span></td><td>句式是否多样、错误是否影响理解</td><td><i>variety of structures, good control</i></td></tr>
-      </table>
+      </table></div>
       <div class="tip">💡 四项里最容易快速提分的是 <b>LR 词汇</b> 和 <b>CC 连贯衔接</b>——换词、加连接词比重构语法更好操作，往下看「词汇升级」和「连接词」两节。</div>
     </div>
   </section>
@@ -809,14 +809,14 @@
   <section id="speaking-tips">
     <div class="sec-head"><div class="sec-badge">💡</div><h2>口语实战技巧</h2></div>
     <div class="card">
-      <table>
+      <div class="tscroll"><table>
         <tr><th>场景</th><th>怎么说</th></tr>
         <tr><td>没听清题目</td><td><i>"Sorry, could you repeat the question?"</i></td></tr>
         <tr><td>需要时间思考</td><td><i>"That's an interesting question, let me think…"</i></td></tr>
         <tr><td>不知道怎么答</td><td><i>"I haven't thought about this before, but I'd say…"</i></td></tr>
         <tr><td>举例开头</td><td><i>"For example, when I was…"</i></td></tr>
         <tr><td>补充说明</td><td><i>"To be more specific…"</i></td></tr>
-      </table>
+      </table></div>
       <div class="tip">💡 <b>Part 2</b>（2 分钟独白）拿到题卡先花 1 分钟按 <b>What / When / Where / Who / Why/How feel</b> 五个角度列关键词，别背成文；<b>Part 3</b> 每题至少说 3-4 句，只回答一两句会被认为「展开不够」。流畅度比语法完美更重要——卡壳时用 "well… / actually… / you know" 自然过渡，别沉默太久。</div>
     </div>
   </section>
@@ -825,6 +825,126 @@
 </div><!-- /ielts-basics -->
 <div id="ielts-notes-view"><iframe id="ieltsframe" title="雅思笔记" referrerpolicy="no-referrer"></iframe></div>
 </div><!-- /view-ielts -->
+<style id="mobile-adapt">
+  /* ===== 手机端适配：全部规则都在 max-width 媒体查询里，桌面端（≥1024px）不受影响 ===== */
+  /* -- 刘海屏安全区（竖屏手机 + 横屏手机/小平板） -- */
+  @media (max-width:1023px){
+    :root{--sat:env(safe-area-inset-top,0px);--sar:env(safe-area-inset-right,0px);
+      --sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px)}
+    html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+    body{padding-bottom:calc(40px + var(--sab))}
+    #apptabs{height:calc(56px + var(--sat));padding:var(--sat) calc(10px + var(--sar)) 0 calc(10px + var(--sal))}
+    #subtabs{top:calc(56px + var(--sat));padding-left:calc(14px + var(--sal));padding-right:calc(14px + var(--sar))}
+    #view-en,#view-ielts{padding-top:calc(98px + var(--sat))}
+    #view-fat,#view-trip{top:calc(98px + var(--sat))}
+    #view-ielts{padding-bottom:calc(64px + var(--sab))}
+    #view-ielts .ielts-header{top:calc(98px + var(--sat))}
+    .wrap{padding-left:max(14px,var(--sal));padding-right:max(14px,var(--sar))}
+    #view-ielts .wrap{padding-left:max(18px,var(--sal));padding-right:max(18px,var(--sar))}
+    #triprow{padding-left:max(10px,var(--sal));padding-right:max(10px,var(--sar))}
+    .toast{bottom:calc(24px + var(--sab))}
+  }
+
+  /* -- 手机竖屏 -- */
+  @media (max-width:640px){
+    /* 导航：触摸区域 */
+    #apptabs button{min-height:44px}
+    .subgrp{gap:6px;height:100%}
+    .subgrp button{height:42px;min-width:64px;padding:0 10px;margin-left:-10px}
+    .subgrp button+button{margin-left:0}
+    .modes button{min-height:44px;padding:0}
+    .cats button{min-height:44px}
+    .filters button{min-height:44px;padding:0 14px;font-size:13px}
+    #triprow button{min-height:40px;padding:0 16px}
+
+    /* 输入控件 ≥16px，避免 iOS 聚焦自动放大 */
+    .search input{font-size:16px;padding:11px 0}
+    #sort-sel{font-size:16px;min-height:44px;padding:8px 11px;max-width:100%}
+    .panel input,.panel textarea,#bulk-words,#voice-sel{font-size:16px}
+    #voice-sel{min-height:44px}
+
+    /* 单词列表 */
+    #view-en>header{padding:16px 0 14px}
+    #view-en>header .count{margin-top:8px}
+    #view-en>header .modes{margin-top:12px}
+    html[data-mode="flash"] #view-en>header .modes,html[data-mode="test"] #view-en>header .modes{margin-top:0}
+    .card-head{padding:14px 14px 10px;gap:10px}
+    .card-head>div:first-child{min-width:0}
+    .word,.zh,.endef,.zh-full,.ex .en,.ex .t,.tip,.forms .f,.forms .m{overflow-wrap:anywhere}
+    .body{padding:0 14px 14px}
+    .forms div{flex-wrap:wrap}
+    .say{width:40px;height:40px;min-width:40px;font-size:16px;border-radius:10px}
+    .say-sm{width:34px;height:34px;min-width:34px;font-size:14px;margin-right:8px;top:0;position:relative}
+    .say-sm::after{content:"";position:absolute;inset:-5px}
+    .relchip{display:inline-flex;align-items:center;gap:4px;min-height:40px;padding:6px 14px}
+    .actions button{min-height:44px}
+    .actions .del{min-width:56px}
+
+    /* 自测：行内朗读按钮放大；方向/全部显示 按钮吸顶，滚动时一直够得着 */
+    .trow .tp{display:flex;align-items:center;gap:8px}
+    .trow .tp .say-sm{width:40px;height:40px;min-width:40px;margin:0;flex:0 0 auto}
+    .trow .tbadge{margin-right:0;flex:0 0 auto}
+    .trow .ans,.trow .tp{overflow-wrap:anywhere}
+    .trow .cover{padding:7px 14px}
+    .test-ctrl{position:sticky;top:calc(98px + var(--sat));z-index:5;background:var(--bg);margin:6px 0 0;padding:8px 0}
+    #test-dir,#test-all{min-height:44px}
+    .tlist{margin-top:4px}
+
+    /* 背诵 / 自测：收起大标题，把屏幕让给卡片 */
+    html[data-mode="flash"] #view-en>header,html[data-mode="test"] #view-en>header{padding:10px 0}
+    html[data-mode="flash"] #view-en>header .eyebrow,html[data-mode="flash"] #view-en>header h1,html[data-mode="flash"] #view-en>header .count,
+    html[data-mode="test"] #view-en>header .eyebrow,html[data-mode="test"] #view-en>header h1,html[data-mode="test"] #view-en>header .count{display:none}
+    html[data-mode="flash"] .modes,html[data-mode="test"] .modes{margin-top:0}
+    #test .cats,#flash .cats{margin-top:10px}
+    .fc-face{padding:20px}
+    .fc-controls button,.footer-tools button{min-height:48px}
+
+    /* 设置页 */
+    .panel{padding:14px}
+    .speedseg button,.vtest,.bulk-btn{min-height:44px}
+    .vtest{padding:0 16px}
+    .exp-btns button{min-height:56px}
+    #pending-box span{overflow-wrap:anywhere;max-width:100%}
+
+    /* toast：原来最宽只有半屏，长文案会被挤成多行 */
+    .toast{left:16px;right:16px;width:-moz-fit-content;width:fit-content;max-width:calc(100% - 32px);margin:0 auto;
+      text-align:center;transform:translateY(20px)}
+    .toast.on{transform:translateY(0)}
+
+    /* 雅思：只让分区导航吸顶（标题滚走），宽表格在自己的容器里横向滚动 */
+    #view-ielts .ielts-header{padding:14px 0 8px;top:calc(98px + var(--sat) - 70px)}
+    #view-ielts .eyebrow{line-height:16px;margin:0 0 4px}
+    #view-ielts h1{font-size:23px;line-height:30px;margin:0 0 12px}
+    #view-ielts nav{margin:0;padding:2px 0 4px}
+    #view-ielts nav a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;font-size:13px}
+    #view-ielts section{scroll-margin-top:calc(98px + var(--sat) + 60px)}
+    #view-ielts .card,#view-ielts .topic{padding-left:14px;padding-right:14px}
+    #view-ielts .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px}
+    #view-ielts .tscroll table.wide{min-width:440px}
+    #view-ielts .sub{padding-left:0}
+    #view-ielts .swap{flex-wrap:wrap;gap:4px 10px}
+    #view-ielts .swap .new{flex:1 1 100%;padding-left:2px}
+    #view-ielts .swap .new,#view-ielts .qa,#view-ielts .tip{overflow-wrap:anywhere}
+    #view-ielts .chip{padding:8px 13px;font-size:13px}
+  }
+
+  /* -- 背诵：卡片 + 认识/再背/打乱 按钮正好占满一屏，不用来回滚动 -- */
+  @media (max-width:640px) and (min-height:520px){
+    html[data-mode="flash"]:not(.show-fat):not(.show-trip):not(.show-ielts):not(.collect-mode) body{padding-bottom:0}
+    html[data-mode="flash"]:not(.show-fat):not(.show-trip):not(.show-ielts):not(.collect-mode) #view-en{
+      display:flex;flex-direction:column;height:100vh;height:100dvh}
+    html[data-mode="flash"] #view-en>header{flex:0 0 auto}
+    html[data-mode="flash"] #view-en>.wrap{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column}
+    html[data-mode="flash"] #flash.on{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;
+      padding-top:0;padding-bottom:calc(10px + var(--sab))}
+    html[data-mode="flash"] #flash .cats,html[data-mode="flash"] .fc-meta,
+    html[data-mode="flash"] .fc-controls,html[data-mode="flash"] #flash .footer-tools{flex:0 0 auto}
+    html[data-mode="flash"] .fc-meta{margin:8px 0 6px}
+    html[data-mode="flash"] .fc-stage{flex:1 1 auto;min-height:200px;margin:0 0 10px;display:flex}
+    html[data-mode="flash"] .fc{flex:1 1 auto;min-height:0}
+    html[data-mode="flash"] #flash .footer-tools{margin-top:8px}
+  }
+</style>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -2655,6 +2775,7 @@ function refresh(){pruneSupersededCustom();build();prunePending();counts();rende
 document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".modes button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
   const m=b.dataset.mode;
+  document.documentElement.setAttribute("data-mode",m);
   document.getElementById("list-view").style.display=m==="list"?"block":"none";
   document.getElementById("flash").classList.toggle("on",m==="flash");
   document.getElementById("test").classList.toggle("on",m==="test");
