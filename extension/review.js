@@ -10,7 +10,7 @@ const IC = {
 const I = n => '<svg class="vi" viewBox="0 0 24 24">' + IC[n] + "</svg>";
 const DAY = 864e5, GAP = [10 * 6e4, DAY, 3 * DAY, 7 * DAY, 16 * DAY, 35 * DAY, 90 * DAY]; // 每升一级，下次复习隔得更久
 const DONE = 5; // 到这一级算“已学会”
-let saved = [], ctx = {}, srs = {}, sugg = {}, marks = {}, rate = 1, opt = { quiz: true, listen: true, sugg: true, num: 20, newPct: 15, speak: true }, S = { target: "zh-CN", srcLang: "en" }, day = { d: "", n: 0 };
+let med = {}, player = null, saved = [], ctx = {}, srs = {}, sugg = {}, marks = {}, rate = 1, opt = { quiz: true, listen: true, sugg: true, num: 20, newPct: 15, speak: true }, S = { target: "zh-CN", srcLang: "en" }, day = { d: "", n: 0 };
 let cards = [], at = 0, sess = { ok: 0, bad: 0 };
 const today = () => new Date().toISOString().slice(0, 10);
 const lem = w => (typeof vsLemma === "function" ? vsLemma(w.toLowerCase()) : w.toLowerCase());
@@ -19,7 +19,7 @@ function load(cb) {
   chrome.storage.sync.get({ target: "zh-CN", srcLang: "en" }, s => { S = s;
     chrome.storage.local.get({ saved: [], savedCtx: {}, srs: {}, sugg: {}, marks: {}, reviewRate: 1, reviewOpt: opt, reviewDay: day }, v => { sugg = v.sugg || {}; marks = v.marks || {}; rate = v.reviewRate || 1;
       saved = [...new Set(v.saved.map(w => w.toLowerCase()))].filter(w => /^[a-z][a-z'’-]*$/i.test(w)); ctx = v.savedCtx || {}; srs = v.srs || {}; opt = Object.assign(opt, v.reviewOpt); day = v.reviewDay && v.reviewDay.d === today() ? v.reviewDay : { d: today(), n: 0 };
-      cb();
+      chrome.storage.local.get(saved.map(w => "med:w:" + w), m => { med = m || {}; cb(); }); // 保存时存下的原声、画面和出处
     });
   });
 }
@@ -54,6 +54,12 @@ $("oSugg").onchange = e => { opt.sugg = e.target.checked; saveOpt(); };
 // 给一个词找例句：先用例句库，没有就用保存时所在的那句字幕，再没有就只练这个词
 async function sentenceFor(w, used) {
   const late = ms => new Promise(res => setTimeout(() => res({}), ms));
+  const md = med["med:w:" + w];
+  if (md && md.t && find(md.t, w)) { // 有保存时的原句：就用它，配原声、画面和出处
+    const s = { en: md.t, tr: md.tr || "", md };
+    if (!s.tr) { const t = await Promise.race([late(6000), send({ type: "translate", text: s.en, tl: S.target, engine: "google", sl: S.srcLang })]); s.tr = t.t || ""; }
+    return s;
+  }
   const r = await Promise.race([send({ type: "sentences", word: w, tl: S.target, sl: S.srcLang }), late(7000)]); let list = (r.s || []).filter(x => find(x.en, w));
   const own = (ctx[w] && ctx[w].t) || (sugg[w] && sugg[w].t); if (own && find(own, w)) list.push({ en: own, tr: "" });
   if (!list.length) list = [{ en: w, tr: "" }];
@@ -76,6 +82,11 @@ function start() {
 }
 // 例句按需准备：当前这张等它，后面两张提前取
 function need(c) { if (!c.p) c.p = sentenceFor(c.w, c.used).then(s => (c.s = s)).catch(() => (c.s = { en: c.w, tr: "" })); return c.p; }
+function stopAll() { try { speechSynthesis.cancel(); } catch (e) {} if (player) { try { player.pause(); } catch (e) {} player = null; } }
+function say(c) { stopAll(); const a = c.s && c.s.md && c.s.md.aud; if (a) { try { player = new Audio(a); player.playbackRate = rate; player.play().catch(() => speak(c.s.en)); return; } catch (e) {} } speak(c.s.en); }
+const tm = x => Math.floor(x / 60) + ":" + String(Math.floor(x % 60)).padStart(2, "0");
+function mediaTop(c) { const m = c.s.md; return m && m.img ? '<img class="shot" src="' + m.img + '" alt="">' : ""; }
+function mediaSrc(c) { const m = c.s.md; if (!m) return '<span class="src syn">例句来自例句库 · 合成语音</span>'; return '<a class="src" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=' + encodeURIComponent(m.v) + "&t=" + Math.max(0, Math.floor(m.s)) + 's" title="打开视频的这一句">' + (m.aud ? "原声" : "合成语音") + " · " + esc(m.title || "YouTube") + (m.ch ? " · " + esc(m.ch) : "") + " · " + tm(m.s) + "</a>"; }
 function speak(t) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = S.srcLang === "en" ? "en-US" : S.srcLang; u.rate = 0.95 * rate; speechSynthesis.speak(u); } catch (e) {} }
 function grade(c, ok) {
   if (c.done) return; c.done = true; c.ok = ok;
@@ -96,23 +107,23 @@ function show() {
   if (c.k === "listen") {
     c.rev = c.rev || 0;
     $("hint").innerHTML = "<small>听力练习</small>在展示文本之前试着理解。";
-    $("card").innerHTML = '<span class="pl" id="pl" title="朗读">' + I("play") + '</span><div class="en' + (c.rev < 1 ? " hid" : "") + '" id="en">' + hl(c) + '</div><div class="zh' + (c.rev < 2 ? " hid" : "") + '" id="zh">' + esc(c.s.tr || "") + '</div><span class="lem">' + esc(c.w) + "</span>" + sugChip(c);
+    $("card").innerHTML = '<span class="pl" id="pl" title="播放">' + I("play") + "</span>" + mediaTop(c) + '<div class="en' + (c.rev < 1 ? " hid" : "") + '" id="en">' + hl(c) + '</div><div class="zh' + (c.rev < 2 ? " hid" : "") + '" id="zh">' + esc(c.s.tr || "") + '</div><span class="lem">' + esc(c.w) + "</span>" + mediaSrc(c) + sugChip(c);
     $("ctl").innerHTML = btn("bA", "prev", "A", "", "上一张") + btn("bS", "replay", "S", "", "重听") + btn("bE", "eye", "E", "", "显示") + btn("bX", "x", "X", "bad" + (c.bad ? " on" : ""), "还不会") + btn("bD", "next", "D", "pri", "下一张");
     $("bX").onclick = () => { c.bad = !c.bad; $("bX").classList.toggle("on", c.bad); };
     $("en").onclick = $("zh").onclick = $("bE").onclick = () => reveal(c);
-    if (opt.speak && !c.spoken) { c.spoken = true; speak(c.s.en); }
+    if (opt.speak && !c.spoken) { c.spoken = true; say(c); }
   } else {
     const f = find(c.s.en, c.w) || { i: 0, t: c.s.en };
     $("hint").innerHTML = "<small>填空题</small>输入句子里缺少的单词，按回车检查。";
-    $("card").innerHTML = '<span class="pl" id="pl" title="朗读（会念出答案）">' + I("play") + '</span><div class="en">' + esc(c.s.en.slice(0, f.i)) + '<input id="inp" autocomplete="off" spellcheck="false" size="' + Math.max(4, f.t.length + 1) + '"' + (c.done ? ' disabled value="' + esc(c.typed || "") + '" class="' + (c.ok ? "ok" : "no") + '"' : "") + ">" + esc(c.s.en.slice(f.i + f.t.length)) + '</div><div class="zh">' + esc(c.s.tr || "") + '</div><div class="ans' + (c.done && !c.ok ? " no" : "") + '" id="ans">' + (c.done ? (c.ok ? "正确" : "答案：" + esc(f.t)) : "") + '</div><span class="lem">' + (c.done ? esc(c.w) : "") + "</span>";
+    $("card").innerHTML = '<span class="pl" id="pl" title="播放（会念出答案）">' + I("play") + "</span>" + mediaTop(c) + '<div class="en">' + esc(c.s.en.slice(0, f.i)) + '<input id="inp" autocomplete="off" spellcheck="false" size="' + Math.max(4, f.t.length + 1) + '"' + (c.done ? ' disabled value="' + esc(c.typed || "") + '" class="' + (c.ok ? "ok" : "no") + '"' : "") + ">" + esc(c.s.en.slice(f.i + f.t.length)) + '</div><div class="zh">' + esc(c.s.tr || "") + '</div><div class="ans' + (c.done && !c.ok ? " no" : "") + '" id="ans">' + (c.done ? (c.ok ? "正确" : "答案：" + esc(f.t)) : "") + '</div><span class="lem">' + (c.done ? esc(c.w) : "") + "</span>" + mediaSrc(c);
     $("ctl").innerHTML = btn("bA", "prev", "A", "", "上一张") + btn("bE", "eye", "E", "", "看答案（算作没答对）") + btn("bD", "next", "D", "pri", "下一张");
     const inp = $("inp"); if (!c.done) inp.focus();
-    const check = give => { if (c.done) return; c.typed = inp.value.trim(); const ok = !give && c.typed.toLowerCase().replace(/’/g, "'") === f.t.toLowerCase().replace(/’/g, "'"); grade(c, ok); show(); if (opt.speak) speak(c.s.en); };
+    const check = give => { if (c.done) return; c.typed = inp.value.trim(); const ok = !give && c.typed.toLowerCase().replace(/’/g, "'") === f.t.toLowerCase().replace(/’/g, "'"); grade(c, ok); show(); if (opt.speak) say(c); };
     inp.onkeydown = e => { e.stopPropagation(); if (e.key === "Enter") { e.preventDefault(); if (c.done) go(1); else if (inp.value.trim()) check(false); } };
     $("bE").onclick = () => check(true);
   }
-  $("pl").onclick = () => speak(c.s.en); if ($("sg")) $("sg").onclick = () => addSug(c);
-  $("bA").disabled = at === 0; $("bA").onclick = () => go(-1); $("bD").onclick = () => go(1); if ($("bS")) $("bS").onclick = () => speak(c.s.en);
+  $("pl").onclick = () => say(c); if ($("sg")) $("sg").onclick = () => addSug(c);
+  $("bA").disabled = at === 0; $("bA").onclick = () => go(-1); $("bD").onclick = () => go(1); if ($("bS")) $("bS").onclick = () => say(c);
 }
 function sugChip(c) { return c.sg ? '<span class="sg' + (saved.includes(c.w) ? " on" : "") + '" id="sg" title="这是从你看过的视频里推荐的新词">' + (saved.includes(c.w) ? "已加入学习" : "建议的新词 · 点这里加入学习 (W)") + "</span>" : ""; }
 function addSug(c) { if (!c || !c.sg || saved.includes(c.w)) return; saved.push(c.w); if (sugg[c.w]) ctx[c.w] = Object.assign({}, sugg[c.w], { at: Date.now() }); chrome.storage.local.get({ saved: [], savedCtx: {} }, v => { if (!v.saved.some(x => x.toLowerCase() === c.w)) v.saved.push(c.w); v.savedCtx[c.w] = ctx[c.w] || { at: Date.now() }; chrome.storage.local.set({ saved: v.saved, savedCtx: v.savedCtx }); }); send({ type: "add", word: c.w }); const el = $("sg"); if (el) { el.textContent = "已加入学习"; el.classList.add("on"); } }
@@ -120,22 +131,22 @@ function reveal(c) { if (c.k !== "listen") return; c.rev = Math.min(2, (c.rev ||
 function go(d) {
   const c = cards[at];
   if (d > 0 && c) { if (c.k === "listen") grade(c, !c.bad); else if (!c.done) { const inp = $("inp"); if (inp && inp.value.trim()) { inp.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" })); return; } grade(c, false); } }
-  at = Math.max(0, at + d); show();
+  stopAll(); at = Math.max(0, at + d); show();
 }
 function finish() {
-  speechSynthesis.cancel(); $("pb").style.width = "100%"; $("pn").textContent = cards.length + "/" + cards.length; $("hint").innerHTML = ""; $("ctl").innerHTML = "";
+  stopAll(); $("pb").style.width = "100%"; $("pn").textContent = cards.length + "/" + cards.length; $("hint").innerHTML = ""; $("ctl").innerHTML = "";
   $("card").innerHTML = '<div class="done"><h2>这一组练完了</h2><p>答对 ' + sess.ok + " 张，没答对 " + sess.bad + ' 张</p><p style="color:#8b95a1;font-size:13px">没答对的词 10 分钟后会再出现；答对的词按 1 天、3 天、7 天、16 天、35 天的间隔再复习。</p><button id="again">返回</button></div>';
   $("again").onclick = () => load(home);
 }
 document.addEventListener("keydown", e => {
   if ($("play").style.display === "none" || e.metaKey || e.ctrlKey || e.altKey) return; const c = cards[at]; if (!c) return;
   const k = e.key.toLowerCase();
-  if (k === "d" || k === "arrowright") go(1); else if (k === "a" || k === "arrowleft") { if (at > 0) go(-1); } else if (k === "s") speak(c.s.en); else if (k === "e") { if (c.k === "listen") reveal(c); else if ($("bE")) $("bE").click(); } else if (k === "x" && $("bX")) $("bX").click(); else if (k === "w") addSug(c); else return;
+  if (k === "d" || k === "arrowright") go(1); else if (k === "a" || k === "arrowleft") { if (at > 0) go(-1); } else if (k === "s") { if (c.s) say(c); } else if (k === "e") { if (c.k === "listen") reveal(c); else if ($("bE")) $("bE").click(); } else if (k === "x" && $("bX")) $("bX").click(); else if (k === "w") addSug(c); else return;
   e.preventDefault();
 });
-$("back").innerHTML = I("back"); $("back").onclick = () => { speechSynthesis.cancel(); load(home); };
+$("back").innerHTML = I("back"); $("back").onclick = () => { stopAll(); load(home); };
 $("start").onclick = start;
 const RATES = [0.75, 1, 1.25, 1.5], showRate = () => ($("spd").textContent = rate + "x");
-$("spd").onclick = () => { rate = RATES[(RATES.indexOf(rate) + 1) % RATES.length]; chrome.storage.local.set({ reviewRate: rate }); showRate(); const c = cards[at]; if (c && c.s) speak(c.s.en); };
+$("spd").onclick = () => { rate = RATES[(RATES.indexOf(rate) + 1) % RATES.length]; chrome.storage.local.set({ reviewRate: rate }); showRate(); const c = cards[at]; if (c && c.s) say(c); };
 $("kb").onclick = () => $("keys").classList.toggle("on");
 load(() => { showRate(); home(); });

@@ -1,5 +1,5 @@
 (function () {
-  const DEF = { panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
+  const DEF = { saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
   let suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
@@ -441,7 +441,7 @@
       } else if (pauseDone === cur && v.paused && t >= cues[cur].s - 0.1 && t < end + 0.5) return; // 自动暂停期间保持当前句
     }
     const i = findCue(t);
-    if (i !== cur) { pauseDone = -1; cur = i; if (loopOn && i >= 0) loopIdx = i; render(i); }
+    if (i !== cur) { { const k = recR && recR._i; recStop(k != null && cues[k] && t >= cues[k].e - 0.5); } pauseDone = -1; cur = i; if (loopOn && i >= 0) loopIdx = i; render(i); if (i >= 0) recStart(i); }
   }
   let apT = null;
   setInterval(tick, 100);
@@ -620,10 +620,42 @@
   document.addEventListener("mousedown", e => { if (tip && !tip.contains(e.target) && !(root && root.contains(e.target)) && !(panel && panel.contains(e.target))) { closeTip(); if (pausedByUs) { const v = video(); if (v) v.play(); pausedByUs = false; } } }, true);
 
   function refreshMarks() { const keep = cur; cur = -1; if (keep >= 0 && cues[keep] && oEl) { cur = keep; oEl.innerHTML = cues[keep].note ? '<span class="vs-note">' + vsMark(esc(cues[keep].t), S) + "</span>" : wordsHtml(cues[keep].t); } else cur = keep; if (panel) { const st = listEl.scrollTop; const fl = follow; buildPanel(); autoScrollT = Date.now() + 300; listEl.scrollTop = st; markPanel(cur, fl); } if (tip) drawDict(tip.dataset.word, tipData); }
+  // ---------- 原声与截图 ----------
+  // 每句字幕播放时顺手把这一句的声音录下来（只留最近几句在内存里）；保存单词或句子时，把原声、当前画面和出处一起存下
+  let recR = null, recV = null, recStream = null; const clips = {}, pendMed = {};
+  function recStop(full) { const r = recR; recR = null; if (r && r.state !== "inactive") { r._full = full; try { r.stop(); } catch (e) {} } }
+  function recStart(i) {
+    try {
+      if (S.saveMedia === false || custom) return; const v = video(); if (!v || !v.captureStream || v.paused || !cues[i] || cues[i].note) return;
+      if (Math.abs(v.currentTime - cues[i].s) > 0.45) return; // 只从句子开头录，保证是完整的一句
+      recStop(false);
+      if (recV !== v) { recV = v; recStream = null; v.addEventListener("pause", () => { const k = recR && recR._i; recStop(k != null && cues[k] && v.currentTime >= cues[k].e - 0.5); }); v.addEventListener("playing", () => { if (!recR && cur >= 0) recStart(cur); }); v.addEventListener("seeking", () => recStop(false)); }
+      if (!recStream || !recStream.getAudioTracks().some(t => t.readyState === "live")) recStream = v.captureStream();
+      const at = recStream.getAudioTracks().filter(t => t.readyState === "live"); if (!at.length) return;
+      const r = new MediaRecorder(new MediaStream([at[0]]), { mimeType: "audio/webm;codecs=opus", audioBitsPerSecond: 32000 }), chunks = [], vid = vidId;
+      r._i = i; r.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+      r.onstop = () => {
+        if (!r._full || vid !== vidId) return; const b = new Blob(chunks, { type: "audio/webm" }); if (b.size < 1500 || b.size > 600000) return;
+        const fr = new FileReader(); fr.onload = () => { clips[i] = fr.result; Object.keys(clips).filter(k => Math.abs(k - i) > 3).forEach(k => delete clips[k]); (pendMed[i] || []).forEach(key => chrome.storage.local.get(key, o => { if (o[key]) { o[key].aud = fr.result; chrome.storage.local.set({ [key]: o[key] }); } })); delete pendMed[i]; }; fr.readAsDataURL(b);
+      };
+      r.start(); recR = r;
+    } catch (e) { recR = null; }
+  }
+  function frameShot() { try { const v = video(); if (!v || !v.videoWidth) return ""; const w = 360, h = Math.round(w * v.videoHeight / v.videoWidth), cv = document.createElement("canvas"); cv.width = w; cv.height = h; cv.getContext("2d").drawImage(v, 0, 0, w, h); return cv.toDataURL("image/jpeg", 0.62); } catch (e) { return ""; } }
+  function saveMedia(key, ci) {
+    try {
+      if (S.saveMedia === false || ci < 0 || !cues[ci] || custom) return; const cu = cues[ci], v = video(), near = v && v.currentTime >= cu.s - 0.3 && v.currentTime <= cu.e + 1.5;
+      const ch = $("ytd-watch-metadata ytd-channel-name a, #owner ytd-channel-name a, #upload-info a");
+      const o = { t: cu.t, tr: trans[ci] || "", v: vidId, s: cu.s, e: cu.e, title: document.title.replace(/^\(\d+\)\s*/, "").replace(/ - YouTube$/, ""), ch: ch ? ch.textContent.trim() : "", img: near ? frameShot() : "", aud: clips[ci] || "", at: Date.now() };
+      if (!o.aud) (pendMed[ci] = pendMed[ci] || []).push(key); // 这一句还没播完：录完后自动补上
+      chrome.storage.local.set({ [key]: o });
+    } catch (e) {}
+  }
   function noteCtx(k) {
     const has = c => c && !c.note && (c.t.match(WORD_RE) || []).some(x => x.toLowerCase() === k || vsLemma(x.toLowerCase()) === k);
     const ci = has(cues[cur]) ? cur : cues.findIndex(has);
     savedCtx[k] = ci >= 0 ? { t: cues[ci].t, v: vidId, s: cues[ci].s, at: Date.now() } : { at: Date.now() };
+    saveMedia("med:w:" + k, ci);
   }
   function markMany(words) {
     words.forEach(w => { const k = w.toLowerCase(); delete VS_MARKS[k]; savedSet.add(k); send({ type: "add", word: w }); noteCtx(k); });
@@ -745,7 +777,7 @@
   function toggleSent(i) {
     const c = cues[i]; if (!c) return; const k = sentKey(c), at = savedSents.findIndex(x => x.k === k);
     if (at >= 0) savedSents.splice(at, 1); else savedSents.push({ k, v: vidId, s: c.s, t: c.t, tr: trans[i] || "", at: Date.now() });
-    chrome.storage.local.set({ savedSents });
+    chrome.storage.local.set({ savedSents }); if (at < 0) saveMedia("med:s:" + k, i); else chrome.storage.local.remove("med:s:" + k);
     if (listEl) listEl.querySelectorAll('.st[data-i="' + i + '"]').forEach(el => { el.classList.toggle("on", at < 0); });
   }
   function rowHtml(i, sk, hl) {
