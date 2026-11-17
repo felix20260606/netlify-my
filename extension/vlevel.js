@@ -27,11 +27,32 @@ var VS_NAMES = new Set("aaron abigail adam africa african alan alaska albert ale
 var VS_NUM = new Set("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand million billion trillion dozen hundreds thousands millions billions".split(" "));
 var VS_PREP_UNUSED = new Set("about above across after against along among around at before behind below beneath beside besides between beyond by despite down during except for from in inside into near of off on onto out outside over past per since through throughout to toward towards under underneath until unto up upon via with within without".split(" "));
 // 分类：learn 将要学习(已收藏) / known 已掌握 / ignore 不学习 / special 名称地点数字 / suggest 建议 / rare 更生僻
+// 你自己的标记按“原形”生效：保存了 write，wrote / written / writes 也算在学；保存了 reinvented，reinvent 也算
+var _vsIdx = { set: null, n: -1, mo: null, m: -1, S: null, M: null };
+// 一个词可能对应的原形：词频表里查得到的原形；查不到时（生僻词）按词尾规则猜
+function vsKeys(x) {
+  x = String(x).toLowerCase(); var l = vsLemma(x), out = [l];
+  if (l === x && /(ed|ing|es|s)$/.test(x) && !(typeof VS_NOSTEM !== "undefined" && VS_NOSTEM.has(x)) && typeof vsStems === "function") vsStems(x).forEach(function (s) { if (s.length >= 4 && out.indexOf(s) < 0) out.push(s); });
+  return out;
+}
+function vsMarkOf(k) {
+  k = String(k).toLowerCase();
+  var keys = Object.keys(VS_MARKS);
+  if (_vsIdx.set !== VS_SAVED || _vsIdx.n !== VS_SAVED.size || _vsIdx.mo !== VS_MARKS || _vsIdx.m !== keys.length) {
+    var S = new Set(), M = {};
+    VS_SAVED.forEach(function (x) { vsKeys(x).forEach(function (q) { S.add(q); }); });
+    keys.forEach(function (x) { vsKeys(x).forEach(function (l) { if (!M[l] || VS_MARKS[x] === "known") M[l] = VS_MARKS[x]; }); });
+    _vsIdx = { set: VS_SAVED, n: VS_SAVED.size, mo: VS_MARKS, m: keys.length, S: S, M: M };
+  }
+  if (VS_SAVED.has(k)) return "learn";
+  var ks = vsKeys(k), i;
+  for (i = 0; i < ks.length; i++) if (_vsIdx.S.has(ks[i])) return "learn";
+  var m = VS_MARKS[k]; for (i = 0; !m && i < ks.length; i++) m = _vsIdx.M[ks[i]];
+  return m === "known" || m === "ignore" ? m : "";
+}
 function vsCat(w, S, first, capAdj) {
   var k = String(w).toLowerCase();
-  if (VS_SAVED.has(k)) return "learn";
-  if (VS_MARKS[k] === "known") return "known";
-  if (VS_MARKS[k] === "ignore") return "ignore";
+  var mk = vsMarkOf(k); if (mk) return mk;
   if (S.level == null || S.level < 0) return "";
   if (/^\d/.test(w) || VS_NUM.has(k)) return "special";
   if (/^[A-Z]{2,}$/.test(w) && !/^(OK|TV|AM|PM|US|UK|ID|DJ|CEO|DNA|FBI|CIA|USA|NO|YES|OH|GO|STOP|WOW)$/.test(w)) return "special";

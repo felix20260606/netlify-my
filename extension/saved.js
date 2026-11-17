@@ -91,10 +91,13 @@ function drawSents() {
   $("#wrap").innerHTML = h; bind(list.length);
 }
 // 所有单词：按词频每 100 个一段，段内按首字母排；颜色表示状态，右键标记
-function catOf(w) { if (VS_SAVED.has(w)) return "m-l"; if (marks[w] === "known") return "m-k"; if (marks[w] === "ignore") return "m-i"; const lv = S.level >= 0 ? S.level : 2000, r = vsRank(w); return r <= lv ? "a-k" : r <= lv + Math.max(lv, 300) * (S.ratio || 1.5) ? "a-s" : "a-r"; }
+// 和字幕里给单词上色用的是同一个判断（vsMarkOf + vsCat），所以这里看到的状态就是视频里的状态
+function catOf(w) { const mk = vsMarkOf(w); if (mk) return mk === "learn" ? "m-l" : mk === "known" ? "m-k" : "m-i"; const c = vsCat(w, S.level >= 0 ? S : Object.assign({}, S, { level: 2000 }), true); return c === "suggest" ? "a-s" : c === "rare" ? "a-r" : "a-k"; }
+let LEMMAS = null; // 只列原形：going、went 归到 go 下面，和字幕里的匹配方式一致
+const allWords = () => LEMMAS || (LEMMAS = VS_WORDS.split(" ").filter(w => vsLemma(w) === w));
 function drawAll() {
-  const W = VS_WORDS.split(" "), n = { "m-k": 0, "m-l": 0, "m-i": 0, "a-k": 0, "a-s": 0, "a-r": 0 }; W.forEach(w => n[catOf(w)]++); n["m-l"] = saved.length; n["m-k"] = Object.values(marks).filter(x => x === "known").length; n["m-i"] = Object.values(marks).filter(x => x === "ignore").length;
-  let h = '<div class="lv"><b>英语</b><span>' + (S.level >= 0 ? "词汇水平 " + S.level : "未设置词汇水平（按 2000 估算）") + '</span><span>该语言最常用的 ' + W.length + ' 个单词</span><button id="lvb">设置词汇水平</button></div>' +
+  const W = allWords(), n = { "m-k": 0, "m-l": 0, "m-i": 0, "a-k": 0, "a-s": 0, "a-r": 0 }; W.forEach(w => n[catOf(w)]++);
+  let h = '<div class="lv"><b>英语</b><span>' + (S.level >= 0 ? "词汇水平 " + S.level : "未设置词汇水平（按 2000 估算）") + '</span><span>该语言最常用的 ' + W.length + ' 个单词（按原形）</span><button id="lvb">设置词汇水平</button></div>' +
     '<div class="tools"><label class="q"><input id="q" placeholder="搜索" value="' + esc(q) + '">' + I("search") + '</label><span class="seg" id="asort"><b data-v="freq"' + (allSort === "freq" ? ' class="on"' : "") + '>频率</b><b data-v="az"' + (allSort === "az" ? ' class="on"' : "") + '>A–Z</b></span><span class="seg" id="aview"><b data-v="cell"' + (allView === "cell" ? ' class="on"' : "") + '>单元格</b><b data-v="row"' + (allView === "row" ? ' class="on"' : "") + ">行</b></span></div>" +
     '<div class="chips"><span class="chip k on">' + I("check") + "已掌握 <b>" + n["m-k"] + "</b><i>自动 " + n["a-k"] + '</i></span><span class="chip l on">' + I("book") + "学习中 <b>" + n["m-l"] + "</b><i>建议 " + n["a-s"] + '</i></span><span class="chip g on">' + I("ban") + "不学习 <b>" + n["m-i"] + "</b><i>罕见 " + n["a-r"] + '</i></span></div><div class="leg">实线框里的数字是你自己标记的，斜体是按词汇水平推测的。右键点击单词：没有框的词加入学习，已在学习的词标为已掌握。</div>';
   const k = q.toLowerCase(), lim = k ? W.length : allShown, jump = [];
@@ -105,7 +108,7 @@ function drawAll() {
     for (let a = 0; a < lim; a += 100) {
       let ws = W.slice(a, a + 100); if (k) ws = ws.filter(w => w.includes(k)); if (!ws.length) continue;
       if (!k && (a < 1000 || a % 1000 === 0)) jump.push([a, a === 0 ? 1 : a >= 1000 ? a / 1000 + "k" : a]);
-      h += '<div class="sec" id="r' + a + '">排名 ' + (a + 1) + " – " + (a + 100) + "<span>" + ws.length + "</span></div>";
+      h += '<div class="sec" id="r' + a + '">第 ' + (a + 1) + " – " + (a + 100) + " 个<span>词频排名 " + vsRank(W[a]) + " – " + vsRank(W[Math.min(a + 99, W.length - 1)]) + "</span></div>";
       if (allView === "row") { h += ws.map(row).join(""); continue; }
       const by = {}; ws.slice().sort().forEach(w => { const c = w[0].toUpperCase(); (by[c] = by[c] || []).push(w); });
       Object.keys(by).forEach(c => { h += '<div class="lr"><i>' + esc(c) + "</i><div>" + by[c].map(cell).join(" ") + "</div></div>"; });
@@ -126,8 +129,9 @@ function drawAll() {
 }
 function setMark(w, m) { // learn | known | ignore | ""
   w = w.toLowerCase();
-  if (m === "learn") { delete marks[w]; if (!saved.includes(w)) { saved.push(w); ctx[w] = ctx[w] || { at: Date.now() }; send({ type: "add", word: w }); } }
-  else { saved = saved.filter(x => x !== w); if (m) marks[w] = m; else delete marks[w]; }
+  const L = lem(w); Object.keys(marks).forEach(x => { if (x === w || lem(x) === L) delete marks[x]; });
+  if (m === "learn") { if (vsMarkOf(w) !== "learn") { saved.push(w); ctx[w] = ctx[w] || { at: Date.now() }; send({ type: "add", word: w }); } }
+  else { saved = saved.filter(x => x !== w && lem(x) !== L); if (m) marks[w] = m; VS_SAVED = new Set(saved); }
 }
 function persist(cb) { chrome.storage.local.get({ saved: [] }, v => { const keep = new Set(saved), out = v.saved.filter(x => keep.has(x.toLowerCase())); saved.forEach(w => { if (!out.some(x => x.toLowerCase() === w)) out.push(w); }); chrome.storage.local.set({ saved: out, marks, savedCtx: ctx, savedSents: sents }, () => { VS_SAVED = new Set(saved); VS_MARKS = marks; cb && cb(); }); }); }
 function bind(n) {
@@ -162,5 +166,5 @@ function removeKeys(keys) {
 function draw() { head(); if (tab === "words") drawWords(); else if (tab === "sents") drawSents(); else drawAll(); }
 $$(".tabs b").forEach(b => (b.onclick = () => { tab = b.dataset.t; q = ""; src = ""; page = 0; picked.clear(); if (tab !== "words") sort = "date"; draw(); scrollTo(0, 0); }));
 $("#rv").onclick = () => (location.href = "review.html");
-document.addEventListener("contextmenu", e => { const w = e.target.closest && e.target.closest(".lr .vs-w, .wr .vs-w, td.x .vs-w"); if (!w) return; e.preventDefault(); const k = w.dataset.w.toLowerCase(); setMark(k, VS_SAVED.has(k) ? "known" : "learn"); const y = scrollY; persist(() => { draw(); scrollTo(0, y); }); });
+document.addEventListener("contextmenu", e => { const w = e.target.closest && e.target.closest(".lr .vs-w, .wr .vs-w, td.x .vs-w"); if (!w) return; e.preventDefault(); const k = w.dataset.w.toLowerCase(); setMark(k, vsMarkOf(k) === "learn" ? "known" : "learn"); const y = scrollY; persist(() => { draw(); scrollTo(0, y); }); });
 load(draw);
