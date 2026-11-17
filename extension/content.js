@@ -718,6 +718,7 @@
         if (q(".bk")) { setMark(q(".bk").dataset.w, "learn"); return; }
         if (q(".cxt")) { showCtx = !showCtx; chrome.storage.local.set({ showCtx }); buildPanel(); return; }
         if (q(".svall")) { send({ type: "openSaved" }); return; }
+        if (q(".svrev")) { send({ type: "openReview" }); return; }
         if (w) { showTip(w.dataset.w, null, true, it && it.dataset.i !== undefined ? +it.dataset.i : undefined, w); return; }
         if (it && it.dataset.s !== undefined) { const v = video(); if (v) { v.currentTime = +it.dataset.s + 0.01; v.play(); } }
       });
@@ -797,7 +798,7 @@
     } else {
       const items = [...savedSet].map((w, n) => ({ w, at: (savedCtx[w] || {}).at || 0, n })).concat(savedSents.map((x, si) => ({ x, si, at: x.at || 0, n: si })));
       items.sort((a, b) => b.at - a.at || (!a.x === !b.x ? b.n - a.n : a.x ? 1 : -1));
-      listEl.innerHTML = '<div class="svb"><button class="svall">' + I("list") + '查看全部</button></div><div class="svh"><span>最近保存:</span><span class="cxt">显示上下文<i class="tg' + (showCtx ? " on" : "") + '"></i></span></div>' +
+      listEl.innerHTML = '<div class="svb"><button class="svall">' + I("list") + '查看全部</button><button class="svrev">' + I("replay") + '练习</button></div><div class="svh"><span>最近保存:</span><span class="cxt">显示上下文<i class="tg' + (showCtx ? " on" : "") + '"></i></span></div>' +
         (items.map(o => { if (o.x) return '<div class="it sv"' + (o.x.v === vidId ? ' data-s="' + o.x.s + '"' : "") + '><i class="ty">p</i><div class="en">' + wordsHtml(o.x.t) + '</div><i class="rm" data-si="' + o.si + '" title="移除">' + I("x") + '</i></div>'; let c = savedCtx[o.w]; if (showCtx && !(c && c.t)) { const ci = cues.findIndex(q => !q.note && (q.t.match(WORD_RE) || []).some(x => x.toLowerCase() === o.w || vsLemma(x.toLowerCase()) === o.w || vsLemma(x.toLowerCase()) === vsLemma(o.w))); if (ci >= 0) { c = { t: cues[ci].t, v: vidId, s: cues[ci].s, at: (c || {}).at || 0 }; savedCtx[o.w] = c; ctxDirty = true; } } const ctx = showCtx && c && c.t; return '<div class="it sv"' + (ctx && c.v === vidId ? ' data-s="' + c.s + '"' : "") + '><i class="ty">w</i><div class="en">' + wordsHtml(ctx ? c.t : o.w) + '</div><i class="rm" data-w="' + esc(o.w) + '" title="移除">' + I("x") + '</i></div>'; }).join("") || '<div class="it"><span class="cnt">还没有保存的内容。右键点击单词，或点字幕右侧的 ☆</span></div>') +
         '<div class="hd">生词本待整理队列 <a id="vs-qc" style="cursor:pointer;color:#0FA37A;margin-left:8px">复制全部</a></div><div class="chips" id="vs-q"><span class="cnt">读取中…</span></div>';
       if (ctxDirty) { ctxDirty = false; chrome.storage.local.set({ savedCtx }); }

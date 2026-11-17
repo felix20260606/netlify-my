@@ -32,3 +32,5 @@ chrome.storage.local.get({ audioTracks: [] }, v => { v.audioTracks.forEach((n, i
 $("audio").onchange = e => chrome.storage.local.set({ audioPick: { i: e.target.value === "" ? -1 : +e.target.value, at: Date.now() } });
 
 document.addEventListener("click", e => { const i = e.target.closest(".inf"); if (!i) return; e.preventDefault(); const h = i.closest("label").nextElementSibling; if (h && h.classList.contains("hint")) h.classList.toggle("on"); });
+
+$("rv").onclick = e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); };

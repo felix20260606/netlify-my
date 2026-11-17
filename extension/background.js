@@ -33,6 +33,18 @@ async function translateMany(texts, tl, engine, sl) {
 
 // ---------- 查词 ----------
 const POS_ZH = { noun: "n.", verb: "v.", adjective: "adj.", adverb: "adv.", pronoun: "pron.", preposition: "prep.", conjunction: "conj.", interjection: "int.", determiner: "det.", exclamation: "excl.", abbreviation: "abbr.", article: "art.", numeral: "num.", particle: "part.", prefix: "pref.", suffix: "suf.", phrase: "phr." };
+// 复习用的例句：来自 Tatoeba 例句库（CC-BY），带中文翻译；结果存本地
+async function sentences(word, tl, sl) {
+  if (sl && sl !== "en") return [];
+  const k = "sent:" + tl + ":" + word, c = await chrome.storage.local.get(k); if (c[k]) return c[k];
+  const zh = /^zh/i.test(tl || "");
+  const r = await fetch("https://tatoeba.org/en/api_v0/search?from=eng&query=" + encodeURIComponent(word) + "&sort=relevance&word_count_max=14" + (zh ? "&to=cmn&trans_filter=limit&trans_to=cmn" : ""));
+  if (!r.ok) throw new Error("t" + r.status);
+  const j = await r.json();
+  const out = (j.results || []).map(x => { const ts = (x.translations || []).flat().filter(t => t && t.lang === "cmn"), t = ts.find(t => t.script === "Hans") || ts[0]; return { en: x.text, tr: zh && t ? t.text : "" }; }).filter(x => x.en && x.en.length <= 90).slice(0, 8);
+  if (out.length) chrome.storage.local.set({ [k]: out });
+  return out;
+}
 // 查词结果存本地：同一个词第二次悬停不再联网；失败自动重试一次
 async function gWord(word, tl, sl) {
   const k = "dc:" + tl + ":" + word, c = await chrome.storage.local.get(k); if (c[k]) return c[k];
@@ -142,6 +154,8 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "openSettings") { chrome.windows.create({ url: chrome.runtime.getURL("popup.html"), type: "popup", width: 340, height: 760 }); send({}); }
   else if (m.type === "openLevel") { chrome.runtime.openOptionsPage(); send({}); }
   else if (m.type === "openSaved") { chrome.tabs.create({ url: chrome.runtime.getURL("saved.html") }); send({}); }
+  else if (m.type === "openReview") { chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); send({}); }
+  else if (m.type === "sentences") sentences(m.word, m.tl, m.sl).then(s => send({ s })).catch(() => send({ s: [] }));
   else if (m.type === "add") addWord(m.word).then(send);
   else return false;
   return true;

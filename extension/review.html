@@ -1,0 +1,75 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>复习 · 双语字幕</title>
+<link rel="icon" href="icons/32.png">
+<style>
+:root{color-scheme:dark;--bg:#1b1d21;--card:#25272c;--ink:#EDEFF2;--mut:#8b95a1;--pur:#9A3FC4;--pur2:#B77CE0;--line:#33373d}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,"PingFang SC","Microsoft YaHei",sans-serif}
+.vi{width:1em;height:1em;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.vi .f{fill:currentColor;stroke:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+/* 首页 */
+#home{max-width:1010px;margin:0 auto;padding:60px 24px;display:flex;gap:56px;flex-wrap:wrap}
+.hc{background:var(--card);border-radius:28px;padding:34px 32px 38px;width:448px;max-width:100%}
+.hc h1{margin:0 0 24px;font-size:24px;font-weight:700;letter-spacing:.3px}.hc h1 b{color:#8EE5A1}
+.today{color:var(--mut);font-size:13px;margin-bottom:10px}.today b{color:var(--ink);font-weight:500;margin-left:8px}
+.bar{height:5px;border-radius:3px;background:#3a3e45;overflow:hidden}.bar i{display:block;height:100%;background:#8EE5A1;width:0;transition:width .3s}
+.stats{display:flex;margin:22px 0 18px;padding-bottom:20px;border-bottom:1px solid var(--line)}.stats div{flex:1}
+.stats small{display:block;color:var(--mut);font-size:12px}.stats b{font-size:24px;font-weight:500}.stats em{display:block;font-style:normal;color:#c9ced4;font-size:12px}
+.go{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:26px}
+.go button{background:var(--pur);color:#fff;font-weight:700;font-size:17px;border-radius:8px;padding:11px 22px}.go button:hover{background:#ab52d4}.go button:disabled{opacity:.4;cursor:default}
+.go span{color:#c9ced4;font-size:13px}
+.opt{flex:1;min-width:320px;padding-top:18px}.opt h3{margin:0 0 14px;font-size:12px;font-weight:500;color:var(--mut)}
+.row{display:flex;align-items:center;justify-content:space-between;min-height:34px;padding:0 6px}.row>span:first-child{display:flex;align-items:center;gap:14px}.row small{color:var(--mut);font-size:12.5px}
+.row.sub{padding-left:40px}
+input[type=checkbox]{appearance:none;width:28px;height:10px;border-radius:999px;background:#3a4048;position:relative;cursor:pointer;margin:0}
+input[type=checkbox]::after{content:"";position:absolute;left:-2px;top:-4px;width:18px;height:18px;border-radius:50%;background:#b4bbc3;transition:left .15s,background .15s}
+input[type=checkbox]:checked{background:#5d3f79}input[type=checkbox]:checked::after{left:12px;background:var(--pur2)}
+.seg{display:inline-flex;background:#2b2e34;border-radius:8px;padding:2px}.seg b{font-weight:400;font-size:13px;color:#aab2ba;padding:4px 10px;border-radius:6px;cursor:pointer}.seg b.on{background:#474c54;color:#fff}
+.empty{color:var(--mut);font-size:14px;margin-top:18px;line-height:1.7}
+/* 练习 */
+#play{display:none;height:100%;flex-direction:column}
+.top{display:flex;align-items:center;gap:18px;padding:10px 18px;background:#22242a}
+.top .bk{font-size:22px;color:var(--pur2);display:inline-flex}.top .bar{flex:0 1 300px;margin-left:auto}.top .n{margin-right:auto;font-size:14px}
+.hint{text-align:center;color:#c9ced4;font-size:14.5px;padding:18px 12px 0}.hint small{color:var(--mut);margin-right:10px}
+.mid{flex:1;display:flex;align-items:center;justify-content:center;padding:16px}
+.card{position:relative;background:var(--card);width:800px;max-width:100%;min-height:280px;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:54px 40px 46px;text-align:center}
+.card .pl{position:absolute;left:12px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--pur);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.card .en{font-size:21px;font-weight:700;line-height:1.5}.card .en mark{background:none;color:#C9A0E8}
+.card .zh{font-size:17px;color:#c9ced4;margin-top:18px}
+.card .hid{filter:blur(7px);cursor:pointer;user-select:none;transition:filter .15s}
+.card .lem{position:absolute;right:16px;bottom:12px;color:var(--mut);font-size:13px}
+.card input{font:700 21px system-ui,sans-serif;background:#1b1d21;color:#fff;border:0;border-bottom:2px solid var(--pur2);border-radius:4px 4px 0 0;text-align:center;padding:2px 6px;outline:none}
+.card input.ok{border-color:#8EE5A1;color:#8EE5A1}.card input.no{border-color:#ff7a7a;color:#ff7a7a}
+.card .ans{margin-top:14px;font-size:15px;color:#8EE5A1;min-height:22px}.card .ans.no{color:#ff9d9d}
+.ctl{display:flex;justify-content:center;gap:20px;padding:10px 0 26px}
+.ctl div{display:flex;flex-direction:column;align-items:center;gap:10px}
+.ctl button{width:56px;height:56px;border-radius:50%;background:#3a3d43;font-size:26px;display:flex;align-items:center;justify-content:center}
+.ctl button:hover{background:#474b52}.ctl button.pri{background:var(--pur)}.ctl button.pri:hover{background:#ab52d4}.ctl button:disabled{opacity:.35;cursor:default}
+.ctl button.bad{font-size:22px;color:#ff9d9d}.ctl button.bad.on{background:#6b2f2f;color:#fff}
+.ctl kbd{font:12px ui-monospace,monospace;color:var(--mut);border:1px solid #4a4f57;border-radius:3px;padding:0 5px}
+.done h2{font-size:24px;margin:0 0 10px}.done p{color:#c9ced4;margin:4px 0}.done button{margin-top:22px;background:var(--pur);color:#fff;font-weight:700;border-radius:8px;padding:10px 20px}
+</style>
+<div id="home">
+  <div class="hc">
+    <h1>单词<b>复习</b></h1>
+    <div class="today">今天<b id="tdn">0 张卡片</b></div>
+    <div class="bar"><i id="tdb"></i></div>
+    <div class="stats"><div><small>待复习</small><b id="sDue">0</b><em id="sNew"></em></div><div><small>学习中</small><b id="sLrn">0</b></div><div><small>已学会</small><b id="sDone">0</b></div></div>
+    <div class="go"><button id="start">开始练习</button><span id="cnt"></span></div>
+    <div class="empty" id="empty" hidden>还没有保存的单词。看视频时右键点击单词，把它加入“正在学习”，这里就会出现复习卡片。</div>
+  </div>
+  <div class="opt">
+    <h3>会话</h3>
+    <label class="row"><span><input type="checkbox" id="oQuiz">测验</span><small>填空题</small></label>
+    <label class="row"><span><input type="checkbox" id="oListen">练习</span><small>先理解再显示</small></label>
+    <div class="row sub"><span>练习数量</span><span class="seg" id="oNum"><b data-v="10">10</b><b data-v="20">20</b><b data-v="40">40</b><b data-v="60">60</b></span></div>
+    <div class="row sub"><span>新项目</span><span class="seg" id="oNew"><b data-v="0">0 %</b><b data-v="15">15 %</b><b data-v="30">30 %</b><b data-v="50">50 %</b><b data-v="100">100 %</b></span></div>
+    <label class="row sub"><span><input type="checkbox" id="oSpeak">自动朗读句子</span><small>用浏览器的语音</small></label>
+  </div>
+</div>
+<div id="play">
+  <div class="top"><button class="bk" id="back" title="返回"></button><div class="bar"><i id="pb"></i></div><span class="n" id="pn"></span></div>
+  <div class="hint" id="hint"></div>
+  <div class="mid"><div class="card" id="card"></div></div>
+  <div class="ctl" id="ctl"></div>
+</div>
+<script src="freq.js"></script><script src="vlevel.js"></script><script src="review.js"></script>
