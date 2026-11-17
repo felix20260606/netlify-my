@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "字幕伴 · 双语字幕与生词收集",
-  "version": "1.3.0",
+  "name": "双语字幕 · 生词收集",
+  "version": "1.3.1",
   "description": "YouTube 双语字幕、悬停查词、字幕列表、单句循环，一键把生词收进你的生词本。",
   "permissions": [
     "storage"
@@ -18,7 +18,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "字幕伴 · 设置",
+    "default_title": "双语字幕设置",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/16.png",

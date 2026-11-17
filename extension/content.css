@@ -263,3 +263,5 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 
 #vs-pill .ic{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#7B46C4 0%,#5B4BD1 45%,#0FA37A 100%);font:900 17px/1 "PingFang SC","Noto Sans CJK SC","Microsoft YaHei",system-ui,sans-serif;color:#fff}
 #vs-pill.off .ic{background:#6b7280}
+
+#vs-pill .ic{width:auto;min-width:34px;padding:0 5px;height:24px;border-radius:6px;font:900 12px/1 "Arial Black",Arial,system-ui,sans-serif;letter-spacing:-.2px}
