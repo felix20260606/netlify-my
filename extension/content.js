@@ -1,5 +1,5 @@
 (function () {
-  const DEF = { showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: false, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
+  const DEF = { panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: false, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
   let revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
@@ -498,11 +498,12 @@
   // 侧栏悬停：气泡出现在侧栏左边 —— 短语、单词释义、整句翻译
   function showSide(it, w) {
     const i = +it.dataset.i, c = cues[i]; if (!c || !panel) return;
-    const word = w && !c.note ? w.dataset.w : "";
+    const word = w && !c.note ? w.dataset.w : "", inl = S.panelTrans === "inline";
+    if (inl && !word) { if (mini && mini.id === "vs-side") hideMini(); return; }
     if (mini && mini.id === "vs-side" && mini._it === it && mini._w === (word ? w : null)) return;
     hideMini();
     const my = mini = document.createElement("div"); my.id = "vs-side"; my._it = it; my._w = word ? w : null; my.dataset.i = i;
-    my.innerHTML = '<div class="pz"></div>' + (word ? '<div class="wr">' + freqBar(word) + "<b>" + esc(word) + '</b> : <span class="ms">…</span></div>' : "") + (word ? gramLine(w) : "") + '<div class="sn' + (word ? " ln" : "") + '">' + esc(trans[i] || "…") + "</div>";
+    my.innerHTML = '<div class="pz"></div>' + (word ? '<div class="wr">' + freqBar(word) + "<b>" + esc(word) + '</b> : <span class="ms">…</span></div>' : "") + (word ? gramLine(w) : "") + (inl ? "" : '<div class="sn' + (word ? " ln" : "") + '">' + esc(trans[i] || "…") + "</div>");
     document.body.append(my);
     const fix = () => { if (mini !== my) return; const pr = panel.getBoundingClientRect(), r = it.getBoundingClientRect(), vw = document.documentElement.clientWidth; my.style.maxWidth = Math.max(160, Math.min(440, pr.left - 24)) + "px"; my.style.right = vw - pr.left + 10 + "px"; my.style.top = Math.max(6, Math.min(r.top - 4, innerHeight - my.offsetHeight - 6)) + "px"; };
     fix();
@@ -697,6 +698,7 @@
     const host = sec && sec.offsetWidth > 200 ? sec : document.body;
     if (panel.parentNode !== host || (host !== document.body && host.firstElementChild !== panel)) host.prepend(panel);
     panel.classList.toggle("dock", host !== document.body);
+    panel.classList.toggle("tr-in", S.panelTrans === "inline"); // 翻译直接显示在列表里，而不是悬停弹框
     const p = player(); panel.style.height = !panelMin && host !== document.body && p ? Math.max(320, p.offsetHeight) + "px" : "";
   }
   const sentKey = c => vidId + "|" + c.t;
@@ -766,7 +768,7 @@
       send({ type: "pending" }).then(r => { const q = $("#vs-q", panel); if (!q || tab !== "saved") return; const p = r.pending; q.innerHTML = !p ? '<span class="cnt">读取失败</span>' : p.length ? p.map(w => '<span class="chip" style="padding-right:10px">' + esc(w) + "</span>").join("") : '<span class="cnt">队列是空的</span>'; const c = $("#vs-qc", panel); if (c) c.onclick = () => navigator.clipboard.writeText((p || []).join("\n")).then(() => toast("已复制 " + (p || []).length + " 个词")); });
     }
   }
-  function updPanelTr(i) { if (!listEl || tab !== "subs") return; const it = listEl.children[i]; if (it && $(".tr", it)) $(".tr", it).textContent = trans[i] || ""; if (mini && mini.id === "vs-side" && +mini.dataset.i === i) $(".sn", mini).textContent = trans[i] || ""; }
+  function updPanelTr(i) { if (!listEl || tab !== "subs") return; const it = listEl.children[i]; if (it && $(".tr", it)) $(".tr", it).textContent = trans[i] || ""; if (mini && mini.id === "vs-side" && +mini.dataset.i === i && $(".sn", mini)) $(".sn", mini).textContent = trans[i] || ""; }
   function markPanel(i, force) {
     if (!panel) return; if (tab !== "subs") { panel.classList.remove("away"); return; }
     if (!panel.classList.contains("show")) return;

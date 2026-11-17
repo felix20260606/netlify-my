@@ -15,6 +15,7 @@ var VS_GRAM_NAME = { pa: "过去时", pf: "完成时", pg: "进行时", md: "将
   var NOING = set("thing nothing something anything everything king ring sing bring spring string wing morning evening during ceiling sibling darling interesting amazing boring exciting surprising confusing annoying willing according including regarding following building meeting wedding feeling painting beginning ending meaning clothing nursing");
   var NOED = set("need speed feed seed weed bed red hundred shed sacred naked wicked indeed proceed exceed succeed bleed breed embed");
   var NOS = set("this his is was has does its us as yes always perhaps series species means less unless bus plus thus gas news politics physics mathematics economics ethics sometimes besides towards afterwards whereas across class glass grass pass boss loss miss kiss dress stress process success access address business focus status campus virus bonus chaos crisis basis analysis thesis emphasis jesus famous various serious obvious previous nervous curious dangerous enormous anxious conscious religious ridiculous tremendous gorgeous generous jealous");
+  var AMBIG = set("bit rose wound ground bore bound dove lay lit shot saw left felt fell found");
   var PLIRR = set("people men women children feet teeth mice geese lives wives knives leaves selves themselves ourselves yourselves");
   var CMP = set("better best worse worst bigger biggest smaller smallest larger largest older oldest younger youngest higher highest lower lowest longer longest shorter shortest faster fastest slower slowest easier easiest harder hardest earlier earliest later latest closer closest greater greatest stronger strongest weaker weakest happier happiest simpler simplest cheaper cheapest richer richest poorer poorest smarter smartest nicer nicest deeper deepest wider widest safer safest cleaner clearer clearest darker darkest lighter heavier heaviest hotter hottest colder coldest warmer cooler newer newest fewer fewest further furthest farther farthest busier funnier funniest quicker quickest sooner louder brighter brightest taller tallest thicker thinner tougher toughest wiser elder eldest lesser least");
   function norm(w) { return w.toLowerCase().replace(/’/g, "'"); }
@@ -68,7 +69,8 @@ var VS_GRAM_NAME = { pa: "过去时", pf: "完成时", pg: "进行时", md: "将
       if (l === "does" || l === "doesn't") { add(i, "g-s3"); continue; }
       if (l === "going" && next === "to" && BE[prev]) continue;
       // 一般过去时
-      if (PAST[l] && !SAME[PAST[l]] && !(PP[l] && (DET[prev] && !SUBJ3[prev]) && /^(a|an|the|my|your|his|her|its|our|their)$/.test(prev))) { if (!(PP[l] && !PAST[l])) { add(i, "g-pa"); continue; } }
+      if (AMBIG[l] && !/^(i|you|he|she|it|we|they|who)$/.test(prev)) { /* 多半是名词：a little bit, the ground */ }
+      else if (PAST[l] && !SAME[PAST[l]] && !(PP[l] && (DET[prev] && !SUBJ3[prev]) && /^(a|an|the|my|your|his|her|its|our|their)$/.test(prev))) { if (!(PP[l] && !PAST[l])) { add(i, "g-pa"); continue; } }
       if (isEd(l) && !/^(a|an|the|my|your|his|her|its|our|their|very|so|too|more|most|quite|really|pretty)$/.test(prev)) { add(i, "g-pa"); continue; }
       // 比较级
       if (CMP[l] || ((l === "more" || l === "most" || l === "less") && next && !DET[next] && !/^(of|than|and|or)$/.test(next))) { add(i, "g-cmp"); continue; }
