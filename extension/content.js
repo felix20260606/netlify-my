@@ -3,7 +3,7 @@
   let S = Object.assign({}, DEF);
   let revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
-  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [];
+  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true;
   const pendIdx = new Set(), retry = {};
 
   const $ = (s, r) => (r || document).querySelector(s);
@@ -30,7 +30,7 @@
     else if (raw.length && (S.engine !== old.engine || S.target !== old.target || S.merge !== old.merge || S.showHuman !== old.showHuman)) buildCues();
   });
   chrome.storage.onChanged.addListener((c, a) => { if (a === "local" && c.audioPick && c.audioPick.newValue) window.postMessage({ src: "VS-C", type: "set-audio", index: c.audioPick.newValue.i }, "*"); });
-  chrome.storage.local.get({ saved: [], savedSents: [], marks: {} }, v => { savedSet = new Set(v.saved.map(w => w.toLowerCase())); VS_SAVED = savedSet; VS_MARKS = v.marks || {}; savedSents = v.savedSents; cur = -1; });
+  chrome.storage.local.get({ saved: [], savedSents: [], marks: {}, savedCtx: {}, showCtx: false, wtipOff: false }, v => { savedCtx = v.savedCtx || {}; showCtx = !!v.showCtx; wtip = !v.wtipOff; savedSet = new Set(v.saved.map(w => w.toLowerCase())); VS_SAVED = savedSet; VS_MARKS = v.marks || {}; savedSents = v.savedSents; cur = -1; });
 
   // ---------- 字幕获取 ----------
   window.addEventListener("message", e => {
@@ -381,7 +381,7 @@
   function findCue(t) {
     let lo = 0, hi = cues.length - 1, r = -1;
     while (lo <= hi) { const m = (lo + hi) >> 1; if (cues[m].s <= t + 0.05) { r = m; lo = m + 1; } else hi = m - 1; }
-    return r >= 0 && t < cues[r].e ? r : -1;
+    return r; // 一句结束后停在这一句，直到下一句开始才切换
   }
   function tick() {
     if (vId() !== vidId) { vidId = vId(); raw = []; cues = []; trans = []; key = ""; loadedLang = ""; cur = -1; loopIdx = -1; loopOn = false; lazy = false; ver++; if (panel) buildPanel(); tracks = []; human = []; custom = false; if (vidId && /\/watch/.test(location.pathname)) { ensureCaptionsOn(); setTimeout(askTracks, 1500); setTimeout(askTracks, 4500); setTimeout(() => window.postMessage({ src: "VS-C", type: "get-audio" }, "*"), 3000); setTimeout(() => { const v = video(); if (v && S.rate && S.rate !== 1) v.playbackRate = S.rate; }, 1200); } }
@@ -554,9 +554,18 @@
   document.addEventListener("mousedown", e => { if (tip && !tip.contains(e.target) && !(root && root.contains(e.target)) && !(panel && panel.contains(e.target))) { closeTip(); if (pausedByUs) { const v = video(); if (v) v.play(); pausedByUs = false; } } }, true);
 
   function refreshMarks() { const keep = cur; cur = -1; if (keep >= 0 && cues[keep] && oEl && !cues[keep].note) { cur = keep; oEl.innerHTML = wordsHtml(cues[keep].t); } else cur = keep; if (panel) { const st = listEl.scrollTop; buildPanel(); listEl.scrollTop = st; markPanel(cur, true); } if (tip) drawDict(tip.dataset.word, tipData); }
+  function noteCtx(k) {
+    const has = c => c && !c.note && (c.t.match(WORD_RE) || []).some(x => x.toLowerCase() === k || vsLemma(x.toLowerCase()) === k);
+    const ci = has(cues[cur]) ? cur : cues.findIndex(has);
+    savedCtx[k] = ci >= 0 ? { t: cues[ci].t, v: vidId, s: cues[ci].s, at: Date.now() } : { at: Date.now() };
+  }
+  function markMany(words) {
+    words.forEach(w => { const k = w.toLowerCase(); delete VS_MARKS[k]; savedSet.add(k); send({ type: "add", word: w }); noteCtx(k); });
+    chrome.storage.local.set({ marks: VS_MARKS, savedCtx }); refreshMarks(); toast("已标记 " + words.length + " 个词为正在学习");
+  }
   function setMark(word, m) { // m: known | ignore | learn | ""
     const k = word.toLowerCase();
-    if (m === "learn") { delete VS_MARKS[k]; savedSet.add(k); send({ type: "add", word }); }
+    if (m === "learn") { delete VS_MARKS[k]; savedSet.add(k); send({ type: "add", word }); noteCtx(k); chrome.storage.local.set({ savedCtx }); }
     else {
       if (savedSet.delete(k)) chrome.storage.local.get({ saved: [] }, v => chrome.storage.local.set({ saved: v.saved.filter(x => x.toLowerCase() !== k) }));
       if (m) VS_MARKS[k] = m; else delete VS_MARKS[k];
@@ -567,7 +576,7 @@
   document.addEventListener("contextmenu", e => {
     const w = e.target.closest && e.target.closest(".vs-w"); if (!w || !S.enabled) return;
     e.preventDefault(); e.stopPropagation();
-    const c = vsCat(w.dataset.w, S, false); setMark(w.dataset.w, c === "known" ? "learn" : "known");
+    const lw = w.dataset.w.toLowerCase(), on = savedSet.has(lw) || w.classList.contains("vs-lo") || w.classList.contains("vs-ln"); setMark(w.dataset.w, on ? "known" : "learn"); // 没有框的词：右键直接加入学习；已在学习的词：右键标为已掌握
   }, true);
   function speak(word) { try { const u = new SpeechSynthesisUtterance(word); u.lang = S.srcLang === "en" ? "en-US" : S.srcLang; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (x) {} }
   function setRate(r) { const v = video(); if (!v) return; r = Math.max(0.25, Math.min(2, r)); v.playbackRate = r; if (S.rate !== r) chrome.storage.sync.set({ rate: r }); toast("播放速度 " + r + "x"); }
@@ -617,12 +626,21 @@
       $(".em", panel).onclick = e => { const k = e.target.dataset.k; if (!k) return; $(".em", panel).classList.remove("show"); exportData(k); };
       $(".tabs", panel).addEventListener("click", e => { const t = e.target.dataset.t; if (!t) return; tab = t; panel.querySelectorAll(".tabs b").forEach(x => x.classList.toggle("on", x.dataset.t === t)); buildPanel(); markPanel(cur, true); });
       listEl.addEventListener("mouseover", e => { const w = e.target.closest(".vs-w"), it = e.target.closest(".it.sb"); if (it) { showSide(it, w); return; } if (w) showMini(w); });
-      listEl.addEventListener("mouseout", e => { if (tab === "subs") { if (!e.relatedTarget || !listEl.contains(e.relatedTarget) || !e.relatedTarget.closest(".it.sb")) hideMini(); return; } if (e.target.closest(".vs-w")) hideMini(); });
+      listEl.addEventListener("mouseout", e => { if (mini && mini.id === "vs-side") { if (!e.relatedTarget || !listEl.contains(e.relatedTarget) || !e.relatedTarget.closest(".it.sb")) hideMini(); return; } if (e.target.closest(".vs-w")) hideMini(); });
       listEl.addEventListener("scroll", () => { if (mini && mini.id === "vs-side") hideMini(); }, { passive: true });
       listEl.addEventListener("click", e => {
         const st = e.target.closest(".st"), w = e.target.closest(".vs-w"), it = e.target.closest(".it"), rm = e.target.closest(".rm");
         if (rm) { if (rm.dataset.w) { savedSet.delete(rm.dataset.w.toLowerCase()); chrome.storage.local.get({ saved: [] }, v => chrome.storage.local.set({ saved: v.saved.filter(x => x.toLowerCase() !== rm.dataset.w.toLowerCase()) })); } else { savedSents.splice(+rm.dataset.si, 1); chrome.storage.local.set({ savedSents }); } buildPanel(); cur = -1; return; }
         if (st) { toggleSent(+st.dataset.i); return; }
+        const q = x => e.target.closest(x);
+        if (q(".wv b")) { wview = q(".wv b").dataset.v; wpage = 0; buildPanel(); listEl.scrollTop = 0; return; }
+        if (q(".wtip .ok")) { wtip = false; chrome.storage.local.set({ wtipOff: true }); buildPanel(); return; }
+        if (q(".flt b")) { const f = q(".flt b").dataset.f; wfilter = wfilter === f ? "" : f; buildPanel(); return; }
+        if (q(".pgr i")) { if (!q(".pgr i").classList.contains("dis")) { wpage += +q(".pgr i").dataset.p; buildPanel(); listEl.scrollTop = 0; } return; }
+        if (q(".mkall")) { if (wlist.length) markMany(wlist); return; }
+        if (q(".bk")) { setMark(q(".bk").dataset.w, "learn"); return; }
+        if (q(".cxt")) { showCtx = !showCtx; chrome.storage.local.set({ showCtx }); buildPanel(); return; }
+        if (q(".svall")) { send({ type: "openSaved" }); return; }
         if (w) { showTip(w.dataset.w, null, true, it && it.dataset.i !== undefined ? +it.dataset.i : undefined, w); return; }
         if (it && it.dataset.s !== undefined) { const v = video(); if (v) { v.currentTime = +it.dataset.s + 0.01; v.play(); } }
       });
@@ -645,25 +663,64 @@
   function syncStar() { const sv = box && box.querySelector(".vs-sv"); if (!sv) return; const on = cur >= 0 && cues[cur] && savedSents.some(x => x.k === sentKey(cues[cur])); sv.textContent = on ? "★" : "☆"; sv.classList.toggle("on", !!on); }
   function toggleSent(i) {
     const c = cues[i]; if (!c) return; const k = sentKey(c), at = savedSents.findIndex(x => x.k === k);
-    if (at >= 0) savedSents.splice(at, 1); else savedSents.push({ k, v: vidId, s: c.s, t: c.t, tr: trans[i] || "" });
+    if (at >= 0) savedSents.splice(at, 1); else savedSents.push({ k, v: vidId, s: c.s, t: c.t, tr: trans[i] || "", at: Date.now() });
     chrome.storage.local.set({ savedSents });
-    const el = listEl && listEl.querySelector('.st[data-i="' + i + '"]'); if (el) { el.textContent = at >= 0 ? "☆" : "★"; el.classList.toggle("on", at < 0); }
+    if (listEl) listEl.querySelectorAll('.st[data-i="' + i + '"]').forEach(el => { el.textContent = at >= 0 ? "☆" : "★"; el.classList.toggle("on", at < 0); });
+  }
+  function rowHtml(i, sk, hl) {
+    const c = cues[i], on = sk.has(sentKey(c)); let en = c.note ? esc(c.t) : wordsHtml(c.t);
+    if (hl) en = en.replace(/<span class="vs-w ([^"]*)" data-w="([^"]+)">/g, (a, cl, w) => { const lw = w.toLowerCase(); return hl.f.has(lw) || vsLemma(lw) === hl.w ? '<span class="vs-w hl ' + cl + '" data-w="' + w + '">' : a; });
+    return '<div class="it sb" data-i="' + i + '" data-s="' + c.s + '"><i class="pl" title="从这句播放">▶</i><i class="st' + (on ? " on" : "") + '" data-i="' + i + '" title="保存短语">' + (on ? "★" : "☆") + '</i><div class="tm">' + fmt(c.s) + '</div><div class="en' + (c.note ? " nt" : "") + '">' + en + '</div><div class="tr">' + esc(trans[i] || "") + "</div></div>";
+  }
+  function videoWords() {
+    const m = new Map(); let tot = 0; const SS = S.level >= 0 ? S : Object.assign({}, S, { level: 2000 });
+    cues.forEach((c, i) => { if (c.note) return; (c.t.match(WORD_RE) || []).forEach(w => {
+      if (/^\d/.test(w)) return; const lw = w.toLowerCase(), k = vsLemma(lw); tot++;
+      let o = m.get(k); if (!o) { o = { w: k, n: 0, r: Math.min(vsRank(k), vsRank(lw)), i, cs: [], f: new Set(), cap: 0 }; m.set(k, o); }
+      o.n++; o.f.add(lw); if (o.cs[o.cs.length - 1] !== i) o.cs.push(i); if (/^[A-Z]/.test(w) && w !== "I" && c.t.indexOf(w) > 0) o.cap++;
+    }); });
+    m.forEach(o => { let ct = vsCat(o.w, SS, false); if ([...o.f].some(x => savedSet.has(x))) ct = "learn"; else if (o.cap === o.n && (ct === "suggest" || ct === "rare")) ct = "special"; if ((ct === "suggest" || ct === "rare") && /['’]/.test(o.w)) ct = "known"; o.ct = ct; o.g = ct === "known" || ct === "special" || ct === "" ? "known" : ct === "learn" || ct === "suggest" ? "learn" : "ignore"; });
+    return { m, tot };
   }
   function buildPanel() {
     if (!panel) return;
     if (tab === "subs") {
       const sk = new Set(savedSents.map(x => x.k));
-      listEl.innerHTML = cues.map((c, i) => '<div class="it sb" data-i="' + i + '" data-s="' + c.s + '"><i class="pl" title="从这句播放">▶</i><i class="st' + (sk.has(sentKey(c)) ? " on" : "") + '" data-i="' + i + '" title="收藏这句">' + (sk.has(sentKey(c)) ? "★" : "☆") + '</i><div class="tm">' + fmt(c.s) + "</div><div class=\"en" + (c.note ? " nt" : "") + '">' + (c.note ? esc(c.t) : wordsHtml(c.t)) + '</div><div class="tr">' + esc(trans[i] || "") + "</div></div>").join("") || '<div class="it">还没有字幕。请打开视频的 CC 字幕。</div>';
+      listEl.innerHTML = cues.map((c, i) => rowHtml(i, sk)).join("") || '<div class="it">还没有字幕。请打开视频的 CC 字幕。</div>';
       if (panel.classList.contains("show")) fetchAll();
     } else if (tab === "words") {
-      const m = new Map(), lv = S.level >= 0 ? S.level : 2000;
-      cues.forEach((c, i) => { if (c.note) return; (c.t.match(WORD_RE) || []).forEach(w => { const lw = w.toLowerCase(), k = vsLemma(lw), r = Math.min(vsRank(k), vsRank(lw)), ct = vsCat(k, S.level >= 0 ? S : Object.assign({}, S, { level: lv }), false); if (ct === "known" || ct === "special" || ct === "ignore" || /^[A-Z]/.test(w) && c.t.indexOf(w) > 0) return; const o = m.get(k) || { w: k, n: 0, r, i, f: new Set() }; o.n++; o.f.add(lw); m.set(k, o); }); });
-      const arr = [...m.values()].sort((a, b) => b.n - a.n || a.r - b.r);
-      listEl.innerHTML = '<div class="hd">本视频里高于你水平的词（' + arr.length + "）· 点击查词</div>" + (arr.map(o => '<div class="it wd" data-i="' + o.i + '">' + wordsHtml(o.w) + '<span class="cnt">×' + o.n + (o.r === Infinity ? "" : " · #" + o.r) + (o.f.size > 1 || !o.f.has(o.w) ? '<span class="cnt fm">（' + esc([...o.f].filter(x => x !== o.w).join(", ")) + "）</span>" : "") + "</span></div>").join("") || '<div class="it">没有生词。</div>');
+      const { m, tot } = videoWords(), all = [...m.values()], sk = new Set(savedSents.map(x => x.k));
+      const cnt = { known: 0, learn: 0, ignore: 0 }; let kt = 0; all.forEach(o => { cnt[o.g]++; if (o.g === "known") kt += o.n; });
+      const disp = o => wordsHtml(o.w === "i" ? "I" : o.w);
+      let h = (wtip ? '<div class="wtip"><b>按频率排序的视频词汇</b><ul><li>右键点击标记单词</li><li>左键点击，打开词典。</li></ul><button class="ok">好的</button></div>' : "") + '<div class="wv">' + [["learn", "学习"], ["rank", "词频排名"], ["count", "视频中出现次数"]].map(x => '<b data-v="' + x[0] + '"' + (wview === x[0] ? ' class="on"' : "") + ">" + x[1] + "</b>").join("") + "</div>";
+      wlist = [];
+      if (!all.length) h += '<div class="it">还没有字幕。请打开视频的 CC 字幕。</div>';
+      else if (wview === "learn") {
+        const sc = o => o.n / Math.pow(Math.log(Math.max(3, Math.min(o.r, 25000))), 0.9);
+        const cand = all.filter(o => o.ct === "suggest" || o.ct === "rare").sort((a, b) => sc(b) - sc(a) || a.r - b.r);
+        const pages = Math.max(1, Math.ceil(cand.length / 20)); wpage = Math.max(0, Math.min(wpage, pages - 1));
+        const pg = cand.slice(wpage * 20, wpage * 20 + 20), gain = pg.reduce((a, o) => a + o.n, 0), pct = x => tot ? Math.round(x / tot * 100) : 0;
+        h += '<div class="pgs"><div class="pt">你已掌握 ' + pct(kt) + '% 的单词</div><div class="pb"><i style="width:' + pct(kt) + '%"></i><i class="g" style="width:' + (pct(kt + gain) - pct(kt)) + '%"></i></div><div class="pt">' + (pg.length ? "学习 " + pg.length + " 个单词即可达到 " + pct(kt + gain) + "%" : "这个视频里没有需要学习的生词") + "</div></div>";
+        const secOf = o => Math.floor(cues[o.i].s / 600); let no = wpage * 20;
+        [...new Set(pg.map(secOf))].sort((a, b) => a - b).forEach(sx => {
+          h += '<div class="sec">' + sx * 10 + "–" + (sx * 10 + 10) + " min</div>";
+          pg.filter(o => secOf(o) === sx).forEach(o => { no++; wlist.push(o.w); h += '<div class="wh"><i class="no">' + no + "</i>" + disp(o) + '<i class="cx">' + o.n + '×</i><span class="mt" data-m="' + esc(o.w) + '"></span><i class="bk" data-w="' + esc(o.w) + '" title="标记为正在学习">📖</i></div>' + o.cs.slice(0, 6).map(i => rowHtml(i, sk, o)).join(""); });
+        });
+        if (pg.length) h += '<div class="wft"><button class="mkall">标记为正在学习 (' + pg.length + ')</button><span class="pgr"><i data-p="-1"' + (wpage ? "" : ' class="dis"') + ">‹</i><b>" + (wpage + 1) + '</b><i data-p="1"' + (wpage < pages - 1 ? "" : ' class="dis"') + ">›</i></span></div>";
+      } else {
+        h += '<div class="flt">' + [["known", "✓"], ["learn", "📖"], ["ignore", "⊘"]].map(x => '<b data-f="' + x[0] + '" class="f-' + x[0] + (wfilter && wfilter !== x[0] ? " off" : "") + '">' + x[1] + " " + cnt[x[0]] + "</b>").join("") + '</div><div class="tot">/ ' + all.length + "</div>";
+        const list = all.filter(o => !wfilter || o.g === wfilter), CB = [[100, "100+"], [50, "50+"], [20, "20+"], [10, "10+"], [5, "5+"], [4, "4"], [3, "3"], [2, "2"], [1, "1"]], bk = n => CB.find(x => n >= x[0]);
+        const grp = (arr, letters) => CB.map(b => { const ws = arr.filter(o => bk(o.n) === b).sort((a, c) => (a.w < c.w ? -1 : 1)); if (!ws.length) return ""; let body = "", lt = ""; ws.forEach(o => { if (letters && ws.length > 30 && o.w[0].toUpperCase() !== lt) { lt = o.w[0].toUpperCase(); body += '<i class="lt">' + esc(lt) + "</i>"; } body += disp(o) + " "; }); return '<div class="rk"><i class="bd c' + b[0] + '">' + b[1] + '</i><div class="ws">' + body + "</div></div>"; }).join("");
+        if (wview === "rank") { const R = [1, 101, 201, 301, 501, 701, 1001, 1501, 2001, 2501, 3001, 4001, 5001, 6001, 8001, Infinity]; for (let x = 0; x < R.length - 1; x++) { const arr = list.filter(o => o.r >= R[x] && (o.r < R[x + 1] || (x === R.length - 2))); if (arr.length) h += '<div class="sec">Rank ' + (x === R.length - 2 ? "8001+" : R[x] + " - " + (R[x + 1] - 1)) + "</div>" + grp(arr, false); } }
+        else h += grp(list, true);
+      }
+      listEl.innerHTML = h;
+      if (wview === "learn") { const my = ver, pgKey = wpage; (async () => { for (const el of listEl.querySelectorAll(".mt[data-m]")) { if (tab !== "words" || wview !== "learn" || wpage !== pgKey || my !== ver || !el.isConnected) return; const g = await liteLookup(el.dataset.m); el.textContent = meanings(g).slice(0, 2).join(", "); } })(); }
     } else {
-      const ws = [...savedSet];
-      listEl.innerHTML = '<div class="hd">收藏的词（' + ws.length + '）</div><div class="chips">' + (ws.map(w => '<span class="chip">' + wordsHtml(w) + '<i class="rm" data-w="' + esc(w) + '" title="移除">×</i></span>').join("") || '<span class="cnt">还没有</span>') + '</div><div class="hd">收藏的句子（' + savedSents.length + "）</div>" +
-        (savedSents.map((x, si) => '<div class="it"' + (x.v === vidId ? ' data-s="' + x.s + '"' : "") + '><i class="rm" data-si="' + si + '" title="移除">×</i><div class="en">' + esc(x.t) + '</div><div class="tr">' + esc(x.tr || "") + "</div></div>").join("") || '<div class="it"><span class="cnt">在“字幕”里点 ☆ 收藏句子</span></div>') +
+      const items = [...savedSet].map((w, n) => ({ w, at: (savedCtx[w] || {}).at || 0, n })).concat(savedSents.map((x, si) => ({ x, si, at: x.at || 0, n: si })));
+      items.sort((a, b) => b.at - a.at || (!a.x === !b.x ? b.n - a.n : a.x ? 1 : -1));
+      listEl.innerHTML = '<div class="svb"><button class="svall">☰　查看全部</button></div><div class="svh"><span>最近保存:</span><span class="cxt">显示上下文<i class="tg' + (showCtx ? " on" : "") + '"></i></span></div>' +
+        (items.map(o => { if (o.x) return '<div class="it sv"' + (o.x.v === vidId ? ' data-s="' + o.x.s + '"' : "") + '><i class="ty">p</i><div class="en">' + wordsHtml(o.x.t) + '</div><i class="rm" data-si="' + o.si + '" title="移除">×</i></div>'; const c = savedCtx[o.w], ctx = showCtx && c && c.t; return '<div class="it sv"' + (ctx && c.v === vidId ? ' data-s="' + c.s + '"' : "") + '><i class="ty">w</i><div class="en">' + wordsHtml(ctx ? c.t : o.w) + '</div><i class="rm" data-w="' + esc(o.w) + '" title="移除">×</i></div>'; }).join("") || '<div class="it"><span class="cnt">还没有保存的内容。右键点击单词，或点字幕右侧的 ☆</span></div>') +
         '<div class="hd">生词本待整理队列 <a id="vs-qc" style="cursor:pointer;color:#0FA37A;margin-left:8px">复制全部</a></div><div class="chips" id="vs-q"><span class="cnt">读取中…</span></div>';
       send({ type: "pending" }).then(r => { const q = $("#vs-q", panel); if (!q || tab !== "saved") return; const p = r.pending; q.innerHTML = !p ? '<span class="cnt">读取失败</span>' : p.length ? p.map(w => '<span class="chip" style="padding-right:10px">' + esc(w) + "</span>").join("") : '<span class="cnt">队列是空的</span>'; const c = $("#vs-qc", panel); if (c) c.onclick = () => navigator.clipboard.writeText((p || []).join("\n")).then(() => toast("已复制 " + (p || []).length + " 个词")); });
     }

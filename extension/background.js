@@ -134,6 +134,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "pending") fetch(BASE + "/latest", { headers: { "X-Access-Key": KEY, "X-Bin-Meta": "false" } }).then(r => r.json()).then(d => send({ pending: d.pending || [] })).catch(() => send({}));
   else if (m.type === "openSettings") { chrome.windows.create({ url: chrome.runtime.getURL("popup.html"), type: "popup", width: 340, height: 760 }); send({}); }
   else if (m.type === "openLevel") { chrome.runtime.openOptionsPage(); send({}); }
+  else if (m.type === "openSaved") { chrome.tabs.create({ url: chrome.runtime.getURL("saved.html") }); send({}); }
   else if (m.type === "add") addWord(m.word).then(send);
   else return false;
   return true;

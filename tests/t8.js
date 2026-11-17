@@ -17,7 +17,7 @@ const { chromium } = require('playwright'); const fs=require('fs');
   await p.click('#vs-panel .st[data-i="0"]'); 
   await p.click('#vs-panel .tabs b[data-t=words]'); await p.waitForTimeout(200);
   console.log('words tab:', (await p.locator('#vs-panel .it.wd').allInnerTexts()).join(' / '));
-  await p.click('#vs-panel .it.wd .vs-w'); await p.waitForSelector('#vs-tip'); await p.click('#vs-tip [data-m=learn]'); await p.waitForTimeout(600); await p.click('#vs-tip [data-a=x]');
+  await p.click('#vs-panel .wh .vs-w'); await p.waitForSelector('#vs-tip'); await p.click('#vs-tip [data-m=learn]'); await p.waitForTimeout(600); await p.click('#vs-tip [data-a=x]');
   await p.click('#vs-panel .tabs b[data-t=saved]'); await p.waitForTimeout(200);
   console.log('saved tab:', (await p.innerText('#vs-panel .ls')).replace(/\n+/g,' | '));
   await p.hover('#movie_player'); await p.click('#vs-ap'); await p.waitForTimeout(300);
