@@ -2,7 +2,7 @@
 (function () {
   var last = ""; // 最近一次字幕请求的地址：content.js 启动得晚，错过了可以回头来问
   function report(url) {
-    try { if (/\/api\/timedtext/.test(url)) { last = new URL(url, location.href).href; window.postMessage({ src: "VS", type: "timedtext", url: last }, "*"); } } catch (e) {}
+    try { if (/\/api\/timedtext/.test(url)) { var h = new URL(url, location.href).href; if (!/[?&]tlang=/.test(h)) last = h; window.postMessage({ src: "VS", type: "timedtext", url: h }, "*"); } } catch (e) {}
   }
   var open = XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open = function (m, url) { report(String(url)); return open.apply(this, arguments); };

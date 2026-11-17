@@ -1,7 +1,7 @@
 (function () {
   const DEF = { panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: false, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
-  let revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
+  let srcVia = false, viaBase = "", pendUrl = "", revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
   let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
   const pendIdx = new Set(), retry = {};
@@ -60,7 +60,7 @@
     if (e.data.type === "dev-state") { window.postMessage({ src: "VS-R", level: S.level, ratio: S.ratio, merge: S.merge, engine: S.engine, hideMode: S.hideMode, showHuman: S.showHuman, target: S.target }, "*"); return; }
     if (e.data.type === "reload-ext") { send({ type: "reloadSelf" }); return; } // 开发用：让插件重新加载自身（仅重启插件，不涉及数据）
     if (e.data.type === "audio") { chrome.storage.local.set({ audioTracks: e.data.names || [] }); return; }
-    if (e.data.type === "tracks") { tracks = e.data.tracks || []; chrome.storage.local.set({ trackLangs: tracks.filter(t => t.kind !== "asr").map(t => t.lang) }); pickTrack(e.data.cur); return; }
+    if (e.data.type === "tracks") { tracks = e.data.tracks || []; chrome.storage.local.set({ trackLangs: tracks.filter(t => t.kind !== "asr").map(t => t.lang) }); pickTrack(e.data.cur); if (pendUrl && tracks.length) { const p = pendUrl; pendUrl = ""; onTimedtext(p); } return; }
     if (e.data.type === "timedtext") onTimedtext(e.data.url);
   });
   const dec = s => s.replace(/&#x([0-9a-f]+);/gi, (m, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);/g, (m, d) => String.fromCodePoint(+d)).replace(/&nbsp;/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
@@ -196,13 +196,18 @@
     if (u.searchParams.get("v") !== vId()) return;
     const lang = (u.searchParams.get("lang") || "").toLowerCase(), base = lang.split(/[-_]/)[0];
     // 其他插件（如 Language Reactor）也会请求别的语言轨：忽略与翻译目标相同的语言；已载入英文轨后不再被其他语言覆盖
-    const want = baseOf(S.srcLang), tb = baseOf(S.target);
-    if (base && base === tb && want !== tb) return;
-    if ((tracks.some(t => baseOf(t.lang) === want) || loadedLang === want) && base !== want) return;
-    const k = [u.searchParams.get("v"), lang, u.searchParams.get("kind")].join("|");
-    if (k === key) return; key = k; loadedLang = base;
+    const want = baseOf(S.srcLang);
+    let via = false;
+    if (base !== want) {
+      if (tracks.some(t => baseOf(t.lang) === want) || (loadedLang === want && !srcVia)) return;
+      if (!tracks.length) { pendUrl = url; return; } // 还不知道视频有哪些字幕轨，等列表回来再决定
+      via = true; // 视频没有学习语言的字幕轨：和 LR 一样，让 YouTube 把现有字幕自动翻译成学习语言当作原文
+    }
+    const k = [u.searchParams.get("v"), lang, u.searchParams.get("kind"), via ? "via" : ""].join("|");
+    if (k === key) return; key = k; loadedLang = via ? want : base; srcVia = via; viaBase = base;
     u.searchParams.set("fmt", "json3"); u.searchParams.set("lv", "1");
-    const j = await getJson(u.href); if (!j) { key = ""; return; }
+    const src = new URL(u.href); if (via) src.searchParams.set("tlang", tlangOf(S.srcLang));
+    const j = await getJson(src.href); if (!j) { key = ""; return; }
     const c = parse(j); if (!c.length) { key = ""; return; }
     raw = c; baseUrl = u.href; asr = u.searchParams.get("kind") === "asr";
     await buildCues();
@@ -214,7 +219,7 @@
     trans = []; pendIdx.clear(); for (const k in retry) delete retry[k]; cur = -1; loopIdx = -1; lazy = !(S.engine === "youtube" && baseUrl); // 等 YouTube 翻译取回后再决定哪些句子需要备用引擎
 
     if (S.engine === "youtube" && baseUrl) {
-      const u2 = new URL(baseUrl); u2.searchParams.set("tlang", tlangOf(S.target));
+      const u2 = new URL(baseUrl); if (srcVia && viaBase === baseOf(S.target)) u2.searchParams.delete("tlang"); else u2.searchParams.set("tlang", tlangOf(S.target)); // 原字幕本身就是翻译语言时直接用它
       const j2 = await getJson(u2.href); const t2 = j2 ? parse(j2) : [];
       if (my !== ver) return;
       if (t2.length) {
@@ -225,7 +230,7 @@
     human = [];
     if (S.showHuman) {
       const tb = baseOf(S.target), ht = tracks.find(t => t.kind !== "asr" && t.lang.toLowerCase() === String(S.target).toLowerCase()) || tracks.find(t => t.kind !== "asr" && baseOf(t.lang) === tb);
-      if (ht && ht.baseUrl && baseUrl && baseOf(S.srcLang) !== tb) {
+      if (ht && ht.baseUrl && baseUrl && baseOf(S.srcLang) !== tb && !srcVia) {
         const u3 = new URL(ht.baseUrl, location.href);
         new URL(baseUrl).searchParams.forEach((v, k) => { if (!u3.searchParams.has(k) && !/^(kind|lang|name|tlang|fmt)$/.test(k)) u3.searchParams.set(k, v); });
         u3.searchParams.set("fmt", "json3"); u3.searchParams.set("lv", "1"); u3.searchParams.delete("tlang");
