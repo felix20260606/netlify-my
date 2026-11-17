@@ -33,4 +33,5 @@ $("audio").onchange = e => chrome.storage.local.set({ audioPick: { i: e.target.v
 
 document.addEventListener("click", e => { const i = e.target.closest(".inf"); if (!i) return; e.preventDefault(); const h = i.closest("label").nextElementSibling; if (h && h.classList.contains("hint")) h.classList.toggle("on"); });
 
+$("sy").onclick = e => { e.preventDefault(); $("syr").textContent = "同步中…"; chrome.runtime.sendMessage({ type: "syncAll", tl: V.target }, r => { $("syr").textContent = !r || !r.cloud ? "同步失败（未配置或网络问题）" : "新增 " + (r.added || 0) + " 个，网站共 " + r.total + " 个自定义词条"; }); };
 $("rv").onclick = e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); };

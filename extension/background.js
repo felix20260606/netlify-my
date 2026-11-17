@@ -134,22 +134,69 @@ async function dict(word) {
 }
 
 // ---------- 加入生词本 ----------
-async function addWord(word, queueOnly) {
+async function addWord(word, queueOnly, m) {
   word = (word || "").trim(); if (!word) return { ok: false };
   if (!queueOnly) { // 短语只进待整理队列，不进“正在学习”的单词表
     const st = await chrome.storage.local.get({ saved: [] });
     if (!st.saved.some(w => w.toLowerCase() === word.toLowerCase())) { st.saved.push(word); await chrome.storage.local.set({ saved: st.saved }); }
   }
   if (!BIN || !KEY) return { ok: true, cloud: false };
-  try {
-    const r = await fetch(BASE + "/latest", { headers: { "X-Access-Key": KEY, "X-Bin-Meta": "false" } });
-    if (!r.ok) throw 0;
-    const d = await r.json();
-    d.pending = d.pending || [];
-    if (!d.pending.some(w => (w + "").toLowerCase() === word.toLowerCase())) d.pending.push(word);
-    const p = await fetch(BASE, { method: "PUT", headers: { "Content-Type": "application/json", "X-Access-Key": KEY }, body: JSON.stringify({ custom: d.custom || [], progress: d.progress || {}, deleted: d.deleted || [], pending: d.pending }) });
-    return { ok: p.ok, cloud: p.ok };
-  } catch (e) { return { ok: true, cloud: false }; }
+  const e = await makeEntry(word, m || {});
+  return cloudAdd([e]);
+}
+
+// ---------- 同步到生词本网站：直接生成完整词条（释义、音标、原句），手机上打开就能复习 ----------
+const entryId = w => "v_" + w.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+async function makeEntry(word, m) {
+  const lw = word.toLowerCase(), isPh = /\s/.test(word.trim()), tl = m.tl || "zh-CN";
+  const [g, d] = await Promise.all([gWord(lw, tl, "en").catch(() => null), isPh ? null : dict(lw).catch(() => null)]);
+  const zs = []; const add = x => { x = String(x || "").trim(); if (x && !zs.includes(x) && x.toLowerCase() !== lw) zs.push(x); };
+  if (m.zh) add(m.zh); if (g) { add(g.t); (g.zh || []).forEach(z => z.words.forEach(add)); }
+  const def = d && d.meanings && d.meanings[0] && d.meanings[0].defs[0] && d.meanings[0].defs[0].def || "";
+  const ex = []; const c = m.ctx;
+  if (c && c.t) { const re = new RegExp("\\b(" + word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+") + "\\w*)", "i"); ex.push([c.t.replace(/\s+/g, " ").replace(re, "{$1}"), c.tr || ""]); }
+  return { id: entryId(word), type: isPh ? "phrase" : "word", word, phon: d && d.phonetic ? (/^\//.test(d.phonetic) ? d.phonetic : "/" + d.phonetic + "/") : "", en: def, zh: zs.slice(0, 4).join("；") || "(未查到，可手动补)", tag: "视频", date: new Date().toISOString().slice(0, 10), forms: [], examples: ex, tip: "" };
+}
+let cloudChain = Promise.resolve();
+function cloudAdd(entries) { // 串行读-改-写，避免连续加词互相覆盖
+  const run = async () => {
+    try {
+      const r = await fetch(BASE + "/latest", { headers: { "X-Access-Key": KEY, "X-Bin-Meta": "false" } });
+      if (!r.ok) throw 0;
+      const d = await r.json(); d.custom = d.custom || []; d.pending = d.pending || []; d.deleted = d.deleted || [];
+      let n = 0;
+      for (const e of entries) {
+        const lw = e.word.toLowerCase();
+        d.pending = d.pending.filter(w => (w + "").toLowerCase() !== lw);
+        d.deleted = d.deleted.filter(x => x !== e.id);
+        if (d.custom.some(x => x && (x.id === e.id || (x.word || "").toLowerCase() === lw))) continue;
+        d.custom.push(e); n++;
+      }
+      const p = await fetch(BASE, { method: "PUT", headers: { "Content-Type": "application/json", "X-Access-Key": KEY }, body: JSON.stringify({ custom: d.custom, progress: d.progress || {}, deleted: d.deleted, pending: d.pending }) });
+      return { ok: p.ok, cloud: p.ok, added: n, total: d.custom.length };
+    } catch (e) { return { ok: true, cloud: false }; }
+  };
+  const res = cloudChain.then(run, run); cloudChain = res.catch(() => {}); return res;
+}
+// 把本机已保存的单词 / 短语，以及云端待整理队列里的词，一次补齐成完整词条
+async function syncAll(tl) {
+  if (!BIN || !KEY) return { ok: false, cloud: false };
+  const st = await chrome.storage.local.get({ saved: [], savedSents: [], savedCtx: {} });
+  let pend = [], have = new Set();
+  try { const r = await fetch(BASE + "/latest", { headers: { "X-Access-Key": KEY, "X-Bin-Meta": "false" } }); const d = await r.json(); pend = d.pending || []; (d.custom || []).forEach(x => x && have.add((x.word || "").toLowerCase())); } catch (e) { return { ok: false, cloud: false }; }
+  const items = new Map();
+  st.saved.forEach(w => items.set(w.toLowerCase(), { word: w }));
+  st.savedSents.filter(x => x.ph).forEach(x => items.set(x.t.toLowerCase(), { word: x.t, zh: x.tr, ctx: x.ctx ? { t: x.ctx } : null }));
+  pend.forEach(w => { w = String(w); if (!items.has(w.toLowerCase())) items.set(w.toLowerCase(), { word: w }); });
+  const out = [];
+  for (const [k, it] of items) {
+    if (have.has(k)) continue;
+    const med = (await chrome.storage.local.get("med:w:" + k))["med:w:" + k], c = st.savedCtx[k];
+    const ctx = it.ctx || (med && med.t ? { t: med.t, tr: med.tr } : c && c.t ? { t: c.t } : null);
+    if (ctx && ctx.t && !ctx.tr) { try { ctx.tr = (await translateMany([ctx.t], tl || "zh-CN", "google", "en"))[0] || ""; } catch (e) {} }
+    out.push(await makeEntry(it.word, { tl, zh: it.zh, ctx }));
+  }
+  const r = await cloudAdd(out); r.found = items.size; return r;
 }
 
 async function phrases(titles) {
@@ -177,7 +224,8 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "tts") tts(m.text, m.lang).then(a => send({ a })).catch(() => send({ a: "" }));
   else if (m.type === "openReview") { chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); send({}); }
   else if (m.type === "sentences") sentences(m.word, m.tl, m.sl).then(s => send({ s })).catch(() => send({ s: [] }));
-  else if (m.type === "add") addWord(m.word, m.queueOnly).then(send);
+  else if (m.type === "add") addWord(m.word, m.queueOnly, m).then(send);
+  else if (m.type === "syncAll") syncAll(m.tl).then(send);
   else return false;
   return true;
 });

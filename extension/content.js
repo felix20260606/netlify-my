@@ -53,6 +53,8 @@
   chrome.storage.onChanged.addListener((c, a) => { if (a === "local" && c.audioPick && c.audioPick.newValue) window.postMessage({ src: "VS-C", type: "set-audio", index: c.audioPick.newValue.i }, "*"); });
   // 一次性迁移：旧版本的 ✕ 会把侧栏彻底关掉，新版本改为收起，所以把被关掉的侧栏恢复出来
   chrome.storage.local.get({ pm1: false }, v => { if (!v.pm1) { chrome.storage.local.set({ pm1: true }); chrome.storage.sync.set({ panelOpen: true }); } });
+  // 一次性：把已保存的词补齐成生词本网站上的完整词条
+  chrome.storage.local.get({ cloudFill1: false }, v => { if (!v.cloudFill1) setTimeout(() => send({ type: "syncAll", tl: S.target }).then(r => { if (r && r.cloud) { chrome.storage.local.set({ cloudFill1: true }); if (r.added) toast("已同步 " + r.added + " 个词到生词本网站"); } }), 6000); });
   chrome.storage.local.get({ saved: [], savedSents: [], marks: {}, savedCtx: {}, showCtx: false, wtipOff: false, panelMin: false, tags: {} }, v => { wtags = v.tags || {}; panelMin = !!v.panelMin; if (panel) panel.classList.toggle("min", panelMin); savedCtx = v.savedCtx || {}; showCtx = !!v.showCtx; wtip = !v.wtipOff; savedSet = new Set(v.saved.map(w => w.toLowerCase())); VS_SAVED = savedSet; VS_MARKS = v.marks || {}; savedSents = v.savedSents; cur = -1; });
 
   // ---------- 字幕获取 ----------
@@ -720,7 +722,7 @@
       const cu = cues[ci] || cues[cur] || null, g = await liteLookup(ph).catch(() => null);
       if (savedSents.some(x => x.k === k)) return;
       savedSents.push({ k, v: cu ? vidId : "", s: cu ? cu.s : 0, t: ph, tr: (g && g.t) || "", at: Date.now(), ph: 1, ctx: cu ? cu.t : "" });
-      chrome.storage.local.set({ savedSents }); if (cu) saveMedia("med:s:" + k, cues.indexOf(cu)); send({ type: "add", word: ph, queueOnly: true });
+      chrome.storage.local.set({ savedSents }); if (cu) saveMedia("med:s:" + k, cues.indexOf(cu)); send({ type: "add", word: ph, queueOnly: true, tl: S.target, zh: (g && g.t) || "", ctx: cu ? { t: cu.t, tr: trans[cues.indexOf(cu)] || "" } : null });
       refreshMarks();
       setTimeout(() => toast("短语 “" + ph + "” 也一起保存了"), 1900);
     } catch (e) {}
@@ -730,14 +732,15 @@
     const ci = has(cues[cur]) ? cur : cues.findIndex(has);
     savedCtx[k] = ci >= 0 ? { t: cues[ci].t, v: vidId, s: cues[ci].s, at: Date.now() } : { at: Date.now() };
     saveMedia("med:w:" + k, ci);
+    return ci >= 0 ? { t: cues[ci].t, tr: trans[ci] || "" } : null;
   }
   function markMany(words) {
-    words.forEach(w => { const k = w.toLowerCase(); delete VS_MARKS[k]; savedSet.add(k); send({ type: "add", word: w }); noteCtx(k); });
+    words.forEach(w => { const k = w.toLowerCase(); delete VS_MARKS[k]; savedSet.add(k); send({ type: "add", word: w, tl: S.target, ctx: noteCtx(k) }); });
     chrome.storage.local.set({ marks: VS_MARKS, savedCtx }); refreshMarks(); toast("已标记 " + words.length + " 个词为正在学习");
   }
   function setMark(word, m) { // m: known | ignore | learn | ""
     const k = word.toLowerCase();
-    if (m === "learn") { Object.keys(VS_MARKS).forEach(x => { if (vsSame(x, k)) delete VS_MARKS[x]; }); savedSet.add(k); send({ type: "add", word }); noteCtx(k); chrome.storage.local.set({ savedCtx }); }
+    if (m === "learn") { Object.keys(VS_MARKS).forEach(x => { if (vsSame(x, k)) delete VS_MARKS[x]; }); savedSet.add(k); send({ type: "add", word, tl: S.target, ctx: noteCtx(k) }); chrome.storage.local.set({ savedCtx }); }
     else {
       // 按原形取消：标 wrote 为已掌握时，之前保存的 write / written 也一起移出“正在学习”
       const gone = [...savedSet].filter(x => vsSame(x, k));
