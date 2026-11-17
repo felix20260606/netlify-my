@@ -166,3 +166,18 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 #vs-panel .it .nt{color:var(--vs-cp,#7CE3B8);font-style:normal}
 #vs-sub .vs-o,#vs-sub .vs-t,#vs-sub .vs-h{transition:filter .18s}
 #vs-sub .vs-o.hid,#vs-sub .vs-t.hid,#vs-sub .vs-h.hid{filter:blur(.23em);cursor:pointer}
+
+#vs-panel .it.sb{padding:9px 38px 9px 38px;font-size:16px;line-height:1.5}
+#vs-panel .it.sb .tm,#vs-panel .it.sb .tr{display:none}
+#vs-panel .it.sb.cur{border-left:0;background:#1d2127}
+#vs-panel .it.sb .pl{position:absolute;left:9px;top:50%;margin-top:-10px;width:20px;height:20px;border-radius:50%;background:#9A62C4;color:#16191e;font:normal 9px/20px system-ui;text-align:center;text-indent:1px;opacity:0;cursor:pointer}
+#vs-panel .it.sb:hover .pl,#vs-panel .it.sb.cur .pl{opacity:1}
+#vs-panel .it.sb .st{top:50%;margin-top:-12px;opacity:0}
+#vs-panel .it.sb:hover .st,#vs-panel .it.sb .st.on{opacity:1}
+#vs-panel .it.sb .vs-w{border-radius:4px}
+#vs-panel .it.sb .vs-w:hover{background:#3b4048;box-shadow:0 0 0 2px #3b4048}
+#vs-side{position:fixed;z-index:2147483500;background:#232629;color:#fff;border-radius:14px;padding:10px 16px 12px;text-align:right;font:500 17px/1.5 system-ui,"PingFang SC","Microsoft YaHei",sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.45);pointer-events:none}
+#vs-side b{font-weight:500;color:#B9B35C}
+#vs-side .fb{width:26px;margin-right:12px;background:#2c4a66}
+#vs-side .sn{color:#b9bcc0;font-size:.95em}
+#vs-side .sn.ln{border-top:1px solid #4a4f7a;margin-top:8px;padding-top:8px}

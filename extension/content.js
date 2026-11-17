@@ -421,7 +421,7 @@
   const STOP = new Set("a an the of to in on at for and or but is are was were be been am i you he she it we they me him her us them my your his its our their this that these those do does did have has had not no so as if with by from".split(" "));
   const NUMW = "(?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|\\d+|few|several|many|some)";
   const UNIT = "(?:second|minute|hour|day|night|week|weekend|month|year|decade|century|moment|while)s?";
-  const TIME_RE = new RegExp("^(?:" + NUMW + " )?(?:(?:few|couple|couple of|number of|lot of|half) )?(?:of )?(?:" + NUMW + " )?" + UNIT + " (?:later|ago|earlier|before|after|long|from now|or so)$|^(?:every|each|last|next|this|that|the other|every single|the next|the last|the following|the previous) (?:second|minute|hour|day|night|week|weekend|month|year|decade|morning|evening|afternoon|time)$|^(?:the )?(?:day|week|month|year|night|morning) (?:before|after)$|^(?:all|the whole) (?:day|night|week|month|year|morning|afternoon|evening) long$|^(?:once|twice) (?:a|per|every) (?:day|week|month|year)$");
+  const TIME_RE = new RegExp("^(?:" + NUMW + " )?(?:(?:few|couple|couple of|number of|lot of|half) )?(?:of )?(?:" + NUMW + " )?" + UNIT + " (?:later|ago|earlier|before|after|long|from now|or so)$|^(?:every|each|last|next|this|that|the other|every single|the next|the last|the following|the previous) (?:second|minute|hour|day|night|week|weekend|month|year|decade|morning|evening|afternoon|time)$|^(?:the )?(?:day|week|month|year|night|morning) (?:before|after)$|^(?:all|the whole) (?:day|night|week|month|year|morning|afternoon|evening) long$|^(?:once|twice) (?:a|per|every) (?:day|week|month|year)$|^(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|\\d+|few|several) " + UNIT + "$");
   const pcache = new Map();
   async function findPhrase(el) {
     const host = el.parentNode; if (!host) return null;
@@ -467,6 +467,22 @@
     { const lm = VS_IRR[word.toLowerCase()]; if (lm) liteLookup(lm).then(g => { if (mini !== my || !g) return; const x = meanings(g)[0]; if (!x) return; const d = document.createElement("div"); d.className = "lm"; d.textContent = lm + "：" + x; my.insertBefore(d, $(".fb", my)); fix(); }); }
     findPhrase(el).then(ph => { if (mini !== my || !ph || ph === word.toLowerCase()) return; liteLookup(ph).then(g => { if (mini !== my || !g || !g.t || g.t.toLowerCase() === ph) return; $(".pz", my).innerHTML = '<div class="hd">' + esc(ph) + '</div><div class="pt">' + esc(g.t) + "</div>"; const wd = $(".wd", my); wd.textContent = word; wd.style.display = ""; my.dataset.phrase = ph; fix(); }); });
     liteLookup(word).then(g => { if (mini !== my) return; setTimeout(fix, 0); const m = meanings(g).slice(0, 3); $(".ms", my).innerHTML = (g && g.note ? '<div class="m2" style="font-size:.8em">' + esc(g.note) + "</div>" : "") + (m.length ? m.map((x, i) => '<div class="m' + i + '">' + esc(x) + "</div>").join("") : "—"); fix(); });
+  }
+  // 侧栏悬停：气泡出现在侧栏左边 —— 短语、单词释义、整句翻译
+  function showSide(it, w) {
+    const i = +it.dataset.i, c = cues[i]; if (!c || !panel) return;
+    const word = w && !c.note ? w.dataset.w : "";
+    if (mini && mini.id === "vs-side" && mini._it === it && mini._w === (word ? w : null)) return;
+    hideMini();
+    const my = mini = document.createElement("div"); my.id = "vs-side"; my._it = it; my._w = word ? w : null; my.dataset.i = i;
+    my.innerHTML = '<div class="pz"></div>' + (word ? '<div class="wr">' + freqBar(word) + "<b>" + esc(word) + '</b> : <span class="ms">…</span></div>' : "") + '<div class="sn' + (word ? " ln" : "") + '">' + esc(trans[i] || "…") + "</div>";
+    document.body.append(my);
+    const fix = () => { if (mini !== my) return; const pr = panel.getBoundingClientRect(), r = it.getBoundingClientRect(), vw = document.documentElement.clientWidth; my.style.maxWidth = Math.max(160, Math.min(440, pr.left - 24)) + "px"; my.style.right = vw - pr.left + 10 + "px"; my.style.top = Math.max(6, Math.min(r.top - 4, innerHeight - my.offsetHeight - 6)) + "px"; };
+    fix();
+    if (trans[i] === undefined) fetchTrans(i, 1);
+    if (!word) return;
+    findPhrase(w).then(ph => { if (mini !== my || !ph || ph === word.toLowerCase()) return; liteLookup(ph).then(g => { if (mini !== my || !g || !g.t || g.t.toLowerCase() === ph) return; $(".pz", my).innerHTML = '<div class="wr"><b>' + esc(ph) + "</b> : " + esc(g.t) + "</div>"; my.dataset.phrase = ph; fix(); }); });
+    liteLookup(word).then(g => { if (mini !== my) return; const m = meanings(g).slice(0, 3); $(".ms", my).textContent = m.length ? m.join(", ") : "—"; fix(); });
   }
   function hoverWord(w) {
     clearTimeout(hideT);
@@ -600,8 +616,9 @@
       $("#vs-pe", panel).onclick = () => $(".em", panel).classList.toggle("show");
       $(".em", panel).onclick = e => { const k = e.target.dataset.k; if (!k) return; $(".em", panel).classList.remove("show"); exportData(k); };
       $(".tabs", panel).addEventListener("click", e => { const t = e.target.dataset.t; if (!t) return; tab = t; panel.querySelectorAll(".tabs b").forEach(x => x.classList.toggle("on", x.dataset.t === t)); buildPanel(); markPanel(cur, true); });
-      listEl.addEventListener("mouseover", e => { const w = e.target.closest(".vs-w"); if (w) showMini(w); });
-      listEl.addEventListener("mouseout", e => { if (e.target.closest(".vs-w")) hideMini(); });
+      listEl.addEventListener("mouseover", e => { const w = e.target.closest(".vs-w"), it = e.target.closest(".it.sb"); if (it) { showSide(it, w); return; } if (w) showMini(w); });
+      listEl.addEventListener("mouseout", e => { if (tab === "subs") { if (!e.relatedTarget || !listEl.contains(e.relatedTarget) || !e.relatedTarget.closest(".it.sb")) hideMini(); return; } if (e.target.closest(".vs-w")) hideMini(); });
+      listEl.addEventListener("scroll", () => { if (mini && mini.id === "vs-side") hideMini(); }, { passive: true });
       listEl.addEventListener("click", e => {
         const st = e.target.closest(".st"), w = e.target.closest(".vs-w"), it = e.target.closest(".it"), rm = e.target.closest(".rm");
         if (rm) { if (rm.dataset.w) { savedSet.delete(rm.dataset.w.toLowerCase()); chrome.storage.local.get({ saved: [] }, v => chrome.storage.local.set({ saved: v.saved.filter(x => x.toLowerCase() !== rm.dataset.w.toLowerCase()) })); } else { savedSents.splice(+rm.dataset.si, 1); chrome.storage.local.set({ savedSents }); } buildPanel(); cur = -1; return; }
@@ -636,7 +653,7 @@
     if (!panel) return;
     if (tab === "subs") {
       const sk = new Set(savedSents.map(x => x.k));
-      listEl.innerHTML = cues.map((c, i) => '<div class="it" data-i="' + i + '" data-s="' + c.s + '"><i class="st' + (sk.has(sentKey(c)) ? " on" : "") + '" data-i="' + i + '" title="收藏这句">' + (sk.has(sentKey(c)) ? "★" : "☆") + '</i><div class="tm">' + fmt(c.s) + "</div><div class=\"en" + (c.note ? " nt" : "") + '">' + (c.note ? esc(c.t) : wordsHtml(c.t)) + '</div><div class="tr">' + esc(trans[i] || "") + "</div></div>").join("") || '<div class="it">还没有字幕。请打开视频的 CC 字幕。</div>';
+      listEl.innerHTML = cues.map((c, i) => '<div class="it sb" data-i="' + i + '" data-s="' + c.s + '"><i class="pl" title="从这句播放">▶</i><i class="st' + (sk.has(sentKey(c)) ? " on" : "") + '" data-i="' + i + '" title="收藏这句">' + (sk.has(sentKey(c)) ? "★" : "☆") + '</i><div class="tm">' + fmt(c.s) + "</div><div class=\"en" + (c.note ? " nt" : "") + '">' + (c.note ? esc(c.t) : wordsHtml(c.t)) + '</div><div class="tr">' + esc(trans[i] || "") + "</div></div>").join("") || '<div class="it">还没有字幕。请打开视频的 CC 字幕。</div>';
       if (panel.classList.contains("show")) fetchAll();
     } else if (tab === "words") {
       const m = new Map(), lv = S.level >= 0 ? S.level : 2000;
@@ -651,7 +668,7 @@
       send({ type: "pending" }).then(r => { const q = $("#vs-q", panel); if (!q || tab !== "saved") return; const p = r.pending; q.innerHTML = !p ? '<span class="cnt">读取失败</span>' : p.length ? p.map(w => '<span class="chip" style="padding-right:10px">' + esc(w) + "</span>").join("") : '<span class="cnt">队列是空的</span>'; const c = $("#vs-qc", panel); if (c) c.onclick = () => navigator.clipboard.writeText((p || []).join("\n")).then(() => toast("已复制 " + (p || []).length + " 个词")); });
     }
   }
-  function updPanelTr(i) { if (!listEl || tab !== "subs") return; const it = listEl.children[i]; if (it && $(".tr", it)) $(".tr", it).textContent = trans[i] || ""; }
+  function updPanelTr(i) { if (!listEl || tab !== "subs") return; const it = listEl.children[i]; if (it && $(".tr", it)) $(".tr", it).textContent = trans[i] || ""; if (mini && mini.id === "vs-side" && +mini.dataset.i === i) $(".sn", mini).textContent = trans[i] || ""; }
   function markPanel(i, force) {
     if (!panel || !panel.classList.contains("show") || tab !== "subs") return;
     const old = $(".it.cur", listEl); if (old) old.classList.remove("cur");
