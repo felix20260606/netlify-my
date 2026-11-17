@@ -1,7 +1,7 @@
 (function () {
   const DEF = { panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 11, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: false, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
-  let srcVia = false, viaBase = "", pendUrl = "", revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
+  let srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
   let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
   const pendIdx = new Set(), retry = {};
@@ -126,7 +126,7 @@
     }
     return out;
   }
-  async function getJson(u) { try { const r = await fetch(u); if (!r.ok) return null; return await r.json(); } catch (e) { return null; } }
+  async function getJson(u) { try { const r = await fetch(u); lastStatus = r.status; if (!r.ok) return null; return await r.json(); } catch (e) { lastStatus = 0; return null; } }
   const tsec = x => { const m = /(?:(\d+):)?(\d+):(\d+)[.,](\d+)/.exec(x); return m ? (+(m[1] || 0)) * 3600 + +m[2] * 60 + +m[3] + +("0." + m[4]) : 0; };
   function parseSubFile(txt, name) {
     const out = [];
@@ -192,7 +192,8 @@
   async function onTimedtext(url) {
     if (custom) return;
     const u = new URL(url);
-    if (u.searchParams.get("lv") || u.searchParams.get("tlang")) return;
+    if (u.searchParams.get("lv")) return;
+    if (u.searchParams.get("tlang")) { if (raw.length) return; u.searchParams.delete("tlang"); } // 播放器或别的插件请求的是翻译版：还没有字幕时借用它的地址，去掉翻译参数
     if (u.searchParams.get("v") !== vId()) return;
     const lang = (u.searchParams.get("lang") || "").toLowerCase(), base = lang.split(/[-_]/)[0];
     // 其他插件（如 Language Reactor）也会请求别的语言轨：忽略与翻译目标相同的语言；已载入英文轨后不再被其他语言覆盖
@@ -207,7 +208,13 @@
     if (k === key) return; key = k; loadedLang = via ? want : base; srcVia = via; viaBase = base;
     u.searchParams.set("fmt", "json3"); u.searchParams.set("lv", "1");
     const src = new URL(u.href); if (via) src.searchParams.set("tlang", tlangOf(S.srcLang));
-    const j = await getJson(src.href); if (!j) { key = ""; return; }
+    const j = await getJson(src.href);
+    if (!j) { // YouTube 限流（429）时提示并稍后自动重试，最多 4 次
+      key = "";
+      if (lastStatus === 429 && limitTry < 4) { limitTry++; toast("YouTube 暂时限制了字幕请求，" + 15 * limitTry + " 秒后自动重试"); const vid = vidId; setTimeout(() => { if (vid === vidId && !raw.length) onTimedtext(url); }, 15000 * limitTry); }
+      return;
+    }
+    limitTry = 0;
     const c = parse(j); if (!c.length) { key = ""; return; }
     raw = c; baseUrl = u.href; asr = u.searchParams.get("kind") === "asr";
     await buildCues();
