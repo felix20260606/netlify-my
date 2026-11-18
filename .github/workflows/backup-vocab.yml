@@ -1,6 +1,6 @@
-# 每 6 小时把线上生词本存进仓库 data/vocab.json（有变化才提交）。
+# 每 6 小时把线上生词本存进仓库 data/vocab.json、视频字幕存进 data/captions/（有变化才提交）。
 # 生词本不设口令，被乱改时从这里的历史版本还原；data/ 不在 web/ 里，不会触发网站重新部署。
-name: 备份生词本
+name: 备份生词本和字幕
 on:
   schedule:
     - cron: "17 */6 * * *"
@@ -19,11 +19,24 @@ jobs:
           curl -fsS --retry 3 https://ruilearning-my.pages.dev/api/vocab -o /tmp/vocab.json
           jq -e '.ok == true and (.custom | type == "array")' /tmp/vocab.json > /dev/null
           jq 'del(.ok)' /tmp/vocab.json > data/vocab.json
+      - name: 下载视频字幕（只下新增或有变化的）
+        run: |
+          mkdir -p data/captions
+          curl -fsS --retry 3 "https://ruilearning-my.pages.dev/api/cap?list=1" -o /tmp/list.json
+          jq -e '.ok == true and (.items | type == "array")' /tmp/list.json > /dev/null
+          jq '.items | sort_by(.v)' /tmp/list.json > data/captions/index.json
+          for v in $(jq -r '.items[].v' /tmp/list.json); do
+            at=$(jq -r --arg v "$v" '.items[] | select(.v == $v) | .at' /tmp/list.json)
+            f="data/captions/$v.json"
+            if [ -f "$f" ] && [ "$(jq -r '.at // empty' "$f")" = "$at" ]; then continue; fi
+            curl -fsS --retry 3 "https://ruilearning-my.pages.dev/api/cap?v=$v" -o /tmp/cap.json && jq -e '.ok == true' /tmp/cap.json > /dev/null && jq 'del(.ok)' /tmp/cap.json > "$f"
+          done
+          # 网站上删掉的视频，备份里保留（Git 历史里也有），不在这里删
       - name: 有变化就提交
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/vocab.json
+          git add data/vocab.json data/captions
           if git diff --cached --quiet; then echo "没有变化"; exit 0; fi
-          git commit -m "备份生词本 $(TZ=Asia/Shanghai date '+%F %H:%M')"
+          git commit -m "备份生词本和字幕 $(TZ=Asia/Shanghai date '+%F %H:%M')"
           git push
