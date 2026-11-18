@@ -10,17 +10,17 @@
   ※ 不要直接双击 index.html（file:// 下图片和 tab 都加载不出来）
 
 【部署到线上】
-  网站连着 GitHub 仓库 felix20260606/netlify-my，推送到 main 分支就自动部署，
-  网址：https://ruilearning-my.netlify.app
-  ※ 每次部署扣 15 点 Netlify 额度（免费每月 300 点，约 20 次）。
-     改动先在本地测好、攒在一起再推，不要一改就推。
-  ※ 不要再用「拖文件夹 / 拖单个文件」的方式部署，会把自动部署的版本整个替换掉。
+  网站托管在 Cloudflare Pages，连着 GitHub 仓库 felix20260606/netlify-my 的 cloudflare 分支，
+  推送到这个分支就自动部署（免费版每月 500 次构建，流量不限）。
+  ※ 构建设置：不需要构建命令，输出目录是仓库根目录。
+  ※ 视频字幕存在 Cloudflare KV 里，Pages 项目要绑定一个 KV，变量名 CAPTIONS。
+  ※ main 分支是搬家前的 Netlify 版本（旧站 https://ruilearning-my.netlify.app），留作备份。
 
 【文件清单】
   index.html             主页面（顶部：英语 / 生活 / 视频）
   watch.js               「🎬 视频」：嵌入播放器 + 同步双语字幕 + 点词查词 + 书签小工具
-  netlify/functions/cap.mjs  视频字幕存取接口（Netlify Blobs；写入需要同步密钥）
-  package.json           接口依赖（@netlify/blobs）
+  _worker.js             视频字幕存取接口（Cloudflare KV；写入需要同步密钥）；接口路径仍是 /.netlify/functions/cap
+  _routes.json           只让接口请求经过 _worker.js，其它文件直接当静态文件发
   fat-nav.html           减脂导航页（减脂 → 🧭导航，默认；全部减脂页面卡片目录）
   jianzhi-wrap.html      减脂·卷饼公式（减脂 → 卷饼公式，默认；照用户实拍小票+超市目录规划）
   jianzhi-exec10.html    减脂·10天傻瓜执行版（减脂 → 10天执行，默认；178cm/91kg定制，照做即可）
