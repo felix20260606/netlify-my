@@ -482,7 +482,7 @@
     if (vId() !== vidId) { vidId = vId(); raw = []; cues = []; trans = []; key = ""; loadedLang = ""; cur = -1; loopIdx = -1; loopOn = false; lazy = false; ver++; if (panel) buildPanel(); tracks = []; human = []; custom = false; if (vidId && /\/watch/.test(location.pathname)) { ensureCaptionsOn(); setTimeout(askTracks, 1500); setTimeout(askTracks, 4500); setTimeout(() => window.postMessage({ src: "VS-C", type: "get-audio" }, "*"), 3000); setTimeout(() => { const v = video(); if (v && S.rate && S.rate !== 1) v.playbackRate = S.rate; }, 1200); } }
     const v = video(); if (!v || !cues.length || !/\/watch/.test(location.pathname)) return;
     if (tk % 50 === 0) capSync(v);
-    if (++tk % 10 === 0) { const pp = player(); if (pp && root) root.style.setProperty("--vs-fs", Math.max(13, pp.offsetHeight * 0.0373).toFixed(2) + "px"); // 字号跟播放器高度走，和 LR 同一比例
+    if (++tk % 10 === 0) { checkVV(); const pp = player(); if (pp && root) root.style.setProperty("--vs-fs", Math.max(13, pp.offsetHeight * 0.0373).toFixed(2) + "px"); // 字号跟播放器高度走，和 LR 同一比例
       mountPill(); const shown = !!(panel && panel.classList.contains("show")), wantP = !!(S.panelOpen && S.enabled); if (wantP !== shown) { if (panel) { panel.classList.toggle("show", wantP); if (wantP) { mountPanel(); markPanel(cur, true); } } else if (wantP) togglePanel(); } else if (panel && panel.classList.contains("show")) mountPanel(); }
     if (capBusy) return; // 补录原声期间不切字幕、不触发自动暂停
     const t = v.currentTime; if (root && tk % 10 === 0) build();
@@ -916,18 +916,32 @@
       buildPanel();
     }
     panel.classList.toggle("show"); applyBar();
-    const open = panel.classList.contains("show");
+    const open = panel.classList.contains("show"); updateVV();
     if (S.panelOpen !== open) { S.panelOpen = open; chrome.storage.sync.set({ panelOpen: open }); }
     if (open) { mountPanel(); markPanel(cur, true); fetchAll(); }
   }
+  // 和 LR 的「垂直视图」一样：影院模式 / 全屏时，字幕栏放在视频右侧、和视频一样高，视频缩窄让位
+  const vvHost = () => { const f = $("ytd-watch-flexy"), fb = $("#full-bleed-container"); return /\/watch/.test(location.pathname) && f && fb && (f.hasAttribute("theater") || f.hasAttribute("fullscreen") || !!document.fullscreenElement) && fb.offsetWidth > 0 && fb.contains(player()) ? fb : null; };
+  let vvWas = null;
+  function updateVV() {
+    const on = !!(panel && panel.classList.contains("vv") && panel.classList.contains("show") && !panelMin);
+    if (document.documentElement.classList.contains("vs-vv-on") === on) return;
+    document.documentElement.classList.toggle("vs-vv-on", on);
+    setTimeout(() => window.dispatchEvent(new Event("resize")), 30); // 让 YouTube 按新宽度重排视频
+  }
+  function checkVV() { const h = vvHost(); if (h !== vvWas) { vvWas = h; mountPanel(); } }
+  document.addEventListener("fullscreenchange", () => setTimeout(checkVV, 60));
   function mountPanel() {
     if (!panel) return;
+    const vv = vvHost(); vvWas = vv;
     const sec = /\/watch/.test(location.pathname) && ($("#secondary-inner") || $("#secondary"));
-    const host = sec && sec.offsetWidth > 200 ? sec : document.body;
+    const host = vv || (sec && sec.offsetWidth > 200 ? sec : document.body);
+    panel.classList.toggle("vv", !!vv);
     if (panel.parentNode !== host || (host !== document.body && host.firstElementChild !== panel)) host.prepend(panel);
-    panel.classList.toggle("dock", host !== document.body);
+    panel.classList.toggle("dock", host !== document.body && !vv);
     panel.classList.toggle("tr-in", S.panelTrans === "inline"); // 翻译直接显示在列表里，而不是悬停弹框
-    const p = player(); panel.style.height = !panelMin && host !== document.body && p ? Math.max(320, p.offsetHeight) + "px" : "";
+    const p = player(); panel.style.height = !vv && !panelMin && host !== document.body && p ? Math.max(320, p.offsetHeight) + "px" : "";
+    updateVV();
   }
   const sentKey = c => vidId + "|" + c.t;
   function syncStar() { const sv = box && box.querySelector(".vs-sv"); if (!sv) return; const on = cur >= 0 && cues[cur] && savedSents.some(x => x.k === sentKey(cues[cur])); sv.classList.toggle("on", !!on); }

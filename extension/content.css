@@ -500,3 +500,10 @@ html.vs-cloze #vs-sub .vs-o .vs-w:is(.vs-u1,.vs-u2,.vs-lo,.vs-ln):hover{color:#f
 #movie_player.ytp-fullscreen #vs-tv[data-tip]::after,:fullscreen #vs-tv[data-tip]::after{display:none!important;content:none!important}
 /* 收起后不再留「字幕（隐藏）」那一条，整块藏起来；用视频右侧的图标按钮展开 / 收起 */
 #vs-panel.min{display:none!important}
+
+/* LR 式垂直视图：影院模式 / 全屏时字幕栏在视频右侧，视频缩窄让位 */
+html{--vs-vvw:400px}
+html.vs-vv-on #full-bleed-container{position:relative}
+html.vs-vv-on #full-bleed-container #movie_player{width:calc(100% - var(--vs-vvw))!important}
+#vs-panel.vv{position:absolute!important;top:0;right:0;bottom:0;left:auto;width:var(--vs-vvw);height:auto!important;margin:0!important;border-radius:0!important;border:0;border-left:1px solid rgba(255,255,255,.12);z-index:2100;box-shadow:none}
+html.vs-vv-on #vs-tv{display:none!important}
