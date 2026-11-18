@@ -10,11 +10,11 @@
   ※ 不要直接双击 index.html（file:// 下图片和 tab 都加载不出来）
 
 【部署到线上】
-  网站托管在 Cloudflare Pages，连着 GitHub 仓库 felix20260606/netlify-my 的 cloudflare 分支，
-  推送到这个分支就自动部署（免费版每月 500 次构建，流量不限）。
+  网站托管在 Cloudflare Pages，连着 GitHub 仓库 felix20260606/ruilearning-my 的 main 分支，
+  推送到 main 就自动部署（免费版每月 500 次构建，流量不限）。
   ※ 构建设置：不需要构建命令，输出目录是仓库根目录。
   ※ 视频字幕存在 Cloudflare KV 里，Pages 项目要绑定一个 KV，变量名 CAPTIONS。
-  ※ main 分支是搬家前的 Netlify 版本（旧站 https://ruilearning-my.netlify.app），留作备份。
+  ※ netlify 分支是搬家前的 Netlify 版本（旧站 https://ruilearning-my.netlify.app），留作备份，不再自动部署。
 
 【文件清单】
   index.html             主页面（顶部：英语 / 生活 / 视频）
