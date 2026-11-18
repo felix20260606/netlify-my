@@ -101,7 +101,11 @@ async function vocab(req, env) {
     const b = JSON.parse(raw || "{}");
     let next, added = 0;
     if (Array.isArray(b.add)) { const r = vadd(stored, b.add.slice(0, 2000)); next = r.d; added = r.n; }
-    else if (b.state && typeof b.state === "object") next = vmerge(stored, b.state);
+    else if (b.state && typeof b.state === "object") {
+      // 旧版网页（词条写死在页面里）会把搬进来的词当成重复草稿删掉，所以只接受新版网页（v:2）的整份同步
+      if (b.v !== 2) return json({ ok: false, error: "page outdated, please reload" }, 409);
+      next = vmerge(stored, b.state);
+    }
     else if (b.replace && typeof b.replace === "object") next = vnorm(b.replace);
     else return json({ ok: false, error: "bad body" }, 400);
     const changed = JSON.stringify(next) !== before;
