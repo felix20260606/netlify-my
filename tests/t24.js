@@ -1,0 +1,21 @@
+const { chromium } = require('playwright'); const fs=require('fs');
+(async () => {
+  const ctx = await chromium.launchPersistentContext('/tmp/pw-prof24', { channel:'chromium', headless: true, args: ['--disable-extensions-except=/home/claude/ext','--load-extension=/home/claude/ext','--no-sandbox','--autoplay-policy=no-user-gesture-required'] });
+  let sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent('serviceworker'); const id = sw.url().split('/')[2];
+  const pp = await ctx.newPage(); await pp.setViewportSize({width:420,height:900}); await pp.goto(`chrome-extension://${id}/popup.html`); await pp.waitForTimeout(300); await pp.evaluate(()=>chrome.storage.sync.set({merge:false,hoverPause:false,level:700,ratio:2,g_art:false,g_pf:false})); await pp.waitForTimeout(200);
+  await pp.evaluate(()=>0); await pp.screenshot({path:'/tmp/t24p.png'});
+  const L=["I have been working on this paper and it was written by a student.","He writes the papers and she is going to read them tomorrow.","I would have done it but I didn't know, so I'll try the bigger one.","And one day I woke up with three days until the deadline,","They're working harder because the tired students were given more time."];
+  const ev=tr=>L.map((t,i)=>({tStartMs:i*3500,dDurationMs:3500,segs:[{utf8:tr?'译文'+i:t}]}));
+  await ctx.route('https://www.youtube.com/**', r => { const u=r.request().url();
+    if(u.includes('/api/timedtext')) return r.fulfill({contentType:'application/json',body:JSON.stringify({events:ev(u.includes('tlang='))})});
+    if(u.endsWith('tv.webm')) return r.fulfill({contentType:'video/webm',body:fs.readFileSync('/tmp/tv.webm')});
+    r.fulfill({contentType:'text/html',body:'<html><body style="margin:0;background:#fff"><div id="movie_player" style="position:relative;width:700px;height:420px;background:#333"><video class="html5-main-video" width=700 height=420 src="/tv.webm" muted></video></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),200)</script></body></html>'}); });
+  await ctx.route(/translate\.googleapis/, r=>{const q=new URL(r.request().url()).searchParams.get('q')||''; r.fulfill({contentType:'application/json',body:JSON.stringify([[['译:'+q,q]],null,'en'])})});
+  await ctx.route(/wiktionary|datamuse|jsonbin/, r=>r.fulfill({status:404,body:'{}'}));
+  const p = await ctx.newPage(); await p.setViewportSize({width:1200,height:620}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
+  await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForSelector('#vs-sub .vs-w',{timeout:8000}); await p.waitForTimeout(800);
+  console.log('字幕里的语法类:', await p.evaluate(()=>[...document.querySelectorAll('#vs-sub .vs-w')].map(x=>x.textContent+([...x.classList].filter(c=>c.startsWith('g-')).map(c=>'['+c.slice(2)+']').join(''))).join(' ')));
+  await p.hover('#vs-sub .vs-w[data-w=written]'); await p.waitForTimeout(900); console.log('气泡:', await p.evaluate(()=>document.querySelector('#vs-mini')?.innerText.replace(/\n/g,' / ')));
+  await p.screenshot({path:'/tmp/t24.png'});
+  await ctx.close();
+})().catch(e=>{console.error('FAIL',e.message.slice(0,400));process.exit(1)});

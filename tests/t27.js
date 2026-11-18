@@ -1,0 +1,23 @@
+const { chromium } = require('playwright'); const fs=require('fs');
+(async () => {
+  const ctx = await chromium.launchPersistentContext('/tmp/pw-prof27', { channel:'chromium', headless: true, args: ['--disable-extensions-except=/home/claude/ext','--load-extension=/home/claude/ext','--no-sandbox','--autoplay-policy=no-user-gesture-required'] });
+  let sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent('serviceworker'); const id = sw.url().split('/')[2];
+  const pp = await ctx.newPage(); await pp.goto(`chrome-extension://${id}/popup.html`); await pp.waitForTimeout(300); await pp.evaluate(()=>chrome.storage.sync.set({merge:false,hoverPause:false,level:700,ratio:2})); await pp.waitForTimeout(200);
+  const L=["The procrastinator has a brain and a deadline.","A deadline scares the procrastinator every day.","My brain ignores the deadline, said Tim.","The paper was about procrastination.","He wrote the paper in two days."];
+  const ev=tr=>L.map((t,i)=>({tStartMs:i*3800,dDurationMs:3800,segs:[{utf8:tr?'译文'+i:t}]}));
+  await ctx.route('https://www.youtube.com/**', r => { const u=r.request().url();
+    if(u.includes('/api/timedtext')) return r.fulfill({contentType:'application/json',body:JSON.stringify({events:ev(u.includes('tlang='))})});
+    if(u.endsWith('tv.webm')) return r.fulfill({contentType:'video/webm',body:fs.readFileSync('/tmp/tv.webm')});
+    r.fulfill({contentType:'text/html',body:'<html><body style="margin:0;background:#fff"><div id="movie_player" style="position:relative;width:760px;height:440px;background:#333"><video class="html5-main-video" width=760 height=440 src="/tv.webm" muted></video></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),200)</script></body></html>'}); });
+  await ctx.route(/translate\.googleapis/, r=>{const q=new URL(r.request().url()).searchParams.get('q')||''; r.fulfill({contentType:'application/json',body:JSON.stringify([[['译:'+q,q]],null,'en'])})});
+  await ctx.route(/wiktionary|datamuse|jsonbin/, r=>r.fulfill({status:404,body:'{}'}));
+  const p = await ctx.newPage(); await p.setViewportSize({width:1240,height:700}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
+  await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForSelector('#vs-sub .vs-w',{timeout:8000}); await p.waitForTimeout(600);
+  await p.click('#vs-panel .it.sb .st',{force:true}); await p.hover('#vs-sub .vs-box'); await p.waitForTimeout(300); await p.screenshot({path:'/tmp/t27a.png'});
+  await p.click('#vs-sub .vs-w[data-w=procrastinator]'); await p.waitForSelector('#vs-tip'); await p.waitForTimeout(700); await p.hover('#vs-tip .ex'); await p.screenshot({path:'/tmp/t27b.png'});
+  await p.click('#vs-tip [data-a=x]'); await p.click('#vs-panel .tabs b[data-t=words]'); await p.waitForTimeout(500); await p.screenshot({path:'/tmp/t27c.png',clip:{x:800,y:0,width:440,height:700}});
+  await p.click('#vs-panel .wv b[data-v=rank]'); await p.waitForTimeout(300); await p.screenshot({path:'/tmp/t27d.png',clip:{x:800,y:0,width:440,height:400}});
+  await p.click('#vs-panel .tabs b[data-t=saved]'); await p.waitForTimeout(400); await p.hover('#vs-panel .it.sv'); await p.screenshot({path:'/tmp/t27e.png',clip:{x:800,y:0,width:440,height:300}});
+  console.log('svg 数量:', await p.evaluate(()=>document.querySelectorAll('svg.vi').length));
+  await ctx.close();
+})().catch(e=>{console.error('FAIL',e.message.slice(0,400));process.exit(1)});

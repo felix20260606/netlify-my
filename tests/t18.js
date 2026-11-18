@@ -1,0 +1,36 @@
+const { chromium } = require('playwright'); const fs=require('fs');
+(async () => {
+  const ctx = await chromium.launchPersistentContext('/tmp/pw-prof18', { channel:'chromium', headless: true, args: ['--disable-extensions-except=/home/claude/ext','--load-extension=/home/claude/ext','--no-sandbox','--autoplay-policy=no-user-gesture-required'] });
+  let sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent('serviceworker'); const id = sw.url().split('/')[2];
+  const pp = await ctx.newPage(); await pp.goto(`chrome-extension://${id}/popup.html`); await pp.waitForTimeout(300); await pp.uncheck('[data-k=hoverPause]');
+  const L=['The procrastinator has a brain.','A deadline scares the procrastinator.','My brain ignores the deadline, said Tim.','The paper was about procrastination.','He wrote the paper in two days.','(Laughter)','The monkey grabs the wheel of the brain.','Every procrastinator knows the monkey.','We were here.'];
+  const ev=tr=>L.map((t,i)=>({tStartMs:i*2000+(i>6?600000:0),dDurationMs:1500,segs:[{utf8:tr?'译'+i:t}]}));
+  await ctx.route('https://www.youtube.com/**', r => { const u=r.request().url();
+    if(u.includes('/api/timedtext')) return r.fulfill({contentType:'application/json',body:JSON.stringify({events:ev(u.includes('tlang='))})});
+    if(u.endsWith('tv.webm')) return r.fulfill({contentType:'video/webm',body:fs.readFileSync('/tmp/tv.webm')});
+    r.fulfill({contentType:'text/html',body:'<html><body style="margin:0;background:#fff"><div id="movie_player" style="position:relative;width:600px;height:400px;background:#333"><video class="html5-main-video" width=600 height=400 src="/tv.webm" muted></video></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),200)</script></body></html>'}); });
+  await ctx.route(/translate\.googleapis/, r=>{const q=new URL(r.request().url()).searchParams.get('q')||''; r.fulfill({contentType:'application/json',body:JSON.stringify([[['译:'+q,q]],null,'en'])})});
+  await ctx.route(/wiktionary|datamuse|jsonbin/, r=>r.fulfill({status:404,body:'{}'}));
+  const p = await ctx.newPage(); await p.setViewportSize({width:1100,height:760}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
+  await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForSelector('#vs-sub .vs-w',{timeout:8000});
+  // 停留：第一句 0-1.5s，第二句 2s 开始
+  await p.evaluate(()=>document.querySelector('video').play()); await p.waitForFunction(()=>document.querySelector('video').currentTime>0.3); await p.evaluate(()=>{const v=document.querySelector('video'); v.pause(); v.currentTime=1.8}); await p.waitForTimeout(500);
+  console.log('句间空隙(1.8s):', await p.evaluate(()=>document.querySelector('#vs-sub .vs-o').textContent+' | 显示='+(document.querySelector('#vs-sub .vs-box').style.display!=='none')));
+  await p.evaluate(()=>{document.querySelector('video').currentTime=2.1}); await p.waitForTimeout(500);
+  console.log('下一句开始(2.1s):', await p.evaluate(()=>document.querySelector('#vs-sub .vs-o').textContent+' @'+document.querySelector('video').currentTime+' rows='+[...document.querySelectorAll('#vs-panel .it.sb')].map(x=>x.dataset.s).join(',')));
+  const T=async(t)=>{await p.click(`#vs-panel .tabs b[data-t=${t}]`); await p.waitForTimeout(700)};
+  const txt=()=>p.evaluate(()=>document.querySelector('#vs-panel .ls').innerText.replace(/\n+/g,'|').slice(0,700));
+  await T('words'); console.log('学习:', await txt()); await p.screenshot({path:'/tmp/t18a.png'});
+  await p.click('#vs-panel .wv b[data-v=rank]'); await p.waitForTimeout(300); console.log('词频排名:', await txt()); await p.screenshot({path:'/tmp/t18b.png'});
+  await p.click('#vs-panel .flt b[data-f=learn]'); await p.waitForTimeout(200); console.log('筛选学习:', (await txt()).slice(0,200));
+  await p.click('#vs-panel .flt b[data-f=learn]');
+  await p.click('#vs-panel .wv b[data-v=count]'); await p.waitForTimeout(300); console.log('出现次数:', await txt());
+  await p.click('#vs-panel .wv b[data-v=learn]'); await p.waitForTimeout(300);
+  await p.hover('#vs-panel .it.sb .vs-w.hl'); await p.waitForTimeout(700); console.log('例句悬停:', await p.evaluate(()=>{const s=document.querySelector('#vs-side');return s?s.innerText.replace(/\n/g,' / '):'无'}));
+  await p.click('#vs-panel .wh .bk'); await p.waitForTimeout(500); console.log('点📖后第一个词:', await p.evaluate(()=>document.querySelector('#vs-panel .wh .vs-w').dataset.w));
+  await p.click('#vs-panel .it.sb .st',{force:true}); await p.waitForTimeout(200);
+  await T('saved'); console.log('已保存:', await txt()); await p.screenshot({path:'/tmp/t18c.png'});
+  await p.click('#vs-panel .cxt'); await p.waitForTimeout(300); console.log('显示上下文:', (await txt()).slice(0,300)); await p.screenshot({path:'/tmp/t18d.png'});
+  await T('words'); await p.click('#vs-panel .mkall'); await p.waitForTimeout(600); console.log('全部标记后:', (await txt()).slice(0,200));
+  await ctx.close();
+})().catch(e=>{console.error('FAIL',e.message.slice(0,500));process.exit(1)});

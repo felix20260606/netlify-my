@@ -1,0 +1,28 @@
+const { chromium } = require('playwright'); const fs=require('fs');
+(async () => {
+  const ctx = await chromium.launchPersistentContext('/tmp/pw-prof8', { channel:'chromium', headless: true, args: ['--disable-extensions-except=/home/claude/ext','--load-extension=/home/claude/ext','--no-sandbox','--autoplay-policy=no-user-gesture-required'] });
+  const events=[{tStartMs:300,dDurationMs:2500,segs:[{utf8:'The fisherman repaired the harbour nets.'}]},{tStartMs:3000,dDurationMs:1500,segs:[{utf8:'(Laughter)'}]},{tStartMs:5000,dDurationMs:2500,segs:[{utf8:'A fisherman is a patient person.'}]}];
+  await ctx.route('https://www.youtube.com/**', r => { const u=r.request().url();
+    if(u.includes('/api/timedtext')) return r.fulfill({contentType:'application/json',body:JSON.stringify({events})});
+    if(u.endsWith('tv.webm')) return r.fulfill({contentType:'video/webm',body:fs.readFileSync('/tmp/tv.webm')});
+    r.fulfill({contentType:'text/html',body:'<html><body style="margin:0"><div id="movie_player" style="position:relative;width:800px;height:420px;background:#333"><video class="html5-main-video" width=800 height=420 src="/tv.webm" muted></video></div><div id="secondary" style="position:absolute;left:820px;top:0;width:360px"><div id="secondary-inner"><div>recs</div></div></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),300)</script></body></html>'}); });
+  await ctx.route(/translate\.googleapis/, r=>r.fulfill({contentType:'application/json',body:JSON.stringify([[["译文","x"]],null,"en"])}));
+  await ctx.route(/wiktionary|datamuse|jsonbin/, r=>r.fulfill({status:404,body:'{}'}));
+  const p = await ctx.newPage(); await p.setViewportSize({width:1200,height:600}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
+  await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForTimeout(1000);
+  await p.evaluate(()=>document.querySelector('video').play()); await p.waitForSelector('.vs-w');
+  console.log('nav buttons:', await p.$$eval('#vs-nav button',e=>e.map(x=>x.dataset.a).join(',')));
+  await p.waitForSelector('#vs-panel.show',{timeout:5000}); await p.waitForTimeout(300);
+  console.log('subs rows:', await p.locator('#vs-panel .it').count(), '| coloured words in list:', await p.locator('#vs-panel .vs-w').count(), '| note rows:', await p.locator('#vs-panel .nt').count());
+  await p.click('#vs-panel .st[data-i="0"]'); 
+  await p.click('#vs-panel .tabs b[data-t=words]'); await p.waitForTimeout(200);
+  console.log('words tab:', (await p.locator('#vs-panel .it.wd').allInnerTexts()).join(' / '));
+  await p.click('#vs-panel .wh .vs-w'); await p.waitForSelector('#vs-tip'); await p.click('#vs-tip [data-m=learn]'); await p.waitForTimeout(600); await p.click('#vs-tip [data-a=x]');
+  await p.click('#vs-panel .tabs b[data-t=saved]'); await p.waitForTimeout(200);
+  console.log('saved tab:', (await p.innerText('#vs-panel .ls')).replace(/\n+/g,' | '));
+  await p.hover('#movie_player'); await p.click('#vs-ap'); await p.waitForTimeout(300);
+  console.log('AP on:', await p.evaluate(()=>document.querySelector('#vs-ap').classList.contains('on')+' barHidden='+(getComputedStyle(document.getElementById('vs-bar')).display==='none')));
+  await p.click('#vs-tip [data-a=x]').catch(()=>{}); await p.click('#vs-panel .tabs b[data-t=subs]');
+  await p.screenshot({path:'/tmp/panel.png'});
+  await ctx.close();
+})().catch(e=>{console.error('FAIL',e.message);process.exit(1)});

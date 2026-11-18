@@ -1,0 +1,21 @@
+const { chromium } = require('playwright'); const fs=require('fs');
+(async () => {
+  const ctx = await chromium.launchPersistentContext('/tmp/pw-prof23', { channel:'chromium', headless: true, args: ['--disable-extensions-except=/home/claude/ext','--load-extension=/home/claude/ext','--no-sandbox','--autoplay-policy=no-user-gesture-required'] });
+  let sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent('serviceworker'); const id = sw.url().split('/')[2];
+  const pp = await ctx.newPage(); await pp.goto(`chrome-extension://${id}/popup.html`); await pp.waitForTimeout(300); await pp.evaluate(()=>chrome.storage.sync.set({merge:false,hoverPause:false})); await pp.waitForTimeout(200);
+  const N=60, ev=tr=>Array.from({length:N},(_,i)=>({tStartMs:300+i*1500,dDurationMs:1500,segs:[{utf8:tr?'译'+i:'Sentence number s'+i+' is here.'}]}));
+  await ctx.route('https://www.youtube.com/**', r => { const u=r.request().url();
+    if(u.includes('/api/timedtext')) return r.fulfill({contentType:'application/json',body:JSON.stringify({events:ev(u.includes('tlang='))})});
+    if(u.endsWith('tv.webm')) return r.fulfill({contentType:'video/webm',body:fs.readFileSync('/tmp/tv.webm')});
+    r.fulfill({contentType:'text/html',body:'<html><body style="margin:0;background:#fff"><div id="movie_player" style="position:relative;width:600px;height:400px;background:#333"><video class="html5-main-video" width=600 height=400 src="/tv.webm" muted></video></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),200)</script></body></html>'}); });
+  await ctx.route(/translate\.googleapis|wiktionary|datamuse|jsonbin/, r=>r.fulfill({status:404,body:'{}'}));
+  const p = await ctx.newPage(); await p.setViewportSize({width:1100,height:600}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
+  await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForSelector('#vs-panel.show .it.sb',{timeout:8000}); await p.evaluate(()=>document.querySelector('video').play());
+  const st=()=>p.evaluate(()=>{const P=document.querySelector('#vs-panel'),L=P.querySelector('.ls'),c=L.querySelector('.it.cur');const vis=c&&(c.offsetTop+c.offsetHeight/2>=L.scrollTop&&c.offsetTop+c.offsetHeight/2<=L.scrollTop+L.clientHeight);return '当前句='+(c?c.dataset.i:'-')+' 当前句可见='+vis+' 按钮='+(getComputedStyle(document.querySelector('#vs-back')).display!=='none')+' scrollTop='+Math.round(L.scrollTop)});
+  await p.waitForTimeout(2500); console.log('正常播放:', await st());
+  const b=await (await p.$('#vs-panel .ls')).boundingBox(); await p.mouse.move(b.x+100,b.y+200); await p.mouse.wheel(0,1500); await p.waitForTimeout(600); console.log('向下滚动后:', await st());
+  await p.waitForTimeout(3500); console.log('又播了几句（不应被拉回）:', await st()); await p.screenshot({path:'/tmp/t23.png'});
+  await p.click('#vs-back'); await p.waitForTimeout(500); console.log('点按钮后:', await st());
+  await p.waitForTimeout(3200); console.log('继续播放（恢复跟随）:', await st());
+  await ctx.close();
+})().catch(e=>{console.error('FAIL',e.message.slice(0,400));process.exit(1)});

@@ -1,0 +1,24 @@
+const { chromium } = require('playwright'); const fs=require('fs');
+(async () => {
+  const ctx = await chromium.launchPersistentContext('/tmp/pw-prof37', { channel:'chromium', headless: true, args: ['--disable-extensions-except=/home/claude/ext','--load-extension=/home/claude/ext','--no-sandbox','--autoplay-policy=no-user-gesture-required'] });
+  let sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent('serviceworker'); const id = sw.url().split('/')[2];
+  const pp = await ctx.newPage(); await pp.goto(`chrome-extension://${id}/popup.html`); await pp.waitForTimeout(300); await pp.evaluate(()=>chrome.storage.sync.set({merge:false,hoverPause:false,level:700,ratio:2})); await pp.waitForTimeout(200);
+  await ctx.route('https://www.youtube.com/**', r => { const u=r.request().url();
+    if(u.includes('/api/timedtext')) return r.fulfill({contentType:'application/json',body:JSON.stringify({events:[{tStartMs:0,dDurationMs:19000,segs:[{utf8:u.includes('tlang=')?'译':'She finished the paper a week later and the monkey laughed.'}]}]})});
+    if(u.endsWith('tv.webm')) return r.fulfill({contentType:'video/webm',body:fs.readFileSync('/tmp/tv.webm')});
+    r.fulfill({contentType:'text/html',body:'<html><head><meta charset="utf-8"><title>测试 - YouTube</title></head><body style="margin:0;background:#fff"><div id="movie_player" style="position:relative;width:900px;height:440px;background:#333"><video class="html5-main-video" width=900 height=440 src="/tv.webm" muted></video></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),200)</script></body></html>'}); });
+  await ctx.route(/translate\.googleapis/, r=>{const q=new URL(r.request().url()).searchParams.get('q')||''; r.fulfill({contentType:'application/json',body:JSON.stringify([[[q==='a week later'?'一周后':'译:'+q,q]],null,'en'])})});
+  await ctx.route(/wiktionary|datamuse|jsonbin|tatoeba|gstatic/, r=>r.fulfill({status:404,body:'{}'}));
+  const p = await ctx.newPage(); await p.setViewportSize({width:1300,height:700}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
+  await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForSelector('#vs-sub .vs-w',{timeout:8000}); await p.waitForTimeout(500);
+  await p.click('#vs-sub .vs-w[data-w=week]',{button:'right'}); await p.waitForTimeout(1500);
+  await p.click('#vs-sub .vs-w[data-w=monkey]',{button:'right'}); await p.waitForTimeout(1200);
+  const st=await pp.evaluate(()=>new Promise(r=>chrome.storage.local.get(null,v=>r({saved:v.saved, sents:(v.savedSents||[]).map(x=>x.t+' = '+x.tr+' | 原句: '+x.ctx), med:Object.keys(v).filter(k=>k.startsWith('med:'))}))));
+  console.log(JSON.stringify(st,null,1));
+  console.log('字幕里短语的框:', await p.evaluate(()=>[...document.querySelectorAll('#vs-sub .vs-w.vs-ph')].map(x=>x.textContent+(x.classList.contains('ph-s')?'[':'')+(x.classList.contains('ph-e')?']':'')).join(' ')));
+  await p.click('#vs-sub .vs-w[data-w=paper]'); await p.click('#vs-tip .mk a.cl'); await p.waitForSelector('#vs-tip .mk2:not(.hid)'); await p.click('#vs-tip .tgr a[data-c=r]'); await p.waitForTimeout(300); await p.click('#vs-tip .nx'); await p.waitForTimeout(700);
+  console.log('视频词典标签/下次学习:', JSON.stringify(await pp.evaluate(()=>new Promise(r=>chrome.storage.local.get(['tags','srs','saved'],r)))));
+  await p.screenshot({path:'/tmp/t37.png'});
+  await p.click('#vs-panel .tabs b[data-t=saved]'); await p.waitForTimeout(400); console.log('已保存页:', await p.evaluate(()=>[...document.querySelectorAll('#vs-panel .it.sv')].map(x=>x.innerText.replace(/\n/g,' ')).join(' ; ')));
+  await ctx.close();
+})().catch(e=>{console.error('FAIL',e.message.slice(0,400));process.exit(1)});
