@@ -443,3 +443,18 @@ html.vs-on .ytp-caption-window-container{opacity:0!important}
 #vs-tip .ex.cur{background:transparent}
 #vs-tip .vs-w:hover{background:rgba(255,255,255,.16)}
 #vs-tip .vs-w.hit{background:rgba(255,255,255,.133);border-radius:2px}
+
+/* 视频字幕：在语法下划线下方标出缩写 */
+html.vs-gab #vs-sub .vs-o{line-height:2.4;padding-bottom:.35em}
+html.vs-gab #vs-sub .vs-o .vs-w[class*="g-"]{position:relative}
+html.vs-gab #vs-sub .vs-o .vs-w[class*="g-"]::after{position:absolute;left:50%;top:calc(100% + .5em);transform:translateX(-50%);font:700 .44em/1 ui-monospace,Menlo,"SF Mono",monospace;letter-spacing:.04em;white-space:nowrap;text-shadow:0 0 3px #000,0 0 3px #000,0 0 2px #000;pointer-events:none;text-decoration:none}
+html.vs-gab #vs-sub .vs-o .vs-w.g-pa::after{content:"PST";color:#5BB0FF}html.vs-gab #vs-sub .vs-o .vs-w.g-pa+.vs-w.g-pa::after{content:none}
+html.vs-gab #vs-sub .vs-o .vs-w.g-pf::after{content:"PRF";color:#35D0BA}html.vs-gab #vs-sub .vs-o .vs-w.g-pf+.vs-w.g-pf::after{content:none}
+html.vs-gab #vs-sub .vs-o .vs-w.g-pg::after{content:"PROG";color:#8EE05A}html.vs-gab #vs-sub .vs-o .vs-w.g-pg+.vs-w.g-pg::after{content:none}
+html.vs-gab #vs-sub .vs-o .vs-w.g-md::after{content:"MOD";color:#FF8FC7}html.vs-gab #vs-sub .vs-o .vs-w.g-md+.vs-w.g-md::after{content:none}
+html.vs-gab #vs-sub .vs-o .vs-w.g-pv::after{content:"PASS";color:#FF7A59}html.vs-gab #vs-sub .vs-o .vs-w.g-pv+.vs-w.g-pv::after{content:none}
+html.vs-gab #vs-sub .vs-o .vs-w.g-s3::after{content:"3SG";color:#5BB0FF}html.vs-gab #vs-sub .vs-o .vs-w.g-s3+.vs-w.g-s3::after{content:none}
+html.vs-gab #vs-sub .vs-o .vs-w.g-pl::after{content:"PL";color:#B0B7C0}html.vs-gab #vs-sub .vs-o .vs-w.g-pl+.vs-w.g-pl::after{content:none}
+html.vs-gab #vs-sub .vs-o .vs-w.g-art::after{content:"ART";color:#E8D36B}html.vs-gab #vs-sub .vs-o .vs-w.g-art+.vs-w.g-art::after{content:none}
+html.vs-gab #vs-sub .vs-o .vs-w.g-cmp::after{content:"CMP";color:#C9A0FF}html.vs-gab #vs-sub .vs-o .vs-w.g-cmp+.vs-w.g-cmp::after{content:none}
+html.vs-gab #vs-sub .vs-o .vs-w.g-neg::after{content:"NEG";color:#FF5C5C}html.vs-gab #vs-sub .vs-o .vs-w.g-neg+.vs-w.g-neg::after{content:none}

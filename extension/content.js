@@ -1,5 +1,5 @@
 (function () {
-  const DEF = { capSync: true, savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 12, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
+  const DEF = { gramAbbr: true, capSync: true, savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 12, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
   let tagOpen = false, wtags = {}, suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
@@ -45,7 +45,7 @@
     const old = Object.assign({}, S);
     for (const k in c) S[k] = c[k].newValue;
     applyBar(); { const k0 = cur; cur = -1; if (k0 >= 0 && cues[k0] && root) { cur = k0; render(k0); } }
-    if (["level", "ratio", "greenKnown", "fadeRare", "showMarks", "showSuggest", "showLearn", "showLearnOutline", "showIgnore", "showSpecial", "showGram", "g_pa", "g_pf", "g_pg", "g_md", "g_pv", "g_s3", "g_pl", "g_art", "g_cmp", "g_neg"].some(k => S[k] !== old[k])) refreshMarks();
+    if (["level", "ratio", "greenKnown", "fadeRare", "showMarks", "showSuggest", "showLearn", "showLearnOutline", "showIgnore", "showSpecial", "showGram", "gramAbbr", "g_pa", "g_pf", "g_pg", "g_md", "g_pv", "g_s3", "g_pl", "g_art", "g_cmp", "g_neg"].some(k => S[k] !== old[k])) refreshMarks();
     if (S.rate !== old.rate) { const v = video(); if (v && v.playbackRate !== S.rate) v.playbackRate = S.rate; }
     if (S.srcLang !== old.srcLang) { key = ""; loadedLang = ""; askTracks(); }
     else if (raw.length && (S.engine !== old.engine || S.target !== old.target || S.merge !== old.merge || S.showHuman !== old.showHuman)) buildCues();
@@ -383,6 +383,7 @@
     { const ap = document.getElementById("vs-ap"); if (ap) ap.classList.toggle("on", !!S.autoPause); }
     { const p = player(); if (p) { p.classList.toggle("vs-hidectl", !!S.ctlHidden); p.classList.toggle("vs-off", !S.enabled); p.classList.toggle("vs-hidebar", !!S.hideBar && !!S.enabled); } }
     document.documentElement.classList.toggle("vs-on", !!S.enabled);
+    document.documentElement.classList.toggle("vs-gab", S.showGram !== false && S.gramAbbr !== false);
     if (pill) { pill.classList.toggle("off", !S.enabled); pill.querySelector(".st").textContent = S.enabled ? "ON" : "OFF"; }
     if (tEl) tEl.style.display = S.showTrans ? "" : "none";
     if (hEl) hEl.style.display = S.showHuman ? "" : "none";
@@ -404,7 +405,7 @@
     phs.forEach(p => { for (let i = 0; i + p.length <= ws.length; i++) { let ok = true; for (let k = 0; k < p.length; k++) if (ws[i + k] !== p[k] && !(k === 0 && vsLemma(ws[i + k]) === vsLemma(p[k]))) { ok = false; break; } if (ok) for (let k = 0; k < p.length; k++) tag[i + k] = "vs-ph" + (k === 0 ? " ph-s" : "") + (k === p.length - 1 ? " ph-e" : ""); } });
     let n = 0; return h.replace(re, (a, cl, w) => { const t = tag[n++]; return t ? '<span class="vs-w ' + cl + " " + t + '" data-w="' + w + '">' : a; });
   }
-  const gramLine = el => { const g = [...el.classList].filter(c => /^g-/.test(c)).map(c => VS_GRAM_NAME[c.slice(2)]).filter(Boolean); return g.length ? '<div class="gm">语法：' + g.join(" · ") + "</div>" : ""; };
+  const gramLine = el => { const g = [...el.classList].filter(c => /^g-/.test(c)).map(c => VS_GRAM_NAME[c.slice(2)] && VS_GRAM_NAME[c.slice(2)] + " " + VS_GRAM_ABBR[c.slice(2)]).filter(Boolean); return g.length ? '<div class="gm">语法：' + g.join(" · ") + "</div>" : ""; };
   // ---------- 渲染当前句 ----------
   function render(i) {
     if (!build()) return;
