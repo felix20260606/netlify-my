@@ -1,11 +1,14 @@
-# LearnVocab
+# ruilearning-my
 
-个人英语学习工具。看 YouTube 时显示双语字幕、查词、收集生词，再把生词送进自己的生词本网页整理。
+个人学习站和英语学习插件。插件在看 YouTube 时显示双语字幕、查词、收集生词；网站（Cloudflare Pages）放生词本、看视频学英语，以及减脂、旅游等页面。
+
+2026-11-18 由原来的两个仓库合并而成：网站原在 `netlify-my`，插件原在 `LearnVocab`，两边的提交历史都保留了。
 
 | 目录 | 内容 |
 |---|---|
+| `web/` | 网站，部署到 <https://ruilearning-my.pages.dev>（生词本、🎬 视频、减脂、旅游等；字幕接口 `_worker.js`）。本地说明见 `web/README.txt` |
 | `extension/` | 浏览器插件「双语字幕 · 生词收集」（图标为 BAN）（Manifest V3，Chrome / Brave / Edge） |
-| `site/` | 生词本网页的早期副本（线上版在 `ruilearning-my` 仓库，部署在 Cloudflare Pages）和加词书签安装页 |
+| `site/` | 生词本网页的早期副本（不是线上版本，线上版在 `web/`）和书签小工具源码 `bookmarklet.src.js` |
 | `tests/` | Playwright 回归测试脚本（加载插件 + 模拟的 YouTube 页面） |
 
 插件的使用习惯对齐 Language Reactor（下文简称 LR）：功能和操作方式一致，代码、图标、名称都是自己的，不使用 LR 的服务器。
@@ -45,6 +48,8 @@
 更新：覆盖 `extension/` 里的文件后，在扩展页点插件卡片上的「重新加载」，再刷新 YouTube 页面。已经开着的视频页不刷新也能继续用，但用的是旧版本。
 
 不要和 Language Reactor 同时启用，两套字幕会叠在一起。
+
+**只用插件、不用网站**：只需要 `extension/` 这一个文件夹（可以从 GitHub 下载整个仓库后单独拷出来）。不创建 `config.js`，生词只存在浏览器本地，不同步到 JSONBin，也不上传字幕；双语字幕、查词、标记、复习、导出都照常可用。只想关掉字幕上传、保留生词同步，就在 `config.js` 里把 `site` 留空，或在设置里关掉「看过的视频字幕同步到生词本网站」。
 
 ---
 
@@ -470,10 +475,10 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 
 ### 仓库与部署
 
-- 线上网站部署自另一个仓库 **`felix20260606/ruilearning-my`**（原名 `netlify-my`），推送到 `main` 即自动部署到 Cloudflare Pages。和本功能有关的文件：`index.html`（主页面）、`watch.js`（「🎬 视频」）、`_worker.js`（字幕存取接口，数据存在 Cloudflare KV，绑定名 `CAPTIONS`）、`_routes.json`（只让接口请求经过 `_worker.js`）。Netlify 时期的版本在该仓库的 `netlify` 分支。
-- 本仓库的 `site/` 只保留早期副本和书签小工具的源码 `site/bookmarklet.src.js`，不是线上版本。
+- 网站就在本仓库的 `web/`，推送到 `main` 后由 Cloudflare Pages 自动部署（构建输出目录 `web`，只有 `web/` 下有改动才部署，改插件、测试、README 不会消耗部署次数）。和本功能有关的文件：`web/index.html`（主页面）、`web/watch.js`（「🎬 视频」）、`web/_worker.js`（字幕存取接口，数据存在 Cloudflare KV，绑定名 `CAPTIONS`）、`web/_routes.json`（只让接口请求经过 `_worker.js`）。Netlify 时期的网站在 `netlify` 分支。
+- `site/` 只保留早期副本和书签小工具的源码 `site/bookmarklet.src.js`，不是线上版本。
 - 部署额度：Cloudflare Pages 免费版每月 500 次构建，静态文件流量不限。字幕接口每天 10 万次请求；KV 每天 10 万次读取、各 1,000 次写入 / 删除 / 列表，存储 1 GB。超额只让当天那部分操作失败，网站本身照常打开。
-- 那个仓库是公开的，里面带着 JSONBin 的同步密钥（网页源码里本来也能看到）。
+- 仓库如果是公开的，网页源码里的 JSONBin 同步密钥谁都能看到（网站页面源码里本来也能看到）。
 
 ### 日常流程
 

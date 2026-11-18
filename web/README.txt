@@ -2,7 +2,7 @@
 ========
 
 【本地预览】
-  双击「双击预览.command」→ 浏览器自动打开 http://localhost:8000
+  双击 web 文件夹里的「双击预览.command」→ 浏览器自动打开 http://localhost:8000
   停止：在弹出的黑色终端窗口按 Control + C
 
   ※ 第一次双击若提示「无法打开，来自未识别的开发者」：
@@ -10,11 +10,14 @@
   ※ 不要直接双击 index.html（file:// 下图片和 tab 都加载不出来）
 
 【部署到线上】
-  网站托管在 Cloudflare Pages，连着 GitHub 仓库 felix20260606/ruilearning-my 的 main 分支，
-  推送到 main 就自动部署（免费版每月 500 次构建，流量不限）。
-  ※ 构建设置：不需要构建命令，输出目录是仓库根目录。
-  ※ 视频字幕存在 Cloudflare KV 里，Pages 项目要绑定一个 KV，变量名 CAPTIONS。
-  ※ netlify 分支是搬家前的 Netlify 版本（旧站 https://ruilearning-my.netlify.app），留作备份，不再自动部署。
+  网站托管在 Cloudflare Pages，网址 https://ruilearning-my.pages.dev
+  连着 GitHub 仓库 felix20260606/ruilearning-my 的 main 分支，推送就自动部署
+  （免费版每月 500 次构建，流量不限）。
+  ※ 网站文件都在仓库的 web/ 文件夹里；仓库里的 extension/ 是浏览器插件，tests/ 是测试。
+  ※ Cloudflare 构建设置：不需要构建命令，输出目录 web，只监听 web/ 的改动
+     （改插件不会触发部署）。
+  ※ 视频字幕存在 Cloudflare KV 里，Pages 项目绑定的 KV 变量名是 CAPTIONS。
+  ※ netlify 分支是搬家前的 Netlify 版本（旧站 https://ruilearning-my.netlify.app），留作备份。
 
 【文件清单】
   index.html             主页面（顶部：英语 / 生活 / 视频）
