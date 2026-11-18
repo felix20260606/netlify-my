@@ -9,10 +9,16 @@ var say=function(t){box.textContent=t;if(!box.parentNode)D.body.appendChild(box)
 say("正在读取字幕…");
 function parse(t){var j=JSON.parse(t),c=[],i,e,s;for(i=0;i<(j.events||[]).length;i++){e=j.events[i];if(!e.segs)continue;s=e.segs.map(function(x){return x.utf8||""}).join("").replace(/\s+/g," ").trim();if(!s)continue;c.push({s:(e.tStartMs||0)/1000,e:((e.tStartMs||0)+(e.dDurationMs||0))/1000,t:s});}
 for(i=0;i<c.length-1;i++)if(c[i].e>c[i+1].s)c[i].e=c[i+1].s;return c.filter(function(x){return x.e>x.s});}
-function send(c,lang){if(done||!c.length)return;done=true;hit=true;say("拿到 "+c.length+" 句字幕，正在保存…");var a="";try{a=p.getVideoData().author||""}catch(e){}
-F.call(window,S+"/.netlify/functions/cap",{method:"POST",headers:{"Content-Type":"application/json","X-Key":K},body:JSON.stringify({v:v,title:D.title.replace(/^\(\d+\)\s*/,"").replace(/ - YouTube$/,""),author:a,lang:lang||"en",cues:c})}).then(function(r){return r.json()}).then(function(r){if(r&&r.ok){say("已保存，正在打开学习页…");L.href=S+"/?v="+v;}else{done=false;say("保存失败："+((r&&r.error)||"未知错误"));}}).catch(function(){done=false;say("保存失败：网络问题，请再点一次书签");});}
+function send(c,lang){if(done||!c.length)return;done=true;hit=true;say("共 "+c.length+" 句（"+c.filter(function(x){return x.r}).length+" 句有中文），正在保存…");var a="";try{a=p.getVideoData().author||""}catch(e){}
+F.call(window,S+"/.netlify/functions/cap",{method:"POST",headers:{"Content-Type":"application/json","X-Key":K},body:JSON.stringify({v:v,tl:"zh-CN",title:D.title.replace(/^\(\d+\)\s*/,"").replace(/ - YouTube$/,""),author:a,lang:lang||"en",cues:c})}).then(function(r){return r.json()}).then(function(r){if(r&&r.ok){say("已保存，正在打开学习页…");L.href=S+"/?v="+v;}else{done=false;say("保存失败："+((r&&r.error)||"未知错误"));}}).catch(function(){done=false;say("保存失败：网络问题，请再点一次书签");});}
 var F=window.fetch,O=XMLHttpRequest.prototype.open,seen={};
-function grab(u){if(done||!/\/api\/timedtext/.test(u))return;var a;try{a=new URL(u,L.href)}catch(e){return}if(a.searchParams.get("v")&&a.searchParams.get("v")!==v)return;a.searchParams.delete("tlang");a.searchParams.set("fmt","json3");var k=a.href;if(seen[k])return;seen[k]=1;F.call(window,k).then(function(r){return r.ok?r.text():""}).then(function(t){if(t)send(parse(t),a.searchParams.get("lang"))}).catch(function(){seen[k]=0});}
+function cl(t){t=String(t||"").replace(/\[[^\]]*\]|\u266a|>>+|\u00bb/g," ").replace(/\s+/g," ").trim();return /^\([^)]*\)$/.test(t)?"":t;}
+function merge(c,z){var m={},i,k,b,d;for(i=0;i<z.length;i++)m[Math.round(z[i].s*10)]=z[i].t;
+for(i=0;i<c.length;i++){k=Math.round(c[i].s*10);c[i].r=m[k]||m[k-1]||m[k+1]||"";if(!c[i].r&&z.length){b=null;for(d=0;d<z.length;d++)if(z[d].s<c[i].e&&z[d].e>c[i].s&&Math.abs(z[d].s-c[i].s)<1.5){b=z[d];break;}if(b)c[i].r=b.t;}}
+var o=[];for(i=0;i<c.length;i++){c[i].t=cl(c[i].t);c[i].r=cl(c[i].r);if(c[i].t)o.push(c[i]);}return o;}
+function grab(u){if(done||!/\/api\/timedtext/.test(u))return;var a;try{a=new URL(u,L.href)}catch(e){return}if(a.searchParams.get("v")&&a.searchParams.get("v")!==v)return;a.searchParams.delete("tlang");a.searchParams.set("fmt","json3");var k=a.href;if(seen[k])return;seen[k]=1;var lang=a.searchParams.get("lang")||"en";
+F.call(window,k).then(function(r){return r.ok?r.text():""}).then(function(t){if(!t||done)return;var c=parse(t);if(!c.length)return;say("拿到 "+c.length+" 句字幕，正在取中文…");a.searchParams.set("tlang","zh-Hans");
+return F.call(window,a.href).then(function(r){return r.ok?r.text():""}).then(function(x){var z=[];try{z=x?parse(x):[]}catch(e){}send(merge(c,z),lang)},function(){send(merge(c,[]),lang)});}).catch(function(){seen[k]=0});}
 XMLHttpRequest.prototype.open=function(a,u){try{grab(String(u))}catch(e){}return O.apply(this,arguments);};
 window.fetch=function(i){try{grab(String(typeof i==="string"?i:(i&&i.url)||""))}catch(e){}return F.apply(this,arguments);};
 var scan=function(){if(done)return;var es=performance.getEntriesByType("resource"),i;for(i=es.length-1;i>=0;i--)grab(es[i].name);};
