@@ -6,10 +6,10 @@ const { vadd }=new Function(W.slice(W.indexOf('const vnorm'),W.indexOf('async fu
 let bin={custom:[{id:"u_1",word:"tire"}],progress:{a:"known"},deleted:["v_growth"],pending:["growth","thesis","wake up"]},posts=0;
 const store={saved:["growth","Tire"],savedSents:[{k:"ph|wake up",t:"wake up",tr:"醒来",ph:1,ctx:"And one day I woke up"}],savedCtx:{growth:{t:"The growth  mindset matters."}},"med:w:thesis":{t:"I wrote my thesis.",tr:"我写了论文。"}};
 const ctx={console,setTimeout,URL,encodeURIComponent,Promise,
- importScripts(){vm.runInContext('VS_SYNC={key:"K",site:"https://site.test"}',ctx)},
+ importScripts(){},
  chrome:{storage:{local:{get:async k=>{if(typeof k==="string")return{[k]:store[k]};const o={};for(const x in k)o[x]=store[x]??k[x];return o},set:async()=>{}},sync:{get:async d=>d}},runtime:{onMessage:{addListener(){}},onInstalled:{addListener(){}},getURL:x=>x},tabs:{create(){}},action:{onClicked:{addListener(){}}}},
  fetch:async(u,o)=>{u=String(u);
-  if(u==="https://site.test/api/vocab"){ await new Promise(r=>setTimeout(r,20));
+  if(u==="https://ruilearning-my.pages.dev/api/vocab"){ await new Promise(r=>setTimeout(r,20));
    if(o&&o.method==="POST"){const b=JSON.parse(o.body);const r=vadd(bin,b.add);bin=r.d;posts++;return{ok:true,json:async()=>({ok:true,added:r.n,total:bin.custom.length})}}
    return{ok:true,json:async()=>Object.assign({ok:true},JSON.parse(JSON.stringify(bin)))}}
   if(u.includes("translate_a")){const q=decodeURIComponent(u.split("q=")[1]);return{ok:true,json:async()=>[[["译:"+q]],[["noun",["甲","乙"]]]]}}

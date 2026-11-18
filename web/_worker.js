@@ -3,19 +3,19 @@
 // 一、视频字幕 /api/cap
 //   GET    ?list=1   → { ok, items:[{v,title,author,n,tr,dur,at}] }
 //   GET    ?v=<ID>   → { ok, v, title, author, cues:[{s,e,t,r}] }
-//   POST             → 写入（需要 X-Key）
-//   DELETE ?v=<ID>   → 删除（需要 X-Key）
+//   POST             → 写入
+//   DELETE ?v=<ID>   → 删除
 //
 // 二、生词本 /api/vocab（整份存在 KV 的 "vocab" 这一条里）
-//   GET              → { ok, custom, progress, deleted, pending }   读取不需要口令
-//   POST {state}     → 和云端合并后保存，返回合并结果 { ok, state }（需要 X-Key）
-//   POST {add:[词条]} → 加入完整词条：从待整理队列和已删除列表里移除同名词（插件用；需要 X-Key）
-// 写入口令只在服务器上存 SHA-256 指纹；网页源码里没有口令，每台设备第一次同步时输入一次
-const KEY_SHA = "947d04a67b6309d28e86acd947f64e86145130b89ebb580fc6a157db9748c299"; // 同步口令的 SHA-256，只用来校验写入（字幕和生词本共用）
+//   GET              → { ok, custom, progress, deleted, pending }
+//   GET  ?history=1  → { ok, days:[日期…] }   后台存档（每天第一次改动前存一份，保留 30 天）
+//   GET  ?at=日期     → 那天的存档
+//   POST {state}     → 和云端合并后保存，返回合并结果 { ok, state }
+//   POST {add:[词条]} → 加入完整词条：从待整理队列和已删除列表里移除同名词（插件用）
+//   POST {replace:{…}} → 整份覆盖（还原用：内容取自存档或仓库里的 data/vocab.json）
+// 不设口令：谁都能写，被乱改时用存档或仓库备份还原（GitHub Actions 每 6 小时把生词本存进仓库 data/vocab.json）
 const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
-const sha256 = async s => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, "0")).join("");
-const authed = async req => (await sha256(req.headers.get("x-key") || "")) === KEY_SHA;
 const okId = v => /^[\w-]{11}$/.test(v || "");
 // 列表信息放在每条记录的 metadata 里（上限 1024 字节，所以这里把标题、作者截短；完整标题在记录正文里）
 const meta = d => { const last = d.cues[d.cues.length - 1]; return { title: [...d.title].slice(0, 100).join(""), author: [...d.author].slice(0, 50).join(""), n: d.cues.length, tr: d.cues.filter(c => c.r).length, dur: Math.round(last.e || last.s), at: d.at }; };
@@ -38,7 +38,6 @@ async function cap(req, env, u) {
       const d = await kv.get("v/" + v, "json");
       return d ? json(Object.assign({ ok: true }, d)) : json({ ok: false, error: "not found" }, 404);
     }
-    if (!(await authed(req))) return json({ ok: false, error: "unauthorized" }, 401);
     if (req.method === "DELETE") {
       const v = u.searchParams.get("v"); if (!okId(v)) return json({ ok: false, error: "bad id" }, 400);
       await kv.delete("v/" + v);
@@ -89,18 +88,28 @@ async function vocab(req, env) {
   const kv = env.CAPTIONS;
   if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
   try {
-    const stored = vnorm(await kv.get(VOCAB_KEY, "json"));
-    if (req.method === "GET") return json(Object.assign({ ok: true }, stored));
+    const stored = vnorm(await kv.get(VOCAB_KEY, "json")), before = JSON.stringify(stored); // 先记下原样：合并函数会就地改数组
+    if (req.method === "GET") {
+      const q = new URL(req.url).searchParams;
+      if (q.get("history")) { const l = await kv.list({ prefix: VOCAB_KEY + "@" }); return json({ ok: true, days: l.keys.map(k => k.name.slice(VOCAB_KEY.length + 1)).sort().reverse() }); }
+      const at = q.get("at");
+      if (at) { if (!/^\d{4}-\d{2}-\d{2}$/.test(at)) return json({ ok: false, error: "bad date" }, 400); const d = await kv.get(VOCAB_KEY + "@" + at, "json"); return d ? json(Object.assign({ ok: true, at }, vnorm(d))) : json({ ok: false, error: "not found" }, 404); }
+      return json(Object.assign({ ok: true }, stored));
+    }
     if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
-    if (!(await authed(req))) return json({ ok: false, error: "unauthorized" }, 401);
     const raw = await req.text(); if (raw.length > 5000000) return json({ ok: false, error: "too large" }, 413);
     const b = JSON.parse(raw || "{}");
     let next, added = 0;
     if (Array.isArray(b.add)) { const r = vadd(stored, b.add.slice(0, 2000)); next = r.d; added = r.n; }
     else if (b.state && typeof b.state === "object") next = vmerge(stored, b.state);
+    else if (b.replace && typeof b.replace === "object") next = vnorm(b.replace);
     else return json({ ok: false, error: "bad body" }, 400);
-    const changed = JSON.stringify(next) !== JSON.stringify(stored);
-    if (changed) await kv.put(VOCAB_KEY, JSON.stringify(next));
+    const changed = JSON.stringify(next) !== before;
+    if (changed) {
+      const day = VOCAB_KEY + "@" + new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // 北京时间的日期
+      if (!(await kv.get(day))) await kv.put(day, before, { expirationTtl: 30 * 86400 }); // 当天第一次改动前，存一份改动前的样子
+      await kv.put(VOCAB_KEY, JSON.stringify(next));
+    }
     return json({ ok: true, changed, added, total: next.custom.length, state: next });
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }

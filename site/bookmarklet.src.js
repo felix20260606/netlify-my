@@ -1,5 +1,5 @@
 (function(){
-var K="__KEY__",S="__SITE__",D=document,L=location;
+var S="__SITE__",D=document,L=location;
 if(!/(^|\.)youtube\.com$/.test(L.hostname)){alert("请先在 Safari 里打开 YouTube 的视频页，再点这个书签");return;}
 var m=L.href.match(/[?&]v=([\w-]{11})/)||L.href.match(/\/shorts\/([\w-]{11})/);
 if(!m){alert("请先打开一个 YouTube 视频，再点这个书签");return;}
@@ -10,7 +10,7 @@ say("正在读取字幕…");
 function parse(t){var j=JSON.parse(t),c=[],i,e,s;for(i=0;i<(j.events||[]).length;i++){e=j.events[i];if(!e.segs)continue;s=e.segs.map(function(x){return x.utf8||""}).join("").replace(/\s+/g," ").trim();if(!s)continue;c.push({s:(e.tStartMs||0)/1000,e:((e.tStartMs||0)+(e.dDurationMs||0))/1000,t:s});}
 for(i=0;i<c.length-1;i++)if(c[i].e>c[i+1].s)c[i].e=c[i+1].s;return c.filter(function(x){return x.e>x.s});}
 function send(c,lang){if(done||!c.length)return;done=true;hit=true;say("共 "+c.length+" 句（"+c.filter(function(x){return x.r}).length+" 句有中文），正在保存…");var a="";try{a=p.getVideoData().author||""}catch(e){}
-F.call(window,S+"/api/cap",{method:"POST",headers:{"Content-Type":"application/json","X-Key":K},body:JSON.stringify({v:v,tl:"zh-CN",title:D.title.replace(/^\(\d+\)\s*/,"").replace(/ - YouTube$/,""),author:a,lang:lang||"en",cues:c})}).then(function(r){return r.json()}).then(function(r){if(r&&r.ok){say("已保存，正在打开学习页…");L.href=S+"/?v="+v;}else{done=false;say("保存失败："+((r&&r.error)||"未知错误"));}}).catch(function(){done=false;say("保存失败：网络问题，请再点一次书签");});}
+F.call(window,S+"/api/cap",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({v:v,tl:"zh-CN",title:D.title.replace(/^\(\d+\)\s*/,"").replace(/ - YouTube$/,""),author:a,lang:lang||"en",cues:c})}).then(function(r){return r.json()}).then(function(r){if(r&&r.ok){say("已保存，正在打开学习页…");L.href=S+"/?v="+v;}else{done=false;say("保存失败："+((r&&r.error)||"未知错误"));}}).catch(function(){done=false;say("保存失败：网络问题，请再点一次书签");});}
 var F=window.fetch,O=XMLHttpRequest.prototype.open,seen={};
 function cl(t){t=String(t||"").replace(/\[[^\]]*\]|\u266a|>>+|\u00bb/g," ").replace(/\s+/g," ").trim();return /^\([^)]*\)$/.test(t)?"":t;}
 function merge(c,z){var m={},i,k,b,d;for(i=0;i<z.length;i++)m[Math.round(z[i].s*10)]=z[i].t;

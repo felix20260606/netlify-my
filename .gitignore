@@ -2,5 +2,3 @@
 *.command
 node_modules/
 *.zip
-# 插件的同步配置，只放在本机
-extension/config.js

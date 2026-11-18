@@ -19,10 +19,8 @@ Ctrl/⌘+C 复制当前句子  E 显示被隐藏的翻译  O 单句循环  Z/X �
 - 「将要学习」的词会同步到生词本网站的待整理队列；在「已保存」标签底部可以看到并复制整个队列
 - 导出：打印版 HTML、Excel（.xlsx）、已保存项目（.xlsx）
 - 不要和 Language Reactor 同时启用，两者会叠在一起
-- config.js 里有生词本的同步口令，含 config.js 的压缩包请勿转发给他人
 - 词频表来自 OpenSubtitles 字幕语料（hermitdave/FrequencyWords，CC-BY-SA-4.0）
 - 想让单词着色接近 Language Reactor：词汇水平选 700，比率选 2.0x
 - 语法下划线（时态、被动、复数、冠词等）可在设置里整体或逐类开关
-- 生词本网站：https://ruilearning-my.pages.dev（config.js 里 key 填同步口令、site 填这个网址）
-- 不建 config.js 也能用：生词只存在浏览器本地，不同步、不上传
+- 生词本网站：https://ruilearning-my.pages.dev（插件已内置这个地址，不用配置文件、不用口令）
 - 更详细的说明见仓库根目录的 README.md

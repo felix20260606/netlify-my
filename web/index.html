@@ -2430,11 +2430,10 @@ async function save(s){
 function def(){return{progress:{},custom:[],deleted:[],pending:[]};}
 
 /* ===== cloud sync — 生词本存在本站后台（Cloudflare KV，/api/vocab）=====
-   读取不需要口令；写入需要「同步口令」，每台设备第一次输入一次，只存在本机浏览器里，网页源码里没有口令 */
-const SYNC_API="/api/vocab", SYNC_PW="vocab_sync_key";
+   不设口令：打开就同步；被乱改时可从后台存档或仓库 data/vocab.json 还原 */
+const SYNC_API="/api/vocab";
 const SYNC_ON=true;
-function syncKey(){try{return localStorage.getItem(SYNC_PW)||"";}catch(e){return "";}}
-function setSyncKey(k){try{if(k)localStorage.setItem(SYNC_PW,k);else localStorage.removeItem(SYNC_PW);}catch(e){} syncBadge();}
+try{localStorage.removeItem("vocab_sync_key");}catch(e){}
 let syncing=false, pushTimer=null, syncAgain=false;
 function mergeState(a,b){ // union of two states; on same id, b wins. deletions propagate.
   a=a||def(); b=b||def();
@@ -2459,31 +2458,11 @@ async function syncNow(){
   if(syncing){syncAgain=true;return;}
   syncing=true;
   try{
-    const k=syncKey();
-    if(k){ // 把本机内容交给后台合并，拿回合并结果
-      const r=await fetch(SYNC_API,{method:"POST",headers:{"Content-Type":"application/json","X-Key":k},body:JSON.stringify({state:pick(state)})});
-      if(r.status===401){setSyncKey("");try{toast("同步口令不对，请重新输入");}catch(e){}}
-      else if(r.ok){const j=await r.json();if(j&&j.ok&&j.state)adopt(mergeState(j.state,state));}
-    }else{ // 没有口令：只读取云端，本机改动先留在本机
-      const r=await fetch(SYNC_API);
-      if(r.ok){const j=await r.json();if(j&&j.ok)adopt(mergeState(j,state));}
-    }
+    const r=await fetch(SYNC_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({state:pick(state)})}); // 本机内容交给后台合并，拿回合并结果
+    if(r.ok){const j=await r.json();if(j&&j.ok&&j.state)adopt(mergeState(j.state,state));}
   }catch(e){}finally{syncing=false; if(syncAgain){syncAgain=false;schedulePush();}}
 }
 function schedulePush(){ clearTimeout(pushTimer); pushTimer=setTimeout(syncNow,1500); }
-function askSyncKey(){
-  const k=(prompt("输入生词本的同步口令（每台设备只需输入一次）：")||"").trim();
-  if(k){setSyncKey(k);syncNow();}
-}
-function syncBadge(){
-  let el=document.getElementById("sync-badge");
-  if(syncKey()||document.documentElement.classList.contains("collect-mode")){if(el)el.remove();return;}
-  if(!el){el=document.createElement("button");el.id="sync-badge";el.type="button";
-    el.textContent="☁️ 生词同步未开启 · 点此输入口令";
-    el.style.cssText="position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:50;border:1px solid #d9d4c7;background:#fffdf7;color:#7a5b16;font-size:12.5px;padding:7px 11px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.08);cursor:pointer";
-    el.onclick=askSyncKey; (document.body||document.documentElement).appendChild(el);}
-}
-
 let state=def(), words=[], filter="all", query="", cat="all", addType="word", testDir="en", allShown=false, sortBy="new", deck=[], di=0;
 function sortedWords(){
   let arr=words.map((w,i)=>({w,i}));
@@ -2985,10 +2964,10 @@ refresh(); // show seed words immediately, no waiting on storage
       await syncNow();
       var cm=document.getElementById('collect-msg'),cs=document.getElementById('collect-sub');
       if(cm)cm.textContent=collectWord?('✓ 已收：'+collectWord):'✓ 已收进待整理';
-      if(cs)cs.textContent=syncKey()?('共 '+((state.pending||[]).length)+' 个待整理 · 发 Claude 整理'):'只存在这台设备：先打开生词本输入同步口令，才会同步到其它设备';
+      if(cs)cs.textContent='共 '+((state.pending||[]).length)+' 个待整理 · 发 Claude 整理';
       setTimeout(function(){try{window.close();}catch(e){}},1300);
     }else{
-      syncNow(); syncBadge();
+      syncNow();
       document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncNow();});
       window.addEventListener("focus",syncNow);
     }

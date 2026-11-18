@@ -1,0 +1,427 @@
+{
+  "custom": [
+    {
+      "id": "u_1783074145779_nntv",
+      "type": "word",
+      "word": "tire",
+      "phon": "/ˈtʌɪ̯ɚ/",
+      "en": "To become sleepy or weary.",
+      "zh": "轮胎",
+      "tag": "收集",
+      "date": "2026-07-03",
+      "forms": [],
+      "examples": [
+        [
+          "I tire of this book.",
+          ""
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_applause",
+      "type": "word",
+      "word": "Applause",
+      "phon": "/əplˈɔz/",
+      "en": "The act of applauding; approbation and praise publicly expressed by the clapping of hands, stamping or tapping of the feet, acclamation, huzzas, or…",
+      "zh": "掌声；采声；鼓掌欢迎",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [],
+      "tip": ""
+    },
+    {
+      "id": "v_careless",
+      "type": "word",
+      "word": "careless",
+      "phon": "/kˈɛɹləs/",
+      "en": "Not concerned or worried (about).",
+      "zh": "粗心；马虎；漫不经心；大意",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "Well, if he's not here, he has a reason because there is not a cruel or {careless} bone in his body.",
+          "好吧，如果他不在这里，他是有原因的，因为他的身体里没有残忍或粗心的骨头。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_cruel",
+      "type": "word",
+      "word": "cruel",
+      "phon": "/kɹˈuəl/",
+      "en": "Intentionally causing or reveling in pain and suffering; merciless, heartless.",
+      "zh": "残忍的；残忍；残酷；残暴",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "Well, if he's not here, he has a reason because there is not a {cruel} or careless bone in his body.",
+          "好吧，如果他不在这里，他是有原因的，因为他的身体里没有残忍或粗心的骨头。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_pitch",
+      "type": "word",
+      "word": "pitch",
+      "phon": "/pˈɪtʃ/",
+      "en": "A sticky, gummy substance secreted by trees; tree sap.",
+      "zh": "沥青；音调；音高；足球场",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "melodically, for a yes-no question, and that is his {pitch} goes up towards the end of the phrase.",
+          "旋律优美地，对于是非问题，他的音调在乐句结尾处上升。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_thesis",
+      "type": "word",
+      "word": "thesis",
+      "phon": "/θˈisəs/",
+      "en": "Senses relating to logic, rhetoric, etc. A proposition or statement supported by arguments. A lengthy essay written to establish the validity of a…",
+      "zh": "论文；论点；论断；论题",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "And they say, “We need to talk about your {thesis}.”",
+          "他们说：“我们得和你谈一下论文的事儿。”"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_scoop",
+      "type": "word",
+      "word": "scoop",
+      "phon": "/skˈup/",
+      "en": "Any cup-shaped or bowl-shaped tool, usually with a handle, used to lift and move loose or soft solid material.",
+      "zh": "舀；挖掘；挖；掘",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "our way up. Will you be mean to him too? And then too also has that {scoop} down and then back up.",
+          "我们的道路。你也会对他不好吗？然后也有向下舀，然后又向上的情况。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_reinvented",
+      "type": "word",
+      "word": "reinvented",
+      "phon": "/ɹiɪnvˈɛntɪd/",
+      "en": "simple past and past participle of reinvent",
+      "zh": "重新发明",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "picking your spots, business decisions. But a guy like Horford has {reinvented}",
+          "选择你的位置，商业决策。但像霍福德这样的人已经重塑了"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_impacts",
+      "type": "word",
+      "word": "impacts",
+      "phon": "/ɪmpˈækts/",
+      "en": "plural of impact",
+      "zh": "影响；碰撞；弹着；揕",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "those guys have been able to reinvent and have the big {impacts}.",
+          "这些人已经能够重塑并产生巨大影响。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_growth",
+      "type": "word",
+      "word": "growth",
+      "phon": "/ɡɹˈoʊθ/",
+      "en": "An increase in size, number, value, or strength.",
+      "zh": "生长；发展；发育；发达",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "Yeah, I mean one word I always talk about is like the just {growth} mindset.",
+          "是的，我的意思是我经常谈论的一个词就是公正的成长心态。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_mindset",
+      "type": "word",
+      "word": "mindset",
+      "phon": "/mˈaɪndsɛt/",
+      "en": "A way of thinking; an attitude or opinion, especially a habitual one.",
+      "zh": "心态",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "Yeah, I mean one word I always talk about is like the just growth {mindset}.",
+          "是的，我的意思是我经常谈论的一个词就是公正的成长心态。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_i_poured_myself_some_wine",
+      "type": "phrase",
+      "word": "I poured myself some wine.",
+      "phon": "",
+      "en": "",
+      "zh": "我给自己倒了一些酒。",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [],
+      "tip": ""
+    },
+    {
+      "id": "v_guys",
+      "type": "word",
+      "word": "guys",
+      "phon": "/ɡˈaɪz/",
+      "en": "plural of guy",
+      "zh": "伙计们；佬；傢伙",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [],
+      "tip": ""
+    },
+    {
+      "id": "v_motion",
+      "type": "word",
+      "word": "motion",
+      "phon": "/mˈoʊʃən/",
+      "en": "A change whereby something goes from one place to another; a state of progression from one place to another; a change of position with respect to…",
+      "zh": "运动；议案；动议；动作",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [],
+      "tip": ""
+    },
+    {
+      "id": "v_squint",
+      "type": "word",
+      "word": "squint",
+      "phon": "/skwˈɪnt/",
+      "en": "To look with the eyes partly closed, as in bright sunlight, or as a threatening expression.",
+      "zh": "眯；乜",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [],
+      "tip": ""
+    },
+    {
+      "id": "v_decisions",
+      "type": "word",
+      "word": "decisions",
+      "phon": "/dɪsˈɪʒənz/",
+      "en": "plural of decision",
+      "zh": "决定；决断；定案；果断",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "So the Rational Decision-Maker will make the rational decision",
+          "所以理性决策者会做出理性决策"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_reinvent",
+      "type": "word",
+      "word": "reinvent",
+      "phon": "/ɹiɪnvˈɛnt/",
+      "en": "To invent again something that has already been invented.",
+      "zh": "重新发明",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [],
+      "tip": ""
+    },
+    {
+      "id": "v_possessions",
+      "type": "word",
+      "word": "possessions",
+      "phon": "/pəzˈɛʃənz/",
+      "en": "plural of possession",
+      "zh": "财产；所有；所有权；属地",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [],
+      "tip": ""
+    },
+    {
+      "id": "v_procrastinator",
+      "type": "word",
+      "word": "procrastinator",
+      "phon": "/pɹəkɹˈæstəneɪtɚ/",
+      "en": "One who procrastinates; one who delays working on things.",
+      "zh": "拖延者",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "what goes on in the heads of {procrastinators},",
+          "拖延者脑子里在想什么"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_deadline",
+      "type": "word",
+      "word": "deadline",
+      "phon": "/dˈɛdlaɪn/",
+      "en": "A time limit in the form of a date on or before which something must be completed.",
+      "zh": "最后期限；期限；限期；截稿线",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "with three days until the {deadline},",
+          "距离截止日期还有三天，"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_brains",
+      "type": "word",
+      "word": "brains",
+      "phon": "/bɹˈeɪnz/",
+      "en": "plural of brain",
+      "zh": "大脑；脑；头脑；脑髓",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "that the {brains} of procrastinators were actually different",
+          "拖延者的大脑实际上是不同的"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_bone",
+      "type": "word",
+      "word": "bone",
+      "phon": "/bˈoʊn/",
+      "en": "A composite material consisting largely of calcium phosphate and collagen and making up the skeleton of most vertebrates.",
+      "zh": "骨；骨头；骨法",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "Well, if he's not here, he has a reason because there is not a cruel or careless {bone} in his body.",
+          "好吧，如果他不在这里，他是有原因的，因为他的身体里没有残忍或粗心的骨头。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_happen",
+      "type": "word",
+      "word": "happen",
+      "phon": "/hˈæpən/",
+      "en": "To occur or take place.",
+      "zh": "发生；碰巧；正好；刚好",
+      "tag": "视频",
+      "date": "2026-11-17",
+      "forms": [],
+      "examples": [
+        [
+          "And that would {happen} every single paper.",
+          "而且每次写论文都这样。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_productive",
+      "type": "word",
+      "word": "productive",
+      "phon": "/pɹəˈdʌktɪv/",
+      "en": "Capable of producing something, especially in abundance; fertile.",
+      "zh": "富有成效的；丰厚；丰满；能生产的",
+      "tag": "视频",
+      "date": "2026-11-18",
+      "forms": [],
+      "examples": [
+        [
+          "to do something {productive},",
+          "去做些有意义的事情，"
+        ]
+      ],
+      "tip": ""
+    }
+  ],
+  "progress": {
+    "patio": "known",
+    "thigh": "known",
+    "reserve": "known",
+    "date_expr": "learning",
+    "permanent": "known",
+    "foodie": "known",
+    "venice_of_east": "known",
+    "guava": "learning",
+    "signature": "known",
+    "documentary": "known",
+    "wire": "known",
+    "durian": "known",
+    "session": "known",
+    "mung_bean": "known",
+    "cuisine": "known",
+    "tissue": "learning"
+  },
+  "deleted": [
+    "u_1782668109496_exc6",
+    "u_1782670074883_efkp",
+    "u_1782668408778_zl6e",
+    "u_1782670392054_og0w",
+    "u_1782670590432_yhge"
+  ],
+  "pending": []
+}

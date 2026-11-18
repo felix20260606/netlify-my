@@ -1,9 +1,5 @@
-// 生词本同步配置放在 config.js（不进仓库；参照 config.example.js 创建）
-// 生词本和视频字幕都存在生词本网站的后台（Cloudflare），key 是网站的同步口令
-let VS_SYNC = { key: "", site: "" };
-try { importScripts("config.js"); } catch (e) {}
-const KEY = VS_SYNC.key, SITE = (VS_SYNC.site || "").replace(/\/$/, "");
-const CLOUD = !!(KEY && SITE), VOCAB = SITE + "/api/vocab";
+// 生词本和视频字幕都存在生词本网站的后台（Cloudflare），不需要配置文件和口令
+const SITE = "https://ruilearning-my.pages.dev", VOCAB = SITE + "/api/vocab";
 const vocabGet = () => fetch(VOCAB).then(r => { if (!r.ok) throw 0; return r.json(); });
 
 // ---------- 翻译 ----------
@@ -142,7 +138,6 @@ async function addWord(word, queueOnly, m) {
     const st = await chrome.storage.local.get({ saved: [] });
     if (!st.saved.some(w => w.toLowerCase() === word.toLowerCase())) { st.saved.push(word); await chrome.storage.local.set({ saved: st.saved }); }
   }
-  if (!CLOUD) return { ok: true, cloud: false };
   const e = await makeEntry(word, m || {});
   return cloudAdd([e]);
 }
@@ -164,7 +159,7 @@ function cloudAdd(entries) { // 网站后台负责合并（同名词跳过、移
   const run = async () => {
     try {
       if (!entries.length) return { ok: true, cloud: true, added: 0 };
-      const p = await fetch(VOCAB, { method: "POST", headers: { "Content-Type": "application/json", "X-Key": KEY }, body: JSON.stringify({ add: entries }) });
+      const p = await fetch(VOCAB, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ add: entries }) });
       const j = await p.json().catch(() => ({}));
       return { ok: p.ok, cloud: p.ok && !!j.ok, added: j.added || 0, total: j.total };
     } catch (e) { return { ok: true, cloud: false }; }
@@ -173,7 +168,6 @@ function cloudAdd(entries) { // 网站后台负责合并（同名词跳过、移
 }
 // 把本机已保存的单词 / 短语，以及云端待整理队列里的词，一次补齐成完整词条
 async function syncAll(tl) {
-  if (!CLOUD) return { ok: false, cloud: false };
   const st = await chrome.storage.local.get({ saved: [], savedSents: [], savedCtx: {} });
   let pend = [], have = new Set();
   try { const d = await vocabGet(); pend = d.pending || []; (d.custom || []).forEach(x => x && have.add((x.word || "").toLowerCase())); } catch (e) { return { ok: false, cloud: false }; }
@@ -209,7 +203,6 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "wordLite") gWord(/['’]/.test(m.word) ? m.word.replace(/’/g, "'") : m.word.toLowerCase(), m.tl, m.sl).then(g => send({ g })).catch(() => send({}));
   else if (m.type === "word") Promise.all([gWord(/['’]/.test(m.word) ? m.word.replace(/’/g, "'") : m.word.toLowerCase(), m.tl, m.sl).catch(() => null), dict(m.word)]).then(([g, d]) => send({ g, d }));
   else if (m.type === "reloadSelf") { send({}); setTimeout(() => chrome.runtime.reload(), 200); }
-  else if (m.type === "pending" && !CLOUD) send({});
   else if (m.type === "pending") vocabGet().then(d => send({ pending: d.pending || [] })).catch(() => send({}));
   else if (m.type === "openSettings") { chrome.windows.create({ url: chrome.runtime.getURL("popup.html"), type: "popup", width: 340, height: 760 }); send({}); }
   else if (m.type === "openLevel") { chrome.runtime.openOptionsPage(); send({}); }
@@ -218,7 +211,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "openReview") { chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); send({}); }
   else if (m.type === "sentences") sentences(m.word, m.tl, m.sl).then(s => send({ s })).catch(() => send({ s: [] }));
   else if (m.type === "add") addWord(m.word, m.queueOnly, m).then(send);
-  else if (m.type === "capUp") { if (!CLOUD) send({ ok: false }); else fetch(SITE + "/api/cap", { method: "POST", headers: { "Content-Type": "application/json", "X-Key": KEY }, body: JSON.stringify(m.body) }).then(r => r.json()).then(send).catch(() => send({ ok: false })); }
+  else if (m.type === "capUp") { fetch(SITE + "/api/cap", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(m.body) }).then(r => r.json()).then(send).catch(() => send({ ok: false })); }
   else if (m.type === "syncAll") syncAll(m.tl).then(send);
   else return false;
   return true;
