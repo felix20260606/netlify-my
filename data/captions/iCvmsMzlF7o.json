@@ -1,0 +1,2212 @@
+{
+  "v": "iCvmsMzlF7o",
+  "title": "布琳.布朗:脆弱的力量",
+  "author": "TED",
+  "lang": "en",
+  "tl": "zh-CN",
+  "at": 1794972913094,
+  "cues": [
+    {
+      "s": 16.86,
+      "e": 20.32,
+      "t": "So, I'll start with this: a couple years ago, an event planner called me",
+      "r": "几年前，一个活动策划人打电话给我，因为我当时要做一个演讲。"
+    },
+    {
+      "s": 20.34,
+      "e": 22.39,
+      "t": "because I was going to do a speaking event.",
+      "r": "她在电话里说："
+    },
+    {
+      "s": 22.42,
+      "e": 24.11,
+      "t": "And she called, and she said,",
+      "r": "“我真很苦恼该如何在宣传单上"
+    },
+    {
+      "s": 24.13,
+      "e": 27.7,
+      "t": "“I'm really struggling with how to write about you on the little flyer.”",
+      "r": "介绍你。”我心想，怎么会苦恼呢？"
+    },
+    {
+      "s": 27.73,
+      "e": 29.78,
+      "t": "And I thought, “Well, what's the struggle?”",
+      "r": "她继续道：“你看，我听过你的演讲，"
+    },
+    {
+      "s": 30.49,
+      "e": 32.39,
+      "t": "And she said, “Well, I saw you speak,",
+      "r": "我觉得我可以称你为研究者，"
+    },
+    {
+      "s": 32.42,
+      "e": 34.9,
+      "t": "and I'm going to call you a researcher, I think,",
+      "r": "可我担心的是，如果我这么称呼你，没人会来听，"
+    },
+    {
+      "s": 34.92,
+      "e": 37.81,
+      "t": "but I'm afraid if I call you a researcher, no one will come,",
+      "r": "因为大家普遍认为研究员很无趣而且脱离现实。”"
+    },
+    {
+      "s": 37.84,
+      "e": 40.3,
+      "t": "because they'll think you're boring and irrelevant.“",
+      "r": "（笑声）"
+    },
+    {
+      "s": 41.34,
+      "e": 42.92,
+      "t": "And I was like, “Okay.”",
+      "r": "然后她说：“但是我喜欢你的演讲，"
+    },
+    {
+      "s": 42.95,
+      "e": 45.42,
+      "t": "And she said, “But the thing I liked about your talk",
+      "r": "就跟讲故事一样很吸引人。"
+    },
+    {
+      "s": 45.45,
+      "e": 46.66,
+      "t": "is you're a storyteller.",
+      "r": "我想来想去，还是觉得称你为讲故事的人比较妥当。”"
+    },
+    {
+      "s": 46.69,
+      "e": 49.4,
+      "t": "So I think what I'll do is just call you a storyteller.“",
+      "r": "所以我想我就称你为讲故事的人吧。”"
+    },
+    {
+      "s": 49.99,
+      "e": 52.97,
+      "t": "And of course, the academic, insecure part of me",
+      "r": "脱口而出道：“你要叫我什么？”"
+    },
+    {
+      "s": 52.99,
+      "e": 55.3,
+      "t": "was like, “You're going to call me a what?”",
+      "r": "她说：“我要称你为讲故事的人。“"
+    },
+    {
+      "s": 55.32,
+      "e": 57.87,
+      "t": "And she said, “I'm going to call you a storyteller.”",
+      "r": "我心想：”为什么不干脆叫魔法小精灵？“"
+    },
+    {
+      "s": 57.9,
+      "e": 60.75,
+      "t": "And I was like, “Why not 'magic pixie'?”",
+      "r": "（笑声）"
+    },
+    {
+      "s": 63.65,
+      "e": 66.93,
+      "t": "I was like, “Let me think about this for a second.”",
+      "r": "我试着鼓起勇气。"
+    },
+    {
+      "s": 67.29,
+      "e": 69.83,
+      "t": "I tried to call deep on my courage.",
+      "r": "我对自己说，我是一个讲故事的人。"
+    },
+    {
+      "s": 69.85,
+      "e": 72.97,
+      "t": "And I thought, you know, I am a storyteller.",
+      "r": "我是一个从事定性研究的科研人员。"
+    },
+    {
+      "s": 72.99,
+      "e": 74.39,
+      "t": "I'm a qualitative researcher.",
+      "r": "我是一名定性研究员。"
+    },
+    {
+      "s": 74.42,
+      "e": 76.14,
+      "t": "I collect stories; that's what I do.",
+      "r": "我收集故事；这就是我的工作。"
+    },
+    {
+      "s": 76.66,
+      "e": 79.56,
+      "t": "And maybe stories are just data with a soul.",
+      "r": "或许我就是一个讲故事的人。"
+    },
+    {
+      "s": 79.58,
+      "e": 81.97,
+      "t": "And maybe I'm just a storyteller.",
+      "r": "于是我说：”听着，"
+    },
+    {
+      "s": 81.99,
+      "e": 83.65,
+      "t": "And so I said, “You know what?",
+      "r": "要不你就称我为做研究兼讲故事的人。“"
+    },
+    {
+      "s": 83.67,
+      "e": 86.31,
+      "t": "Why don't you just say I'm a researcher-storyteller.“",
+      "r": "你为什么不直接说我是个研究型故事讲述者呢？”"
+    },
+    {
+      "s": 86.34,
+      "e": 89.97,
+      "t": "And she went, “Ha ha. There's no such thing.”",
+      "r": "她说：”哈哈，没这么个说法呀。“（笑声）"
+    },
+    {
+      "s": 91.7,
+      "e": 95.67,
+      "t": "So I'm a researcher-storyteller, and I'm going to talk to you today —",
+      "r": "我今天想跟大家谈论的—我们要谈论的话题是关于拓展认知—"
+    },
+    {
+      "s": 95.7,
+      "e": 97.75,
+      "t": "we're talking about expanding perception —",
+      "r": "我想给你们讲几个故事"
+    },
+    {
+      "s": 97.77,
+      "e": 100.15,
+      "t": "and so I want to talk to you and tell some stories",
+      "r": "是关于我的一份研究的，"
+    },
+    {
+      "s": 100.18,
+      "e": 105.34,
+      "t": "about a piece of my research that fundamentally expanded my perception",
+      "r": "这份研究从本质上拓宽了我个人的认知，"
+    },
+    {
+      "s": 105.36,
+      "e": 108.25,
+      "t": "and really actually changed the way that I live and love",
+      "r": "也确确实实改变了我生活、爱、"
+    },
+    {
+      "s": 108.27,
+      "e": 109.45,
+      "t": "and work and parent.",
+      "r": "工作还有教育孩子的方式。"
+    },
+    {
+      "s": 110.09,
+      "e": 112.23,
+      "t": "And this is where my story starts.",
+      "r": "我的故事从这里开始。"
+    },
+    {
+      "s": 112.99,
+      "e": 115.67,
+      "t": "When I was a young researcher, doctoral student,",
+      "r": "第一年，有位研究教授"
+    },
+    {
+      "s": 115.7,
+      "e": 119.67,
+      "t": "my first year, I had a research professor who said to us,",
+      "r": "对我们说：”事实是这样的，"
+    },
+    {
+      "s": 119.7,
+      "e": 123.64,
+      "t": "“Here's the thing, if you cannot measure it, it does not exist.”",
+      "r": "如果有一个东西你无法测量，那么它就不存在。“"
+    },
+    {
+      "s": 125.37,
+      "e": 127.97,
+      "t": "And I thought he was just sweet-talking me.",
+      "r": "我说：“真的么？”他说：“当然。”"
+    },
+    {
+      "s": 128.34,
+      "e": 130.78,
+      "t": "I was like, “Really?” and he was like, “Absolutely.”",
+      "r": "你得知道"
+    },
+    {
+      "s": 130.8,
+      "e": 133.05,
+      "t": "And so you have to understand",
+      "r": "我有一个社会工作的学士文凭，一个社会工作的硕士文凭，"
+    },
+    {
+      "s": 133.08,
+      "e": 135.66,
+      "t": "that I have a bachelor's and a master's in social work,",
+      "r": "我在读的是一个社会工作的博士文凭，"
+    },
+    {
+      "s": 135.68,
+      "e": 139.06,
+      "t": "and I was getting my Ph.D. in social work, so my entire academic career",
+      "r": "所以我整个学术生涯都被人所包围，"
+    },
+    {
+      "s": 139.08,
+      "e": 144.7,
+      "t": "was surrounded by people who kind of believed in the “life's messy, love it.”",
+      "r": "他们大抵相信生活是一团乱麻，接受它。"
+    },
+    {
+      "s": 145.47,
+      "e": 150.9,
+      "t": "And I'm more of the, “life's messy, clean it up, organize it",
+      "r": "而我的观点则倾向于，生活是一团乱麻，解开它，把它整理好，再归类放入便当盒里。"
+    },
+    {
+      "s": 150.93,
+      "e": 152.7,
+      "t": "and put it into a bento box.“",
+      "r": "（笑声）"
+    },
+    {
+      "s": 155.02,
+      "e": 160.33,
+      "t": "And so to think that I had found my way, to found a career that takes me —",
+      "r": "有能力去创一番事业，让自己—"
+    },
+    {
+      "s": 160.35,
+      "e": 163.69,
+      "t": "really, one of the big sayings in social work is,",
+      "r": "真的，社会工作的一个重要理念是置身于工作的不适中。"
+    },
+    {
+      "s": 163.71,
+      "e": 165.81,
+      "t": "“Lean into the discomfort of the work.”",
+      "r": "“要勇于面对工作的不适”。"
+    },
+    {
+      "s": 166.54,
+      "e": 169.07,
+      "t": "And I'm like, knock discomfort upside the head",
+      "r": "我就是要把这不适翻个底朝天"
+    },
+    {
+      "s": 169.09,
+      "e": 171.37,
+      "t": "and move it over and get all A's.",
+      "r": "每科都拿到A。"
+    },
+    {
+      "s": 171.4,
+      "e": 173.31,
+      "t": "That was my mantra.",
+      "r": "这就是我当时的信条。"
+    },
+    {
+      "s": 174.99,
+      "e": 176.97,
+      "t": "So I was very excited about this.",
+      "r": "我想这就是我要的职业生涯，"
+    },
+    {
+      "s": 176.99,
+      "e": 179.97,
+      "t": "And so I thought, you know what, this is the career for me,",
+      "r": "因为我对乱成一团，难以处理的课题感兴趣。"
+    },
+    {
+      "s": 179.99,
+      "e": 182.97,
+      "t": "because I am interested in some messy topics.",
+      "r": "我想要把它们弄清楚。"
+    },
+    {
+      "s": 182.99,
+      "e": 185.36,
+      "t": "But I want to be able to make them not messy.",
+      "r": "我想要理解它们。"
+    },
+    {
+      "s": 185.38,
+      "e": 186.71,
+      "t": "I want to understand them.",
+      "r": "我想侵入那些"
+    },
+    {
+      "s": 186.73,
+      "e": 190.31,
+      "t": "I want to hack into these things that I know are important",
+      "r": "我知道是重要的东西"
+    },
+    {
+      "s": 190.33,
+      "e": 192.31,
+      "t": "and lay the code out for everyone to see.",
+      "r": "把它们摸透，然后用浅显易懂的方式呈献给每一个人。"
+    },
+    {
+      "s": 192.99,
+      "e": 195.65,
+      "t": "So where I started was with connection.",
+      "r": "因为当你从事了10年的社会工作，"
+    },
+    {
+      "s": 195.67,
+      "e": 199.09,
+      "t": "Because, by the time you're a social worker for 10 years,",
+      "r": "你必然会发现"
+    },
+    {
+      "s": 199.11,
+      "e": 203.82,
+      "t": "what you realize is that connection is why we're here.",
+      "r": "关系是我们活着的原因。它赋予了我们生命的意义。"
+    },
+    {
+      "s": 203.84,
+      "e": 206.22,
+      "t": "It's what gives purpose and meaning to our lives.",
+      "r": "它赋予我们生活目标和意义。"
+    },
+    {
+      "s": 207.08,
+      "e": 208.86,
+      "t": "This is what it's all about.",
+      "r": "无论你跟谁交流"
+    },
+    {
+      "s": 208.89,
+      "e": 210.98,
+      "t": "It doesn't matter whether you talk to people",
+      "r": "工作在社会执法领域的也好，负责精神健康、虐待和疏于看管领域的也好"
+    },
+    {
+      "s": 211.01,
+      "e": 214.1,
+      "t": "who work in social justice, mental health and abuse and neglect,",
+      "r": "我们所知道的是，关系"
+    },
+    {
+      "s": 214.12,
+      "e": 219.46,
+      "t": "what we know is that connection, the ability to feel connected, is —",
+      "r": "是种感应的能力—生物神经上，我们是这么被设定的—"
+    },
+    {
+      "s": 219.95,
+      "e": 221.97,
+      "t": "neurobiologically that's how we're wired —",
+      "r": "这就是为什么我们在这儿。"
+    },
+    {
+      "s": 221.99,
+      "e": 223.37,
+      "t": "it's why we're here.",
+      "r": "这就是我们存在的意义。"
+    },
+    {
+      "s": 223.39,
+      "e": 226.41,
+      "t": "So I thought, you know what, I'm going to start with connection.",
+      "r": "所以我就从关系开始。"
+    },
+    {
+      "s": 227.07,
+      "e": 228.96,
+      "t": "Well, you know that situation",
+      "r": "你知道那种情况吗？"
+    },
+    {
+      "s": 228.99,
+      "e": 231.5,
+      "t": "where you get an evaluation from your boss,",
+      "r": "你的上司给你作工作评估，她告诉了你37点你做得相当棒的地方，"
+    },
+    {
+      "s": 231.52,
+      "e": 234.31,
+      "t": "and she tells you 37 things that you do really awesome,",
+      "r": "她告诉了你37点你做得相当棒的地方，"
+    },
+    {
+      "s": 234.33,
+      "e": 236.7,
+      "t": "and one “opportunity for growth?”",
+      "r": "还有一点—成长的空间？（笑声）"
+    },
+    {
+      "s": 239.2,
+      "e": 242.66,
+      "t": "And all you can think about is that opportunity for growth, right?",
+      "r": "这也是我研究的一个方面，"
+    },
+    {
+      "s": 242.69,
+      "e": 245.39,
+      "t": "Well, apparently this is the way my work went as well,",
+      "r": "嗯，看来我的工作也是如此，"
+    },
+    {
+      "s": 245.41,
+      "e": 250.39,
+      "t": "because, when you ask people about love, they tell you about heartbreak.",
+      "r": "因为当你跟人们谈论爱情，他们告诉你的是一件让他们心碎的事。"
+    },
+    {
+      "s": 250.41,
+      "e": 253.04,
+      "t": "When you ask people about belonging,",
+      "r": "当你跟人们谈论归属感，他们告诉你的是最让他们痛心的"
+    },
+    {
+      "s": 253.07,
+      "e": 257.02,
+      "t": "they'll tell you their most excruciating experiences of being excluded.",
+      "r": "被排斥的经历。"
+    },
+    {
+      "s": 257.05,
+      "e": 259.55,
+      "t": "And when you ask people about connection,",
+      "r": "当你跟人们谈论关系，他们跟我讲的是如何被断绝关系的故事。"
+    },
+    {
+      "s": 259.57,
+      "e": 262.11,
+      "t": "the stories they told me were about disconnection.",
+      "r": "他们告诉我的故事都是关于疏离的。"
+    },
+    {
+      "s": 263.12,
+      "e": 266.14,
+      "t": "So very quickly — really about six weeks into this research —",
+      "r": "我遇到了这个前所未闻的东西"
+    },
+    {
+      "s": 266.17,
+      "e": 272.19,
+      "t": "I ran into this unnamed thing that absolutely unraveled connection",
+      "r": "它揭示了关系以一种我不理解也从没见过的方式。"
+    },
+    {
+      "s": 272.21,
+      "e": 274.67,
+      "t": "in a way that I didn't understand or had never seen.",
+      "r": "所以我暂停了原先的研究计划，"
+    },
+    {
+      "s": 275.11,
+      "e": 277.09,
+      "t": "And so I pulled back out of the research",
+      "r": "对自己说，我得弄清楚这到底是什么。"
+    },
+    {
+      "s": 277.11,
+      "e": 279.34,
+      "t": "and thought, I need to figure out what this is.",
+      "r": "心想，我需要弄清楚这到底是什么。"
+    },
+    {
+      "s": 279.36,
+      "e": 281.54,
+      "t": "And it turned out to be shame.",
+      "r": "它最终被鉴定为耻辱感。"
+    },
+    {
+      "s": 283.21,
+      "e": 286.49,
+      "t": "And shame is really easily understood as the fear of disconnection:",
+      "r": "即害怕被断绝关系。有没有一些关于我的事"
+    },
+    {
+      "s": 287.21,
+      "e": 291.77,
+      "t": "Is there something about me that, if other people know it or see it,",
+      "r": "如果别人知道了或看到了，会认为我不值得交往。"
+    },
+    {
+      "s": 291.79,
+      "e": 294.96,
+      "t": "that I won't be worthy of connection?",
+      "r": "我要告诉你们的是："
+    },
+    {
+      "s": 295.59,
+      "e": 297.28,
+      "t": "The things I can tell you about it:",
+      "r": "这种现象很普遍；我们都会有（这种想法）。"
+    },
+    {
+      "s": 297.3,
+      "e": 298.97,
+      "t": "It's universal; we all have it.",
+      "r": "没有体验过耻辱的人"
+    },
+    {
+      "s": 298.99,
+      "e": 300.99,
+      "t": "The only people who don't experience shame",
+      "r": "不具有人类的同情或关系。"
+    },
+    {
+      "s": 301.01,
+      "e": 303.35,
+      "t": "have no capacity for human empathy or connection.",
+      "r": "没人想谈论自己的糗事，"
+    },
+    {
+      "s": 303.37,
+      "e": 304.97,
+      "t": "No one wants to talk about it,",
+      "r": "你谈论的越少，你越感到可耻。"
+    },
+    {
+      "s": 304.99,
+      "e": 307.56,
+      "t": "and the less you talk about it, the more you have it.",
+      "r": "但你越是避而不谈，它就越严重。"
+    },
+    {
+      "s": 309,
+      "e": 314.17,
+      "t": "What underpinned this shame, this “I'm not good enough,” —",
+      "r": "滋生耻辱感的是一种“我不够好.“的心态—我们都知道这是个什么滋味："
+    },
+    {
+      "s": 314.19,
+      "e": 315.8,
+      "t": "which, we all know that feeling:",
+      "r": "”我不够什么。我不够苗条，"
+    },
+    {
+      "s": 315.82,
+      "e": 317.87,
+      "t": "“I'm not blank enough. I'm not thin enough,",
+      "r": "不够有钱，不够漂亮，不够聪明，"
+    },
+    {
+      "s": 317.9,
+      "e": 321.15,
+      "t": "rich enough, beautiful enough, smart enough, promoted enough.“",
+      "r": "职位不够高。“"
+    },
+    {
+      "s": 321.17,
+      "e": 326.15,
+      "t": "The thing that underpinned this was excruciating vulnerability.",
+      "r": "而支撑这种心态的是一种刻骨铭心的脆弱，"
+    },
+    {
+      "s": 326.86,
+      "e": 330.97,
+      "t": "This idea of, in order for connection to happen,",
+      "r": "要想产生关系，我们必须让自己被看见，"
+    },
+    {
+      "s": 330.99,
+      "e": 334.74,
+      "t": "we have to allow ourselves to be seen, really seen.",
+      "r": "真真切切地被看见。"
+    },
+    {
+      "s": 336.06,
+      "e": 339.26,
+      "t": "And you know how I feel about vulnerability. I hate vulnerability.",
+      "r": "所以我思考着，这次是轮到我"
+    },
+    {
+      "s": 339.28,
+      "e": 343.78,
+      "t": "And so I thought, this is my chance to beat it back with my measuring stick.",
+      "r": "用我的标尺击溃它的时候了。我要闯进去，把它弄清楚，"
+    },
+    {
+      "s": 343.81,
+      "e": 346.5,
+      "t": "I'm going in, I'm going to figure this stuff out,",
+      "r": "我要花一年的时间，彻底瓦解耻辱，"
+    },
+    {
+      "s": 346.52,
+      "e": 349.83,
+      "t": "I'm going to spend a year, I'm going to totally deconstruct shame,",
+      "r": "我要花一年的时间，彻底瓦解耻辱，我要搞清楚脆弱是怎么运作的，"
+    },
+    {
+      "s": 349.85,
+      "e": 352.13,
+      "t": "I'm going to understand how vulnerability works,",
+      "r": "然后我要智取胜过它。"
+    },
+    {
+      "s": 352.16,
+      "e": 353.59,
+      "t": "and I'm going to outsmart it.",
+      "r": "我要战胜它。"
+    },
+    {
+      "s": 354.64,
+      "e": 356.91,
+      "t": "So I was ready, and I was really excited.",
+      "r": "所以我做好了准备，而且非常兴奋。"
+    },
+    {
+      "s": 360.24,
+      "e": 362.38,
+      "t": "As you know, it's not going to turn out well.",
+      "r": "（笑声）"
+    },
+    {
+      "s": 364.94,
+      "e": 366.54,
+      "t": "You know this.",
+      "r": "我能告诉你关于耻辱的很多东西，"
+    },
+    {
+      "s": 366.56,
+      "e": 368.45,
+      "t": "So, I could tell you a lot about shame,",
+      "r": "所以，我可以跟你讲很多关于羞耻的事情，"
+    },
+    {
+      "s": 368.47,
+      "e": 370.57,
+      "t": "but I'd have to borrow everyone else's time.",
+      "r": "但那样我就得占用别人的时间了。但我在这儿可以告诉你，归根到底—"
+    },
+    {
+      "s": 370.6,
+      "e": 373.45,
+      "t": "But here's what I can tell you that it boils down to —",
+      "r": "但我可以告诉你的是，归根结底——"
+    },
+    {
+      "s": 373.48,
+      "e": 376.86,
+      "t": "and this may be one of the most important things that I've ever learned",
+      "r": "这也许是我学到的最重要的东西在从事研究的数十年中。"
+    },
+    {
+      "s": 376.88,
+      "e": 378.75,
+      "t": "in the decade of doing this research.",
+      "r": "这项研究十年来学到的最重要的事情之一。"
+    },
+    {
+      "s": 380.07,
+      "e": 384.26,
+      "t": "My one year turned into six years:",
+      "r": "变成了六年，成千上万的故事，"
+    },
+    {
+      "s": 384.28,
+      "e": 388.97,
+      "t": "Thousands of stories, hundreds of long interviews, focus groups.",
+      "r": "成百上千个采访，焦点集中。有时人们发给我期刊报道，"
+    },
+    {
+      "s": 388.99,
+      "e": 391.37,
+      "t": "At one point, people were sending me journal pages",
+      "r": "发给我他们的故事—"
+    },
+    {
+      "s": 391.39,
+      "e": 393.23,
+      "t": "and sending me their stories —",
+      "r": "和他们的故事——"
+    },
+    {
+      "s": 393.26,
+      "e": 397.25,
+      "t": "thousands of pieces of data in six years.",
+      "r": "不计其数的数据，就在这六年中。我大概掌握了它。"
+    },
+    {
+      "s": 397.27,
+      "e": 398.97,
+      "t": "And I kind of got a handle on it.",
+      "r": "我大概理解了这就是耻辱，"
+    },
+    {
+      "s": 398.99,
+      "e": 402.09,
+      "t": "I kind of understood, this is what shame is, this is how it works.",
+      "r": "这就是它的运作方式。"
+    },
+    {
+      "s": 403.45,
+      "e": 409.7,
+      "t": "I wrote a book, I published a theory, but something was not okay —",
+      "r": "我出版了一个理论，但总觉得哪里不对劲—它其实是，"
+    },
+    {
+      "s": 409.72,
+      "e": 413.88,
+      "t": "and what it was is that, if I roughly took the people I interviewed",
+      "r": "如果我粗略地把我采访过的人分成"
+    },
+    {
+      "s": 413.9,
+      "e": 420.48,
+      "t": "and divided them into people who really have a sense of worthiness —",
+      "r": "具有自我价值感的人—说到底就是"
+    },
+    {
+      "s": 420.5,
+      "e": 423.26,
+      "t": "that's what this comes down to, a sense of worthiness —",
+      "r": "自我价值感—"
+    },
+    {
+      "s": 423.29,
+      "e": 426.51,
+      "t": "they have a strong sense of love and belonging —",
+      "r": "他们勇于去爱并且拥有强烈的归属感—另一部分则是为之苦苦挣扎的人，"
+    },
+    {
+      "s": 426.53,
+      "e": 428.18,
+      "t": "and folks who struggle for it,",
+      "r": "另一部分则是为之苦苦挣扎的人，"
+    },
+    {
+      "s": 428.21,
+      "e": 431.31,
+      "t": "and folks who are always wondering if they're good enough.",
+      "r": "总是怀疑自己是否足够好的人。区分那些"
+    },
+    {
+      "s": 431.33,
+      "e": 433.57,
+      "t": "There was only one variable that separated",
+      "r": "敢于去爱"
+    },
+    {
+      "s": 433.59,
+      "e": 436.33,
+      "t": "the people who have a strong sense of love and belonging",
+      "r": "并拥有强烈归属感的人"
+    },
+    {
+      "s": 436.36,
+      "e": 438.62,
+      "t": "and the people who really struggle for it.",
+      "r": "和那些为之而苦苦挣扎的人的变量只有一个。那就是，那些敢于去爱"
+    },
+    {
+      "s": 438.64,
+      "e": 442.36,
+      "t": "And that was, the people who have a strong sense of love and belonging",
+      "r": "并拥有强烈归属感的人"
+    },
+    {
+      "s": 442.38,
+      "e": 444.79,
+      "t": "believe they're worthy of love and belonging.",
+      "r": "相信他们值得被爱，值得享有归属感。"
+    },
+    {
+      "s": 445.7,
+      "e": 446.85,
+      "t": "That's it.",
+      "r": "就是这样。"
+    },
+    {
+      "s": 447.5,
+      "e": 448.99,
+      "t": "They believe they're worthy.",
+      "r": "他们相信自己的价值。"
+    },
+    {
+      "s": 450.74,
+      "e": 456.55,
+      "t": "And to me, the hard part of the one thing that keeps us out of connection",
+      "r": "那个阻碍人与人之间关系的最困难的部分是我们对于自己不值得享有这种关系的恐惧，"
+    },
+    {
+      "s": 456.58,
+      "e": 459.79,
+      "t": "is our fear that we're not worthy of connection,",
+      "r": "无论从个人，还是职业上"
+    },
+    {
+      "s": 459.82,
+      "e": 462.22,
+      "t": "was something that, personally and professionally,",
+      "r": "我都觉得我有必要去更深入地了解它。"
+    },
+    {
+      "s": 462.24,
+      "e": 464.47,
+      "t": "I felt like I needed to understand better.",
+      "r": "所以接下来"
+    },
+    {
+      "s": 464.81,
+      "e": 469.78,
+      "t": "So what I did is I took all of the interviews",
+      "r": "我找出所有的采访记录找出那些体现自我价值的，那些持有这种观念的记录，"
+    },
+    {
+      "s": 469.81,
+      "e": 472.63,
+      "t": "where I saw worthiness, where I saw people living that way,",
+      "r": "集中研究它们。"
+    },
+    {
+      "s": 472.65,
+      "e": 474.54,
+      "t": "and just looked at those.",
+      "r": "研究了这些采访。"
+    },
+    {
+      "s": 475.31,
+      "e": 477.36,
+      "t": "What do these people have in common?",
+      "r": "这群人有什么共同之处？"
+    },
+    {
+      "s": 477.39,
+      "e": 482.03,
+      "t": "I have a slight office supply addiction, but that's another talk.",
+      "r": "我对办公用品有点痴迷，但这是另一个话题了。"
+    },
+    {
+      "s": 482.05,
+      "e": 485.53,
+      "t": "So I had a manila folder, and I had a Sharpie,",
+      "r": "我有一个牛皮纸文件夹，还有一个三福极好笔，我心想，我该怎么给这项研究命名呢？"
+    },
+    {
+      "s": 485.55,
+      "e": 488.17,
+      "t": "and I was like, what am I going to call this research?",
+      "r": "我心想，我该怎么给这项研究命名呢？第一个蹦入我脑子的是"
+    },
+    {
+      "s": 488.2,
+      "e": 491.19,
+      "t": "And the first words that came to my mind were “whole-hearted.”",
+      "r": "全心全意这个词。"
+    },
+    {
+      "s": 491.81,
+      "e": 495.32,
+      "t": "These are whole-hearted people, living from this deep sense of worthiness.",
+      "r": "所以我在牛皮纸夹的上端这样写道，"
+    },
+    {
+      "s": 495.35,
+      "e": 498.2,
+      "t": "So I wrote at the top of the manila folder,",
+      "r": "而后我开始查看数据。"
+    },
+    {
+      "s": 498.23,
+      "e": 500.16,
+      "t": "and I started looking at the data.",
+      "r": "事实上，我开始是"
+    },
+    {
+      "s": 500.18,
+      "e": 506.17,
+      "t": "In fact, I did it first in a four-day, very intensive data analysis,",
+      "r": "用四天时间集中分析数据，"
+    },
+    {
+      "s": 506.2,
+      "e": 509.77,
+      "t": "where I went back, pulled the interviews, the stories, pulled the incidents.",
+      "r": "我从头找出那些采访，找出其中的故事和事件。主题是什么？有什么规律？"
+    },
+    {
+      "s": 509.8,
+      "e": 511.58,
+      "t": "What's the theme? What's the pattern?",
+      "r": "主题是什么？有什么规律吗？"
+    },
+    {
+      "s": 512.37,
+      "e": 515.35,
+      "t": "My husband left town with the kids",
+      "r": "我丈夫带着孩子离开了小镇，"
+    },
+    {
+      "s": 515.37,
+      "e": 518.35,
+      "t": "because I always go into this Jackson Pollock crazy thing,",
+      "r": "因为我老是陷入像杰克逊.波洛克（美国近代抽象派画家）似的疯狂状态，"
+    },
+    {
+      "s": 518.37,
+      "e": 522.12,
+      "t": "where I'm just writing and in my researcher mode.",
+      "r": "我一直在写，完全沉浸在研究的状态中。"
+    },
+    {
+      "s": 523.63,
+      "e": 525.17,
+      "t": "And so here's what I found.",
+      "r": "是我发现的情况。"
+    },
+    {
+      "s": 528.11,
+      "e": 530.97,
+      "t": "What they had in common was a sense of courage.",
+      "r": "勇气。"
+    },
+    {
+      "s": 531.62,
+      "e": 534.72,
+      "t": "And I want to separate courage and bravery for you for a minute.",
+      "r": "勇气，最初的定义，"
+    },
+    {
+      "s": 534.75,
+      "e": 537.19,
+      "t": "Courage, the original definition of courage,",
+      "r": "当它刚出现在英文里的时候—"
+    },
+    {
+      "s": 537.21,
+      "e": 539.45,
+      "t": "when it first came into the English language —",
+      "r": "是从拉丁文cor，意为心，演变过来的—"
+    },
+    {
+      "s": 539.47,
+      "e": 541.83,
+      "t": "it's from the Latin word “cor,” meaning “heart” —",
+      "r": "最初的定义是"
+    },
+    {
+      "s": 541.85,
+      "e": 544.86,
+      "t": "and the original definition was to tell the story of who you are",
+      "r": "真心地叙述一个故事，告诉大家你是谁的。"
+    },
+    {
+      "s": 544.88,
+      "e": 546.3,
+      "t": "with your whole heart.",
+      "r": "。"
+    },
+    {
+      "s": 547.06,
+      "e": 551.23,
+      "t": "And so these folks had, very simply, the courage to be imperfect.",
+      "r": "就具有勇气承认自己不完美。"
+    },
+    {
+      "s": 553.63,
+      "e": 558.61,
+      "t": "They had the compassion to be kind to themselves first and then to others,",
+      "r": "先是对自己的，再是对他人的，因为，事实是，我们如果不能善待自己，"
+    },
+    {
+      "s": 558.63,
+      "e": 559.83,
+      "t": "because, as it turns out,",
+      "r": "因为事实证明，"
+    },
+    {
+      "s": 559.86,
+      "e": 562.09,
+      "t": "we can't practice compassion with other people",
+      "r": "我们也无法善待他人。"
+    },
+    {
+      "s": 562.11,
+      "e": 563.86,
+      "t": "if we can't treat ourselves kindly.",
+      "r": "如果我们不能善待自己，就无法对他人展现同情心。"
+    },
+    {
+      "s": 564.26,
+      "e": 568.66,
+      "t": "And the last was they had connection, and — this was the hard part —",
+      "r": "最后一点，他们都能和他人建立关系，—这是很难做到的—前提是他们必须坦诚，"
+    },
+    {
+      "s": 568.68,
+      "e": 571.66,
+      "t": "as a result of authenticity,",
+      "r": "他们愿意放开自己设定的那个理想的自我"
+    },
+    {
+      "s": 571.68,
+      "e": 574.97,
+      "t": "they were willing to let go of who they thought they should be",
+      "r": "以换取真正的自我，"
+    },
+    {
+      "s": 574.99,
+      "e": 579.59,
+      "t": "in order to be who they were, which you have to absolutely do that",
+      "r": "这是赢得关系的必要条件。"
+    },
+    {
+      "s": 579.62,
+      "e": 580.79,
+      "t": "for connection.",
+      "r": "。"
+    },
+    {
+      "s": 583.32,
+      "e": 587.32,
+      "t": "The other thing that they had in common was this:",
+      "r": "他们还有另外一个共同之处那就是，"
+    },
+    {
+      "s": 590.91,
+      "e": 593.99,
+      "t": "They fully embraced vulnerability.",
+      "r": "他们都坦然接受了自己的脆弱。"
+    },
+    {
+      "s": 595.68,
+      "e": 602.33,
+      "t": "They believed that what made them vulnerable made them beautiful.",
+      "r": "让他们变得脆弱的东西也让他们变得美丽。"
+    },
+    {
+      "s": 606.14,
+      "e": 609.97,
+      "t": "They didn't talk about vulnerability being comfortable,",
+      "r": "是寻求舒适，也不认为脆弱是钻心的疼痛—"
+    },
+    {
+      "s": 609.99,
+      "e": 612.82,
+      "t": "nor did they really talk about it being excruciating —",
+      "r": "正如我之前在关于耻辱的采访中听到的。"
+    },
+    {
+      "s": 612.84,
+      "e": 615.32,
+      "t": "as I had heard it earlier in the shame interviewing.",
+      "r": "他们只是简单地认为脆弱是必须的。"
+    },
+    {
+      "s": 615.34,
+      "e": 617.57,
+      "t": "They just talked about it being necessary.",
+      "r": "他们只是讨论了这件事的必要性。"
+    },
+    {
+      "s": 618.63,
+      "e": 622.61,
+      "t": "They talked about the willingness to say, “I love you” first...",
+      "r": "说出“我爱你”，"
+    },
+    {
+      "s": 624.38,
+      "e": 629.75,
+      "t": "the willingness to do something where there are no guarantees...",
+      "r": "做些没有的事情，"
+    },
+    {
+      "s": 631.28,
+      "e": 635.62,
+      "t": "the willingness to breathe through waiting for the doctor to call",
+      "r": "愿意等待医生的电话，在做完乳房X光检查之后。"
+    },
+    {
+      "s": 635.64,
+      "e": 636.93,
+      "t": "after your mammogram.",
+      "r": "电话时的耐心等待。"
+    },
+    {
+      "s": 638.63,
+      "e": 641.9,
+      "t": "They're willing to invest in a relationship",
+      "r": "无论有没有结果。"
+    },
+    {
+      "s": 641.92,
+      "e": 643.37,
+      "t": "that may or may not work out.",
+      "r": "可能成功也可能失败的感情。"
+    },
+    {
+      "s": 644.47,
+      "e": 646.34,
+      "t": "They thought this was fundamental.",
+      "r": "他们觉得这些都是最根本的。"
+    },
+    {
+      "s": 647.44,
+      "e": 650.06,
+      "t": "I personally thought it was betrayal.",
+      "r": "我当时认为那是背叛。"
+    },
+    {
+      "s": 650.85,
+      "e": 655.44,
+      "t": "I could not believe I had pledged allegiance to research, where our job —",
+      "r": "我尽然对科研宣誓效忠—"
+    },
+    {
+      "s": 655.47,
+      "e": 659.53,
+      "t": "you know, the definition of research is to control and predict,",
+      "r": "研究的定义是控制（变量）然后预测，去研究现象，"
+    },
+    {
+      "s": 659.55,
+      "e": 664.2,
+      "t": "to study phenomena for the explicit reason to control and predict.",
+      "r": "为了一个明确的目标，去控制并预测。"
+    },
+    {
+      "s": 664.22,
+      "e": 668.59,
+      "t": "And now my mission to control and predict",
+      "r": "而我现在的使命即控制并预测却给出了这样一个结果：要想与脆弱共存"
+    },
+    {
+      "s": 668.61,
+      "e": 672.18,
+      "t": "had turned up the answer that the way to live is with vulnerability",
+      "r": "就得停止控制，停止预测"
+    },
+    {
+      "s": 672.21,
+      "e": 674.3,
+      "t": "and to stop controlling and predicting.",
+      "r": "停止控制和预测。"
+    },
+    {
+      "s": 674.33,
+      "e": 676.1,
+      "t": "This led to a little breakdown —",
+      "r": "于是我崩溃了—"
+    },
+    {
+      "s": 681.99,
+      "e": 684.97,
+      "t": "— which actually looked more like this.",
+      "r": "（笑声）"
+    },
+    {
+      "s": 686.51,
+      "e": 688.48,
+      "t": "And it did.",
+      "r": "它确实是。我称它为崩溃，我的心理医生称它为灵魂的觉醒。"
+    },
+    {
+      "s": 688.51,
+      "e": 691.69,
+      "t": "I call it a breakdown; my therapist calls it a spiritual awakening.",
+      "r": "我称它为崩溃，我的心理医生称它为灵魂的觉醒。"
+    },
+    {
+      "s": 692.97,
+      "e": 695.39,
+      "t": "A spiritual awakening sounds better than breakdown,",
+      "r": "但我跟你说那的确是精神崩溃。"
+    },
+    {
+      "s": 695.41,
+      "e": 697.19,
+      "t": "but I assure you, it was a breakdown.",
+      "r": "然后我不得不暂且把数据放一边，去求助心理医生。"
+    },
+    {
+      "s": 697.21,
+      "e": 700.12,
+      "t": "And I had to put my data away and go find a therapist.",
+      "r": "让我告诉你：你知道你是谁"
+    },
+    {
+      "s": 700.14,
+      "e": 702.37,
+      "t": "Let me tell you something: you know who you are",
+      "r": "当你打电话跟你朋友说：“我觉得我需要跟人谈谈。"
+    },
+    {
+      "s": 702.39,
+      "e": 705.63,
+      "t": "when you call your friends and say, “I think I need to see somebody.",
+      "r": "你有什么好的建议吗？“"
+    },
+    {
+      "s": 705.66,
+      "e": 707.47,
+      "t": "Do you have any recommendations?“",
+      "r": "因为我大约有五个朋友这么回答："
+    },
+    {
+      "s": 707.49,
+      "e": 709.54,
+      "t": "Because about five of my friends were like,",
+      "r": "因为我大约有五个朋友这么回答：”喔。我可不想当你的心理医生。“"
+    },
+    {
+      "s": 709.56,
+      "e": 711.71,
+      "t": "“Wooo, I wouldn't want to be your therapist.”",
+      "r": "（笑声）"
+    },
+    {
+      "s": 714.49,
+      "e": 716.47,
+      "t": "I was like, “What does that mean?”",
+      "r": "我说：”这是什么意思？“他们说：”我只是想说，"
+    },
+    {
+      "s": 716.49,
+      "e": 719.7,
+      "t": "And they're like, “I'm just saying, you know.",
+      "r": "他们说：”我只是想说，别带上你的标尺来见我。“"
+    },
+    {
+      "s": 719.72,
+      "e": 721.7,
+      "t": "Don't bring your measuring stick.“",
+      "r": "我说：”行。“"
+    },
+    {
+      "s": 724.49,
+      "e": 725.69,
+      "t": "I was like, “Okay.”",
+      "r": "我当时就想，“好吧。”"
+    },
+    {
+      "s": 726.54,
+      "e": 728.38,
+      "t": "So I found a therapist.",
+      "r": "就这样我找到了一个心理医生。"
+    },
+    {
+      "s": 728.4,
+      "e": 730.31,
+      "t": "My first meeting with her, Diana —",
+      "r": "我跟她，戴安娜，的第一次见面—"
+    },
+    {
+      "s": 732.11,
+      "e": 736.4,
+      "t": "I brought in my list of the way the whole-hearted live, and I sat down.",
+      "r": "上面都是那些全身心投入生活的人的生活方式，然后我坐下了。"
+    },
+    {
+      "s": 736.43,
+      "e": 738.24,
+      "t": "And she said, “How are you?”",
+      "r": "她说：”你好吗？“"
+    },
+    {
+      "s": 738.26,
+      "e": 741.86,
+      "t": "And I said, “I'm great. I'm okay.”",
+      "r": "我说：”我很好。还不赖。“她说：”发生了什么事？“"
+    },
+    {
+      "s": 741.88,
+      "e": 743.4,
+      "t": "She said, “What's going on?”",
+      "r": "她问道：“发生了什么事？”"
+    },
+    {
+      "s": 743.43,
+      "e": 746.05,
+      "t": "And this is a therapist who sees therapists,",
+      "r": "这是一个治疗心理医生的心理医生，"
+    },
+    {
+      "s": 746.07,
+      "e": 751.28,
+      "t": "because we have to go to those, because their B.S. meters are good.",
+      "r": "我们不得不去看这些心理医生，因为他们的废话测量仪很准（知道你什么时候在说真心话）。"
+    },
+    {
+      "s": 753.74,
+      "e": 757.57,
+      "t": "And so I said, “Here's the thing, I'm struggling.”",
+      "r": "“事情是这样的。我很纠结。”她说：“你纠结什么？”"
+    },
+    {
+      "s": 757.59,
+      "e": 759.4,
+      "t": "And she said, “What's the struggle?”",
+      "r": "她问道：“有什么难的？”"
+    },
+    {
+      "s": 760.44,
+      "e": 762.7,
+      "t": "And I said, “Well, I have a vulnerability issue.",
+      "r": "而且我知道脆弱是"
+    },
+    {
+      "s": 762.73,
+      "e": 768.08,
+      "t": "And I know that vulnerability is the core of shame and fear",
+      "r": "耻辱和恐惧的根源是我们为自我价值而挣扎的根源，"
+    },
+    {
+      "s": 768.11,
+      "e": 769.7,
+      "t": "and our struggle for worthiness,",
+      "r": "但它同时又是"
+    },
+    {
+      "s": 769.73,
+      "e": 775.4,
+      "t": "but it appears that it's also the birthplace of joy, of creativity,",
+      "r": "欢乐，创造性，"
+    },
+    {
+      "s": 775.43,
+      "e": 777.4,
+      "t": "of belonging, of love.",
+      "r": "归属感，爱的源泉。"
+    },
+    {
+      "s": 777.78,
+      "e": 783.21,
+      "t": "And I think I have a problem, and I need some help.“",
+      "r": "我需要帮助。“我补充道：”但是，"
+    },
+    {
+      "s": 783.24,
+      "e": 788.4,
+      "t": "And I said, “But here's the thing: no family stuff, no childhood shit.”",
+      "r": "这跟家庭无关，跟童年无关。“"
+    },
+    {
+      "s": 790.43,
+      "e": 793.4,
+      "t": "“I just need some strategies.”",
+      "r": "“我只需要一些策略。”"
+    },
+    {
+      "s": 801.04,
+      "e": 802.6,
+      "t": "Thank you.",
+      "r": "谢谢。"
+    },
+    {
+      "s": 804.28,
+      "e": 805.76,
+      "t": "So she goes like this.",
+      "r": "戴安娜的反应是这样的。"
+    },
+    {
+      "s": 809.81,
+      "e": 812.4,
+      "t": "And then I said, “It's bad, right?”",
+      "r": "然后我说：“情况很糟糕，对吧？”"
+    },
+    {
+      "s": 812.43,
+      "e": 815.4,
+      "t": "And she said, “It's neither good nor bad.”",
+      "r": "她说：“这不算好，也不算坏。”"
+    },
+    {
+      "s": 817.28,
+      "e": 818.92,
+      "t": "“It just is what it is.”",
+      "r": "“它本身就是这样。”"
+    },
+    {
+      "s": 819.66,
+      "e": 822.4,
+      "t": "And I said, “Oh my God, this is going to suck.”",
+      "r": "我当时说：“我的天哪，这下糟了。”"
+    },
+    {
+      "s": 825.59,
+      "e": 827.85,
+      "t": "And it did, and it didn't.",
+      "r": "大概有一年的时间。"
+    },
+    {
+      "s": 827.87,
+      "e": 829.93,
+      "t": "And it took about a year.",
+      "r": "大约花了一年时间。"
+    },
+    {
+      "s": 829.96,
+      "e": 831.97,
+      "t": "And you know how there are people",
+      "r": "你知道的，有些人"
+    },
+    {
+      "s": 832,
+      "e": 836.02,
+      "t": "that, when they realize that vulnerability and tenderness are important,",
+      "r": "当他们发现脆弱和温柔很重要的时候，他们放下所有戒备，欣然接受。"
+    },
+    {
+      "s": 836.05,
+      "e": 838.08,
+      "t": "that they surrender and walk into it.",
+      "r": "屈服并投入其中。"
+    },
+    {
+      "s": 839.23,
+      "e": 841.19,
+      "t": "A: that's not me,",
+      "r": "二，我朋友里面也没有这样的人。"
+    },
+    {
+      "s": 841.22,
+      "e": 843.61,
+      "t": "and B: I don't even hang out with people like that.",
+      "r": "（笑声）"
+    },
+    {
+      "s": 846.43,
+      "e": 848.51,
+      "t": "For me, it was a yearlong street fight.",
+      "r": "对我来说，那是长达一年的斗争。"
+    },
+    {
+      "s": 849.75,
+      "e": 850.93,
+      "t": "It was a slugfest.",
+      "r": "这是一场激烈的较量。"
+    },
+    {
+      "s": 851.34,
+      "e": 853.17,
+      "t": "Vulnerability pushed, I pushed back.",
+      "r": "脆弱打我一拳，我又还击它一拳。"
+    },
+    {
+      "s": 853.59,
+      "e": 856.68,
+      "t": "I lost the fight,",
+      "r": "但我或许赢回了我的生活。"
+    },
+    {
+      "s": 856.7,
+      "e": 858.4,
+      "t": "but probably won my life back.",
+      "r": "但或许赢回了我的人生。于是，"
+    },
+    {
+      "s": 858.73,
+      "e": 860.7,
+      "t": "And so then I went back into the research",
+      "r": "又花了几年时间"
+    },
+    {
+      "s": 860.73,
+      "e": 862.4,
+      "t": "and spent the next couple of years",
+      "r": "并在接下来的几年里"
+    },
+    {
+      "s": 862.43,
+      "e": 865.4,
+      "t": "really trying to understand what they, the whole-hearted,",
+      "r": "真正试图去理解那些全身心投入生活的人，"
+    },
+    {
+      "s": 865.43,
+      "e": 871.4,
+      "t": "what choices they were making, and what we are doing with vulnerability.",
+      "r": "他们做了怎样的决定，他们是如何应对脆弱的。"
+    },
+    {
+      "s": 871.43,
+      "e": 873.77,
+      "t": "Why do we struggle with it so much?",
+      "r": "为什么我们为之痛苦挣扎？我是独自在跟脆弱斗争吗？"
+    },
+    {
+      "s": 873.79,
+      "e": 875.95,
+      "t": "Am I alone in struggling with vulnerability?",
+      "r": "只有我一个人在与脆弱作斗争吗？"
+    },
+    {
+      "s": 877.19,
+      "e": 878.4,
+      "t": "No.",
+      "r": "不。"
+    },
+    {
+      "s": 878.43,
+      "e": 879.89,
+      "t": "So this is what I learned.",
+      "r": "这是我学到的："
+    },
+    {
+      "s": 881.96,
+      "e": 883.63,
+      "t": "We numb vulnerability —",
+      "r": "我们麻木了脆弱——"
+    },
+    {
+      "s": 884.68,
+      "e": 886.27,
+      "t": "when we're waiting for the call.",
+      "r": "当我们等待电话的时候。挺"
+    },
+    {
+      "s": 886.29,
+      "e": 889.18,
+      "t": "It was funny, I sent something out on Twitter and on Facebook",
+      "r": "好笑的是，我在Twitter微博和Facebook上发布了一条状态，“你怎样定义脆弱？"
+    },
+    {
+      "s": 889.2,
+      "e": 891.48,
+      "t": "that says, “How would you define vulnerability?",
+      "r": "什么会让你感到脆弱？“"
+    },
+    {
+      "s": 891.5,
+      "e": 893.05,
+      "t": "What makes you feel vulnerable?“",
+      "r": "在1个半小时内，我收到了150条回复。"
+    },
+    {
+      "s": 893.07,
+      "e": 895.8,
+      "t": "And within an hour and a half, I had 150 responses.",
+      "r": "因为我想知道"
+    },
+    {
+      "s": 895.82,
+      "e": 898.79,
+      "t": "Because I wanted to know what's out there.",
+      "r": "大家都是怎么想的。"
+    },
+    {
+      "s": 901.2,
+      "e": 906.23,
+      "t": "Having to ask my husband for help because I'm sick, and we're newly married;",
+      "r": "因为我病了，而且我们刚结婚；跟丈夫提出要做爱；"
+    },
+    {
+      "s": 906.25,
+      "e": 908.26,
+      "t": "initiating sex with my husband;",
+      "r": "主动与丈夫发生性关系；"
+    },
+    {
+      "s": 908.28,
+      "e": 911,
+      "t": "initiating sex with my wife;",
+      "r": "跟妻子提出要做爱；被拒绝；约某人出来；"
+    },
+    {
+      "s": 911.02,
+      "e": 914,
+      "t": "being turned down; asking someone out;",
+      "r": "等待医生的答复；"
+    },
+    {
+      "s": 914.02,
+      "e": 916.06,
+      "t": "waiting for the doctor to call back;",
+      "r": "被裁员；裁掉别人—"
+    },
+    {
+      "s": 916.09,
+      "e": 918.43,
+      "t": "getting laid off; laying off people.",
+      "r": "被裁员；裁员。"
+    },
+    {
+      "s": 918.45,
+      "e": 919.86,
+      "t": "This is the world we live in.",
+      "r": "这就是我们生活的世界。"
+    },
+    {
+      "s": 920.96,
+      "e": 923.93,
+      "t": "We live in a vulnerable world.",
+      "r": "我们应对的方法之一"
+    },
+    {
+      "s": 923.95,
+      "e": 926.89,
+      "t": "And one of the ways we deal with it is we numb vulnerability.",
+      "r": "是麻痹脆弱。"
+    },
+    {
+      "s": 927.69,
+      "e": 929.4,
+      "t": "And I think there's evidence —",
+      "r": "我认为有证据表明——"
+    },
+    {
+      "s": 929.43,
+      "e": 931.81,
+      "t": "and it's not the only reason this evidence exists,",
+      "r": "这也不是依据存在的唯一理由，我认为我们当代问题的一大部分都可以归咎于它—"
+    },
+    {
+      "s": 931.83,
+      "e": 933.94,
+      "t": "but I think it's a huge cause —",
+      "r": "在美国历史上，我们是欠债最多，"
+    },
+    {
+      "s": 933.97,
+      "e": 936.85,
+      "t": "We are the most in-debt...",
+      "r": "我们是美国历史上负债最多、"
+    },
+    {
+      "s": 938.54,
+      "e": 939.76,
+      "t": "obese...",
+      "r": "肥胖最多、"
+    },
+    {
+      "s": 940.91,
+      "e": 945.07,
+      "t": "addicted and medicated adult cohort in U.S. history.",
+      "r": "的一代。"
+    },
+    {
+      "s": 948.32,
+      "e": 951.59,
+      "t": "The problem is — and I learned this from the research —",
+      "r": "问题是—我从研究中认识到—你无法选择性地麻痹感情。"
+    },
+    {
+      "s": 951.61,
+      "e": 954.75,
+      "t": "that you cannot selectively numb emotion.",
+      "r": "你无法选择性地麻痹情感。"
+    },
+    {
+      "s": 955.29,
+      "e": 957.62,
+      "t": "You can't say, here's the bad stuff.",
+      "r": "你不能说，这些是不好的。"
+    },
+    {
+      "s": 958.43,
+      "e": 960.8,
+      "t": "Here's vulnerability, here's grief, here's shame,",
+      "r": "这是脆弱，这是悲哀，这是耻辱，这是恐惧，这是失望，"
+    },
+    {
+      "s": 960.83,
+      "e": 962.5,
+      "t": "here's fear, here's disappointment.",
+      "r": "我不想要这些情感。"
+    },
+    {
+      "s": 962.53,
+      "e": 964.4,
+      "t": "I don't want to feel these.",
+      "r": "我不想要这些情感。"
+    },
+    {
+      "s": 964.43,
+      "e": 967.31,
+      "t": "I'm going to have a couple of beers and a banana nut muffin.",
+      "r": "我要去喝几瓶啤酒，吃个香蕉坚果松饼。"
+    },
+    {
+      "s": 970.04,
+      "e": 971.91,
+      "t": "I don't want to feel these.",
+      "r": "我知道台下传来的是会意的笑声。"
+    },
+    {
+      "s": 971.94,
+      "e": 973.91,
+      "t": "And I know that's knowing laughter.",
+      "r": "别忘了，我是靠“入侵”你们的生活过日子的。"
+    },
+    {
+      "s": 973.94,
+      "e": 976.4,
+      "t": "I hack into your lives for a living.",
+      "r": "我以入侵你们的生活为生。"
+    },
+    {
+      "s": 976.43,
+      "e": 978.4,
+      "t": "God.",
+      "r": "天哪。"
+    },
+    {
+      "s": 981,
+      "e": 983.76,
+      "t": "You can't numb those hard feelings",
+      "r": "而不麻痹所有的感官，所有的情感。"
+    },
+    {
+      "s": 983.78,
+      "e": 986.41,
+      "t": "without numbing the other affects, our emotions.",
+      "r": "你无法有选择性地去麻痹。"
+    },
+    {
+      "s": 986.44,
+      "e": 987.89,
+      "t": "You cannot selectively numb.",
+      "r": "当我们麻痹那些（消极的情感），"
+    },
+    {
+      "s": 987.91,
+      "e": 990.52,
+      "t": "So when we numb those,",
+      "r": "我们也麻痹了欢乐，"
+    },
+    {
+      "s": 990.54,
+      "e": 993.07,
+      "t": "we numb joy,",
+      "r": "我们也麻痹了欢乐，麻痹了感恩，"
+    },
+    {
+      "s": 993.09,
+      "e": 994.4,
+      "t": "we numb gratitude,",
+      "r": "麻木了感恩，"
+    },
+    {
+      "s": 994.43,
+      "e": 995.73,
+      "t": "we numb happiness.",
+      "r": "麻痹了幸福。"
+    },
+    {
+      "s": 997.15,
+      "e": 1000.27,
+      "t": "And then, we are miserable,",
+      "r": "我们继而寻找生命的意义，"
+    },
+    {
+      "s": 1000.29,
+      "e": 1002.3,
+      "t": "and we are looking for purpose and meaning,",
+      "r": "然后我们感到脆弱，"
+    },
+    {
+      "s": 1002.33,
+      "e": 1003.76,
+      "t": "and then we feel vulnerable,",
+      "r": "然后我们喝几瓶啤酒，吃个香蕉坚果松饼。"
+    },
+    {
+      "s": 1003.78,
+      "e": 1006.59,
+      "t": "so then we have a couple of beers and a banana nut muffin.",
+      "r": "危险的循环就这样这形成了。"
+    },
+    {
+      "s": 1006.62,
+      "e": 1009.98,
+      "t": "And it becomes this dangerous cycle.",
+      "r": "于是就形成了一个危险的恶性循环。"
+    },
+    {
+      "s": 1011.09,
+      "e": 1014.22,
+      "t": "One of the things that I think we need to think about",
+      "r": "我们需要思考的一件事是"
+    },
+    {
+      "s": 1014.24,
+      "e": 1016.22,
+      "t": "is why and how we numb.",
+      "r": "我们是为什么，怎么样麻痹自己的。"
+    },
+    {
+      "s": 1016.93,
+      "e": 1019.01,
+      "t": "And it doesn't just have to be addiction.",
+      "r": "而且也不一定非得是成瘾。"
+    },
+    {
+      "s": 1020.48,
+      "e": 1023.85,
+      "t": "The other thing we do is we make everything that's uncertain certain.",
+      "r": "把不确定的事变得确定。"
+    },
+    {
+      "s": 1025.43,
+      "e": 1030.51,
+      "t": "Religion has gone from a belief in faith and mystery to certainty.",
+      "r": "宗教已经从一种信仰、一种对不可知的相信变成了确定。我是对的，你是错的。闭嘴。"
+    },
+    {
+      "s": 1030.54,
+      "e": 1032.22,
+      "t": "“I'm right, you're wrong. Shut up.”",
+      "r": "我是对的，你是错的。闭嘴。"
+    },
+    {
+      "s": 1034.19,
+      "e": 1035.4,
+      "t": "That's it.",
+      "r": "就是这样。"
+    },
+    {
+      "s": 1036.61,
+      "e": 1037.88,
+      "t": "Just certain.",
+      "r": "我们越是害怕，我们就越脆弱，"
+    },
+    {
+      "s": 1038.34,
+      "e": 1040.76,
+      "t": "The more afraid we are, the more vulnerable we are,",
+      "r": "然后我们变得愈加害怕。"
+    },
+    {
+      "s": 1040.78,
+      "e": 1042.16,
+      "t": "the more afraid we are.",
+      "r": "这件就是当今政治的现状。"
+    },
+    {
+      "s": 1042.19,
+      "e": 1044.2,
+      "t": "This is what politics looks like today.",
+      "r": "探讨已经不复存在。"
+    },
+    {
+      "s": 1044.22,
+      "e": 1045.89,
+      "t": "There's no discourse anymore.",
+      "r": "对话已经荡然无存。"
+    },
+    {
+      "s": 1045.92,
+      "e": 1047.4,
+      "t": "There's no conversation.",
+      "r": "没有对话。"
+    },
+    {
+      "s": 1047.81,
+      "e": 1049.03,
+      "t": "There's just blame.",
+      "r": "只有互相指责。"
+    },
+    {
+      "s": 1049.06,
+      "e": 1051.37,
+      "t": "You know how blame is described in the research?",
+      "r": "你知道研究领域是如何描述指责的吗？"
+    },
+    {
+      "s": 1052.55,
+      "e": 1055.05,
+      "t": "A way to discharge pain and discomfort.",
+      "r": "一种发泄痛苦与不快的方式。"
+    },
+    {
+      "s": 1057.62,
+      "e": 1058.81,
+      "t": "We perfect.",
+      "r": "如果有人想这样塑造他的生活，那个人就是我，"
+    },
+    {
+      "s": 1058.83,
+      "e": 1062.61,
+      "t": "If there's anyone who wants their life to look like this, it would be me,",
+      "r": "但这行不通。"
+    },
+    {
+      "s": 1062.63,
+      "e": 1063.86,
+      "t": "but it doesn't work.",
+      "r": "因为我们做的只是把屁股上的赘肉"
+    },
+    {
+      "s": 1063.88,
+      "e": 1067.5,
+      "t": "Because what we do is we take fat from our butts and put it in our cheeks.",
+      "r": "挪到我们的脸上。（笑声）"
+    },
+    {
+      "s": 1070.99,
+      "e": 1074.4,
+      "t": "Which just, I hope in 100 years, people will look back and go, “Wow.”",
+      "r": "当人们回过头来会不禁感叹：”哇！“"
+    },
+    {
+      "s": 1076.97,
+      "e": 1080.4,
+      "t": "And we perfect, most dangerously, our children.",
+      "r": "我们的孩子变得完美。"
+    },
+    {
+      "s": 1080.43,
+      "e": 1082.57,
+      "t": "Let me tell you what we think about children.",
+      "r": "让我告诉你我们是如何看待孩子的。从他们出生的那刻起，他们就注定要挣扎。"
+    },
+    {
+      "s": 1082.59,
+      "e": 1085.4,
+      "t": "They're hardwired for struggle when they get here.",
+      "r": "他们天生就注定要在这里挣扎求生。"
+    },
+    {
+      "s": 1085.43,
+      "e": 1088.31,
+      "t": "And when you hold those perfect little babies in your hand,",
+      "r": "当你把这些完美的宝宝抱在怀里的时候，"
+    },
+    {
+      "s": 1088.33,
+      "e": 1091.29,
+      "t": "our job is not to say, “Look at her, she's perfect.",
+      "r": "我们的任务不是说：”看看她，她完美的无可挑剔。“而是确保她保持完美—"
+    },
+    {
+      "s": 1091.32,
+      "e": 1093.21,
+      "t": "My job is just to keep her perfect —",
+      "r": "保证她五年级的时候可以进网球队，七年级的时候稳进耶鲁。"
+    },
+    {
+      "s": 1093.23,
+      "e": 1096.64,
+      "t": "make sure she makes the tennis team by fifth grade and Yale by seventh.“",
+      "r": "那不是我们的任务。"
+    },
+    {
+      "s": 1096.67,
+      "e": 1097.9,
+      "t": "That's not our job.",
+      "r": "我们的任务是注视着她，对她说，"
+    },
+    {
+      "s": 1097.93,
+      "e": 1099.54,
+      "t": "Our job is to look and say,",
+      "r": "“你知道吗？你并不完美，你注定要奋斗，"
+    },
+    {
+      "s": 1099.56,
+      "e": 1102.58,
+      "t": "“You know what? You're imperfect, and you're wired for struggle,",
+      "r": "“你知道吗？你并不完美，你注定要奋斗，但你值得被爱，值得享有归属感。”"
+    },
+    {
+      "s": 1102.6,
+      "e": 1104.6,
+      "t": "but you are worthy of love and belonging.“",
+      "r": "这才是我们的职责。"
+    },
+    {
+      "s": 1105.5,
+      "e": 1106.69,
+      "t": "That's our job.",
+      "r": "给我看用这种方式培养出来的一代孩子，"
+    },
+    {
+      "s": 1107.1,
+      "e": 1109.33,
+      "t": "Show me a generation of kids raised like that,",
+      "r": "我保证我们今天有的问题会得到解决。"
+    },
+    {
+      "s": 1109.36,
+      "e": 1111.96,
+      "t": "and we'll end the problems, I think, that we see today.",
+      "r": "我们假装我们的行为"
+    },
+    {
+      "s": 1111.98,
+      "e": 1117.43,
+      "t": "We pretend that what we do doesn't have an effect on people.",
+      "r": "不会影响他人。"
+    },
+    {
+      "s": 1118.87,
+      "e": 1120.51,
+      "t": "We do that in our personal lives.",
+      "r": "在工作中也一样—"
+    },
+    {
+      "s": 1120.53,
+      "e": 1121.75,
+      "t": "We do that corporate —",
+      "r": "在工作中也一样—"
+    },
+    {
+      "s": 1121.78,
+      "e": 1123.89,
+      "t": "whether it's a bailout, an oil spill...",
+      "r": "无论是紧急救助，石油泄漏，"
+    },
+    {
+      "s": 1125.39,
+      "e": 1126.55,
+      "t": "a recall.",
+      "r": "我们假装我们做的事"
+    },
+    {
+      "s": 1126.57,
+      "e": 1128.55,
+      "t": "We pretend like what we're doing",
+      "r": "对他人不会造成什么大影响。"
+    },
+    {
+      "s": 1128.57,
+      "e": 1130.66,
+      "t": "doesn't have a huge impact on other people.",
+      "r": "不会对其他人产生巨大影响。"
+    },
+    {
+      "s": 1131.43,
+      "e": 1134.7,
+      "t": "I would say to companies, this is not our first rodeo, people.",
+      "r": "我想对这些公司说：嘿，这不是我们第一次牛仔竞技。"
+    },
+    {
+      "s": 1135.77,
+      "e": 1138.44,
+      "t": "We just need you to be authentic and real and say...",
+      "r": "说一句：“对不起，"
+    },
+    {
+      "s": 1139.92,
+      "e": 1142.06,
+      "t": "“We're sorry. We'll fix it.”",
+      "r": "“对不起，我们会改正的。”"
+    },
+    {
+      "s": 1145.54,
+      "e": 1148.31,
+      "t": "But there's another way, and I'll leave you with this.",
+      "r": "但还有一种方法，我把它留给你们。这是我的心得："
+    },
+    {
+      "s": 1148.33,
+      "e": 1149.71,
+      "t": "This is what I have found:",
+      "r": "卸下我们的面具，让我们被看见，"
+    },
+    {
+      "s": 1149.74,
+      "e": 1154.26,
+      "t": "To let ourselves be seen, deeply seen, vulnerably seen...",
+      "r": "深入地被看见，即便是脆弱的一面；"
+    },
+    {
+      "s": 1156.89,
+      "e": 1161.28,
+      "t": "to love with our whole hearts, even though there's no guarantee —",
+      "r": "尽管没有任何担保—这是最困难的，"
+    },
+    {
+      "s": 1161.3,
+      "e": 1162.56,
+      "t": "and that's really hard,",
+      "r": "我也可以告诉你，作为一名家长，这个非常非常困难—"
+    },
+    {
+      "s": 1162.58,
+      "e": 1165.92,
+      "t": "and I can tell you as a parent, that's excruciatingly difficult —",
+      "r": "作为父母，我可以告诉你，这极其痛苦——"
+    },
+    {
+      "s": 1168.49,
+      "e": 1172.68,
+      "t": "to practice gratitude and joy in those moments of terror,",
+      "r": "哪怕是在最恐惧的时候哪怕我们怀疑：”我能不能爱得这么深？"
+    },
+    {
+      "s": 1172.7,
+      "e": 1175.01,
+      "t": "when we're wondering, “Can I love you this much?",
+      "r": "我能不能如此热情地相信这份感情？"
+    },
+    {
+      "s": 1175.04,
+      "e": 1177.22,
+      "t": "Can I believe in this this passionately?",
+      "r": "我能不能如此矢志不渝？“"
+    },
+    {
+      "s": 1177.25,
+      "e": 1179.18,
+      "t": "Can I be this fierce about this?“",
+      "r": "？”的时候，要练习感恩和喜悦。"
+    },
+    {
+      "s": 1179.2,
+      "e": 1182.78,
+      "t": "just to be able to stop and, instead of catastrophizing what might happen,",
+      "r": "在消极的时候能打住，而不是一味地幻想事情会如何变得更糟，对自己说：”我已经很感恩了，"
+    },
+    {
+      "s": 1182.8,
+      "e": 1184.78,
+      "t": "to say, “I'm just so grateful,",
+      "r": "因为能感受到这种脆弱，这意味着我还活着。“"
+    },
+    {
+      "s": 1184.8,
+      "e": 1187.2,
+      "t": "because to feel this vulnerable means I'm alive.“",
+      "r": "因为感受到这种脆弱意味着我还活着。”"
+    },
+    {
+      "s": 1188.75,
+      "e": 1192.41,
+      "t": "And the last, which I think is probably the most important,",
+      "r": "那就是相信我们已经做得够好了。"
+    },
+    {
+      "s": 1192.43,
+      "e": 1194.08,
+      "t": "is to believe that we're enough.",
+      "r": "就是要相信我们已经足够好了。"
+    },
+    {
+      "s": 1194.66,
+      "e": 1198.51,
+      "t": "Because when we work from a place, I believe, that says, “I'm enough”...",
+      "r": "让人觉得“我已经足够了”的环境中打拼的时候"
+    },
+    {
+      "s": 1200.74,
+      "e": 1204.71,
+      "t": "then we stop screaming and start listening,",
+      "r": "我们会对周围的人会更友善，更温和，"
+    },
+    {
+      "s": 1204.73,
+      "e": 1207.06,
+      "t": "we're kinder and gentler to the people around us,",
+      "r": "对自己也会更友善，更温和。"
+    },
+    {
+      "s": 1207.09,
+      "e": 1209.23,
+      "t": "and we're kinder and gentler to ourselves.",
+      "r": "也会对自己更友善、更温柔。"
+    },
+    {
+      "s": 1210.13,
+      "e": 1211.6,
+      "t": "That's all I have. Thank you.",
+      "r": "（掌声）"
+    }
+  ]
+}
