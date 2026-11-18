@@ -167,6 +167,14 @@ function cloudAdd(entries) { // 网站后台负责合并（同名词跳过、移
   const res = cloudChain.then(run, run); cloudChain = res.catch(() => {}); return res;
 }
 // 把本机已保存的单词 / 短语，以及云端待整理队列里的词，一次补齐成完整词条
+// 复习进度写回生词本（和网站「🔊 练习」共用）；发不出去就先存着，下次再补发
+async function vocabPatch(patch) {
+  const q = (await chrome.storage.local.get({ srsQueue: { srs: {}, progress: {} } })).srsQueue;
+  Object.assign(q.srs, patch.srs || {}); Object.assign(q.progress, patch.progress || {});
+  try { const r = await fetch(VOCAB, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ patch: q }) }); if (!r.ok) throw 0; await chrome.storage.local.set({ srsQueue: { srs: {}, progress: {} } }); return { ok: true }; }
+  catch (e) { await chrome.storage.local.set({ srsQueue: q }); return { ok: false, queued: true }; }
+}
+async function flushSrs() { const q = (await chrome.storage.local.get({ srsQueue: null })).srsQueue; if (q && (Object.keys(q.srs || {}).length || Object.keys(q.progress || {}).length)) vocabPatch({}); }
 async function syncAll(tl) {
   const st = await chrome.storage.local.get({ saved: [], savedSents: [], savedCtx: {} });
   let pend = [], have = new Set();
@@ -213,6 +221,8 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "add") addWord(m.word, m.queueOnly, m).then(send);
   else if (m.type === "capUp") { fetch(SITE + "/api/cap", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(m.body) }).then(r => r.json()).then(send).catch(() => send({ ok: false })); }
   else if (m.type === "syncAll") syncAll(m.tl).then(send);
+  else if (m.type === "vocab") vocabGet().then(d => { chrome.storage.local.set({ vocabCache: d }); flushSrs(); send(d); }).catch(() => chrome.storage.local.get({ vocabCache: null }, v => send(Object.assign({ offline: true }, v.vocabCache || {}))));
+  else if (m.type === "vocabPatch") vocabPatch(m.patch).then(send);
   else return false;
   return true;
 });

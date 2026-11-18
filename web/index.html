@@ -420,6 +420,7 @@
       <div class="stat"><b id="learn-num">0</b><span>在学</span></div>
     </div>
     <div class="modes">
+      <button data-mode="pump">🔊 练习</button>
       <button data-mode="list" class="on">📖 列表</button>
       <button data-mode="flash">🎴 背诵</button>
       <button data-mode="test">🃏 自测</button>
@@ -488,6 +489,9 @@
     </div>
     <div class="footer-tools"><button id="fc-shuffle">🔀 打乱顺序重背</button></div>
   </div>
+
+  <!-- 🔊 练习（PhrasePump 式，和插件复习页共用进度，见 pump.js） -->
+  <div id="pump"></div>
 
   <!-- TEST (cover & reveal) -->
   <div id="test">
@@ -963,7 +967,7 @@ async function save(s){
   else{mem=s;try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
   schedulePush();
 }
-function def(){return{progress:{},custom:[],deleted:[],pending:[]};}
+function def(){return{progress:{},custom:[],deleted:[],pending:[],srs:{}};}
 
 /* ===== cloud sync — 生词本存在本站后台（Cloudflare KV，/api/vocab）=====
    不设口令：打开就同步；被乱改时可从后台存档或仓库 data/vocab.json 还原 */
@@ -982,12 +986,13 @@ function mergeState(a,b){ // union of two states; on same id, b wins. deletions 
   const progress=Object.assign({},a.progress||{},b.progress||{});
   const pend={};[...(a.pending||[]),...(b.pending||[])].forEach(w=>{if(w)pend[(w+"").toLowerCase()]=w;});
   const pending=Object.values(pend);
-  return {custom,progress,deleted,pending};
+  const srs=Object.assign({},a.srs||{}); for(const k in (b.srs||{})){const x=b.srs[k]; if(x&&(!srs[k]||(+x.at||0)>=(+srs[k].at||0)))srs[k]=x;} // 复习进度：同一个词以最近练习的为准
+  return {custom,progress,deleted,pending,srs};
 }
-const pick=s=>({custom:s.custom||[],progress:s.progress||{},deleted:s.deleted||[],pending:s.pending||[]});
+const pick=s=>({custom:s.custom||[],progress:s.progress||{},deleted:s.deleted||[],pending:s.pending||[],srs:s.srs||{}});
 function adopt(merged){
   if(JSON.stringify(pick(merged))===JSON.stringify(pick(state)))return;
-  state.custom=merged.custom;state.progress=merged.progress;state.deleted=merged.deleted;state.pending=merged.pending;
+  state.custom=merged.custom;state.progress=merged.progress;state.deleted=merged.deleted;state.pending=merged.pending;state.srs=merged.srs||{};
   try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){} refresh();
 }
 async function syncNow(){
@@ -1288,7 +1293,7 @@ function download(name,text,type){
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),1800);}
 
 /* ===== events ===== */
-function refresh(){build();prunePending();counts();renderList();renderPending();}
+function refresh(){build();prunePending();counts();renderList();renderPending();if(window.pumpRefresh)pumpRefresh();}
 
 document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".modes button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
@@ -1297,6 +1302,8 @@ document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
   document.getElementById("list-view").style.display=m==="list"?"block":"none";
   document.getElementById("flash").classList.toggle("on",m==="flash");
   document.getElementById("test").classList.toggle("on",m==="test");
+  document.getElementById("pump").classList.toggle("on",m==="pump"); if(m==="pump"&&window.pumpShow)pumpShow();
+  try{localStorage.setItem("vocab_mode",m);}catch(e){}
   
   document.getElementById("export-panel").classList.toggle("on",m==="export");
   if(m==="flash")newDeck();
@@ -1669,5 +1676,6 @@ refresh(); // show seed words immediately, no waiting on storage
 </script>
 <script src="watch.js?v=8"></script>
 <script src="channels.js?v=2"></script>
+<script src="pump.js?v=1"></script>
 </body>
 </html>

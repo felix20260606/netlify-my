@@ -12,6 +12,7 @@
 //   GET  ?at=日期     → 那天的存档
 //   POST {state}     → 和云端合并后保存，返回合并结果 { ok, state }
 //   POST {add:[词条]} → 加入完整词条：从待整理队列和已删除列表里移除同名词（插件用）
+//   POST {patch:{srs,progress}} → 只改复习进度和掌握状态（插件用，返回 { ok, changed }）
 //   POST {replace:{…}} → 整份覆盖（还原用：内容取自存档或仓库里的 data/vocab.json）
 // 不设口令：谁都能写，被乱改时用存档或仓库备份还原（GitHub Actions 每 6 小时把生词本存进仓库 data/vocab.json）
 const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab";
@@ -55,8 +56,11 @@ async function cap(req, env, u) {
 }
 
 // ---------- 生词本 ----------
-const vdef = () => ({ custom: [], progress: {}, deleted: [], pending: [] });
-const vnorm = s => ({ custom: Array.isArray(s && s.custom) ? s.custom : [], progress: s && s.progress && typeof s.progress === "object" && !Array.isArray(s.progress) ? s.progress : {}, deleted: Array.isArray(s && s.deleted) ? s.deleted : [], pending: Array.isArray(s && s.pending) ? s.pending : [] });
+const vdef = () => ({ custom: [], progress: {}, deleted: [], pending: [], srs: {} });
+const isObj = x => x && typeof x === "object" && !Array.isArray(x);
+const vnorm = s => ({ custom: Array.isArray(s && s.custom) ? s.custom : [], progress: isObj(s && s.progress) ? s.progress : {}, deleted: Array.isArray(s && s.deleted) ? s.deleted : [], pending: Array.isArray(s && s.pending) ? s.pending : [], srs: isObj(s && s.srs) ? s.srs : {} });
+// 复习进度（网站「🔊 练习」和插件复习页共用）：{ 词条id: { b 级别, n 次数, due 下次复习时间, at 最近练习时间 } }；同一个词以 at 新的为准
+function srsMerge(a, b) { const o = Object.assign({}, a); for (const k in b) { const x = b[k]; if (!isObj(x)) continue; if (!o[k] || (+x.at || 0) >= (+o[k].at || 0)) o[k] = x; } return o; }
 // 和网页里的 mergeState 一样：两份取并集；同一个 id 以 b 为准；删除会传播
 function vmerge(a, b) {
   a = vnorm(a); b = vnorm(b);
@@ -68,7 +72,7 @@ function vmerge(a, b) {
   const custom = Object.values(byId).filter(e => !del.has(e.id));
   const progress = Object.assign({}, a.progress, b.progress);
   const pend = {}; [...a.pending, ...b.pending].forEach(w => { if (w) pend[(w + "").toLowerCase()] = w; });
-  return { custom, progress, deleted, pending: Object.values(pend) };
+  return { custom, progress, deleted, pending: Object.values(pend), srs: srsMerge(a.srs, b.srs) };
 }
 // 和插件原来的 cloudAdd 一样：同名词已存在就跳过；加入时从待整理队列、已删除列表里去掉
 function vadd(d, entries) {
@@ -107,6 +111,10 @@ async function vocab(req, env) {
       next = vmerge(stored, b.state);
     }
     else if (b.replace && typeof b.replace === "object") next = vnorm(b.replace);
+    else if (isObj(b.patch)) { // 只改复习进度 / 掌握状态（插件每练一张卡发一次，不用传整本生词本）
+      next = vnorm(JSON.parse(before)); next.srs = srsMerge(next.srs, isObj(b.patch.srs) ? b.patch.srs : {});
+      if (isObj(b.patch.progress)) for (const k in b.patch.progress) { const v = b.patch.progress[k]; if (v === "known" || v === "learning") next.progress[k] = v; }
+    }
     else return json({ ok: false, error: "bad body" }, 400);
     const changed = JSON.stringify(next) !== before;
     if (changed) {
@@ -114,7 +122,7 @@ async function vocab(req, env) {
       if (!(await kv.get(day))) await kv.put(day, before, { expirationTtl: 30 * 86400 }); // 当天第一次改动前，存一份改动前的样子
       await kv.put(VOCAB_KEY, JSON.stringify(next));
     }
-    return json({ ok: true, changed, added, total: next.custom.length, state: next });
+    return json(isObj(b.patch) ? { ok: true, changed } : { ok: true, changed, added, total: next.custom.length, state: next });
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
 

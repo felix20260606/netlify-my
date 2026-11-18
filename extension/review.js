@@ -19,7 +19,7 @@ const NUMS = [20, 40, 60, 80, 100], NEWS = [0, 5, 10, 15, 20, 25], RATES = [1, 0
 const LANGS = [["zh-CN", "中文（简体）"], ["zh-TW", "中文（繁體）"], ["ja", "日本語"], ["ko", "한국어"], ["en", "English"], ["es", "Español"], ["fr", "Français"], ["de", "Deutsch"], ["ru", "Русский"], ["pt", "Português"], ["vi", "Tiếng Việt"], ["th", "ไทย"], ["ms", "Bahasa Melayu"], ["id", "Bahasa Indonesia"]];
 const LNAME = { en: "英语", ja: "日语", ko: "韩语", fr: "法语", de: "德语", es: "西班牙语", ru: "俄语", it: "意大利语", pt: "葡萄牙语" };
 let sents = [], tags = {}, items = [], med = {}, player = null, saved = [], ctx = {}, srs = {}, sugg = {}, marks = {}, rate = 1, opt = { quiz: true, listen: true, sugg: true, num: 60, newPct: 15, speak: true, tags: [] }, S = { target: "zh-CN", srcLang: "en" }, day = { d: "", n: 0 };
-let cards = [], at = 0, sess = { ok: 0, bad: 0 };
+let cards = [], at = 0, sess = { ok: 0, bad: 0 }, ENT = {}, NBP = {}, knownN = 0, offline = false; // ENT：生词本词条（按小写的词），NBP：生词本里的掌握状态
 const today = () => new Date().toISOString().slice(0, 10);
 const lem = w => (typeof vsLemma === "function" ? vsLemma(w.toLowerCase()) : w.toLowerCase());
 const near = (v, L) => L.reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a));
@@ -31,21 +31,35 @@ function load(cb) {
       saved = [...new Set(v.saved.map(w => w.toLowerCase()))].filter(w => /^[a-z][a-z'’-]*$/i.test(w)); ctx = v.savedCtx || {}; srs = v.srs || {}; opt = Object.assign(opt, v.reviewOpt); day = v.reviewDay && v.reviewDay.d === today() ? v.reviewDay : { d: today(), n: 0 };
       if (!Array.isArray(opt.tags)) opt.tags = []; opt.num = near(opt.num, NUMS); opt.newPct = near(opt.newPct, NEWS); opt.speak = true;
       VS_SAVED = new Set(v.saved.map(w => w.toLowerCase())); VS_MARKS = marks;
-      // 复习的项目 = 保存的单词 + 保存的短语和句子（后者用 “s:” 开头的编号），可按颜色标签筛选
-      items = saved.concat(sents.map(x => "s:" + x.k)).filter(w => !opt.tags.length || opt.tags.includes(tags[keyOf(w)] || ""));
-      chrome.storage.local.get(saved.map(w => "med:w:" + w).concat(sents.map(x => "med:s:" + x.k)), m => { med = m || {}; cb(); }); // 保存时存下的原声、画面和出处
+      const oldSrs = v.srs || {}; // 合并前插件自己记的进度（按词记），迁移到生词本后清空
+      send({ type: "vocab" }).then(nb => {
+        // 复习的项目 = 网站生词本里的单词 / 短语 / 句子（已掌握的不练）+ 插件里还没同步上去的词 + 保存的短语和句子（“s:” 开头），可按颜色标签筛选
+        const del = new Set(nb.deleted || []); ENT = {}; NBP = nb.progress || {}; offline = !!nb.offline || !nb.custom;
+        (nb.custom || []).filter(e => e && e.id && e.word && !del.has(e.id) && /^(word|phrase|sentence)$/.test(e.type || "word") && !/[\u4e00-\u9fff]/.test(e.word)).sort((a, b) => (b.date || "").localeCompare(a.date || "")).forEach(e => { const k = String(e.word).toLowerCase().trim(); if (!ENT[k]) ENT[k] = e; });
+        const isKnown = k => ENT[k] && NBP[ENT[k].id] === "known";
+        const keys = [...new Set(Object.keys(ENT).concat(saved))];
+        items = keys.filter(k => !isKnown(k)).concat(sents.map(x => "s:" + x.k)).filter(w => !opt.tags.length || opt.tags.includes(tags[keyOf(w)] || ""));
+        knownN = Object.keys(ENT).filter(isKnown).filter(k => !opt.tags.length || opt.tags.includes(tags[k] || "")).length;
+        // 进度：以生词本里的为准；生词本里还没有、插件以前练过的，迁移上去
+        const cloud = nb.srs || {}, mig = {}; srs = {};
+        items.forEach(k => { const id = idOf(k), c = cloud[id], o = oldSrs[k]; if (c) srs[k] = c; else if (o) { srs[k] = Object.assign({ at: Date.now() }, o); mig[id] = srs[k]; } });
+        if (Object.keys(mig).length && !offline) send({ type: "vocabPatch", patch: { srs: mig } }).then(r => { if (r.ok) chrome.storage.local.set({ srs: {} }); });
+        chrome.storage.local.get(items.filter(k => !isS(k)).map(w => "med:w:" + w).concat(sents.map(x => "med:s:" + x.k)), m => { med = m || {}; cb(); }); // 保存时存下的原声、画面和出处
+      });
     });
   });
 }
 const isS = w => w.startsWith("s:"), sObj = w => sents.find(x => "s:" + x.k === w), keyOf = w => (isS(w) ? w.slice(2) : w);
-const labelOf = w => { if (!isS(w)) return w; const x = sObj(w); return x ? (x.ph ? x.t : "句子") : ""; };
+const labelOf = w => { if (!isS(w)) return ENT[w] ? ENT[w].word : w; const x = sObj(w); return x ? (x.ph ? x.t : "句子") : ""; };
+// 生词本里的词条编号：已有词条用它的 id；插件刚收、还没同步上去的词，用插件生成词条时的同一套编号（v_单词）
+const idOf = k => (isS(k) ? k : ENT[k] ? ENT[k].id : "v_" + k.replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, ""));
 function plan() {
-  const now = Date.now(), due = items.filter(w => srs[w] && srs[w].b < DONE + 2 && srs[w].due <= now).sort((a, b) => srs[a].due - srs[b].due), fresh = items.filter(w => !srs[w]).reverse();
+  const now = Date.now(), due = items.filter(w => srs[w] && srs[w].b < DONE + 2 && srs[w].due <= now).sort((a, b) => srs[a].due - srs[b].due), fresh = items.filter(w => !srs[w]).sort((a, b) => ((ENT[b] && ENT[b].date) || "9999").localeCompare((ENT[a] && ENT[a].date) || "9999"));
   const nWords = Math.max(1, Math.round(opt.num / PER));
   let nNew = Math.min(fresh.length, Math.round(nWords * opt.newPct / 100)); if (!due.length) nNew = Math.min(fresh.length, nWords);
   let words = due.slice(0, nWords - nNew).concat(fresh.slice(0, nNew));
   // 建议：从看过的视频里挑还没保存的生词，补进这一组（最多占“新项目”的份额）
-  const pool = opt.sugg ? Object.keys(sugg).filter(w => !saved.includes(w) && !marks[w] && !srs[w]).sort((a, b) => (sugg[b].n || 1) - (sugg[a].n || 1) || sugg[b].at - sugg[a].at) : [];
+  const pool = opt.sugg ? Object.keys(sugg).filter(w => !saved.includes(w) && !ENT[w] && !marks[w] && !srs[w]).sort((a, b) => (sugg[b].n || 1) - (sugg[a].n || 1) || sugg[b].at - sugg[a].at) : [];
   const nSug = Math.min(pool.length, Math.max(0, Math.min(nWords - words.length, Math.max(1, Math.round(nWords * opt.newPct / 100)))));
   const sug = opt.newPct ? pool.slice(0, nSug) : [];
   words = words.concat(sug);
@@ -54,7 +68,7 @@ function plan() {
 const emoji = () => { const r = day.n / Math.max(1, opt.num); return r <= 0 ? "😭" : r < 0.25 ? "😢" : r < 0.5 ? "😐" : r < 1 ? "🙂" : "😄"; };
 function home() {
   closePops(); $("play").style.display = "none"; $("home").style.display = "";
-  const p = plan(), learning = items.filter(w => srs[w] && srs[w].b < DONE).length, done = items.filter(w => srs[w] && srs[w].b >= DONE).length;
+  const p = plan(), learning = items.filter(w => srs[w] && srs[w].b < DONE).length, done = knownN + items.filter(w => srs[w] && srs[w].b >= DONE).length;
   $("lang").textContent = LNAME[S.srcLang] || S.srcLang;
   [...$("oTags").children].forEach(b => b.classList.toggle("on", opt.tags.includes(b.dataset.v)));
   $("sDue").textContent = p.due.length; $("sNew").textContent = p.due.length ? p.due.filter(w => Date.now() - srs[w].due > DAY).length + " 个紧急" : ""; $("sQ").textContent = p.fresh.length || p.pool.length ? "+" + p.fresh.length + " 个排队中" + (p.pool.length ? "，" + p.pool.length + " 个建议" : "") : ""; $("sLrn").textContent = learning; $("sDone").textContent = done;
@@ -86,15 +100,18 @@ async function sentenceFor(w, used, first) {
     if (!s.tr) { const t = await Promise.race([late(6000), send({ type: "translate", text: s.en, tl: S.target, engine: "google", sl: S.srcLang })]); s.tr = t.t || ""; }
     return s;
   }
+  const e = ENT[w];
+  if (e && e.type === "sentence" && !used.has(e.word)) { used.add(e.word); return { en: e.word, tr: e.zh || "", src: "生词本" }; }
+  if (e && Array.isArray(e.examples)) { const ex = e.examples.filter(x => Array.isArray(x) && x[0]).map(x => ({ en: String(x[0]).replace(/[{}]/g, ""), tr: String(x[1] || ""), src: "生词本例句" })).filter(x => !used.has(x.en) && find(x.en, w)); if (ex.length) { used.add(ex[0].en); return ex[0]; } }
   const r = await Promise.race([send({ type: "sentences", word: w, tl: S.target, sl: S.srcLang }), late(7000)]); let list = (r.s || []).filter(x => find(x.en, w)).map(x => Object.assign({ src: "Tatoeba" }, x));
   const own = (ctx[w] && ctx[w].t) || (sugg[w] && sugg[w].t) || (md && md.t); if (own && find(own, w)) list.push({ en: own, tr: (md && md.t === own && md.tr) || "", src: "视频字幕" });
-  if (!list.length) list = [{ en: w, tr: "", src: "" }];
+  if (!list.length) list = [{ en: e ? e.word : w, tr: (e && e.zh) || "", src: e ? "生词本" : "" }];
   const pick = list.filter(x => !used.has(x.en)); const s = Object.assign({}, (pick.length ? pick : list)[Math.floor(Math.random() * (pick.length ? pick : list).length)]); used.add(s.en);
   if (!s.tr) { const t = await Promise.race([late(6000), send({ type: s.en === w ? "wordLite" : "translate", word: w, text: s.en, tl: S.target, engine: "google", sl: S.srcLang })]); s.tr = t.t || (t.g && t.g.t) || ""; }
   return s;
 }
 // 在句子里找到目标词的那个词形
-function find(en, w) { if (isS(w)) { const x = sObj(w); if (!x || !x.ph) return null; const i = en.toLowerCase().indexOf(x.t.toLowerCase()); return i >= 0 && en.length > x.t.length ? { i, t: en.substr(i, x.t.length) } : null; } const L = lem(w); const m = [...en.matchAll(/[A-Za-z]+(?:['’-][A-Za-z]+)*/g)].find(x => x[0].toLowerCase() === w || lem(x[0]) === L || lem(x[0]) === w); return m ? { i: m.index, t: m[0] } : null; }
+function find(en, w) { if (!isS(w) && /\s/.test(w)) { const i = en.toLowerCase().indexOf(w); return i >= 0 ? { i, t: en.substr(i, w.length) } : null; } if (isS(w)) { const x = sObj(w); if (!x || !x.ph) return null; const i = en.toLowerCase().indexOf(x.t.toLowerCase()); return i >= 0 && en.length > x.t.length ? { i, t: en.substr(i, x.t.length) } : null; } const L = lem(w); const m = [...en.matchAll(/[A-Za-z]+(?:['’-][A-Za-z]+)*/g)].find(x => x[0].toLowerCase() === w || lem(x[0]) === L || lem(x[0]) === w); return m ? { i: m.index, t: m[0] } : null; }
 
 function start() {
   const p = plan(); if (!p.words.length) return;
@@ -102,7 +119,7 @@ function start() {
   cards = []; sess = { ok: 0, bad: 0 };
   for (const w of p.words) { // 一个词的几张卡连在一起：复习过的词先出一张填空题，其余是听力卡
     const used = new Set(), sg = p.sug.has(w), x = isS(w) ? sObj(w) : null;
-    const canQuiz = opt.quiz && !!srs[w] && (!x || (x.ph && x.ctx && x.ctx.toLowerCase().includes(x.t.toLowerCase()) && x.ctx.length > x.t.length));
+    const canQuiz = opt.quiz && !!srs[w] && !(ENT[w] && ENT[w].type === "sentence") && (!x || (x.ph && x.ctx && x.ctx.toLowerCase().includes(x.t.toLowerCase()) && x.ctx.length > x.t.length));
     const kinds = []; if (canQuiz) kinds.push("quiz"); while (kinds.length < (opt.listen ? PER : Math.max(1, kinds.length))) kinds.push(opt.listen ? "listen" : "quiz");
     if (!opt.listen && !canQuiz) kinds.splice(0, kinds.length, "listen"); // 只开了测验但这个词还不能出填空题：给一张听力卡
     kinds.forEach((k, i) => cards.push({ k, w, used, sg, first: i === 0, last: i === kinds.length - 1 }));
@@ -133,7 +150,9 @@ function grade(c, ok) {
   if (ok) { if (c.last) { const failedEarlier = cards.some(x => x !== c && x.w === c.w && x.done && !x.ok); r.b = failedEarlier ? 0 : Math.min(GAP.length - 1, (srs[c.w] ? r.b + 1 : 1)); r.due = Date.now() + GAP[r.b]; } }
   else { r.b = 0; r.due = Date.now() + GAP[0]; }
   if (!r.due) r.due = Date.now() + GAP[0];
-  srs[c.w] = r; chrome.storage.local.set({ srs, reviewDay: day });
+  r.at = Date.now(); srs[c.w] = r; chrome.storage.local.set({ reviewDay: day });
+  const id = idOf(c.w), patch = { srs: { [id]: r } }; if (r.b >= DONE && ENT[c.w]) { patch.progress = { [id]: "known" }; NBP[id] = "known"; } // 到 35 天这一级：生词本里也标为已掌握
+  send({ type: "vocabPatch", patch });
 }
 // 句子：每个词按词汇水平上色（和视频字幕一样），目标词加框
 function sentHtml(c) {
@@ -198,12 +217,14 @@ const isLearn = w => VS_SAVED.has(w.toLowerCase());
 function setKnown(w) {
   const k = w.toLowerCase(); marks[k] = "known"; VS_MARKS = marks; VS_SAVED.delete(k); saved = saved.filter(x => x !== k);
   chrome.storage.local.get({ saved: [] }, v => chrome.storage.local.set({ marks, saved: v.saved.filter(x => x.toLowerCase() !== k) }));
+  const e = ENT[k]; if (e) { NBP[e.id] = "known"; send({ type: "vocabPatch", patch: { progress: { [e.id]: "known" } } }); }
   recolor(); toast(w + " → 已掌握");
 }
 function setLearn(w) {
   const k = w.toLowerCase(); delete marks[k]; VS_MARKS = marks; VS_SAVED.add(k); if (!saved.includes(k)) saved.push(k);
   chrome.storage.local.get({ saved: [] }, v => { if (!v.saved.some(x => x.toLowerCase() === k)) v.saved.push(w); chrome.storage.local.set({ marks, saved: v.saved }); });
-  send({ type: "add", word: w, tl: S.target }); recolor(); toast(w + " → 将要学习");
+  const e = ENT[k]; if (e) { if (NBP[e.id] === "known") { NBP[e.id] = "learning"; send({ type: "vocabPatch", patch: { progress: { [e.id]: "learning" } } }); } } else send({ type: "add", word: w, tl: S.target });
+  recolor(); toast(w + " → 将要学习");
 }
 const toggleMark = w => (isLearn(w) ? setKnown(w) : setLearn(w));
 function recolor() { const c = cards[at]; if (!c || !c.s || c.k !== "listen") return; const en = $("en"); if (en) en.innerHTML = sentHtml(c); const p = document.querySelector(".wpop"); if (p && p.dataset.w) paintPopBtns(p, p.dataset.w); }
