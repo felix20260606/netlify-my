@@ -3,7 +3,7 @@ const { chromium } = require('playwright'); const fs=require('fs');
   const ctx = await chromium.launchPersistentContext('/tmp/pw-prof32', { channel:'chromium', headless: true, args: ['--disable-extensions-except=/home/claude/ext','--load-extension=/home/claude/ext','--no-sandbox'] });
   let sw = ctx.serviceWorkers()[0] || await ctx.waitForEvent('serviceworker'); const id = sw.url().split('/')[2];
   await ctx.route(/translate\.googleapis/, r=>{const q=new URL(r.request().url()).searchParams.get('q')||''; r.fulfill({contentType:'application/json',body:JSON.stringify([[['译'+q,q]],[["名词",["甲"+q.length,"乙"],[]]],'en'])})});
-  await ctx.route(/jsonbin|tatoeba/, r=>r.fulfill({status:404,body:'{}'}));
+  await ctx.route(/tatoeba/, r=>r.fulfill({status:404,body:'{}'}));
   const p = await ctx.newPage(); p.on('pageerror',e=>console.log('PAGEERR',e.message)); await p.setViewportSize({width:1400,height:800});
   await p.goto(`chrome-extension://${id}/saved.html`); await p.waitForTimeout(300);
   console.log('空:', await p.evaluate(()=>document.querySelector('.empty')?.textContent.slice(0,20)));

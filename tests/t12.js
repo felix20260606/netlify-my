@@ -11,7 +11,7 @@ const { chromium } = require('playwright'); const fs=require('fs');
     r.fulfill({contentType:'text/html',body:'<html><body style="margin:0"><div id="movie_player" style="position:relative;width:1050px;height:590px;background:#333"><video class="html5-main-video" width=1050 height=590 src="/tv.webm" muted></video></div><div id="secondary" style="position:absolute;left:1070px;top:0;width:400px"><div id="secondary-inner"></div></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),300)</script></body></html>'}); });
   await ctx.route(/translate\.googleapis/, r=>{const u=new URL(r.request().url()); const bd=u.searchParams.getAll('dt').includes('bd'); if(bd) reqs.lite++; r.fulfill({contentType:'application/json',body:JSON.stringify(bd?[[["限期","x"]],[["noun",["截止日期","最后期限","限期","死线"],[],"x",1]],"en"]:[[["在截止日期前交稿了。","x"]],null,"en"])})});
   await ctx.route(/wiktionary/, r=>{reqs.wik++; r.fulfill({contentType:'application/json',body:JSON.stringify({en:[{partOfSpeech:'Noun',definitions:[{definition:'A time limit by which something must be completed.',examples:['I must make this deadline.']}]}]})})});
-  await ctx.route(/datamuse|jsonbin/, r=>r.fulfill({status:404,body:'[]'}));
+  await ctx.route(/datamuse/, r=>r.fulfill({status:404,body:'[]'}));
   const p = await ctx.newPage(); await p.setViewportSize({width:1500,height:700}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
   await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForTimeout(1000);
   await p.evaluate(()=>document.querySelector('video').play()); await p.waitForSelector('#vs-sub .vs-w');

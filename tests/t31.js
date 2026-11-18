@@ -9,7 +9,7 @@ const { chromium } = require('playwright'); const fs=require('fs');
     if(u.endsWith('tv.webm')) return r.fulfill({contentType:'video/webm',body:fs.readFileSync('/tmp/tva.webm')});
     r.fulfill({contentType:'text/html',body:'<html><head><title>(3) 测试视频标题 - YouTube</title></head><body style="margin:0;background:#fff"><div id="movie_player" style="position:relative;width:700px;height:420px;background:#333"><video class="html5-main-video" width=700 height=420 src="/tv.webm"></video></div><div id="owner"><ytd-channel-name><a>测试频道</a></ytd-channel-name></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),200)</script></body></html>'}); });
   await ctx.route(/translate\.googleapis/, r=>{const q=new URL(r.request().url()).searchParams.get('q')||''; r.fulfill({contentType:'application/json',body:JSON.stringify([[['译:'+q,q]],null,'en'])})});
-  await ctx.route(/tatoeba|wiktionary|datamuse|jsonbin/, r=>r.fulfill({status:404,body:'{}'}));
+  await ctx.route(/tatoeba|wiktionary|datamuse/, r=>r.fulfill({status:404,body:'{}'}));
   const p = await ctx.newPage(); await p.setViewportSize({width:1240,height:700}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
   await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForTimeout(900); await p.evaluate(()=>document.querySelector('video').play());
   await p.waitForFunction(()=>document.querySelector('#vs-sub .vs-w[data-w=fisherman]'),null,{timeout:10000});

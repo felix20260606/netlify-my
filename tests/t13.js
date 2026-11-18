@@ -10,7 +10,7 @@ const { chromium } = require('playwright'); const fs=require('fs');
   await ctx.route(/translate\.googleapis/, r=>{const u=new URL(r.request().url()); const q=u.searchParams.get('q'); const bd=u.searchParams.getAll('dt').includes('bd'); r.fulfill({contentType:'application/json',body:JSON.stringify([[[TR[q]||('译:'+q),q]], bd&&q==='week'?[["noun",["周","星期","礼拜"],[],"x",1]]:null,"en"])})});
   let asked=[];
   await ctx.route(/wiktionary\.org\/w\/api\.php/, r=>{ const t=new URL(r.request().url()).searchParams.get('titles').split('|'); asked.push(t.length); const ex=new Set(['got it','got it in','get it in']); const pages={}; t.forEach((x,i)=>pages[ex.has(x)?String(100+i):String(-1-i)]=ex.has(x)?{title:x,pageid:1}:{title:x,missing:''}); r.fulfill({contentType:'application/json',body:JSON.stringify({query:{pages}})}); });
-  await ctx.route(/datamuse|jsonbin|rest_v1/, r=>r.fulfill({status:404,body:'[]'}));
+  await ctx.route(/datamuse|rest_v1/, r=>r.fulfill({status:404,body:'[]'}));
   const p = await ctx.newPage(); await p.setViewportSize({width:1200,height:700}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
   await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForTimeout(1000);
   await p.evaluate(()=>document.querySelector('video').play()); await p.waitForSelector('#vs-sub .vs-w');

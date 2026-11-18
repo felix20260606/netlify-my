@@ -7,7 +7,7 @@ const { chromium } = require('playwright'); const fs=require('fs');
     if(u.endsWith('tv.webm')) return r.fulfill({contentType:'video/webm',body:fs.readFileSync('/tmp/tv.webm')});
     r.fulfill({contentType:'text/html',body:'<html><body style="margin:0"><div id="movie_player" style="position:relative;width:800px;height:420px;background:#333"><video class="html5-main-video" width=800 height=420 src="/tv.webm" muted></video></div><div id="secondary" style="position:absolute;left:820px;top:0;width:360px"><div id="secondary-inner"><div>recs</div></div></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),300)</script></body></html>'}); });
   await ctx.route(/translate\.googleapis/, r=>r.fulfill({contentType:'application/json',body:JSON.stringify([[["译文","x"]],null,"en"])}));
-  await ctx.route(/wiktionary|datamuse|jsonbin/, r=>r.fulfill({status:404,body:'{}'}));
+  await ctx.route(/wiktionary|datamuse/, r=>r.fulfill({status:404,body:'{}'}));
   const p = await ctx.newPage(); await p.setViewportSize({width:1200,height:600}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
   await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForTimeout(1000);
   await p.evaluate(()=>document.querySelector('video').play()); await p.waitForSelector('.vs-w');

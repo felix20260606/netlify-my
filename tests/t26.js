@@ -10,7 +10,7 @@ const { chromium } = require('playwright'); const fs=require('fs');
     r.fulfill({contentType:'text/html',body:'<html><body style="margin:0;background:#fff"><div id="movie_player" style="position:relative;width:600px;height:400px;background:#333"><video class="html5-main-video" width=600 height=400 src="/tv.webm" muted></video></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),200)</script></body></html>'}); });
   await ctx.route(/translate\.googleapis/, r=>{const q=new URL(r.request().url()).searchParams.get('q')||''; r.fulfill({contentType:'application/json',body:JSON.stringify([[[q==='know'?'知道':'译:'+q,q]],null,'en',null,null,null,null,null,null,null,null,null,q==='know'?[["verb",["知道","认识","了解"],[["知道",["know"],null,0.5],["认识",["know"],null,0.2],["了解",["know"],null,0.1]],"know",2]]:null])})});
   await ctx.route(/wiktionary/, r=>r.fulfill({contentType:'application/json',body:JSON.stringify({query:{pages:[{title:'we know',pageid:1}]}})}));
-  await ctx.route(/datamuse|jsonbin/, r=>r.fulfill({status:404,body:'{}'}));
+  await ctx.route(/datamuse/, r=>r.fulfill({status:404,body:'{}'}));
   const p = await ctx.newPage(); await p.setViewportSize({width:1100,height:600}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
   await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForSelector('#vs-sub .vs-w',{timeout:8000});
   if(!await p.$('#vs-panel.show')) await p.evaluate(()=>document.querySelector('#vs-pill .ic, #vs-pill')&&0);

@@ -6,7 +6,7 @@
 //   POST             → 写入（需要 X-Key）
 //   DELETE ?v=<ID>   → 删除（需要 X-Key）
 //
-// 二、生词本 /api/vocab（2026-11-18 从 JSONBin 搬来；整份存在 KV 的 "vocab" 这一条里）
+// 二、生词本 /api/vocab（整份存在 KV 的 "vocab" 这一条里）
 //   GET              → { ok, custom, progress, deleted, pending }   读取不需要口令
 //   POST {state}     → 和云端合并后保存，返回合并结果 { ok, state }（需要 X-Key）
 //   POST {add:[词条]} → 加入完整词条：从待整理队列和已删除列表里移除同名词（插件用；需要 X-Key）

@@ -11,7 +11,7 @@ const { chromium } = require('playwright'); const fs=require('fs');
     if(u.endsWith('tv.webm')) return r.fulfill({contentType:'video/webm',body:fs.readFileSync('/tmp/tv.webm')});
     r.fulfill({contentType:'text/html',body:'<html><body style="margin:0;background:#fff"><div id="movie_player" style="position:relative;width:700px;height:420px;background:#333"><video class="html5-main-video" width=700 height=420 src="/tv.webm" muted></video></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),200)</script></body></html>'}); });
   await ctx.route(/translate\.googleapis/, r=>{const q=new URL(r.request().url()).searchParams.get('q')||''; r.fulfill({contentType:'application/json',body:JSON.stringify([[['译:'+q,q]],null,'en'])})});
-  await ctx.route(/wiktionary|datamuse|jsonbin/, r=>r.fulfill({status:404,body:'{}'}));
+  await ctx.route(/wiktionary|datamuse/, r=>r.fulfill({status:404,body:'{}'}));
   const p = await ctx.newPage(); await p.setViewportSize({width:1200,height:620}); p.on('pageerror',e=>console.log('PAGEERR',e.message));
   await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForSelector('#vs-sub .vs-w',{timeout:8000}); await p.waitForTimeout(800);
   console.log('字幕里的语法类:', await p.evaluate(()=>[...document.querySelectorAll('#vs-sub .vs-w')].map(x=>x.textContent+([...x.classList].filter(c=>c.startsWith('g-')).map(c=>'['+c.slice(2)+']').join(''))).join(' ')));

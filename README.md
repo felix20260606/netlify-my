@@ -8,7 +8,7 @@
 |---|---|
 | `web/` | 网站，部署到 <https://ruilearning-my.pages.dev>（生词本、🎬 视频、减脂、旅游等；字幕接口 `_worker.js`）。本地说明见 `web/README.txt` |
 | `extension/` | 浏览器插件「双语字幕 · 生词收集」（图标为 BAN）（Manifest V3，Chrome / Brave / Edge） |
-| `site/` | 生词本网页的早期副本（不是线上版本，线上版在 `web/`）和书签小工具源码 `bookmarklet.src.js` |
+| `site/` | 书签小工具的源码 `bookmarklet.src.js` 和安装页 `install-bookmarklet.html` |
 | `tests/` | Playwright 回归测试脚本（加载插件 + 模拟的 YouTube 页面） |
 
 插件的使用习惯对齐 Language Reactor（下文简称 LR）：功能和操作方式一致，代码、图标、名称都是自己的，不使用 LR 的服务器。
@@ -477,7 +477,6 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 - 微软翻译引擎和音频轨道切换没有充分测试。
 - 全屏模式下的表现没有逐项核对。
 - 语法下划线会有标错，见上文。
-- 本仓库 `site/index.html` 是生词本网页的早期副本，线上版本在另一个仓库，见下一节。
 - 设置窗口、全屏、iPhone Safari 上的书签小工具没有在真实环境里核对过。
 
 ## 生词本网站与手机端
@@ -487,10 +486,9 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 ### 仓库与部署
 
 - 网站就在本仓库的 `web/`，推送到 `main` 后由 Cloudflare Pages 自动部署（构建输出目录 `web`，只有 `web/` 下有改动才部署，改插件、测试、README 不会消耗部署次数）。和本功能有关的文件：`web/index.html`（主页面）、`web/watch.js`（「🎬 视频」）、`web/_worker.js`（字幕存取接口，数据存在 Cloudflare KV，绑定名 `CAPTIONS`）、`web/_routes.json`（只让接口请求经过 `_worker.js`）。
-- `site/` 只保留早期副本和书签小工具的源码 `site/bookmarklet.src.js`，不是线上版本。
+- `site/` 只放书签小工具的源码 `site/bookmarklet.src.js` 和安装页，不是线上网站。
 - 部署额度：Cloudflare Pages 免费版每月 500 次构建，静态文件流量不限。字幕接口每天 10 万次请求；KV 每天 10 万次读取、各 1,000 次写入 / 删除 / 列表，存储 1 GB。超额只让当天那部分操作失败，网站本身照常打开。
 - 同步口令不在仓库和网页源码里：服务器只存它的 SHA-256 指纹（`web/_worker.js` 里的 `KEY_SHA`）。换口令时改这个指纹，再在各设备和 `config.js` 里换新口令。
-- 生词本 2026-11-18 之前存在 JSONBin，当天搬进了 Cloudflare KV，JSONBin 已停用。
 
 ### 日常流程
 

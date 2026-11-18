@@ -17,7 +17,6 @@
   ※ Cloudflare 构建设置：不需要构建命令，输出目录 web，只监听 web/ 的改动
      （改插件不会触发部署）。
   ※ 视频字幕和生词本都存在 Cloudflare KV 里，Pages 项目绑定的 KV 变量名是 CAPTIONS。
-    （生词本 2026-11-18 之前存在 JSONBin，已停用。）
 
 【文件清单】
   index.html             主页面（顶部：英语 / 生活 / 视频）

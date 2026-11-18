@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   await ctx.route(/translate\.googleapis/, r=>{const q=new URL(r.request().url()).searchParams.get('q')||''; r.fulfill({contentType:'application/json',body:JSON.stringify([[['译'+q,q]],[["名词",["甲"+q.length,"乙"],[]]],'en'])})});
   await ctx.route(/tatoeba/, r=>r.fulfill({contentType:'application/json',body:JSON.stringify({results:[{text:'We talked about the grant.',translations:[[{text:'我们谈了那笔拨款。',lang:'cmn',script:'Hans'}]]}]})}));
   await ctx.route(/wiktionary/, r=>r.fulfill({contentType:'application/json',body:JSON.stringify({en:[{partOfSpeech:'Noun',definitions:[{definition:'A sum of money given for a purpose.',examples:['a research grant']}]}]})}));
-  await ctx.route(/jsonbin|datamuse/, r=>r.fulfill({status:404,body:'{}'}));
+  await ctx.route(/datamuse/, r=>r.fulfill({status:404,body:'{}'}));
   const p = await ctx.newPage(); p.on('pageerror',e=>console.log('PAGEERR',e.message)); await p.setViewportSize({width:1440,height:820});
   await p.goto(`chrome-extension://${id}/saved.html`); await p.waitForTimeout(300);
   await p.evaluate(()=>new Promise(r=>{const now=Date.now(); chrome.storage.sync.set({level:700,ratio:2}); chrome.storage.local.set({saved:['grant','tuition'],marks:{},savedCtx:{grant:{t:'The average grant for those students is over 60 000.',v:'vid1',s:83,at:now}}},r)}));

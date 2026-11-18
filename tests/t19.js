@@ -7,7 +7,7 @@ const { chromium } = require('playwright'); const fs=require('fs');
     if(u.includes('/api/timedtext')) return r.fulfill({contentType:'application/json',body:JSON.stringify({events:ev(u.includes('tlang='))})});
     if(u.endsWith('tv.webm')) return r.fulfill({contentType:'video/webm',body:fs.readFileSync('/tmp/tv.webm')});
     r.fulfill({contentType:'text/html',body:'<html><body style="margin:0"><div id="movie_player" style="position:relative;width:600px;height:400px;background:#333"><video class="html5-main-video" width=600 height=400 src="/tv.webm" muted></video></div><script>setTimeout(()=>fetch("/api/timedtext?v=abc&lang=en"),200)</script></body></html>'}); });
-  await ctx.route(/translate\.googleapis|wiktionary|datamuse|jsonbin/, r=>r.fulfill({status:404,body:'{}'}));
+  await ctx.route(/translate\.googleapis|wiktionary|datamuse/, r=>r.fulfill({status:404,body:'{}'}));
   const p = await ctx.newPage(); p.on('pageerror',e=>console.log('PAGEERR',e.message));
   await p.goto('https://www.youtube.com/watch?v=abc'); await p.waitForTimeout(600); await p.evaluate(()=>document.querySelector('video').play());
   const st=()=>p.evaluate(()=>{const b=document.querySelector('#vs-sub .vs-box'),o=document.querySelector('#vs-sub .vs-o');return (b&&b.style.display!=='none'&&o?o.textContent:'(无)')+' @'+document.querySelector('video').currentTime.toFixed(1)});
