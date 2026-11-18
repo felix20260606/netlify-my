@@ -1,1 +1,1 @@
-{ "version": 1, "include": ["/api/*", "/.netlify/functions/*"], "exclude": [] }
+{ "version": 1, "include": ["/api/*"], "exclude": [] }

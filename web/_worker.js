@@ -1,6 +1,6 @@
 // 网站后台接口（Cloudflare Pages），数据存在 KV，绑定名 CAPTIONS
 //
-// 一、视频字幕 /api/cap（/.netlify/functions/cap 是旧地址，留着兼容早先添加的手机书签）
+// 一、视频字幕 /api/cap
 //   GET    ?list=1   → { ok, items:[{v,title,author,n,tr,dur,at}] }
 //   GET    ?v=<ID>   → { ok, v, title, author, cues:[{s,e,t,r}] }
 //   POST             → 写入（需要 X-Key）
@@ -12,7 +12,7 @@
 //   POST {add:[词条]} → 加入完整词条：从待整理队列和已删除列表里移除同名词（插件用；需要 X-Key）
 // 写入口令只在服务器上存 SHA-256 指纹；网页源码里没有口令，每台设备第一次同步时输入一次
 const KEY_SHA = "947d04a67b6309d28e86acd947f64e86145130b89ebb580fc6a157db9748c299"; // 同步口令的 SHA-256，只用来校验写入（字幕和生词本共用）
-const API_PATHS = ["/api/cap", "/.netlify/functions/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab";
+const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
 const sha256 = async s => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, "0")).join("");
 const authed = async req => (await sha256(req.headers.get("x-key") || "")) === KEY_SHA;

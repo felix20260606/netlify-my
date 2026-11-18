@@ -2,7 +2,7 @@
 
 个人学习站和英语学习插件。插件在看 YouTube 时显示双语字幕、查词、收集生词；网站（Cloudflare Pages）放生词本、看视频学英语，以及减脂、旅游等页面。
 
-2026-11-18 由原来的两个仓库合并而成：网站原在 `netlify-my`，插件原在 `LearnVocab`，两边的提交历史都保留了。
+2026-11-18 由网站和插件（原 `LearnVocab`）两个仓库合并而成，两边的提交历史都保留了。
 
 | 目录 | 内容 |
 |---|---|
@@ -486,7 +486,7 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 
 ### 仓库与部署
 
-- 网站就在本仓库的 `web/`，推送到 `main` 后由 Cloudflare Pages 自动部署（构建输出目录 `web`，只有 `web/` 下有改动才部署，改插件、测试、README 不会消耗部署次数）。和本功能有关的文件：`web/index.html`（主页面）、`web/watch.js`（「🎬 视频」）、`web/_worker.js`（字幕存取接口，数据存在 Cloudflare KV，绑定名 `CAPTIONS`）、`web/_routes.json`（只让接口请求经过 `_worker.js`）。Netlify 时期的网站在 `netlify` 分支。
+- 网站就在本仓库的 `web/`，推送到 `main` 后由 Cloudflare Pages 自动部署（构建输出目录 `web`，只有 `web/` 下有改动才部署，改插件、测试、README 不会消耗部署次数）。和本功能有关的文件：`web/index.html`（主页面）、`web/watch.js`（「🎬 视频」）、`web/_worker.js`（字幕存取接口，数据存在 Cloudflare KV，绑定名 `CAPTIONS`）、`web/_routes.json`（只让接口请求经过 `_worker.js`）。
 - `site/` 只保留早期副本和书签小工具的源码 `site/bookmarklet.src.js`，不是线上版本。
 - 部署额度：Cloudflare Pages 免费版每月 500 次构建，静态文件流量不限。字幕接口每天 10 万次请求；KV 每天 10 万次读取、各 1,000 次写入 / 删除 / 列表，存储 1 GB。超额只让当天那部分操作失败，网站本身照常打开。
 - 同步口令不在仓库和网页源码里：服务器只存它的 SHA-256 指纹（`web/_worker.js` 里的 `KEY_SHA`）。换口令时改这个指纹，再在各设备和 `config.js` 里换新口令。
