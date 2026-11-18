@@ -16,7 +16,13 @@
 
   /* ---------- 样式 ---------- */
   const css = `
-  #watch{display:none;padding-top:14px}#watch.on{display:block}
+  #view-video{display:none;padding-top:calc(56px + env(safe-area-inset-top,0px))}
+  html.show-video #view-video{display:block}
+  html.show-video #view-en,html.show-video #view-fat,html.show-video #view-trip,html.show-video #view-ielts,html.show-video #subtabs{display:none!important}
+  html.show-video body{padding-bottom:0}
+  #apptabs .seg-wrap.three{max-width:460px}
+  #view-video .wrap{max-width:620px;margin:0 auto;padding:0 14px}
+  #watch{padding-top:12px}
   .wt-open{display:flex;gap:8px}
   .wt-open input{flex:1;min-width:0;border:1px solid var(--line);background:var(--paper);border-radius:12px;padding:11px 12px;font:inherit;font-size:16px;color:var(--ink)}
   .wt-btn{border:0;border-radius:12px;background:var(--jade);color:#fff;font:inherit;font-weight:700;font-size:14px;padding:0 16px;min-height:44px;cursor:pointer}
@@ -66,13 +72,13 @@
   .wt-sheet .a .add{background:var(--jade);border-color:var(--jade);color:#fff;flex:2}
   .wt-sheet .a .add.in{background:var(--paper-2);border-color:var(--line);color:var(--muted)}
   @media (max-width:640px){
-    html[data-mode="watch"] #view-en>header{padding:10px 0}
-    html[data-mode="watch"] #view-en>header .eyebrow,html[data-mode="watch"] #view-en>header h1,html[data-mode="watch"] #view-en>header .count{display:none}
-    html[data-mode="watch"] #view-en>header .modes{margin-top:0}
-    .modes button{font-size:12.5px}
-    #watch{padding-top:10px}
+    #apptabs .seg-wrap.three button{font-size:13.5px;padding-left:0;padding-right:0}
+    #view-video .wrap{padding:0 max(10px,env(safe-area-inset-left,0px)) 0 max(10px,env(safe-area-inset-right,0px))}
+    #watch{padding-top:14px}
     .wt-sub .en{font-size:18px}
-    html.wt-playing body{padding-bottom:0}
+    .wt-video{border-radius:10px}
+  }
+  @media (max-width:640px) and (orientation:landscape){ .wt-video{max-height:62vh;aspect-ratio:auto;height:62vh} }
   }`;
 
   /* ---------- 生词本状态 ---------- */
@@ -83,10 +89,10 @@
   const markup = t => esc(t).replace(WORD, w => '<span class="wt-w ' + statusOf(w.replace(/’/g, "'")) + '" data-w="' + w.replace(/’/g, "'") + '">' + w + "</span>");
 
   /* ---------- 搭界面 ---------- */
-  let root, listEl, subEl;
+  let root, listEl, subEl, enter = () => {};
   function build() {
     const st = document.createElement("style"); st.textContent = css; document.head.append(st);
-    const anchor = document.getElementById("test") || document.getElementById("flash"); if (!anchor) return false;
+    const seg = $("#apptabs .seg-wrap"), ven = document.getElementById("view-en"); if (!seg || !ven) return false;
     root = document.createElement("div"); root.id = "watch";
     root.innerHTML = `
       <div class="wt-home">
@@ -108,25 +114,24 @@
         </div>
         <div class="wt-list" id="wt-list"></div>
       </div>`;
-    anchor.parentNode.insertBefore(root, anchor.nextSibling);
+    const view = document.createElement("div"); view.id = "view-video"; view.innerHTML = '<div class="wrap"></div>'; view.firstChild.append(root);
+    ven.parentNode.insertBefore(view, ven);
     const mask = document.createElement("div"); mask.className = "wt-mask"; mask.id = "wt-mask";
     const sheet = document.createElement("div"); sheet.className = "wt-sheet"; sheet.id = "wt-sheet";
     document.body.append(mask, sheet);
     listEl = $("#wt-list"); subEl = $("#wt-sub");
 
-    // 模式按钮
-    const modes = $(".modes"); if (!modes) return false;
-    const btn = document.createElement("button"); btn.dataset.mode = "watch"; btn.textContent = "🎬 视频";
-    const exp = modes.querySelector('[data-mode="export"]'); modes.insertBefore(btn, exp || null);
-    modes.querySelectorAll("button").forEach(b => { if (b !== btn) b.addEventListener("click", () => { root.classList.remove("on"); document.documentElement.classList.remove("wt-playing"); try { player && player.pauseVideo && player.pauseVideo(); } catch (e) {} }); });
-    btn.onclick = () => {
-      modes.querySelectorAll("button").forEach(x => x.classList.remove("on")); btn.classList.add("on");
-      document.documentElement.setAttribute("data-mode", "watch");
-      const hide = (id, cls) => { const el = document.getElementById(id); if (!el) return; if (cls) el.classList.remove("on"); else el.style.display = "none"; };
-      hide("list-view"); hide("flash", 1); hide("test", 1); hide("export-panel", 1);
-      root.classList.add("on"); document.documentElement.classList.toggle("wt-playing", root.classList.contains("playing")); loadBook(); loadList(); fit();
+    // 一级标签：和「英语 / 生活」并列
+    const H = document.documentElement, btn = document.createElement("button"); btn.id = "l1-video"; btn.type = "button"; btn.textContent = "🎬 视频";
+    seg.append(btn); seg.classList.add("three");
+    const leave = () => { if (!H.classList.contains("show-video")) return; H.classList.remove("show-video", "wt-playing"); btn.classList.remove("on"); LS.set("wt:tab", 0); try { player && player.pauseVideo && player.pauseVideo(); } catch (e) {} };
+    seg.querySelectorAll("button").forEach(b => { if (b !== btn) b.addEventListener("click", leave); });
+    enter = () => {
+      seg.querySelectorAll("button").forEach(x => x.classList.remove("on")); btn.classList.add("on");
+      H.classList.add("show-video"); H.classList.toggle("wt-playing", root.classList.contains("playing")); LS.set("wt:tab", 1);
+      scrollTo(0, 0); loadBook(); loadList(); fit();
     };
-
+    btn.onclick = enter;
     $("#wt-go").onclick = () => openUrl($("#wt-url").value);
     $("#wt-url").addEventListener("keydown", e => { if (e.key === "Enter") openUrl(e.target.value); });
     $("#wt-items").addEventListener("click", e => { const it = e.target.closest(".wt-item"); if (it) open(it.dataset.v); });
@@ -148,8 +153,8 @@
   function saveSet() { LS.set("wt:set", set); paintSet(); }
   function paintSet() { $("#wt-ap").classList.toggle("on", set.autoPause); $("#wt-ht").classList.toggle("on", set.hideTr); $("#wt-rate").textContent = set.rate + "×"; subEl.classList.toggle("hide", set.hideTr); }
   function fit() { // 播放页占满一屏：视频、当前字幕、按钮固定，下面的字幕列表自己滚动
-    const p = $(".wt-play", root); if (!root.classList.contains("playing") || !root.classList.contains("on")) return;
-    scrollTo(0, 0); const top = p.getBoundingClientRect().top; p.style.height = Math.max(420, innerHeight - top - 8) + "px";
+    const p = $(".wt-play", root); if (!root.classList.contains("playing") || !document.documentElement.classList.contains("show-video")) return;
+    scrollTo(0, 0); const top = p.getBoundingClientRect().top, land = innerWidth > innerHeight && innerHeight < 520; p.style.height = land ? "auto" : Math.max(380, innerHeight - top - 8) + "px";
   }
 
   /* ---------- 视频列表 ---------- */
@@ -301,6 +306,6 @@
     }
   }
 
-  function init() { if (!build()) return; window.__wt = { open, state: () => ({ cur, n: cues.length, lock, follow, set }) }; }
+  function init() { if (!build()) return; if (LS.get("wt:tab", 0) && !document.documentElement.classList.contains("collect-mode")) enter(); window.__wt = { open, state: () => ({ cur, n: cues.length, lock, follow, set }) }; }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
