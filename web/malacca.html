@@ -101,6 +101,17 @@
   footer b{color:var(--ink)}
   @media(max-width:640px){.hero h1{font-size:29px}.hero{padding:44px 16px 40px}.stat{min-width:94px}}
   @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ==== 电脑端布局（≥1024px，手机端不受影响）==== */
+@media (min-width:1024px){
+  .wrap{max-width:1560px;padding-left:44px;padding-right:44px}
+  .hin{max-width:1100px}
+  .wrap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px;align-items:start}
+  .wrap>*{grid-column:1/-1;min-width:0}
+  /* 路线卡 + 简介并排；Day 1 | Day 2 两列 */
+  .wrap>.route-card,.wrap>.route-card+.card{grid-column:auto;margin-bottom:0}
+  .wrap>.seg{grid-column:auto}
+}
+/* ==== /电脑端布局 ==== */
 </style>
 </head><body>
 

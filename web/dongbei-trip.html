@@ -79,6 +79,20 @@ body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1
 @media(max-width:640px){.hero h1{font-size:28px}.hero{padding:44px 15px 38px}.dfoot{grid-template-columns:1fr}.stat{min-width:96px}}
 footer{text-align:center;color:var(--soft);font-size:12px;margin-top:34px;padding:18px}
 a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;text-decoration:none;border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(12,147,112,.4);font-size:19px;z-index:50}
+/* ==== 电脑端布局（≥1024px，手机端不受影响）==== */
+@media (min-width:1024px){
+  .wrap{max-width:1560px;padding-left:44px;padding-right:44px}
+  .hin{max-width:1100px}
+  .wrap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px;align-items:start}
+  .wrap>*{grid-column:1/-1;min-width:0}
+  .wrap>.card:has(+.card),.wrap>.card+.card{grid-column:auto}
+  /* 每段里的天：两列时间线 */
+  .seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;align-items:stretch}
+  .seg>*{grid-column:1/-1;min-width:0}
+  .seg>.day{grid-column:auto;margin:15px 0 0}
+  .seg>.shead+.day:last-child{grid-column:1/-1}
+}
+/* ==== /电脑端布局 ==== */
 </style></head><body>
 <div class="hero"><div class="hin">
   <div class="k">辽 · 吉 · 黑　自驾环线</div>

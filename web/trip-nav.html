@@ -26,6 +26,19 @@ body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1
 .nc .tag.g{background:#FAF1E0;color:#8a560f}
 .sec{font-family:var(--display);font-weight:900;font-size:14px;color:var(--soft);letter-spacing:.06em;margin:20px 2px 9px}
 footer{text-align:center;color:var(--soft);font-size:11px;margin-top:24px;line-height:1.7}
+/* ---- 电脑端（≥1024px）：铺满宽度，卡片 4 列 ---- */
+@media (min-width:1024px){
+  .wrap{max-width:1480px;padding:36px 44px 72px}
+  .head{margin-bottom:26px}
+  .head h1{font-size:32px}
+  .head p{font-size:14px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  .nc{padding:20px 20px 18px;gap:8px}
+  .nc .em{font-size:34px}
+  .nc b{font-size:16.5px}
+  .nc p{font-size:13px}
+  .sec{font-size:15px;margin:30px 2px 12px}
+}
 </style></head><body>
 <div class="wrap">
   <div class="head">

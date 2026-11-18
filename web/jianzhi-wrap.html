@@ -95,6 +95,19 @@ footer b{color:var(--ink)}
 #wlb.on{display:flex}
 #wlb img{width:min(88vw,420px);max-height:76vh;object-fit:contain;border-radius:14px;background:#fff}
 #wlb button{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;font-family:inherit;font-size:14px;font-weight:700;border-radius:999px;padding:8px 18px;cursor:pointer}
+/* ==== 电脑端布局（≥1024px，手机端不受影响）==== */
+@media (min-width:1024px){
+  .wrap{max-width:1560px;padding-left:44px;padding-right:44px}
+  .hin{max-width:1100px}
+  .hero h1{font-size:40px}
+  /* 原页面「采购点评」卡片未闭合，后面各段都嵌在这张卡里，这里在卡内排网格 */
+  .wrap>.card:has(>.tl+.warn){display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));column-gap:16px;align-items:stretch;padding:22px 26px}
+  .wrap>.card:has(>.tl+.warn)>*{grid-column:1/-1;min-width:0}
+  .wrap>.card:has(>.tl+.warn)>.wd{grid-column:auto;margin:8px 0}
+  .slots{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  .linkrow{grid-template-columns:1fr 1fr}
+}
+/* ==== /电脑端布局 ==== */
 </style></head><body>
 
 <div class="hero"><div class="hin">

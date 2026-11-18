@@ -93,6 +93,26 @@ html{scroll-behavior:smooth}
 footer{text-align:center;color:var(--soft);font-size:11.5px;margin-top:26px;padding:14px;line-height:1.8}
 footer b{color:var(--ink)}
 @media(max-width:560px){.hero h1{font-size:25px}}
+/* ==== 电脑端布局（≥1024px，手机端不受影响）==== */
+@media (min-width:1024px){
+  .wrap{max-width:1560px;padding-left:44px;padding-right:44px}
+  .hin{max-width:1100px}
+  .wrap{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:20px;align-items:start}
+  .wrap>*{grid-column:1/-1;min-width:0}
+  .wrap>.card{margin-top:0;margin-bottom:14px}
+  .wrap>.sec-h+.card{margin-top:10px}
+  .wrap>.card+.sec-h{margin-top:18px}
+  .wrap>.card:has(+.card),.wrap>.card+.card{grid-column:span 6}
+  .seg{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;align-items:stretch}
+  .seg>*{grid-column:1/-1;min-width:0}
+  .shead{margin-bottom:0}
+  .seg>.spot{grid-column:auto;margin:0;display:flex;flex-direction:column}
+  .seg>.spot img{width:100%;height:220px;min-height:0;flex:none}
+  .seg>.spot .sb{flex:1}
+  .hero h1{font-size:40px}
+  .must{grid-template-columns:1fr 1fr}
+}
+/* ==== /电脑端布局 ==== */
 </style></head><body>
 
 <div class="hero"><div class="hin">

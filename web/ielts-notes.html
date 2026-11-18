@@ -625,7 +625,13 @@ h1 .cn {
   .voice-picker select { max-width: 170px; }
 }
 
-  </style>
+  /* ==== 电脑端布局（≥1024px，手机端不受影响）==== */
+@media (min-width:1024px){
+  .wrap{width:min(1600px,calc(100vw - 88px))}
+  .box-section{grid-template-columns:repeat(auto-fill,minmax(400px,1fr));align-items:start}
+}
+/* ==== /电脑端布局 ==== */
+</style>
 </head>
 <body>
   <header>

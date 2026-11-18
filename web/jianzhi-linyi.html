@@ -309,6 +309,28 @@
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important}
   }
+
+  /* ---- 电脑端（≥1024px）：左侧身体数据固定，右侧结果/清单 ---- */
+  @media (min-width:1024px){
+    body{padding-left:44px;padding-right:44px}
+    .wrap{max-width:1560px;display:grid;grid-template-columns:minmax(330px,380px) minmax(0,1fr);column-gap:32px;align-items:start}
+    .wrap>*{grid-column:2;min-width:0}
+    .wrap>header,.wrap>.disclaimer{grid-column:1/-1}
+    .wrap>.sayhint{grid-column:1;margin-bottom:16px}
+    .wrap>.klbanner{grid-column:2}
+    header{padding:40px 4px 26px}
+    h1{font-size:38px}
+    .lede{max-width:64ch}
+    .wrap>section.card:first-of-type{grid-column:1;grid-row:span 60;position:sticky;top:20px}
+    .tile .big{font-size:42px}
+    #meals{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;align-items:start;margin-bottom:16px}
+    #meals>.card{margin:0}
+    .notes{columns:2;column-gap:32px}
+    .notes .card-head{column-span:all}
+    .note{break-inside:avoid}
+    .stores{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+    #pantry{overflow-x:auto}
+  }
 </style>
 </head>
 <body>
