@@ -12,7 +12,7 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: 下载生词本
         run: |
           mkdir -p data
