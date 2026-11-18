@@ -11,6 +11,7 @@
   let cards = [], at = 0, bad = 0, playing = false, root = null;
   const CSS = `
   #pump{display:none;max-width:860px;margin:0 auto;padding:6px 0 30px}#pump.on{display:block}
+  @media(min-width:1024px){#pump{max-width:1200px}.pp-home{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.pp-card{min-height:320px}.pp-en{font-size:24px;max-width:860px}.pp-zh{font-size:17px;max-width:860px}}
   .pp-home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
   @media(max-width:720px){.pp-home{grid-template-columns:1fr}}
   .pp-hc{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px 20px 22px;box-shadow:0 1px 0 rgba(0,0,0,.02)}

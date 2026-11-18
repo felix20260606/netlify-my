@@ -167,7 +167,22 @@
   .wt-keys{margin-top:12px;font-size:13px;color:var(--muted);line-height:1.9}
   .wt-keys kbd{display:inline-block;min-width:22px;text-align:center;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;margin-right:4px;font:600 12px/1.6 ui-monospace,Menlo,monospace;color:var(--ink);background:var(--paper)}
   .wt-keys span{display:inline-block;margin-right:14px;white-space:nowrap}
-  @media (max-width:400px){ .wt-th{width:100px}.wt-cont .wt-th{width:84px}.wt-sel{max-width:104px}.wt-ctl button{font-size:12.5px} }`;
+  @media (max-width:400px){ .wt-th{width:100px}.wt-cont .wt-th{width:84px}.wt-sel{max-width:104px}.wt-ctl button{font-size:12.5px} }
+  /* 电脑端（≥1024px）：铺满屏幕；列表多列；播放时视频在左、字幕列表在右 */
+  @media (min-width:1024px){
+    #view-video .wrap{max-width:none;padding:0 40px}
+    .wt-home{max-width:none}
+    .wt-open{max-width:760px}
+    #wt-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:12px;align-items:start}
+    #wt-items .wt-item{margin-bottom:0}
+    #wt-items>:not(.wt-item){grid-column:1/-1}
+    .wt-play{display:none;grid-template-columns:minmax(0,1fr) clamp(360px,32vw,520px);grid-template-rows:auto auto auto auto auto 1fr;column-gap:20px;align-items:start}
+    #watch.playing .wt-play{display:grid}
+    .wt-play>*{grid-column:1}
+    .wt-play>.wt-bar{grid-column:1/-1}
+    .wt-play>.wt-list{grid-column:2;grid-row:2/-1;margin-top:0;height:100%;min-height:0;align-self:stretch}
+    .wt-video{max-height:calc(100vh - 300px)}
+  }`;
 
   /* ---------- 生词本状态 ---------- */
   let book = new Map();

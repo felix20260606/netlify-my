@@ -948,6 +948,33 @@
     html[data-mode="flash"] .fc{flex:1 1 auto;min-height:0}
     html[data-mode="flash"] #flash .footer-tools{margin-top:8px}
   }
+
+  /* ===== 电脑端（≥1024px）：铺满屏幕、和手机分开排版；手机端完全不受影响 ===== */
+  @media (min-width:1024px){
+    /* 顶部两行导航合成一条：左边一级（英语 / 视频 / 生活），紧跟着二级 */
+    #apptabs{justify-content:flex-start;padding:0 32px}
+    #apptabs .seg-wrap,#apptabs .seg-wrap.three{max-width:420px}
+    #subtabs{top:0;left:484px;right:auto;height:56px;background:transparent;border:0;z-index:9001;padding:0}
+    .subgrp{max-width:none;margin:0;justify-content:flex-start;gap:26px}
+    .subgrp button{font-size:14px;padding:8px 2px}
+    #view-en,#view-ielts{padding-top:56px}
+    #view-fat,#view-trip{top:56px}
+    #ielts-subnav{top:56px}
+    #view-ielts .ielts-header{top:56px}
+    /* 内容铺满，两侧留白 */
+    .wrap,#view-ielts .wrap{max-width:none;padding:0 40px}
+    /* 生词本：标题、统计、模式按钮一行排开 */
+    #view-en>header .wrap{display:flex;align-items:center;gap:36px;flex-wrap:wrap}
+    #view-en>header .hero-top{flex:0 0 auto;align-items:center;gap:28px}
+    #view-en>header .statline{flex:0 1 400px;margin-top:0}
+    #view-en>header .modes{flex:0 0 auto;margin:0 0 0 auto;min-width:470px}
+    #list-view .cats,#flash .cats,#test .cats{max-width:900px}
+    /* 词条列表：多列卡片 */
+    .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:14px;align-items:start}
+    .toolbar .search{max-width:520px}
+    /* 背诵 / 自测：卡片居中但更宽 */
+    #flash .fc-stage,#flash .fc-controls,#flash .fc-meta,#test .test-list{max-width:900px;margin-left:auto;margin-right:auto}
+  }
 </style>
 <div class="toast" id="toast"></div>
 
@@ -1674,8 +1701,8 @@ refresh(); // show seed words immediately, no waiting on storage
   sw(s==='basics'?'basics':'notes');
 })();
 </script>
-<script src="watch.js?v=8"></script>
+<script src="watch.js?v=9"></script>
 <script src="channels.js?v=2"></script>
-<script src="pump.js?v=1"></script>
+<script src="pump.js?v=2"></script>
 </body>
 </html>
