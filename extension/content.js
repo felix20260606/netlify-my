@@ -867,7 +867,7 @@
       panel = document.createElement("div"); panel.id = "vs-panel";
       panel.innerHTML = '<div class="mn" title="展开"><span>字幕（隐藏）</span><i>' + I("down") + '</i></div><div class="ph"><span class="tabs"><b data-t="subs" class="on">字幕</b><b data-t="words">词语</b><b data-t="saved">已保存</b></span><span class="pr"><span id="vs-pf" title="载入字幕文件（.srt .vtt .ass .ssa）">' + I("file") + '</span><span id="vs-pr" title="修复：重新获取字幕">' + I("replay") + '</span><span id="vs-pe" title="导出">' + I("down2") + '</span><span id="vs-pg" title="设置">' + I("gear") + '</span><span id="vs-px" title="隐藏">' + I("x") + '</span></span></div><div class="em"><a data-k="html">打印（HTML）</a><a data-k="excel">Excel</a><a data-k="saved">已保存项目</a></div><input type="file" id="vs-file" accept=".srt,.vtt,.ass,.ssa" hidden><div class="ls"></div><i id="vs-back" title="回到当前字幕">' + I("target") + "</i>";
       listEl = $(".ls", panel); mountPanel();
-      // ✕ 是收起：整块字幕栏藏起来，用视频右侧的图标按钮（#vs-tv）再展开
+      // ✕ 是收起：默认视图下收成「字幕（隐藏）」一条（同 LR），影院 / 全屏时整块藏起来；都可以用视频右侧的 ☰（#vs-tv）再展开
       const setMin = v => { panelMin = v; panel.classList.toggle("min", v); chrome.storage.local.set({ panelMin: v }); hideMini(); mountPanel(); if (!v) markPanel(cur, true); };
       panel.classList.toggle("min", panelMin);
       $("#vs-px", panel).onclick = () => setMin(true);
@@ -930,7 +930,8 @@
     setTimeout(() => window.dispatchEvent(new Event("resize")), 30); // 让 YouTube 按新宽度重排视频
   }
   function checkVV() { const h = vvHost(); if (h !== vvWas) { vvWas = h; mountPanel(); } }
-  document.addEventListener("fullscreenchange", () => setTimeout(checkVV, 60));
+  document.addEventListener("fullscreenchange", () => [60, 400, 1200].forEach(t => setTimeout(checkVV, t)));
+  setInterval(() => { if (panel && !document.hidden) checkVV(); }, 1500); // 暂停时切换影院 / 全屏也能及时换位置
   function mountPanel() {
     if (!panel) return;
     const vv = vvHost(); vvWas = vv;
