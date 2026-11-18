@@ -1,9 +1,9 @@
 (function () {
-  const DEF = { showPat: true, gramLabel: "abbr", capSync: true, savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 12, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
+  const DEF = { showPat: true, n_phrase: true, n_spoken: true, n_link: true, n_word: true, cloze: false, gramLabel: "abbr", capSync: true, savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 12, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
   let tagOpen = false, wtags = {}, suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
-  let pEl, root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wtag = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
+  let pEl, pdEl, root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wtag = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
   const pendIdx = new Set(), retry = {};
 
   const $ = (s, r) => (r || document).querySelector(s);
@@ -283,6 +283,7 @@
     tEl = document.createElement("div"); tEl.className = "vs-t";
     hEl = document.createElement("div"); hEl.className = "vs-h";
     pEl = document.createElement("div"); pEl.className = "vs-p";
+    pdEl = document.createElement("div"); pdEl.className = "vs-pd"; // 讲解浮层：不占位置，免得把字幕框顶出视频
     pEl.addEventListener("mouseover", e => { const c = e.target.closest(".vs-pc"); if (c) patShow(+c.dataset.i, false); });
     pEl.addEventListener("mouseleave", () => patShow(-1, false));
     pEl.addEventListener("click", e => { e.stopPropagation(); const c = e.target.closest(".vs-pc"); if (c) patShow(+c.dataset.i, true); });
@@ -292,7 +293,7 @@
     sv.addEventListener("click", e => { e.stopPropagation(); if (cur >= 0) { toggleSent(cur); syncStar(); } });
     // 隐藏字幕：鼠标移到或点击哪一行，就显示哪一行，之后保持显示，直到换句
     ["mouseenter", "click"].forEach(ev => { oEl.addEventListener(ev, () => { if (!revO) { revO = true; applyHide(); } }); [tEl, hEl].forEach(x => x.addEventListener(ev, () => { if (!revT) { revT = true; applyHide(); } })); });
-    box.append(rp, oEl, tEl, hEl, pEl, sv); root.append(box); host.append(root); root.classList.toggle("below", host !== p);
+    box.append(rp, oEl, tEl, hEl, pEl, pdEl, sv); root.append(box); host.append(root); root.classList.toggle("below", host !== p);
     box.addEventListener("mouseenter", () => clearTimeout(hideT));
     box.addEventListener("mouseleave", () => schedResume());
     box.addEventListener("mouseup", () => {
@@ -388,7 +389,7 @@
     { const ap = document.getElementById("vs-ap"); if (ap) ap.classList.toggle("on", !!S.autoPause); }
     { const p = player(); if (p) { p.classList.toggle("vs-hidectl", !!S.ctlHidden); p.classList.toggle("vs-off", !S.enabled); p.classList.toggle("vs-hidebar", !!S.hideBar && !!S.enabled); } }
     document.documentElement.classList.toggle("vs-on", !!S.enabled);
-    { const m = S.showGram === false ? "off" : (S.gramLabel || "abbr"), H = document.documentElement; H.classList.toggle("vs-gab", m !== "off"); ["zh", "en", "abbr"].forEach(x => H.classList.toggle("vs-gl-" + x, m === x)); }
+    document.documentElement.classList.toggle("vs-cloze", !!S.cloze); { const m = S.showGram === false ? "off" : (S.gramLabel || "abbr"), H = document.documentElement; H.classList.toggle("vs-gab", m !== "off"); ["zh", "en", "abbr"].forEach(x => H.classList.toggle("vs-gl-" + x, m === x)); }
     if (pill) { pill.classList.toggle("off", !S.enabled); pill.querySelector(".st").textContent = S.enabled ? "ON" : "OFF"; }
     if (tEl) tEl.style.display = S.showTrans ? "" : "none";
     if (hEl) hEl.style.display = S.showHuman ? "" : "none";
@@ -416,21 +417,29 @@
   let pats = [], patPin = -1;
   function renderPat() {
     if (!pEl) return; pats = []; patPin = -1;
-    const on = S.showPat !== false && typeof vsPatterns === "function" && !oEl.querySelector(".vs-note");
-    if (on) pats = vsPatterns([...oEl.querySelectorAll(".vs-w")].map(x => x.dataset.w));
-    pEl.innerHTML = pats.map((p, i) => '<span class="vs-pc" data-i="' + i + '">📐 <b>' + esc(p.name) + "</b> " + esc(p.zh) + "</span>").join("") + '<div class="vs-pd"></div>';
-    pEl.style.display = pats.length ? "" : "none";
+    if (!oEl.querySelector(".vs-note")) {
+      const ws = [...oEl.querySelectorAll(".vs-w")].map(x => x.dataset.w), raw = oEl.textContent;
+      if (S.showPat !== false && typeof vsPatterns === "function") pats = vsPatterns(ws, 3, raw);
+      if (typeof vsSentNotes === "function") pats = pats.concat(vsSentNotes(ws, raw, S, Math.max(1, 5 - pats.length), [].concat(...pats.map(p => p.keys))));
+    }
+    pEl.innerHTML = pats.map((p, i) => '<span class="vs-pc' + (p.cls ? " " + p.cls : "") + '" data-i="' + i + '">' + (p.icon || "📐") + " <b>" + esc(p.name) + "</b> " + esc(p.zh) + "</span>").join("");
+    pEl.style.display = pats.length ? "" : "none"; if (pdEl) pdEl.classList.remove("show");
   }
   function patShow(i, pin) {
     if (pin) { patPin = patPin === i ? -1 : i; i = patPin; } else if (i < 0) i = patPin;
     const ws = oEl ? [...oEl.querySelectorAll(".vs-w")] : [];
     ws.forEach(w => w.classList.remove("vs-pk"));
     pEl.querySelectorAll(".vs-pc").forEach(c => c.classList.toggle("on", +c.dataset.i === i));
-    const d = pEl.querySelector(".vs-pd"), p = pats[i];
-    if (!p) { if (d) d.classList.remove("show"); return; }
+    const d = pdEl, p = pats[i];
+    if (!p) { d.classList.remove("show"); return; }
     p.keys.forEach(k => ws[k] && ws[k].classList.add("vs-pk"));
-    d.innerHTML = '<div class="tp">' + esc(p.tip) + '</div>' + (p.ex ? '<div class="ex">例：' + esc(p.ex) + "</div>" : "");
-    d.classList.add("show");
+    d.innerHTML = '<div class="hd">' + (p.icon || "📐") + " " + esc(p.name) + " · " + esc(p.zh) + '</div><div class="tp">' + esc(p.tip) + '</div>' + (p.ex ? '<div class="ex">例：' + esc(p.ex) + "</div>" : "");
+    // 放在字幕框上方还是下方：看哪边空间够（以播放器为界，字幕在视频下方时以窗口为界）
+    const pl = player(), inP = !!(pl && pl.contains(box)), cr = inP ? pl.getBoundingClientRect() : { top: 0, bottom: innerHeight, width: innerWidth }, br = box.getBoundingClientRect();
+    d.style.maxWidth = Math.max(220, Math.min(560, cr.width - 24)) + "px"; d.style.maxHeight = "";
+    d.classList.remove("up", "down"); d.classList.add("show");
+    const h = d.offsetHeight, upS = br.top - cr.top - 10, dnS = cr.bottom - br.bottom - 10, up = upS >= h || upS >= dnS;
+    d.classList.add(up ? "up" : "down"); if (h > (up ? upS : dnS)) d.style.maxHeight = Math.max(80, up ? upS : dnS) + "px";
   }
   function render(i) {
     if (!build()) return;
@@ -561,7 +570,7 @@
   function showMini(el) {
     hideMini(); const word = el.dataset.w, p = player(), inP = !!(p && p.contains(el));
     mini = document.createElement("div"); mini.id = "vs-mini"; mini.className = inP ? "" : "fx";
-    mini.innerHTML = '<div class="pz"></div><div class="hd wd" style="display:none"></div><div class="ms">…</div>' + gramLine(el) + freqBar(word);
+    mini.innerHTML = '<div class="pz"></div><div class="hd wd" style="display:none"></div><div class="ms">…</div>' + gramLine(el) + (S.n_word !== false && typeof vsWordNotesHtml === "function" ? vsWordNotesHtml(word, true) : "") + freqBar(word);
     (inP ? p : document.body).append(mini);
     if (inP && root) mini.style.setProperty("--vs-fs", root.style.getPropertyValue("--vs-fs") || "22px");
     mini.style.setProperty("--fbc", getComputedStyle(el).color);
@@ -633,6 +642,7 @@
       (tip.dataset.lemma && tip.dataset.lemmaT ? '<div class="sec phz"><div class="lw">' + esc(tip.dataset.lemma) + ' <span class="ph">（' + esc(word) + ' 的原形）</span></div><div class="ln">' + esc(tip.dataset.lemmaT) + "</div></div>" : "") +
       (g && g.zh && g.zh.length ? '<div class="sec"><div class="lw">' + esc(word) + "</div>" + g.zh.map(z => '<div class="ln"><i>(' + esc(z.pos) + ")</i>" + esc(z.words.join("，")) + "</div>").join("") + "</div>" : "") +
       (d && d.meanings && d.meanings.length ? '<div class="sec">' + d.meanings.map(m => m.defs.map((x, i) => '<div class="ln en"><i>' + (i ? "" : "(" + esc(m.pos) + ")") + "</i>" + vsMark(esc(x.def), S) + (x.example ? '<div class="eg">“' + vsMark(esc(x.example), S) + "”</div>" : "") + "</div>").join("")).join("") + "</div>" : "") +
+      (S.n_word !== false && typeof vsWordNotesHtml === "function" ? vsWordNotesHtml(word, false) : "") +
       '<div class="sec lk">' + EXT.map(e => '<a target="_blank" rel="noopener" title="' + e[1] + '" href="' + e[2].replace("WORD", encodeURIComponent(word)) + '">' + e[0] + "</a>").join("") + users.map((u, n) => '<a target="_blank" rel="noopener" href="' + esc(u.replace(/WORD/g, encodeURIComponent(word))) + '">U' + (n + 1) + "</a>").join("") + "</div>" +
       '<div class="exh">示例：当前文本（' + ex.length + "）</div>" +
       (ex.slice(0, 40).map(i => '<div class="ex' + (i === cur ? " cur" : "") + '" data-i="' + i + '" title="' + esc(trans[i] || human[i] || "") + '"><i class="pl" data-a="go" title="播放这句">' + I("play") + '</i><span class="tx">' + wordsHtml(cues[i].t) + '</span><i class="st' + (sk.has(sentKey(cues[i])) ? " on" : "") + '" data-a="star">' + I("star") + "</i></div>").join("") || '<div class="ex"><span class="tx" style="color:#7f8994">本视频里没有其它例句</span></div>') + "</div>";
