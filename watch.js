@@ -15,7 +15,7 @@
   let doc = null, cues = [], cur = -1, player = null, ready = false, timer = null, pausedFor = -1, lock = false, follow = true, userScroll = 0, apiP = null, sheetWord = "";
 
   /* 书签小工具：在 YouTube 页面里读出正在显示的字幕，存到本站，再跳回来学习（手机上不依赖电脑） */
-  const BM_SRC = "(function(){ var K=\"__KEY__\",S=\"__SITE__\",D=document,L=location; if(!/(^|\\.)youtube\\.com$/.test(L.hostname)){alert(\"请先在 Safari 里打开 YouTube 的视频页，再点这个书签\");return;} var m=L.href.match(/[?&]v=([\\w-]{11})/)||L.href.match(/\\/shorts\\/([\\w-]{11})/); if(!m){alert(\"请先打开一个 YouTube 视频，再点这个书签\");return;} var v=m[1],p=D.getElementById(\"movie_player\")||D.querySelector(\".html5-video-player\"),done=false,hit=false; var box=D.createElement(\"div\");box.style.cssText=\"position:fixed;left:12px;right:12px;top:12px;z-index:2147483647;background:#0c9370;color:#fff;font:600 15px/1.4 system-ui;padding:12px 14px;border-radius:12px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.35)\"; var say=function(t){box.textContent=t;if(!box.parentNode)D.body.appendChild(box);}; say(\"正在读取字幕…\"); function parse(t){var j=JSON.parse(t),c=[],i,e,s;for(i=0;i<(j.events||[]).length;i++){e=j.events[i];if(!e.segs)continue;s=e.segs.map(function(x){return x.utf8||\"\"}).join(\"\").replace(/\\s+/g,\" \").trim();if(!s)continue;c.push({s:(e.tStartMs||0)/1000,e:((e.tStartMs||0)+(e.dDurationMs||0))/1000,t:s});} for(i=0;i<c.length-1;i++)if(c[i].e>c[i+1].s)c[i].e=c[i+1].s;return c.filter(function(x){return x.e>x.s});} function send(c,lang){if(done||!c.length)return;done=true;hit=true;say(\"拿到 \"+c.length+\" 句字幕，正在保存…\");var a=\"\";try{a=p.getVideoData().author||\"\"}catch(e){} F.call(window,S+\"/.netlify/functions/cap\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\",\"X-Key\":K},body:JSON.stringify({v:v,title:D.title.replace(/^\\(\\d+\\)\\s*/,\"\").replace(/ - YouTube$/,\"\"),author:a,lang:lang||\"en\",cues:c})}).then(function(r){return r.json()}).then(function(r){if(r&&r.ok){say(\"已保存，正在打开学习页…\");L.href=S+\"/?v=\"+v;}else{done=false;say(\"保存失败：\"+((r&&r.error)||\"未知错误\"));}}).catch(function(){done=false;say(\"保存失败：网络问题，请再点一次书签\");});} var F=window.fetch,O=XMLHttpRequest.prototype.open,seen={}; function grab(u){if(done||!/\\/api\\/timedtext/.test(u))return;var a;try{a=new URL(u,L.href)}catch(e){return}if(a.searchParams.get(\"v\")&&a.searchParams.get(\"v\")!==v)return;a.searchParams.delete(\"tlang\");a.searchParams.set(\"fmt\",\"json3\");var k=a.href;if(seen[k])return;seen[k]=1;F.call(window,k).then(function(r){return r.ok?r.text():\"\"}).then(function(t){if(t)send(parse(t),a.searchParams.get(\"lang\"))}).catch(function(){seen[k]=0});} XMLHttpRequest.prototype.open=function(a,u){try{grab(String(u))}catch(e){}return O.apply(this,arguments);}; window.fetch=function(i){try{grab(String(typeof i===\"string\"?i:(i&&i.url)||\"\"))}catch(e){}return F.apply(this,arguments);}; var scan=function(){if(done)return;var es=performance.getEntriesByType(\"resource\"),i;for(i=es.length-1;i>=0;i--)grab(es[i].name);}; var kick=function(){if(done||!p)return;try{p.loadModule&&p.loadModule(\"captions\");var tl=p.getOption(\"captions\",\"tracklist\")||[],en=tl.filter(function(x){return /^en/.test(x.languageCode)}),tr=en.filter(function(x){return x.kind!==\"asr\"})[0]||en[0]||tl[0];p.setOption(\"captions\",\"track\",{});if(tr)setTimeout(function(){try{p.setOption(\"captions\",\"track\",{languageCode:tr.languageCode})}catch(e){}},350);else if(p.toggleSubtitlesOn)p.toggleSubtitlesOn();}catch(e){}}; scan();setTimeout(function(){if(!done)kick()},1200);setTimeout(kick,4000);setTimeout(kick,7500);var iv=setInterval(function(){if(done)clearInterval(iv);else scan()},700);setTimeout(function(){clearInterval(iv)},11000); setTimeout(function(){if(!hit)say(\"没拿到字幕：这个视频可能没有字幕。请先点一下播放，再点一次书签试试\");setTimeout(function(){if(!hit&&box.parentNode)box.parentNode.removeChild(box)},6000);},11000); })();";
+  const BM_SRC = "(function(){ var K=\"__KEY__\",S=\"__SITE__\",D=document,L=location; if(!/(^|\\.)youtube\\.com$/.test(L.hostname)){alert(\"请先在 Safari 里打开 YouTube 的视频页，再点这个书签\");return;} var m=L.href.match(/[?&]v=([\\w-]{11})/)||L.href.match(/\\/shorts\\/([\\w-]{11})/); if(!m){alert(\"请先打开一个 YouTube 视频，再点这个书签\");return;} var v=m[1],p=D.getElementById(\"movie_player\")||D.querySelector(\".html5-video-player\"),done=false,hit=false; var box=D.createElement(\"div\");box.style.cssText=\"position:fixed;left:12px;right:12px;top:12px;z-index:2147483647;background:#0c9370;color:#fff;font:600 15px/1.4 system-ui;padding:12px 14px;border-radius:12px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.35)\"; var say=function(t){box.textContent=t;if(!box.parentNode)D.body.appendChild(box);}; say(\"正在读取字幕…\"); function parse(t){var j=JSON.parse(t),c=[],i,e,s;for(i=0;i<(j.events||[]).length;i++){e=j.events[i];if(!e.segs)continue;s=e.segs.map(function(x){return x.utf8||\"\"}).join(\"\").replace(/\\s+/g,\" \").trim();if(!s)continue;c.push({s:(e.tStartMs||0)/1000,e:((e.tStartMs||0)+(e.dDurationMs||0))/1000,t:s});} for(i=0;i<c.length-1;i++)if(c[i].e>c[i+1].s)c[i].e=c[i+1].s;return c.filter(function(x){return x.e>x.s});} function send(c,lang){if(done||!c.length)return;done=true;hit=true;say(\"共 \"+c.length+\" 句（\"+c.filter(function(x){return x.r}).length+\" 句有中文），正在保存…\");var a=\"\";try{a=p.getVideoData().author||\"\"}catch(e){} F.call(window,S+\"/.netlify/functions/cap\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\",\"X-Key\":K},body:JSON.stringify({v:v,tl:\"zh-CN\",title:D.title.replace(/^\\(\\d+\\)\\s*/,\"\").replace(/ - YouTube$/,\"\"),author:a,lang:lang||\"en\",cues:c})}).then(function(r){return r.json()}).then(function(r){if(r&&r.ok){say(\"已保存，正在打开学习页…\");L.href=S+\"/?v=\"+v;}else{done=false;say(\"保存失败：\"+((r&&r.error)||\"未知错误\"));}}).catch(function(){done=false;say(\"保存失败：网络问题，请再点一次书签\");});} var F=window.fetch,O=XMLHttpRequest.prototype.open,seen={}; function cl(t){t=String(t||\"\").replace(/\\[[^\\]]*\\]|\\u266a|>>+|\\u00bb/g,\" \").replace(/\\s+/g,\" \").trim();return /^\\([^)]*\\)$/.test(t)?\"\":t;} function merge(c,z){var m={},i,k,b,d;for(i=0;i<z.length;i++)m[Math.round(z[i].s*10)]=z[i].t; for(i=0;i<c.length;i++){k=Math.round(c[i].s*10);c[i].r=m[k]||m[k-1]||m[k+1]||\"\";if(!c[i].r&&z.length){b=null;for(d=0;d<z.length;d++)if(z[d].s<c[i].e&&z[d].e>c[i].s&&Math.abs(z[d].s-c[i].s)<1.5){b=z[d];break;}if(b)c[i].r=b.t;}} var o=[];for(i=0;i<c.length;i++){c[i].t=cl(c[i].t);c[i].r=cl(c[i].r);if(c[i].t)o.push(c[i]);}return o;} function grab(u){if(done||!/\\/api\\/timedtext/.test(u))return;var a;try{a=new URL(u,L.href)}catch(e){return}if(a.searchParams.get(\"v\")&&a.searchParams.get(\"v\")!==v)return;a.searchParams.delete(\"tlang\");a.searchParams.set(\"fmt\",\"json3\");var k=a.href;if(seen[k])return;seen[k]=1;var lang=a.searchParams.get(\"lang\")||\"en\"; F.call(window,k).then(function(r){return r.ok?r.text():\"\"}).then(function(t){if(!t||done)return;var c=parse(t);if(!c.length)return;say(\"拿到 \"+c.length+\" 句字幕，正在取中文…\");a.searchParams.set(\"tlang\",\"zh-Hans\"); return F.call(window,a.href).then(function(r){return r.ok?r.text():\"\"}).then(function(x){var z=[];try{z=x?parse(x):[]}catch(e){}send(merge(c,z),lang)},function(){send(merge(c,[]),lang)});}).catch(function(){seen[k]=0});} XMLHttpRequest.prototype.open=function(a,u){try{grab(String(u))}catch(e){}return O.apply(this,arguments);}; window.fetch=function(i){try{grab(String(typeof i===\"string\"?i:(i&&i.url)||\"\"))}catch(e){}return F.apply(this,arguments);}; var scan=function(){if(done)return;var es=performance.getEntriesByType(\"resource\"),i;for(i=es.length-1;i>=0;i--)grab(es[i].name);}; var kick=function(){if(done||!p)return;try{p.loadModule&&p.loadModule(\"captions\");var tl=p.getOption(\"captions\",\"tracklist\")||[],en=tl.filter(function(x){return /^en/.test(x.languageCode)}),tr=en.filter(function(x){return x.kind!==\"asr\"})[0]||en[0]||tl[0];p.setOption(\"captions\",\"track\",{});if(tr)setTimeout(function(){try{p.setOption(\"captions\",\"track\",{languageCode:tr.languageCode})}catch(e){}},350);else if(p.toggleSubtitlesOn)p.toggleSubtitlesOn();}catch(e){}}; scan();setTimeout(function(){if(!done)kick()},1200);setTimeout(kick,4000);setTimeout(kick,7500);var iv=setInterval(function(){if(done)clearInterval(iv);else scan()},700);setTimeout(function(){clearInterval(iv)},11000); setTimeout(function(){if(!hit)say(\"没拿到字幕：这个视频可能没有字幕。请先点一下播放，再点一次书签试试\");setTimeout(function(){if(!hit&&box.parentNode)box.parentNode.removeChild(box)},6000);},11000); })();";
   const bookmarklet = () => { let k = ""; try { k = SYNC_KEY; } catch (e) {} return "javascript:" + encodeURIComponent(BM_SRC.replace("__KEY__", () => k).replace("__SITE__", () => location.origin)); };
   /* ---------- 样式 ---------- */
   const css = `
@@ -58,6 +58,8 @@
   .wt-ctl{display:flex;gap:6px;margin-top:8px;flex:none}
   .wt-ctl button{flex:1;min-width:0;min-height:44px;border:1px solid var(--line);background:var(--paper);border-radius:11px;font:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;padding:0 2px;white-space:nowrap}
   .wt-ctl button.on{background:var(--jade);border-color:var(--jade);color:#fff}
+  .wt-note{flex:none;margin-top:8px;padding:8px 12px;border-radius:10px;background:#FFF6E5;color:#8a5a00;font-size:13px;line-height:1.5}
+  .wt-note button{margin-left:8px;border:0;border-radius:8px;background:var(--jade);color:#fff;font:inherit;font-weight:700;padding:6px 12px;min-height:36px;cursor:pointer}
   .wt-list{flex:1 1 auto;min-height:120px;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:8px;border:1px solid var(--line);border-radius:12px;background:var(--paper);position:relative}
   .wt-row{padding:9px 12px 9px 46px;border-bottom:1px solid var(--line);position:relative;cursor:pointer;font-size:15.5px;line-height:1.45}
   .wt-row i{position:absolute;left:10px;top:11px;font-style:normal;font-size:11px;color:var(--muted)}
@@ -130,6 +132,7 @@
           <button id="wt-ht">藏译文</button>
           <button id="wt-rate">1×</button>
         </div>
+        <div class="wt-note" id="wt-note" style="display:none"></div>
         <div class="wt-list" id="wt-list"></div>
       </div>`;
     const view = document.createElement("div"); view.id = "view-video"; view.innerHTML = '<div class="wrap"></div>'; view.firstChild.append(root);
@@ -194,14 +197,15 @@
   async function open(v) {
     root.classList.add("playing"); document.documentElement.classList.add("wt-playing");
     doc = { v, title: "", cues: [] }; cues = []; cur = -1; pausedFor = -1; lock = false; follow = true; listEl.classList.remove("away");
+    note("");
     $("#wt-title").textContent = "加载中…"; listEl.innerHTML = '<div class="wt-empty">正在读取字幕…</div>'; showSub(-1); fit();
     startPlayer(v);
     let d = null;
     try { const r = await fetch(API + "?v=" + v); if (r.ok) d = await r.json(); } catch (e) { d = LS.get("wt:doc:" + v, null); }
     if (!doc || doc.v !== v) return;
     if (d && d.ok && d.cues && d.cues.length) {
-      doc = d; cues = d.cues; LS.set("wt:doc:" + v, d);
-      const tr = LS.get("wt:tr:" + v, {}); cues.forEach((c, i) => { if (!c.r && tr[i]) c.r = tr[i]; });
+      d.cues = tidy(d.cues); doc = d; cues = d.cues; LS.set("wt:doc:" + v, d);
+      const tr = LS.get("wt:tr:" + v, {}); cues.forEach(c => { if (!c.r && tr[c.s]) c.r = tr[c.s]; });
       $("#wt-title").textContent = d.title || v; drawCues(); fillTrans(v);
     } else {
       $("#wt-title").textContent = "没有字幕";
@@ -212,20 +216,36 @@
   function drawCues() {
     listEl.innerHTML = cues.map((c, i) => '<div class="wt-row" data-i="' + i + '"><i>' + fmt(c.s) + '</i><span class="t">' + markup(c.t) + '</span><span class="r">' + esc(c.r || "") + "</span></div>").join("") + '<button class="wt-back">↓ 回到当前</button>';
   }
-  async function fillTrans(v) { // 没有译文的句子：在浏览器里分批翻译并缓存
-    const need = []; cues.forEach((c, i) => { if (!c.r) need.push(i); }); if (!need.length) return;
-    const tl = (doc && doc.tl) || "zh-CN", cache = LS.get("wt:tr:" + v, {});
-    for (let k = 0; k < need.length; k += 30) {
-      if (!doc || doc.v !== v) return;
-      const idx = need.slice(k, k + 30);
-      try {
-        const r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=" + encodeURIComponent(tl) + "&dt=t&q=" + encodeURIComponent(idx.map(i => cues[i].t.replace(/\n/g, " ")).join("\n")));
-        const j = await r.json(), parts = (j[0] || []).map(x => x[0]).join("").split("\n");
-        if (parts.length !== idx.length) continue;
-        idx.forEach((i, n) => { cues[i].r = cache[i] = parts[n].trim(); const row = listEl.children[i]; if (row && $(".r", row)) $(".r", row).textContent = cues[i].r; if (i === cur) showSub(cur); });
+  const clean = t => { t = String(t || "").replace(/\[[^\]]*\]|\u266a|>>+|\u00bb|&gt;&gt;/g, " ").replace(/\s+/g, " ").trim(); return /^\([^)]*\)$/.test(t) ? "" : t; };
+  const tidy = list => { const o = []; (list || []).forEach(c => { const t = clean(c.t); if (t) o.push({ s: +c.s || 0, e: +c.e || 0, t, r: clean(c.r) }); }); for (let i = 0; i < o.length - 1; i++) if (o[i].e > o[i + 1].s) o[i].e = Math.max(o[i].s + 0.2, o[i + 1].s); return o; };
+  const note = (html) => { const n = $("#wt-note"); if (!n) return; n.innerHTML = html || ""; n.style.display = html ? "" : "none"; fit(); };
+  async function gtLines(lines, tl) { // 一批句子合并成一次请求；行数对不上就返回 null
+    const r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=" + encodeURIComponent(tl) + "&dt=t&q=" + encodeURIComponent(lines.map(x => x.replace(/\n/g, " ")).join("\n")));
+    if (!r.ok) throw new Error("http " + r.status);
+    const j = await r.json(), parts = (j[0] || []).map(x => x[0]).join("").split("\n");
+    return parts.length === lines.length ? parts.map(x => x.trim()) : null;
+  }
+  let fillBusy = false;
+  async function fillTrans(v) { // 没有译文的句子：在浏览器里分批翻译、缓存，全部补齐后存回网站
+    if (fillBusy) return; const need = []; cues.forEach((c, i) => { if (!c.r) need.push(i); }); if (!need.length) { note(""); return; }
+    fillBusy = true; const tl = (doc && doc.tl) || "zh-CN", cache = LS.get("wt:tr:" + v, {}); let done = 0, failed = 0;
+    const put = (i, t) => { cues[i].r = t; cache[cues[i].s] = t; const row = listEl.children[i]; if (row && $(".r", row)) $(".r", row).textContent = t; if (i === cur) showSub(cur); };
+    try {
+      for (let k = 0; k < need.length; k += 20) {
+        if (!doc || doc.v !== v) return;
+        const idx = need.slice(k, k + 20); note("正在翻译字幕… " + done + " / " + need.length);
+        let parts = null, okReq = false;
+        for (let a = 0; a < 3 && !okReq; a++) { try { parts = await gtLines(idx.map(i => cues[i].t), tl); okReq = true; } catch (e) { await new Promise(r => setTimeout(r, 900 * (a + 1))); } }
+        if (okReq && !parts) { parts = []; for (const i of idx) { try { const one = await gtLines([cues[i].t], tl); parts.push(one ? one[0] : ""); } catch (e) { parts.push(""); } } }
+        if (!parts) { failed += idx.length; continue; }
+        idx.forEach((i, n) => { if (parts[n]) { put(i, parts[n]); done++; } else failed++; });
         LS.set("wt:tr:" + v, cache);
-      } catch (e) { return; }
-    }
+      }
+    } finally { fillBusy = false; }
+    if (!doc || doc.v !== v) return;
+    if (failed) { note("有 " + failed + " 句没翻译出来（翻译服务暂时拒绝了这个网络的请求）。<button id=\"wt-retry\">重试</button>"); const b = $("#wt-retry"); if (b) b.onclick = () => fillTrans(v); return; }
+    note("");
+    try { let k = ""; try { k = SYNC_KEY; } catch (e) {} if (k) fetch(API, { method: "POST", headers: { "Content-Type": "application/json", "X-Key": k }, body: JSON.stringify({ v: doc.v, title: doc.title, author: doc.author, lang: doc.lang, tl, cues }) }).catch(() => {}); } catch (e) {}
   }
 
   /* ---------- 播放器 ---------- */

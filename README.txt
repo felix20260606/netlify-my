@@ -10,14 +10,17 @@
   ※ 不要直接双击 index.html（file:// 下图片和 tab 都加载不出来）
 
 【部署到线上】
-  1) Netlify → 项目 amazing-horse-f15662 → Deploys 页
-  2) 把【整个文件夹】拖进虚线框「Need to update your project?」
-     （文件多，必须拖文件夹，不能只拖单个文件）
-  3) 出现新的一条 Production · Published 即完成，网址不变：
-     https://amazing-horse-f15662.netlify.app
+  网站连着 GitHub 仓库 felix20260606/netlify-my，推送到 main 分支就自动部署，
+  网址：https://ruilearning-my.netlify.app
+  ※ 每次部署扣 15 点 Netlify 额度（免费每月 300 点，约 20 次）。
+     改动先在本地测好、攒在一起再推，不要一改就推。
+  ※ 不要再用「拖文件夹 / 拖单个文件」的方式部署，会把自动部署的版本整个替换掉。
 
 【文件清单】
-  index.html             主页面（英语 / 减脂 / 旅游 三个 tab）
+  index.html             主页面（顶部：英语 / 生活 / 视频）
+  watch.js               「🎬 视频」：嵌入播放器 + 同步双语字幕 + 点词查词 + 书签小工具
+  netlify/functions/cap.mjs  视频字幕存取接口（Netlify Blobs；写入需要同步密钥）
+  package.json           接口依赖（@netlify/blobs）
   fat-nav.html           减脂导航页（减脂 → 🧭导航，默认；全部减脂页面卡片目录）
   jianzhi-wrap.html      减脂·卷饼公式（减脂 → 卷饼公式，默认；照用户实拍小票+超市目录规划）
   jianzhi-exec10.html    减脂·10天傻瓜执行版（减脂 → 10天执行，默认；178cm/91kg定制，照做即可）
