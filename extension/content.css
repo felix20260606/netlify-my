@@ -498,3 +498,5 @@ html.vs-cloze #vs-sub .vs-o .vs-w:is(.vs-u1,.vs-u2,.vs-lo,.vs-ln):hover{color:#f
 /* 「展开 / 收起字幕栏」按钮的提示：放在按钮左边、小一号；全屏时只留图标，不弹文字 */
 #vs-tv[data-tip]:hover::after{right:calc(100% + 8px);left:auto;font-size:12px;padding:5px 9px;border-radius:7px}
 #movie_player.ytp-fullscreen #vs-tv[data-tip]::after,:fullscreen #vs-tv[data-tip]::after{display:none!important;content:none!important}
+/* 收起后不再留「字幕（隐藏）」那一条，整块藏起来；用视频右侧的图标按钮展开 / 收起 */
+#vs-panel.min{display:none!important}

@@ -867,7 +867,7 @@
       panel = document.createElement("div"); panel.id = "vs-panel";
       panel.innerHTML = '<div class="mn" title="展开"><span>字幕（隐藏）</span><i>' + I("down") + '</i></div><div class="ph"><span class="tabs"><b data-t="subs" class="on">字幕</b><b data-t="words">词语</b><b data-t="saved">已保存</b></span><span class="pr"><span id="vs-pf" title="载入字幕文件（.srt .vtt .ass .ssa）">' + I("file") + '</span><span id="vs-pr" title="修复：重新获取字幕">' + I("replay") + '</span><span id="vs-pe" title="导出">' + I("down2") + '</span><span id="vs-pg" title="设置">' + I("gear") + '</span><span id="vs-px" title="隐藏">' + I("x") + '</span></span></div><div class="em"><a data-k="html">打印（HTML）</a><a data-k="excel">Excel</a><a data-k="saved">已保存项目</a></div><input type="file" id="vs-file" accept=".srt,.vtt,.ass,.ssa" hidden><div class="ls"></div><i id="vs-back" title="回到当前字幕">' + I("target") + "</i>";
       listEl = $(".ls", panel); mountPanel();
-      // ✕ 不是关闭，而是收起成一条“字幕（隐藏）”，点一下再展开
+      // ✕ 是收起：整块字幕栏藏起来，用视频右侧的图标按钮（#vs-tv）再展开
       const setMin = v => { panelMin = v; panel.classList.toggle("min", v); chrome.storage.local.set({ panelMin: v }); hideMini(); mountPanel(); if (!v) markPanel(cur, true); };
       panel.classList.toggle("min", panelMin);
       $("#vs-px", panel).onclick = () => setMin(true);
