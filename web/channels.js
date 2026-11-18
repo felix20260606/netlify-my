@@ -30,7 +30,10 @@
   .ch-s button:hover,.ch-s a:hover{background:var(--jade);color:#fff}
   .ch-empty{color:var(--muted);font-size:13px;padding:10px 2px}
   .ch-src{color:var(--muted);font-size:12px;margin:10px 2px 0}.ch-src a{color:var(--muted)}
-  @media (max-width:520px){.ch-list{grid-template-columns:1fr}}`;
+  @media (max-width:520px){.ch-list{grid-template-columns:1fr}}
+  .ch-row.ty button.on{color:#2b1d05}.ch-c{background:var(--ui-surface-2)}.ch-c:hover{border-color:var(--ui-line-2)}
+  .ch-s button,.ch-s a{color:var(--ui-pur-text);border-color:rgba(185,133,230,.5)}.ch-s button:hover,.ch-s a:hover{background:var(--ui-pur);border-color:var(--ui-pur);color:#fff}
+  .ch-n:hover{color:var(--ui-pur-text)}.ch-intro summary{color:var(--ui-pur-text)}`;
   const fmt = t => Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0");
   const lab = s => String(s || "").replace(/[（(]\s*\d+:\d+\s*[)）]/g, "").replace(/\bSample\b/ig, "样片").replace(/\s+/g, "").trim() || "样片"; // 原文的 Sample(5:21) → 样片（时间另外显示）
   let data = null, lv = LS.get("wt:ch:lv", "全部"), ty = LS.get("wt:ch:ty", "");

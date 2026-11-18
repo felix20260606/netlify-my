@@ -1,11 +1,11 @@
 <!DOCTYPE html><html lang="zh-CN"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>东北三省自驾游 · 沈阳出发·约20天·渡海回山东</title>
-<meta name="theme-color" content="#0C9370">
-<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#1d1e21">
+<meta name="color-scheme" content="dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -17,17 +17,17 @@
 }
 body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1080px;margin:0 auto;padding:0 16px 70px}
-.hero{position:relative;color:#fff;padding:62px 22px 54px;text-align:center;background:linear-gradient(150deg,#0FA37A 0%,#0C9370 46%,#0A6E54 100%);overflow:hidden}
-.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 16% 12%,rgba(255,255,255,.22),transparent 46%),radial-gradient(circle at 88% 78%,rgba(232,162,60,.20),transparent 50%)}
+.hero{position:relative;color:#fff;padding:62px 22px 54px;text-align:center;background:linear-gradient(150deg,#4b2370 0%,#33204a 48%,#222128 100%);overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 16% 12%,rgba(197,155,239,.22),transparent 46%),radial-gradient(circle at 88% 78%,rgba(255,184,107,.12),transparent 50%)}
 .hin{position:relative;max-width:1080px;margin:0 auto}
 .hero .k{font-family:var(--display);font-size:12px;letter-spacing:.28em;text-transform:uppercase;opacity:.95;font-weight:700}
-.hero h1{font-family:var(--display);font-size:40px;margin:12px 0 8px;font-weight:900;letter-spacing:-.01em;text-shadow:0 2px 16px rgba(0,0,0,.18)}
+.hero h1{font-family:var(--display);font-size:40px;margin:12px 0 8px;font-weight:900;letter-spacing:-.01em;text-shadow:0 2px 18px rgba(0,0,0,.35)}
 .hero .sub{font-size:16px;opacity:.95;margin-bottom:22px}
 .stats{display:flex;flex-wrap:wrap;gap:11px;justify-content:center}
-.stat{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);border-radius:14px;padding:12px 18px;min-width:112px;backdrop-filter:blur(2px)}
+.stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:12px 18px;min-width:112px;backdrop-filter:blur(2px)}
 .stat b{display:block;font-family:var(--display);font-size:26px;font-weight:900;letter-spacing:-.01em} .stat span{font-size:12px;opacity:.92}
-.rl{margin-top:22px;font-size:13.5px;opacity:.97;background:rgba(0,0,0,.16);display:inline-block;padding:11px 18px;border-radius:16px;line-height:2}
-.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;margin:20px 0;box-shadow:0 1px 2px rgba(20,35,28,.04),0 10px 26px rgba(20,35,28,.05)}
+.rl{margin-top:22px;font-size:13.5px;opacity:.97;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.06);display:inline-block;padding:11px 18px;border-radius:16px;line-height:2}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--ui-radius);padding:20px;margin:20px 0;box-shadow:var(--ui-shadow)}
 .card h2.s{font-family:var(--display);font-weight:900;font-size:21px;letter-spacing:-.01em;margin-bottom:6px;display:flex;gap:8px;align-items:center}
 .note{font-size:13.8px;color:var(--soft)}
 .tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));gap:13px;margin-top:13px}
@@ -35,11 +35,11 @@ body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1
 .tip b{display:block;margin-bottom:3px}
 .ov{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:7px;margin-top:12px}
 .ovr{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:4px solid;border-radius:10px;padding:7px 11px;font-size:13px;transition:.15s}
-.ovr:hover{background:var(--paper-2);transform:translateX(2px)}
+.ovr:hover{background:var(--ui-surface-2);transform:translateX(2px)}
 .ovd{color:#fff;font-weight:700;border-radius:6px;padding:2px 7px;font-size:12px;flex-shrink:0}
 .ovt{flex:1;font-weight:600} .ovk{color:var(--soft);font-size:11.5px;flex-shrink:0}
 .seg{margin-top:36px}
-.shead{display:flex;align-items:center;gap:15px;background:linear-gradient(120deg,var(--c1),var(--c2));color:#fff;border-radius:16px;padding:18px 22px;margin-bottom:6px;box-shadow:0 6px 18px rgba(0,0,0,.10)}
+.shead{display:flex;align-items:center;gap:15px;background:linear-gradient(120deg,var(--c1),var(--c2));color:#fff;border-radius:16px;padding:18px 22px;margin-bottom:6px;box-shadow:0 8px 22px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.06)}
 .sicon{font-size:34px} .shead h2{font-family:var(--display);font-size:23px;font-weight:900;letter-spacing:-.01em} .shead p{opacity:.95;font-size:13.5px}
 .day{background:var(--sbg);border:1px solid var(--line);border-radius:16px;padding:18px 18px 8px;margin:15px 0;scroll-margin-top:14px}
 .dhead{display:flex;align-items:center;gap:13px;margin-bottom:7px}
@@ -49,36 +49,36 @@ body{font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1
 .dsum{font-size:14px;background:var(--paper);border-radius:10px;padding:10px 13px;margin:5px 0 13px;border:1px solid var(--line)}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px;margin-bottom:12px}
 .card2{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:.15s}
-.card2:hover{box-shadow:0 8px 20px rgba(20,35,28,.08);transform:translateY(-1px)}
+.card2:hover{border-color:var(--ui-line-2);box-shadow:0 8px 20px rgba(0,0,0,.36);transform:translateY(-1px)}
 .media{position:relative;width:100%;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .ph{font-size:48px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25));opacity:.9}
 .cbody{padding:11px 13px 13px;display:flex;flex-direction:column;flex:1}
 .ctitle{font-weight:800;font-size:15px;display:flex;align-items:center;gap:6px;margin-bottom:5px}
-.cdesc{font-size:13px;color:#374151;flex:1;margin-bottom:9px}
+.cdesc{font-size:13px;color:var(--ui-ink-2);flex:1;margin-bottom:9px}
 .clinks{display:flex;gap:7px;flex-wrap:wrap}
 .b{font-size:12px;text-decoration:none;padding:5px 9px;border-radius:7px;font-weight:600;white-space:nowrap}
 .b.map{background:var(--chip);color:#fff} .b.pic{background:var(--paper-2);color:var(--ink);border:1px solid var(--line)}
-.b:hover{opacity:.88}
+.b:hover{filter:brightness(1.15)}
 .more{background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:10px 13px;margin-bottom:12px}
 .more-h{font-size:12.5px;color:var(--soft);font-weight:700;margin-bottom:7px}
 .mrow{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
 .mrow:first-of-type{border-top:none}
 .mtxt{flex:1;font-size:13px} .mtxt b{margin-right:6px} .mtxt span{color:var(--soft)}
 .mlinks{display:flex;gap:6px;flex-shrink:0}
-.mlinks a{text-decoration:none;font-size:14px;background:var(--paper-2);border-radius:7px;padding:3px 8px}
+.mlinks a{text-decoration:none;font-size:14px;background:var(--ui-surface-2);border:1px solid var(--ui-line);border-radius:7px;padding:3px 8px}
 .dfoot{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0 11px}
 .fi{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px}
 .fi b{display:block;margin-bottom:2px}
 .bkbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
 .bk{font-size:12.5px;text-decoration:none;padding:7px 12px;border-radius:9px;font-weight:700;border:1px solid transparent}
-.bk.hotel{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
-.bk.ticket{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
-.bk.ferry{background:#EAF4F0;color:#0C8A67;border-color:#BFE0D6}
-.bk:hover{opacity:.85}
+.bk.hotel{background:rgba(111,211,255,.1);color:var(--ui-blue);border-color:rgba(111,211,255,.28)}
+.bk.ticket{background:rgba(255,138,122,.1);color:var(--ui-red);border-color:rgba(255,138,122,.28)}
+.bk.ferry{background:rgba(142,229,161,.1);color:var(--ui-green);border-color:rgba(142,229,161,.28)}
+.bk:hover{filter:brightness(1.18)}
 @media(max-width:640px){.hero h1{font-size:28px}.hero{padding:44px 15px 38px}.dfoot{grid-template-columns:1fr}.stat{min-width:96px}}
 footer{text-align:center;color:var(--soft);font-size:12px;margin-top:34px;padding:18px}
-a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;text-decoration:none;border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(12,147,112,.4);font-size:19px;z-index:50}
+a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;text-decoration:none;border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(156,63,208,.45);font-size:19px;z-index:50}
 /* ==== 电脑端布局（≥1024px，手机端不受影响）==== */
 @media (min-width:1024px){
   .wrap{max-width:1560px;padding-left:44px;padding-right:44px}
@@ -93,7 +93,8 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
   .seg>.shead+.day:last-child{grid-column:1/-1}
 }
 /* ==== /电脑端布局 ==== */
-</style></head><body>
+</style><link rel="stylesheet" href="theme.css">
+</head><body>
 <div class="hero"><div class="hin">
   <div class="k">辽 · 吉 · 黑　自驾环线</div>
   <h1>东北三省自驾游手册</h1>
@@ -119,9 +120,9 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
   </div>
   <div class="card">
     <h2 class="s">🗺️ 全程总览（点击跳转当天）</h2>
-    <div class="ov"><a href="#day1" class="ovr" style="border-left-color:#0C8A67"><span class="ovd" style="background:#0C8A67">D1</span><span class="ovt">沈阳 · 今日抵达</span><span class="ovk">抵达日 · 市内</span></a><a href="#day2" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D2</span><span class="ovt">沈阳 → 集安 · 世界遗产高句丽</span><span class="ovk">约 350km</span></a><a href="#day3" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D3</span><span class="ovt">集安 → 长白山（二道白河）</span><span class="ovk">约 260km</span></a><a href="#day4" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D4</span><span class="ovt">长白山 · 北坡登顶天池</span><span class="ovk">景区换乘越野车/环保车</span></a><a href="#day5" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D5</span><span class="ovt">长白山 · 西坡花海大峡谷</span><span class="ovk">约 120km</span></a><a href="#day6" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D6</span><span class="ovt">长白山 · 机动休整日（天池备看）</span><span class="ovk">约 60km</span></a><a href="#day7" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D7</span><span class="ovt">长白山 → 延吉 · 朝鲜族之都</span><span class="ovk">约 270km</span></a><a href="#day8" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D8</span><span class="ovt">延吉 · 民俗与美食慢游</span><span class="ovk">市内</span></a><a href="#day9" class="ovr" style="border-left-color:#3F7C4E"><span class="ovd" style="background:#3F7C4E">D9</span><span class="ovt">延吉 → 珲春 · 一眼望三国</span><span class="ovk">约 200km</span></a><a href="#day10" class="ovr" style="border-left-color:#3D5A93"><span class="ovd" style="background:#3D5A93">D10</span><span class="ovt">珲春 → 敦化 → 镜泊湖</span><span class="ovk">约 360km</span></a><a href="#day11" class="ovr" style="border-left-color:#3D5A93"><span class="ovd" style="background:#3D5A93">D11</span><span class="ovt">镜泊湖 → 哈尔滨 · 东方莫斯科</span><span class="ovk">约 350km</span></a><a href="#day12" class="ovr" style="border-left-color:#3D5A93"><span class="ovd" style="background:#3D5A93">D12</span><span class="ovt">哈尔滨 · 欧陆风情深度</span><span class="ovk">市内</span></a><a href="#day13" class="ovr" style="border-left-color:#3D5A93"><span class="ovd" style="background:#3D5A93">D13</span><span class="ovt">哈尔滨 → 齐齐哈尔 · 丹顶鹤之乡</span><span class="ovk">约 300km</span></a><a href="#day14" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D14</span><span class="ovt">齐齐哈尔 → 长春 · 末代皇宫</span><span class="ovk">约 450km</span></a><a href="#day15" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D15</span><span class="ovt">长春 → 沈阳（可绕吉林市松花湖）</span><span class="ovk">约 300km</span></a><a href="#day16" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D16</span><span class="ovt">沈阳 → 大连 · 浪漫海滨</span><span class="ovk">约 400km</span></a><a href="#day17" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D17</span><span class="ovt">大连 · 旅顺口近代史</span><span class="ovk">约 90km</span></a><a href="#day18" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D18</span><span class="ovt">大连 · 金石滩 + 傍晚登船渡海</span><span class="ovk">约 110km + 登船</span></a><a href="#day19" class="ovr" style="border-left-color:#C0812B"><span class="ovd" style="background:#C0812B">D19</span><span class="ovt">烟台上岸 → 临沂 · 到家（青岛顺路可选）</span><span class="ovk">约 460km</span></a></div>
+    <div class="ov"><a href="#day1" class="ovr" style="border-left-color:#8d45bd"><span class="ovd" style="background:#7d38ab">D1</span><span class="ovt">沈阳 · 今日抵达</span><span class="ovk">抵达日 · 市内</span></a><a href="#day2" class="ovr" style="border-left-color:#3a7d4b"><span class="ovd" style="background:#336e43">D2</span><span class="ovt">沈阳 → 集安 · 世界遗产高句丽</span><span class="ovk">约 350km</span></a><a href="#day3" class="ovr" style="border-left-color:#3a7d4b"><span class="ovd" style="background:#336e43">D3</span><span class="ovt">集安 → 长白山（二道白河）</span><span class="ovk">约 260km</span></a><a href="#day4" class="ovr" style="border-left-color:#3a7d4b"><span class="ovd" style="background:#336e43">D4</span><span class="ovt">长白山 · 北坡登顶天池</span><span class="ovk">景区换乘越野车/环保车</span></a><a href="#day5" class="ovr" style="border-left-color:#3a7d4b"><span class="ovd" style="background:#336e43">D5</span><span class="ovt">长白山 · 西坡花海大峡谷</span><span class="ovk">约 120km</span></a><a href="#day6" class="ovr" style="border-left-color:#3a7d4b"><span class="ovd" style="background:#336e43">D6</span><span class="ovt">长白山 · 机动休整日（天池备看）</span><span class="ovk">约 60km</span></a><a href="#day7" class="ovr" style="border-left-color:#3a7d4b"><span class="ovd" style="background:#336e43">D7</span><span class="ovt">长白山 → 延吉 · 朝鲜族之都</span><span class="ovk">约 270km</span></a><a href="#day8" class="ovr" style="border-left-color:#3a7d4b"><span class="ovd" style="background:#336e43">D8</span><span class="ovt">延吉 · 民俗与美食慢游</span><span class="ovk">市内</span></a><a href="#day9" class="ovr" style="border-left-color:#3a7d4b"><span class="ovd" style="background:#336e43">D9</span><span class="ovt">延吉 → 珲春 · 一眼望三国</span><span class="ovk">约 200km</span></a><a href="#day10" class="ovr" style="border-left-color:#4563a3"><span class="ovd" style="background:#3a5793">D10</span><span class="ovt">珲春 → 敦化 → 镜泊湖</span><span class="ovk">约 360km</span></a><a href="#day11" class="ovr" style="border-left-color:#4563a3"><span class="ovd" style="background:#3a5793">D11</span><span class="ovt">镜泊湖 → 哈尔滨 · 东方莫斯科</span><span class="ovk">约 350km</span></a><a href="#day12" class="ovr" style="border-left-color:#4563a3"><span class="ovd" style="background:#3a5793">D12</span><span class="ovt">哈尔滨 · 欧陆风情深度</span><span class="ovk">市内</span></a><a href="#day13" class="ovr" style="border-left-color:#4563a3"><span class="ovd" style="background:#3a5793">D13</span><span class="ovt">哈尔滨 → 齐齐哈尔 · 丹顶鹤之乡</span><span class="ovk">约 300km</span></a><a href="#day14" class="ovr" style="border-left-color:#9a6220"><span class="ovd" style="background:#8a5719">D14</span><span class="ovt">齐齐哈尔 → 长春 · 末代皇宫</span><span class="ovk">约 450km</span></a><a href="#day15" class="ovr" style="border-left-color:#9a6220"><span class="ovd" style="background:#8a5719">D15</span><span class="ovt">长春 → 沈阳（可绕吉林市松花湖）</span><span class="ovk">约 300km</span></a><a href="#day16" class="ovr" style="border-left-color:#9a6220"><span class="ovd" style="background:#8a5719">D16</span><span class="ovt">沈阳 → 大连 · 浪漫海滨</span><span class="ovk">约 400km</span></a><a href="#day17" class="ovr" style="border-left-color:#9a6220"><span class="ovd" style="background:#8a5719">D17</span><span class="ovt">大连 · 旅顺口近代史</span><span class="ovk">约 90km</span></a><a href="#day18" class="ovr" style="border-left-color:#9a6220"><span class="ovd" style="background:#8a5719">D18</span><span class="ovt">大连 · 金石滩 + 傍晚登船渡海</span><span class="ovk">约 110km + 登船</span></a><a href="#day19" class="ovr" style="border-left-color:#9a6220"><span class="ovd" style="background:#8a5719">D19</span><span class="ovt">烟台上岸 → 临沂 · 到家（青岛顺路可选）</span><span class="ovk">约 460km</span></a></div>
   </div>
-  <section class="seg" style="--c1:#0C8A67;--c2:#13A585;--sbg:#EAF4F0;--chip:#0C8A67">
+  <section class="seg" style="--c1:#6a2f94;--c2:#8d45bd;--sbg:rgba(156,63,208,.07);--chip:#7d38ab">
       <div class="shead"><div class="sicon">🏯</div><div><h2>辽宁 · 起点沈阳</h2><p>一朝发祥地 · Day 1</p></div></div>
       <div class="day" id="day1">
       <div class="dhead"><div class="dnum">D1</div>
@@ -129,7 +130,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 沈阳市区</span><span>🧭 抵达日 · 市内</span></div></div></div>
       <p class="dsum">你今天到达沈阳——环线的起点。用轻松的一天读懂这座清朝龙兴之城与共和国工业长子。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#0C8A67,#13A585)"><span class="ph">🏯</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Mukden%20Palace%20in%20Shenyang.jpg?width=700" alt="沈阳故宫" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#4d2570,#7d38ab)"><span class="ph">🏯</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Mukden%20Palace%20in%20Shenyang.jpg?width=700" alt="沈阳故宫" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🏯</span>沈阳故宫</div>
         <p class="cdesc">清入关前皇宫，与北京故宫并列的世界遗产。大政殿与十王亭的八旗格局全国独一无二，红墙金瓦，气势庄严。</p>
@@ -139,7 +140,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         </div>
       </div>
     </div><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#0C8A67,#13A585)"><span class="ph">🏛️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Former%20residence%20of%20Zhang%20Zuolin%20in%20Shenyang%20seen%20from%20the%20yard.JPG?width=700" alt="张氏帅府（大帅府）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#4d2570,#7d38ab)"><span class="ph">🏛️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Former%20residence%20of%20Zhang%20Zuolin%20in%20Shenyang%20seen%20from%20the%20yard.JPG?width=700" alt="张氏帅府（大帅府）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🏛️</span>张氏帅府（大帅府）</div>
         <p class="cdesc">张作霖、张学良父子官邸，中西合璧的建筑群，是近代东北军政风云最直观的见证。</p>
@@ -161,7 +162,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
     </div></div>
       <div class="dfoot"><div class="fi"><b>🍜 美食</b>老边饺子、杨家吊炉饼、沈阳鸡架配老雪、西塔朝鲜族一条街。</div><div class="fi"><b>🏨 住宿</b>沈阳沈河区（故宫/中街附近）。</div></div>
       <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E6%B2%88%E9%98%B3%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 沈阳</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E6%B2%88%E9%98%B3%E6%95%85%E5%AE%AB%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
-    </div></section><section class="seg" style="--c1:#3F7C4E;--c2:#5BA06B;--sbg:#EEF4EC;--chip:#3F7C4E">
+    </div></section><section class="seg" style="--c1:#2a5e37;--c2:#3a7d4b;--sbg:rgba(142,229,161,.055);--chip:#336e43">
       <div class="shead"><div class="sicon">🌲</div><div><h2>吉林 · 高句丽 · 长白山 · 朝鲜族边境</h2><p>世界遗产 · 天池花海 · 一眼望三国 · Day 2–8</p></div></div>
       <div class="day" id="day2">
       <div class="dhead"><div class="dnum">D2</div>
@@ -169,7 +170,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 沈阳 → 集安（约 350km，4.5h）</span><span>🧭 约 350km</span></div></div></div>
       <p class="dsum">经通化进入吉林，抵达鸭绿江畔的“东北小江南”集安，午后探访 1600 年前的高句丽古国。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🔺</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Tomb%20of%20the%20General%201.jpg?width=700" alt="将军坟（东方金字塔）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#1f4a2b,#3a7d4b)"><span class="ph">🔺</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Tomb%20of%20the%20General%201.jpg?width=700" alt="将军坟（东方金字塔）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🔺</span>将军坟（东方金字塔）</div>
         <p class="cdesc">高句丽王陵，巨石垒砌的方坛阶梯石室墓，被誉为“东方金字塔”，气势恢宏，世界文化遗产。</p>
@@ -215,7 +216,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 二道白河 → 北坡景区（约 35km）</span><span>🧭 景区换乘越野车/环保车</span></div></div></div>
       <p class="dsum">北坡是设施最完善的经典一坡。天池、瀑布、温泉、地下森林一线串联。（暑期需提前网上实名预约门票+车）</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">💧</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Baitou%20Mountain%20Tianchi.jpg?width=700" alt="天池（北坡）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#1f4a2b,#3a7d4b)"><span class="ph">💧</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Baitou%20Mountain%20Tianchi.jpg?width=700" alt="天池（北坡）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>💧</span>天池（北坡）</div>
         <p class="cdesc">中国最深火山口湖、松花江之源。换乘越野车登主峰，碧蓝天池镶于群峰之间——能否见池全看天气与运气，清晨与晴天概率更高。</p>
@@ -225,7 +226,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         </div>
       </div>
     </div><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🏞️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Changbai%20chute1.JPG?width=700" alt="长白瀑布" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#1f4a2b,#3a7d4b)"><span class="ph">🏞️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Changbai%20chute1.JPG?width=700" alt="长白瀑布" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🏞️</span>长白瀑布</div>
         <p class="cdesc">天池水溢出形成的 68 米落差瀑布，轰鸣奔泻，沿步道近观震撼，是长白山的标志景观。</p>
@@ -250,7 +251,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 二道白河 ⇄ 西坡（约 100km，2h）</span><span>🧭 约 120km</span></div></div></div>
       <p class="dsum">西坡视野开阔，1442 级阶梯登顶看天池全貌；7–8 月高山花海是夏日限定盛景。这是本行程第二次冲天池的机会。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🏔️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Heaven%20Lake%2C%20Changbai.jpg?width=700" alt="天池（西坡）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#1f4a2b,#3a7d4b)"><span class="ph">🏔️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Heaven%20Lake%2C%20Changbai.jpg?width=700" alt="天池（西坡）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🏔️</span>天池（西坡）</div>
         <p class="cdesc">西坡登顶视野更开阔，可俯瞰天池与中朝界碑。台阶较多，量力而行——与北坡是完全不同的观池角度。</p>
@@ -299,7 +300,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 二道白河 → 延吉（约 270km，4h）</span><span>🧭 约 270km</span></div></div></div>
       <p class="dsum">驶出林海，来到色彩明快、美食爆棚的延边州府延吉，傍晚 city walk 看霓虹夜景。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🏙️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E5%BB%B6%E5%90%89%20%E5%BB%B6%E8%BE%B9%E5%A4%A7%E5%AD%A6%E7%BD%91%E7%BA%A2%E5%A2%99.jpg?width=700" alt="延吉网红打卡墙 & 夜景" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#1f4a2b,#3a7d4b)"><span class="ph">🏙️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E5%BB%B6%E5%90%89%20%E5%BB%B6%E8%BE%B9%E5%A4%A7%E5%AD%A6%E7%BD%91%E7%BA%A2%E5%A2%99.jpg?width=700" alt="延吉网红打卡墙 & 夜景" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🏙️</span>延吉网红打卡墙 & 夜景</div>
         <p class="cdesc">“中国朝鲜族第一城”，双语招牌、彩色建筑、网红墙与布尔哈通河夜景，随手一拍都出片。</p>
@@ -324,7 +325,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 延吉市区及近郊</span><span>🧭 市内</span></div></div></div>
       <p class="dsum">穿民族服装、逛市场、吃地道朝鲜族美食，悠闲深度体验延边风情的一天。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🍲</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Yanji%20West%20Market.jpg?width=700" alt="延吉水上市场" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#1f4a2b,#3a7d4b)"><span class="ph">🍲</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Yanji%20West%20Market.jpg?width=700" alt="延吉水上市场" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🍲</span>延吉水上市场</div>
         <p class="cdesc">本地人的烟火菜市场，现做米肠、打糕、辣酱与各种小吃，是觅食与感受市井生活的最佳去处。</p>
@@ -334,7 +335,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         </div>
       </div>
     </div><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🌆</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Yanji%2C%20China.jpg?width=700" alt="延吉城市风情" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#1f4a2b,#3a7d4b)"><span class="ph">🌆</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Yanji%2C%20China.jpg?width=700" alt="延吉城市风情" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🌆</span>延吉城市风情</div>
         <p class="cdesc">中国朝鲜族民俗园可租传统服饰拍照，帽儿山下双语街景独具异域风情。</p>
@@ -359,7 +360,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 延吉 → 珲春 → 防川（约 200km，2.5h）</span><span>🧭 约 200km</span></div></div></div>
       <p class="dsum">来到中俄朝三国交界的防川，一眼望三国，是自驾东北最独特的边境体验。（务必带身份证）</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#166534,#4ade80)"><span class="ph">🌐</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Tumen%20River%20Bridge%20in%202018.jpg?width=700" alt="防川 · 图们江边境（一眼望三国）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#1f4a2b,#3a7d4b)"><span class="ph">🌐</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Tumen%20River%20Bridge%20in%202018.jpg?width=700" alt="防川 · 图们江边境（一眼望三国）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🌐</span>防川 · 图们江边境（一眼望三国）</div>
         <p class="cdesc">登龙虎阁远眺，脚下中国、左侧俄罗斯、右侧朝鲜尽收眼底，图们江在此入海望向日本海，边境感震撼。</p>
@@ -381,7 +382,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
     </div></div>
       <div class="dfoot"><div class="fi"><b>🍜 美食</b>珲春俄式风味、帝王蟹、朝鲜族菜。</div><div class="fi"><b>🏨 住宿</b>珲春或返延吉。</div></div>
       <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E7%8F%B2%E6%98%A5%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 珲春</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E9%98%B2%E5%B7%9D%20%E4%B8%80%E7%9C%BC%E6%9C%9B%E4%B8%89%E5%9B%BD%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
-    </div></section><section class="seg" style="--c1:#3D5A93;--c2:#5E7BBE;--sbg:#EDF1F8;--chip:#3D5A93">
+    </div></section><section class="seg" style="--c1:#2f4a7e;--c2:#4563a3;--sbg:rgba(111,160,255,.065);--chip:#3a5793">
       <div class="shead"><div class="sicon">❄️</div><div><h2>黑龙江 · 火山湖泊 · 欧陆哈尔滨 · 鹤乡</h2><p>镜泊湖 · 中央大街 · 扎龙丹顶鹤 · Day 9–13</p></div></div>
       <div class="day" id="day10">
       <div class="dhead"><div class="dnum">D10</div>
@@ -389,7 +390,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 珲春 → 敦化 → 镜泊湖（约 360km，5h）</span><span>🧭 约 360km</span></div></div></div>
       <p class="dsum">沿途经敦化拜金鼎大佛，进入黑龙江，游览火山喷发堰塞而成的镜泊湖与壮观的吊水楼瀑布。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">🪞</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Jingpo%20Lake%20Maogong%20Mountain.JPG?width=700" alt="镜泊湖" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#26386a,#4563a3)"><span class="ph">🪞</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Jingpo%20Lake%20Maogong%20Mountain.JPG?width=700" alt="镜泊湖" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🪞</span>镜泊湖</div>
         <p class="cdesc">世界最大的高山堰塞湖之一，湖面如镜、群峰倒影，可乘游船览湖光山色，夏季清凉宜人。</p>
@@ -399,7 +400,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         </div>
       </div>
     </div><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">💦</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/DiuSeoiLau%20Waterfall.JPG?width=700" alt="吊水楼瀑布" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#26386a,#4563a3)"><span class="ph">💦</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/DiuSeoiLau%20Waterfall.JPG?width=700" alt="吊水楼瀑布" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>💦</span>吊水楼瀑布</div>
         <p class="cdesc">镜泊湖出水口的宽幅瀑布，夏季丰水期气势磅礴，有高台跳水人跳瀑表演，震撼必看。</p>
@@ -424,7 +425,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 牡丹江 → 哈尔滨（约 350km，4.5h）</span><span>🧭 约 350km</span></div></div></div>
       <p class="dsum">途经俄式小镇横道河子，傍晚抵达哈尔滨，漫步中央大街感受欧陆夜色与冰棍红肠。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">🍦</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Kitaiskaia%20Street%20in%20Harbin.JPG?width=700" alt="中央大街（夜）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#26386a,#4563a3)"><span class="ph">🍦</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Kitaiskaia%20Street%20in%20Harbin.JPG?width=700" alt="中央大街（夜）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🍦</span>中央大街（夜）</div>
         <p class="cdesc">亚洲最长步行街之一，百年方石路两侧巴洛克与文艺复兴建筑林立，必吃马迭尔冰棍、红肠、大列巴。</p>
@@ -449,7 +450,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 哈尔滨市区</span><span>🧭 市内</span></div></div></div>
       <p class="dsum">教堂、老街、江畔、太阳岛，用一整天读懂这座“东方小巴黎”。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">⛪</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Saint%20Sophia%20Cathedral%20Harbin.JPG?width=700" alt="圣索菲亚大教堂" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#26386a,#4563a3)"><span class="ph">⛪</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Saint%20Sophia%20Cathedral%20Harbin.JPG?width=700" alt="圣索菲亚大教堂" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>⛪</span>圣索菲亚大教堂</div>
         <p class="cdesc">拜占庭风格的远东最大东正教堂，红砖穹顶、成群白鸽，是哈尔滨最经典的地标与拍照点。</p>
@@ -459,7 +460,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         </div>
       </div>
     </div><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">🌊</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Harbin%20Memorial%20Tower.JPG?width=700" alt="松花江 & 防洪纪念塔" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#26386a,#4563a3)"><span class="ph">🌊</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Harbin%20Memorial%20Tower.JPG?width=700" alt="松花江 & 防洪纪念塔" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🌊</span>松花江 & 防洪纪念塔</div>
         <p class="cdesc">临江的斯大林公园与防洪纪念塔，可乘缆车或轮渡上太阳岛，看江上帆影与俄式风情园。</p>
@@ -487,7 +488,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 哈尔滨 → 齐齐哈尔（约 300km，3.5h）</span><span>🧭 约 300km</span></div></div></div>
       <p class="dsum">西行来到鹤乡齐齐哈尔，在亚洲最大芦苇湿地看丹顶鹤放飞——本行程最灵动的自然一幕。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#3730a3,#818cf8)"><span class="ph">🕊️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E9%BB%91%E9%BE%99%E6%B1%9F%E6%89%8E%E9%BE%99%E5%9B%BD%E5%AE%B6%E7%BA%A7%E8%87%AA%E7%84%B6%E4%BF%9D%E6%8A%A4%E5%8C%BA.jpg?width=700" alt="扎龙国家级自然保护区" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#26386a,#4563a3)"><span class="ph">🕊️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E9%BB%91%E9%BE%99%E6%B1%9F%E6%89%8E%E9%BE%99%E5%9B%BD%E5%AE%B6%E7%BA%A7%E8%87%AA%E7%84%B6%E4%BF%9D%E6%8A%A4%E5%8C%BA.jpg?width=700" alt="扎龙国家级自然保护区" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🕊️</span>扎龙国家级自然保护区</div>
         <p class="cdesc">中国最大的丹顶鹤繁育栖息地，广袤芦苇湿地。每日定时放飞，仙鹤翩跹掠过苇海，唯美震撼。</p>
@@ -506,7 +507,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
     </div></div>
       <div class="dfoot"><div class="fi"><b>🍜 美食</b>齐齐哈尔烤肉（名声在外）、杀猪菜、鹤城冷面。</div><div class="fi"><b>🏨 住宿</b>齐齐哈尔。</div></div>
       <div class="bkbar"><a class="bk hotel" href="https://www.baidu.com/s?wd=%E9%BD%90%E9%BD%90%E5%93%88%E5%B0%94%20%E9%85%92%E5%BA%97%20%E9%A2%84%E8%AE%A2" target="_blank" rel="noopener">🏨 订住宿 · 齐齐哈尔</a><a class="bk ticket" href="https://www.baidu.com/s?wd=%E6%89%8E%E9%BE%99%E8%87%AA%E7%84%B6%E4%BF%9D%E6%8A%A4%E5%8C%BA%20%E9%97%A8%E7%A5%A8%20%E9%A2%84%E7%BA%A6%20%E6%90%BA%E7%A8%8B" target="_blank" rel="noopener">🎫 门票预约</a></div>
-    </div></section><section class="seg" style="--c1:#C0812B;--c2:#E3A03C;--sbg:#FAF3E4;--chip:#C0812B">
+    </div></section><section class="seg" style="--c1:#7a4a14;--c2:#9a6220;--sbg:rgba(255,184,107,.055);--chip:#8a5719">
       <div class="shead"><div class="sicon">⛴️</div><div><h2>返程吉林 · 收官辽宁 · 渡海回临沂</h2><p>末代皇宫 · 大连 · 渤海轮渡 · 到家 · Day 13–19</p></div></div>
       <div class="day" id="day14">
       <div class="dhead"><div class="dnum">D14</div>
@@ -514,7 +515,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 齐齐哈尔 → 长春（约 450km，5.5h）</span><span>🧭 约 450km</span></div></div></div>
       <p class="dsum">南下回到吉林省会长春，探访伪满皇宫与森林湖泊净月潭，节奏放缓。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">🏛️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Manchukuo%20palace.jpg?width=700" alt="伪满皇宫博物院" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#5c3913,#94601f)"><span class="ph">🏛️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Manchukuo%20palace.jpg?width=700" alt="伪满皇宫博物院" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🏛️</span>伪满皇宫博物院</div>
         <p class="cdesc">末代皇帝溥仪任伪满“执政”“皇帝”时的宫殿旧址，保存完整，是警醒的近代史教育基地。</p>
@@ -524,7 +525,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         </div>
       </div>
     </div><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">🌲</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Nanhu-See%20im%20Nanhu-Park%2C%20Changchun.jpg?width=700" alt="净月潭国家森林公园" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#5c3913,#94601f)"><span class="ph">🌲</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Nanhu-See%20im%20Nanhu-Park%2C%20Changchun.jpg?width=700" alt="净月潭国家森林公园" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🌲</span>净月潭国家森林公园</div>
         <p class="cdesc">亚洲最大人工森林之一环抱的清澈潭湖，环潭绿道骑行、林间栈道，长春的城市绿肺。</p>
@@ -567,7 +568,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 沈阳 → 大连（约 400km，4h）</span><span>🧭 约 400km</span></div></div></div>
       <p class="dsum">沿沈海高速南下抵达大连——渡海回山东前的最后一座城市。傍晚沿海岸线暴走看海。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">🎏</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Dalian%20China%20Xinghai-Square-01.jpg?width=700" alt="星海广场 & 滨海路" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#5c3913,#94601f)"><span class="ph">🎏</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Dalian%20China%20Xinghai-Square-01.jpg?width=700" alt="星海广场 & 滨海路" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🎏</span>星海广场 & 滨海路</div>
         <p class="cdesc">亚洲最大城市广场之一，百年城雕与跨海大桥；滨海路木栈道悬于海崖，是大连兜风看海的经典路段。</p>
@@ -595,7 +596,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 大连 ⇄ 旅顺口（约 45km，往返 90km）</span><span>🧭 约 90km</span></div></div></div>
       <p class="dsum">旅顺是中国近代史的浓缩之地：军港、要塞、监狱，一整天的人文历史深度游。（带身份证）</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">⛓️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E6%97%85%E9%A1%BA%E7%9B%91%E7%8B%B1%E5%BB%BA%E7%AD%91.jpg?width=700" alt="旅顺日俄监狱旧址" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#5c3913,#94601f)"><span class="ph">⛓️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E6%97%85%E9%A1%BA%E7%9B%91%E7%8B%B1%E5%BB%BA%E7%AD%91.jpg?width=700" alt="旅顺日俄监狱旧址" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>⛓️</span>旅顺日俄监狱旧址</div>
         <p class="cdesc">日俄战争与殖民时期遗址，现为爱国主义教育基地，沉重而真实的近代记忆。</p>
@@ -623,7 +624,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 大连市区 → 金石滩（约 55km）→ 大连港</span><span>🧭 约 110km + 登船</span></div></div></div>
       <p class="dsum">上午看亿年海蚀奇石，午后到大连港办理车辆登船手续，傍晚乘渤海轮渡夜航驶向山东烟台。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">🪨</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E6%B5%B7%E7%99%BE%E5%90%88.JPG?width=700" alt="金石滩国家地质公园" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#5c3913,#94601f)"><span class="ph">🪨</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/%E6%B5%B7%E7%99%BE%E5%90%88.JPG?width=700" alt="金石滩国家地质公园" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🪨</span>金石滩国家地质公园</div>
         <p class="cdesc">“神力雕塑公园”——海百合、龟裂石、恐龙探海等六亿年海蚀奇石，海岸线奇绝，大连地质名片。</p>
@@ -648,7 +649,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         <div class="dmeta"><span>🚗 烟台港 → 临沂（约 460km，5h）｜或经青岛住一晚</span><span>🧭 约 460km</span></div></div></div>
       <p class="dsum">清晨渤海轮渡抵达烟台，取车沿沈海高速一路向南——约 5 小时直达临沂的家，当天到家，为这趟跨越辽吉黑三省、约 19 天的东北大环线画上圆满句点。若不赶时间，强烈建议在顺路的青岛住一晚、玩半天海滨（即轻松的 2 天 / 20 天版），次日再回临沂。</p>
       <div class="cards"><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">🌉</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Qingdao%20Zhan%20Qiao.jpg?width=700" alt="青岛栈桥（顺路 · 可选）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#5c3913,#94601f)"><span class="ph">🌉</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Qingdao%20Zhan%20Qiao.jpg?width=700" alt="青岛栈桥（顺路 · 可选）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>🌉</span>青岛栈桥（顺路 · 可选）</div>
         <p class="cdesc">南下顺路的海滨名城青岛。百年木质长桥探入胶州湾，海鸥翔集，“红瓦绿树、碧海蓝天”的城市名片，途中值得停一停吃顿海鲜。</p>
@@ -658,7 +659,7 @@ a.top{position:fixed;right:15px;bottom:15px;background:var(--jade);color:#fff;te
         </div>
       </div>
     </div><div class="card2">
-      <div class="media" style="background:linear-gradient(135deg,#C0812B,#fbbf24)"><span class="ph">⛰️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Laoshan%20taiqing%20gong%20gate.jpg?width=700" alt="崂山 / 青岛海滨（加一晚可选）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
+      <div class="media" style="background:linear-gradient(135deg,#5c3913,#94601f)"><span class="ph">⛰️</span><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Laoshan%20taiqing%20gong%20gate.jpg?width=700" alt="崂山 / 青岛海滨（加一晚可选）" onerror="this.style.display='none';this.parentNode.classList.add('noimg')"></div>
       <div class="cbody">
         <div class="ctitle"><span>⛰️</span>崂山 / 青岛海滨（加一晚可选）</div>
         <p class="cdesc">若选 2 天版，在青岛住一晚：登海上名山崂山，或泡海水浴场、逛八大关老城，给长途环线一个惬意的海滨收尾。</p>

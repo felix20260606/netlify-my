@@ -168,6 +168,18 @@
   .wt-keys kbd{display:inline-block;min-width:22px;text-align:center;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;margin-right:4px;font:600 12px/1.6 ui-monospace,Menlo,monospace;color:var(--ink);background:var(--paper)}
   .wt-keys span{display:inline-block;margin-right:14px;white-space:nowrap}
   @media (max-width:400px){ .wt-th{width:100px}.wt-cont .wt-th{width:84px}.wt-sel{max-width:104px}.wt-ctl button{font-size:12.5px} }
+  /* 深色主题（和插件同一套配色，变量在 theme.css） */
+  .wt-list .wt-w.lr{color:var(--ui-orange)}.wt-list .wt-w.kn{color:var(--ui-green)}
+  .wt-note{background:rgba(255,184,107,.1);color:#f3d3a8}
+  .wt-row.cur{background:rgba(156,63,208,.16);box-shadow:inset 4px 0 0 var(--ui-pur)}
+  .wt-q:focus-within{border-color:var(--ui-pur);box-shadow:0 0 0 3px rgba(156,63,208,.22)}
+  .wt-chips button.on,.wt-ctl button.lp{background:var(--ui-orange);border-color:var(--ui-orange);color:#2b1d05}
+  .wt-cont{background:linear-gradient(150deg,rgba(156,63,208,.16),var(--ui-surface));border-color:rgba(156,63,208,.35)}
+  .wt-cont small{color:var(--ui-pur-text)}
+  .wt-item .ok,.wt-item .ing{color:var(--ui-pur-text)}.wt-item .tq{color:var(--ui-orange)}
+  .wt-row.lp{background:rgba(255,184,107,.1);box-shadow:inset 4px 0 0 var(--ui-orange)}.wt-row.lp.cur{background:rgba(255,184,107,.18)}
+  .wt-menu .del{color:var(--ui-red)}
+  .wt-btn{background:var(--ui-pur)}.wt-btn:hover{background:var(--ui-pur-hi)}
   /* 电脑端（≥1024px）：铺满屏幕；列表多列；播放时视频在左、字幕列表在右 */
   @media (min-width:1024px){
     #view-video .wrap{max-width:none;padding:0 40px}

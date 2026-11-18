@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ray's Life</title>
 <meta name="description" content="随手收词、精修词条、背诵自测——一本会长大的英语生词本">
-<meta name="theme-color" content="#EFF2F1">
+<meta name="theme-color" content="#18191c">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230C9370'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle'%3E%F0%9F%93%92%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#EFF2F1;
@@ -55,14 +55,14 @@
   .hero-lead{min-width:0}
   .eyebrow{
     display:flex;align-items:center;gap:9px;
-    font-family:"Fraunces",serif;
+    font-family:var(--ui-font);
     letter-spacing:.26em;text-transform:uppercase;
     font-size:10.5px;font-weight:700;color:var(--accent);
     margin:0 0 9px;
   }
   .eyebrow::before{content:"";width:18px;height:1.5px;background:var(--gold);border-radius:2px}
   h1{
-    font-family:"Fraunces",serif;font-weight:900;
+    font-family:var(--ui-font);font-weight:900;
     font-size:30px;letter-spacing:-.015em;margin:0;line-height:1.06;
   }
   .lede{font-size:12.5px;color:var(--muted);line-height:1.5;margin:9px 0 0;max-width:30ch}
@@ -77,14 +77,14 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     box-shadow:inset 0 0 0 1px var(--line);
   }
-  .ring-in b{font-family:"Fraunces",serif;font-size:21px;font-weight:900;color:var(--jade);line-height:1}
+  .ring-in b{font-family:var(--ui-font);font-size:21px;font-weight:900;color:var(--jade);line-height:1}
   .ring-in span{font-size:8.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
   .statline{display:flex;gap:8px;margin-top:18px}
   .statline .stat{
     flex:1;background:var(--paper);border:1px solid var(--line);border-radius:14px;
     padding:12px 6px 10px;text-align:center;box-shadow:0 1px 0 rgba(0,0,0,.03);
   }
-  .statline .stat b{font-family:"Fraunces",serif;font-size:25px;font-weight:900;color:var(--ink);line-height:1;display:block}
+  .statline .stat b{font-family:var(--ui-font);font-size:25px;font-weight:900;color:var(--ink);line-height:1;display:block}
   .statline .stat.gold b{color:var(--gold)}
   .statline .stat span{font-size:11px;color:var(--muted);margin-top:5px;display:block;letter-spacing:.02em}
 
@@ -141,14 +141,14 @@
   }
   .card.known{box-shadow:0 0 0 2px var(--gold) inset}
   .stamp{
-    position:absolute;top:10px;right:10px;font-family:"Fraunces",serif;
+    position:absolute;top:10px;right:10px;font-family:var(--ui-font);
     font-size:10px;letter-spacing:.18em;text-transform:uppercase;
     color:var(--gold);border:1.5px solid var(--gold);border-radius:8px;
     padding:3px 7px;transform:rotate(6deg);opacity:0;pointer-events:none;
   }
   .card.known .stamp{opacity:1}
   .card-head{padding:14px 16px 10px;cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-  .word{font-family:"Fraunces",serif;font-weight:900;font-size:24px;letter-spacing:-.01em}
+  .word{font-family:var(--ui-font);font-weight:900;font-size:24px;letter-spacing:-.01em}
   .phon{font-size:12px;color:var(--muted);margin-top:2px}
   .zh{font-size:15px;margin-top:3px;color:var(--ink)}
   .endef{font-size:13px;color:var(--muted);font-style:italic;line-height:1.45;margin:5px 0 2px;padding-left:8px;border-left:2px solid var(--line)}
@@ -174,7 +174,7 @@
 
   .body{display:none;padding:0 16px 14px;border-top:1px dashed var(--line);margin-top:2px}
   .card.open .body{display:block}
-  .sec-label{font-family:"Fraunces",serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin:14px 0 6px;font-weight:600}
+  .sec-label{font-family:var(--ui-font);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin:14px 0 6px;font-weight:600}
   .forms div{display:flex;gap:8px;font-size:14px;padding:3px 0;align-items:center}
   .forms img.rowthumb{width:38px;height:38px;flex:0 0 38px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:var(--paper-2)}
   .forms span.rowswatch{width:38px;height:38px;flex:0 0 38px;border-radius:8px;border:1px solid var(--line);display:inline-block}
@@ -212,11 +212,11 @@
     box-shadow:0 8px 24px rgba(20,30,45,.10);
   }
   .fc-front{align-items:center;justify-content:center;text-align:center}
-  .fc-front .w{font-family:"Fraunces",serif;font-weight:900;font-size:42px}
+  .fc-front .w{font-family:var(--ui-font);font-weight:900;font-size:42px}
   .fc-front .p{color:var(--muted);margin-top:8px}
   .fc-front .hint{position:absolute;bottom:18px;font-size:12px;color:var(--muted);letter-spacing:.05em}
   .fc-back{transform:rotateY(180deg);overflow:auto}
-  .fc-back .w{font-family:"Fraunces",serif;font-weight:900;font-size:22px}
+  .fc-back .w{font-family:var(--ui-font);font-weight:900;font-size:22px}
   .fc-controls{display:flex;gap:10px}
   .fc-controls button{
     flex:1;font-family:inherit;font-size:14px;font-weight:700;
@@ -229,7 +229,7 @@
   /* ---- Add / Export drawers ---- */
   .panel{background:var(--paper);border-radius:14px;border:1px solid var(--line);padding:16px;margin-top:14px;display:none}
   .panel.on{display:block}
-  .panel h3{font-family:"Fraunces",serif;margin:0 0 10px;font-size:17px}
+  .panel h3{font-family:var(--ui-font);margin:0 0 10px;font-size:17px}
   .panel label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
   .panel input,.panel textarea{width:100%;font-family:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:12px;background:var(--paper-2);color:var(--ink)}
   .panel .row{display:flex;gap:10px}
@@ -242,7 +242,7 @@
   .voicebox label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
   .hubstats{display:flex;gap:8px}
   .hubstats .hs{flex:1;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
-  .hubstats .hs b{display:block;font-family:"Fraunces",serif;font-size:26px;font-weight:900;color:var(--jade);line-height:1}
+  .hubstats .hs b{display:block;font-family:var(--ui-font);font-size:26px;font-weight:900;color:var(--jade);line-height:1}
   .hubstats .hs span{font-size:12px;color:var(--muted)}
   #voice-sel{width:100%;font-family:inherit;font-size:14px;padding:10px 11px;border:1px solid var(--line);border-radius:12px;background:var(--paper-2);color:var(--ink)}
   .vrow{display:flex;gap:8px;margin-top:10px;align-items:center}
@@ -309,6 +309,7 @@
   .trow.show .ans{display:inline}
   @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<link rel="stylesheet" href="theme.css?v=1">
 </head>
 <body>
 
@@ -386,7 +387,7 @@
   #tripempty b{color:var(--ink);display:block;margin-bottom:6px;font-size:15px}
 </style>
 <script>try{if(window.name==='vocab'&&/[#&]add=/.test(location.hash))document.documentElement.className+=' collect-mode';}catch(e){}</script>
-<div id="collect-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:#FFFFFF;color:#1E2733;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif">
+<div id="collect-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:#1d1e21;color:#E6E8EB;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif">
   <div style="font-size:42px;margin-bottom:10px">📒</div>
   <div id="collect-msg" style="font-size:18px;font-weight:800">正在收词…</div>
   <div id="collect-sub" style="font-size:13px;opacity:.75;margin-top:8px"></div>
@@ -616,9 +617,9 @@
       radial-gradient(120% 100% at 85% -40%,rgba(15,163,122,.09),transparent 60%),
       var(--paper);
     border-bottom:1px solid var(--line);padding:24px 0 14px;position:sticky;top:98px;z-index:20}
-  #view-ielts .eyebrow{font-family:"Fraunces",Georgia,serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+  #view-ielts .eyebrow{font-family:var(--ui-font);font-size:11px;letter-spacing:.3em;text-transform:uppercase;
     color:var(--accent);font-weight:700;margin:0 0 6px}
-  #view-ielts h1{font-family:"Fraunces",Georgia,serif;font-size:27px;font-weight:900;letter-spacing:-.01em;margin:0 0 16px;color:var(--ink)}
+  #view-ielts h1{font-family:var(--ui-font);font-size:27px;font-weight:900;letter-spacing:-.01em;margin:0 0 16px;color:var(--ink)}
   #view-ielts nav{display:flex;gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 0 4px;margin:0 -2px}
   #view-ielts nav::-webkit-scrollbar{display:none}
   #view-ielts nav a{flex:0 0 auto;font-size:12.5px;font-weight:600;color:var(--muted);text-decoration:none;
@@ -633,7 +634,7 @@
     background:linear-gradient(155deg,var(--accent),var(--jade));
     display:flex;align-items:center;justify-content:center;font-size:16px;
     box-shadow:0 4px 10px rgba(12,147,112,.22)}
-  #view-ielts h2{font-family:"Fraunces",Georgia,serif;font-size:19px;font-weight:800;margin:0;color:var(--ink)}
+  #view-ielts h2{font-family:var(--ui-font);font-size:19px;font-weight:800;margin:0;color:var(--ink)}
   #view-ielts .sub{color:var(--muted);font-size:13px;margin:8px 0 18px;padding-left:45px}
 
   #view-ielts .card{background:var(--paper);border:1px solid var(--line);border-radius:16px;
@@ -986,6 +987,30 @@
     /* 背诵 / 自测：卡片居中但更宽 */
     #flash .fc-stage,#flash .fc-controls,#flash .fc-meta,#test .test-list{max-width:900px;margin-left:auto;margin-right:auto}
   }
+
+  /* ===== 深色主题（和插件同一套配色；颜色变量在 theme.css，这里只改写死的浅色） ===== */
+  header{background:radial-gradient(120% 82% at 100% -25%,rgba(156,63,208,.20),transparent 60%),radial-gradient(96% 74% at -12% 6%,rgba(255,184,107,.07),transparent 56%),var(--ui-surface)!important}
+  #apptabs,#subtabs{background:var(--ui-bar);border-color:var(--ui-line);box-shadow:none}
+  #apptabs .seg-wrap{background:var(--ui-surface);border-color:var(--ui-line)}
+  #apptabs button.on{background:var(--ui-pur);box-shadow:0 3px 12px rgba(156,63,208,.35)}
+  .subgrp button.on{color:var(--ui-pur-text)}.subgrp button.on::after{background:var(--ui-pur)}
+  .ring{box-shadow:0 5px 16px rgba(0,0,0,.3)}
+  .search:focus-within{border-color:var(--ui-pur);box-shadow:0 0 0 3px rgba(156,63,208,.22)}
+  .filters button.on,.actions .mark.on,.got{background:var(--ui-orange);border-color:var(--ui-orange);color:#2b1d05;box-shadow:none}
+  .cats button.on,#triprow button.on{background:var(--ui-pur);border-color:var(--ui-pur);color:#fff;box-shadow:0 3px 10px rgba(156,63,208,.3)}
+  .vtest{background:var(--ui-pur)}
+  .card--phrase::before{background:var(--ui-green-2)}.card--sentence::before{background:#8e6bd0}
+  .ex .en b{background:linear-gradient(transparent 60%,rgba(255,184,107,.28) 60%)}
+  .typebadge.phrase{background:rgba(142,229,161,.12);color:var(--ui-green);border-color:rgba(142,229,161,.3)}
+  .typebadge.sentence{background:rgba(185,133,230,.14);color:#C59BEF;border-color:rgba(185,133,230,.3)}
+  .typebadge.pattern{background:rgba(255,184,107,.12);color:var(--ui-orange);border-color:rgba(255,184,107,.3)}
+  .trow .ans{color:var(--ui-ink);background:linear-gradient(transparent 58%,rgba(255,210,63,.3) 58%)}
+  #fat-region button.on,#trip-dest button.on,#ielts-subnav button.on{background:var(--ui-pur-soft);color:var(--ui-pur-text)}
+  #view-ielts nav a:hover{background:var(--ui-pur);border-color:var(--ui-pur)}
+  #view-ielts .tip{background:rgba(255,184,107,.09);border-color:rgba(255,184,107,.28);color:#f3d3a8}#view-ielts .tip b{color:var(--ui-orange)}
+  #view-ielts ::selection{background:rgba(156,63,208,.4)}
+  .toast{background:#33363c;color:#fff}
+  .card,.stat,.statline .stat{box-shadow:none}
 </style>
 <div class="toast" id="toast"></div>
 
@@ -1728,8 +1753,8 @@ refresh(); // show seed words immediately, no waiting on storage
   sw(s==='basics'?'basics':'notes');
 })();
 </script>
-<script src="watch.js?v=9"></script>
-<script src="channels.js?v=2"></script>
-<script src="pump.js?v=2"></script>
+<script src="watch.js?v=10"></script>
+<script src="channels.js?v=3"></script>
+<script src="pump.js?v=3"></script>
 </body>
 </html>

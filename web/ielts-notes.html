@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Literata:ital,opsz,wght@0,18..144,400;0,18..144,500;0,18..144,600;0,18..144,700;1,18..144,500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   --sky: #eef3f2;
   --sky-deep: #dfe9e6;
   --card: #fffefa;
@@ -36,14 +36,16 @@
 
 * { box-sizing: border-box; }
 
-body {
+/* html body：比 theme.css 的 body 底色优先级高，保留笔记本斜纹质感（深色版） */
+html body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--ink);
   background:
-    radial-gradient(900px 460px at 8% -8%, rgba(200, 92, 63, .08), transparent 60%),
-    radial-gradient(900px 500px at 96% 0%, rgba(47, 111, 102, .10), transparent 55%),
-    repeating-linear-gradient(115deg, var(--sky) 0 2px, var(--sky-deep) 2px 3px, var(--sky) 3px 64px);
+    radial-gradient(900px 460px at 8% -8%, rgba(255, 138, 122, .07), transparent 60%),
+    radial-gradient(900px 500px at 96% 0%, rgba(156, 63, 208, .13), transparent 55%),
+    repeating-linear-gradient(115deg, var(--ui-bg) 0 2px, #222327 2px 3px, var(--ui-bg) 3px 64px);
+  background-color: var(--ui-bg);
   min-height: 100vh;
 }
 
@@ -51,8 +53,8 @@ body {
 
 header {
   position: static;
-  background: rgba(238, 243, 242, .9);
-  border-bottom: 1.5px dashed var(--line);
+  background: rgba(24, 25, 28, .86);
+  border-bottom: 1.5px dashed var(--ui-line-2);
 }
 
 .wrap {
@@ -137,10 +139,10 @@ nav {
 
 .tab {
   flex: 0 0 auto;
-  border: 1.5px solid var(--line);
+  border: 1.5px solid var(--ui-line-2);
   border-radius: 999px;
-  background: rgba(255, 254, 250, .6);
-  color: var(--ink-soft);
+  background: transparent;
+  color: var(--ui-ink-2);
   padding: 9px 16px;
   font: 600 13px var(--font-body);
   letter-spacing: .01em;
@@ -148,12 +150,12 @@ nav {
   transition: all .15s ease;
 }
 
-.tab:hover { background: var(--card); color: var(--ink); border-color: var(--teal); }
+.tab:hover { background: var(--ui-surface-2); color: var(--ui-ink); border-color: var(--ui-line-2); }
 
 .tab.active {
-  background: var(--teal);
-  border-color: var(--teal);
-  color: #fdfbf3;
+  background: var(--ui-pur);
+  border-color: var(--ui-pur);
+  color: #fff;
 }
 
 main { padding: 34px 0 60px; }
@@ -193,7 +195,7 @@ main { padding: 34px 0 60px; }
   height: 290px;
   border: 0;
   padding: 0;
-  background: #e4ded0;
+  background: var(--ui-surface-2);
   cursor: zoom-in;
   overflow: hidden;
   position: relative;
@@ -207,14 +209,14 @@ main { padding: 34px 0 60px; }
   top: -6px;
   width: 66px;
   height: 26px;
-  background: repeating-linear-gradient(45deg, rgba(255,255,255,.55) 0 6px, rgba(200,92,63,.55) 6px 12px);
-  box-shadow: 0 2px 4px rgba(0,0,0,.18);
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.3) 0 6px, rgba(255,138,122,.55) 6px 12px);
+  box-shadow: 0 2px 6px rgba(0,0,0,.4);
   z-index: 4;
   opacity: .92;
 }
 
 .image-button::before { left: 14px; transform: rotate(-7deg); }
-.image-button::after { right: 14px; transform: rotate(6deg); background: repeating-linear-gradient(45deg, rgba(255,255,255,.55) 0 6px, rgba(47,111,102,.55) 6px 12px); }
+.image-button::after { right: 14px; transform: rotate(6deg); background: repeating-linear-gradient(45deg, rgba(255,255,255,.3) 0 6px, rgba(197,155,239,.55) 6px 12px); }
 
 .image-button img {
   width: 100%;
@@ -316,7 +318,7 @@ h2 {
 .miss {
   color: var(--coral-deep);
   font-weight: 700;
-  background: linear-gradient(transparent 62%, var(--coral-bg) 62%);
+  background: linear-gradient(transparent 62%, rgba(255, 138, 122, .24) 62%);
   padding: 0 1px;
   border-radius: 2px;
 }
@@ -406,9 +408,9 @@ dialog::backdrop { background: rgba(15, 20, 18, .82); }
 .close {
   width: 34px;
   height: 34px;
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid var(--ui-line-2);
   border-radius: 50%;
-  background: var(--card);
+  background: var(--ui-surface-2);
   color: var(--ink);
   font-size: 19px;
   line-height: 1;
@@ -416,13 +418,13 @@ dialog::backdrop { background: rgba(15, 20, 18, .82); }
   transition: all .15s ease;
 }
 
-.close:hover { background: var(--coral); border-color: var(--coral); color: #fff; }
+.close:hover { background: var(--ui-red); border-color: var(--ui-red); color: #1d1e21; }
 
 .viewer img {
   width: 100%;
   max-height: calc(100vh - 90px);
   object-fit: contain;
-  background: #14201b;
+  background: #111214;
 }
 
 @media (max-width: 640px) {
@@ -462,11 +464,13 @@ dialog::backdrop { background: rgba(15, 20, 18, .82); }
   gap: 10px;
   padding: 9px 11px;
   border-radius: 8px;
-  background: rgba(47, 111, 102, .05);
+  background: rgba(255, 255, 255, .035);
+  border: 1px solid var(--ui-line);
 }
 
 .vocab-item.trap {
   background: var(--coral-bg);
+  border-color: rgba(255, 138, 122, .3);
 }
 
 .play {
@@ -488,9 +492,9 @@ dialog::backdrop { background: rgba(15, 20, 18, .82); }
   padding: 0;
 }
 
-.play:hover { background: var(--teal); color: #fff; }
+.play:hover { background: var(--ui-pur); border-color: var(--ui-pur); color: #fff; }
 .play:active { transform: scale(.92); }
-.play.playing { background: var(--coral); border-color: var(--coral); color: #fff; }
+.play.playing { background: var(--ui-orange); border-color: var(--ui-orange); color: #1d1e21; }
 
 .vocab-body { min-width: 0; flex: 1; }
 
@@ -598,7 +602,7 @@ h1 .cn {
   transition: all .15s ease;
 }
 
-.voice-test-btn:hover { background: var(--teal); color: #fff; }
+.voice-test-btn:hover { background: var(--ui-pur); border-color: var(--ui-pur); color: #fff; }
 .voice-test-btn:active { transform: scale(.96); }
 
 .voice-hint {
@@ -609,7 +613,7 @@ h1 .cn {
 
 .voice-picker input[type="range"] {
   width: 100px;
-  accent-color: var(--teal);
+  accent-color: var(--ui-pur);
   cursor: pointer;
 }
 
@@ -632,6 +636,7 @@ h1 .cn {
 }
 /* ==== /电脑端布局 ==== */
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
   <header>

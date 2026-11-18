@@ -47,7 +47,16 @@
   .pp-ctl button{width:56px;height:56px;border-radius:50%;border:1px solid var(--line);background:var(--paper);font-size:22px;cursor:pointer;color:var(--ink)}.pp-ctl button.pri{background:var(--jade);border-color:var(--jade);color:#fff}.pp-ctl button:disabled{opacity:.35;cursor:default}
   .pp-ctl kbd{font:11px ui-monospace,monospace;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 5px}
   @media(hover:none){.pp-ctl kbd{display:none}}
-  .pp-done h3{margin:0 0 8px;font-size:20px}.pp-done p{color:var(--muted);margin:4px 0}.pp-done button{margin-top:16px;background:var(--jade);color:#fff;border:0;font:inherit;font-weight:800;border-radius:12px;padding:0 20px;min-height:44px;cursor:pointer}`;
+  .pp-done h3{margin:0 0 8px;font-size:20px}.pp-done p{color:var(--muted);margin:4px 0}.pp-done button{margin-top:16px;background:var(--jade);color:#fff;border:0;font:inherit;font-weight:800;border-radius:12px;padding:0 20px;min-height:44px;cursor:pointer}
+  /* 深色主题：用 theme.css 的颜色 */
+  .pp-q span,.pp-chip{color:var(--ui-orange);border-color:rgba(255,184,107,.35);background:rgba(255,184,107,.08)}
+  .pp-en .t{color:var(--ui-orange);box-shadow:inset 0 -2px 0 rgba(255,184,107,.45)}
+  .pp-zh{color:var(--ui-ink-2)}
+  .pp-tg{background:#3a4048}.pp-tg:checked{background:var(--ui-pur)}
+  .pp-card input.ok{border-color:var(--ui-green);color:var(--ui-green)}.pp-card input.no{border-color:var(--ui-red);color:var(--ui-red)}
+  .pp-ans{color:var(--ui-green)}.pp-ans.no{color:var(--ui-red)}
+  .pp-ctl button{background:var(--ui-surface-2);border-color:var(--ui-line-2)}.pp-ctl button.pri{background:var(--ui-pur);border-color:var(--ui-pur)}
+  .pp-hc,.pp-opt,.pp-card{box-shadow:var(--ui-shadow)}`;
   const srs = () => (state.srs = state.srs || {});
   const emoji = () => { const r = day.n / Math.max(1, opt.num); return r <= 0 ? "😭" : r < 0.25 ? "😢" : r < 0.5 ? "😐" : r < 1 ? "🙂" : "😄"; };
   const usable = w => w && w.word && opt.types.includes(w.type || "word") && !/[一-鿿]/.test(w.word); // 「规律」类词条标题是中文，不适合听力

@@ -8,7 +8,7 @@
 
 | 目录 | 内容 |
 |---|---|
-| `web/` | 网站，部署到 <https://ruilearning-my.pages.dev>（生词本、🎬 视频、减脂、旅游等；后台接口 `_worker.js`）。本地说明见 `web/README.txt` |
+| `web/` | 网站，部署到 <https://ruilearning-my.pages.dev>（生词本、🎬 视频、减脂、旅游等；后台接口 `_worker.js`）。本地说明见 `web/README.txt`。全站界面统一用 `web/theme.css`（深色 + 紫色，和插件同一套配色） |
 | `extension/` | 浏览器插件「双语字幕 · 生词收集」（图标为 BAN）（Manifest V3，Chrome / Brave / Edge） |
 | `site/` | 书签小工具的源码 `bookmarklet.src.js` 和安装页 `install-bookmarklet.html` |
 | `tests/` | Playwright 回归测试脚本（加载插件 + 模拟的 YouTube 页面） |
