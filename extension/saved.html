@@ -95,6 +95,14 @@ th{font-size:11px;font-weight:500;color:rgba(255,255,255,.38);padding:3px 10px 6
 td{padding:10px}td.w{font-size:15px}td.t{font-size:15px}td.x{font-size:15px}
 .day{background:#1c1e21;font-size:12px}
 #dict{background:#1c1e21}#dict .card{background:#141618}
+
+/* 单词配图 */
+td.im{white-space:nowrap}td.im img{width:72px;height:48px;object-fit:cover;border-radius:6px;margin-right:4px;vertical-align:middle;cursor:zoom-in;background:var(--ui-surface-2)}
+td.im .noimg{font-size:12px;color:var(--ui-muted)}
+[data-im] .imb{display:inline-flex;flex-direction:column;gap:2px;vertical-align:middle;opacity:0;transition:opacity .15s}tr:hover [data-im] .imb,.dimg .imb{opacity:1}
+[data-im] .imb button{width:20px;height:20px;border-radius:5px;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink-2);font-size:11px;line-height:1;cursor:pointer;padding:0}[data-im] .imb button:hover{background:var(--ui-pur);color:#fff;border-color:var(--ui-pur)}
+.dimg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 12px}.dimg img{width:calc(50% - 20px);aspect-ratio:3/2;object-fit:cover;border-radius:10px;cursor:zoom-in;background:var(--ui-surface-2)}.dimg .imsrc{flex-basis:100%;font-size:11px;color:var(--ui-muted)}.dimg:empty{display:none}
+.imgview{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;cursor:zoom-out}.imgview img{max-width:90vw;max-height:88vh;border-radius:10px}
 </style>
 <link rel="stylesheet" href="theme.css">
 <div class="tabs"><b data-t="words" class="on"></b><b data-t="sents"></b><b data-t="all"></b><span class="sp"></span><button class="ex" id="exp" title="导出为 Anki 可导入的文件">导出</button><button class="rv" id="rv">复习</button></div>

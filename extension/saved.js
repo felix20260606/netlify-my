@@ -100,12 +100,12 @@ function drawWords() {
   let last = null, open = false;
   pg.forEach(o => {
     const d = sort === "date" ? dayOf(o.at) : "", m = mOf(o.w), c = ctx[o.w], t = (m && m.t) || (c && c.t) || nbEx(o.w);
-    if (sort === "date" && d !== last) { if (open) h += "</table>"; last = d; h += '<div class="day">' + d + "<span>" + list.filter(x => dayOf(x.at) === d).length + "</span></div><table><colgroup><col style=\"width:38px\"><col style=\"width:20%\"><col style=\"width:19%\"><col style=\"width:76px\"><col><col style=\"width:120px\"><col style=\"width:230px\"></colgroup><tr><th></th><th>单词</th><th>翻译</th><th style=\"text-align:right;padding-right:22px\">排名</th><th>上下文</th><th>阶段</th><th>来源</th></tr>"; open = true; }
-    else if (!open) { h += "<table><colgroup><col style=\"width:38px\"><col style=\"width:20%\"><col style=\"width:19%\"><col style=\"width:76px\"><col><col style=\"width:120px\"><col style=\"width:230px\"></colgroup><tr><th></th><th>单词</th><th>翻译</th><th style=\"text-align:right;padding-right:22px\">排名</th><th>上下文</th><th>阶段</th><th>来源</th></tr>"; open = true; }
-    h += '<tr data-w="' + esc(o.w) + '"><td class="c"><input type="checkbox"' + (picked.has(o.w) ? " checked" : "") + '></td><td class="w"><span class="pl" title="' + (m && m.aud ? "播放原声" : "朗读") + '">' + I("play") + '</span>' + tagDot(o.w) + '<span class="vs-w ' + (filt === "learn" ? "wb" : "") + '" data-w="' + esc(o.w) + '">' + esc(o.w) + '</span></td>' + (NBW[o.w] && NBW[o.w].zh ? '<td class="t" title="生词本词条">' + esc(NBW[o.w].zh) + "</td>" : '<td class="t" data-tr="' + esc(o.w) + '"></td>') + '<td class="r">' + (o.r === Infinity ? "—" : o.r) + '</td><td class="x">' + (t ? ctxHtml(t, o.w) : '<span class="no" style="color:#555b63">—</span>') + '</td><td class="st">' + (filt === "learn" ? stage(o.w) : "—") + '</td><td class="so"><div class="so">' + srcCell(m, c) + '<span class="rm" title="' + (filt === "learn" ? "删除" : "取消标记") + '">' + I("x") + "</span></div></td></tr>";
+    if (sort === "date" && d !== last) { if (open) h += "</table>"; last = d; h += '<div class="day">' + d + "<span>" + list.filter(x => dayOf(x.at) === d).length + "</span></div><table><colgroup><col style=\"width:38px\"><col style=\"width:17%\"><col style=\"width:168px\"><col style=\"width:17%\"><col style=\"width:76px\"><col><col style=\"width:120px\"><col style=\"width:230px\"></colgroup><tr><th></th><th>单词</th><th>图片</th><th>翻译</th><th style=\"text-align:right;padding-right:22px\">排名</th><th>上下文</th><th>阶段</th><th>来源</th></tr>"; open = true; }
+    else if (!open) { h += "<table><colgroup><col style=\"width:38px\"><col style=\"width:17%\"><col style=\"width:168px\"><col style=\"width:17%\"><col style=\"width:76px\"><col><col style=\"width:120px\"><col style=\"width:230px\"></colgroup><tr><th></th><th>单词</th><th>图片</th><th>翻译</th><th style=\"text-align:right;padding-right:22px\">排名</th><th>上下文</th><th>阶段</th><th>来源</th></tr>"; open = true; }
+    h += '<tr data-w="' + esc(o.w) + '"><td class="c"><input type="checkbox"' + (picked.has(o.w) ? " checked" : "") + '></td><td class="w"><span class="pl" title="' + (m && m.aud ? "播放原声" : "朗读") + '">' + I("play") + '</span>' + tagDot(o.w) + '<span class="vs-w ' + (filt === "learn" ? "wb" : "") + '" data-w="' + esc(o.w) + '">' + esc(o.w) + '</span></td><td class="im" data-im="' + esc(o.w) + '"></td>' + (NBW[o.w] && NBW[o.w].zh ? '<td class="t" title="生词本词条">' + esc(NBW[o.w].zh) + "</td>" : '<td class="t" data-tr="' + esc(o.w) + '"></td>') + '<td class="r">' + (o.r === Infinity ? "—" : o.r) + '</td><td class="x">' + (t ? ctxHtml(t, o.w) : '<span class="no" style="color:#555b63">—</span>') + '</td><td class="st">' + (filt === "learn" ? stage(o.w) : "—") + '</td><td class="so"><div class="so">' + srcCell(m, c) + '<span class="rm" title="' + (filt === "learn" ? "删除" : "取消标记") + '">' + I("x") + "</span></div></td></tr>";
   });
   if (open) h += "</table>";
-  $("#wrap").innerHTML = h; bind(list.length);
+  $("#wrap").innerHTML = h; bind(list.length); fillImgs();
   (async () => { const me = tab + page + filt + sort + q + src; for (const el of $$("td[data-tr]")) { if (me !== tab + page + filt + sort + q + src || !el.isConnected) return; const r = await send({ type: "wordLite", word: el.dataset.tr, tl: S.target, sl: S.srcLang }), g = r.g, out = []; if (g) { if (g.t) out.push(g.t); (g.zh || []).forEach(z => z.words.forEach(x => { if (!out.includes(x)) out.push(x); })); } el.textContent = out.slice(0, 3).join(", "); } })();
 }
 function drawSents() {
@@ -247,7 +247,7 @@ const EXT = [["Re", "Reverso", "https://context.reverso.net/translation/english-
 async function openDict(word) {
   word = String(word).trim(); if (!word) return; dictW = word.toLowerCase(); hist = [dictW].concat(hist.filter(x => x !== dictW)).slice(0, 30); chrome.storage.local.set({ dictHist: hist }); drawDict.res = null; drawDict.sent = null; drawDict.open = drawDict.open || false;
   document.body.classList.add("dict"); drawDict(dictW, null);
-  const me = dictW, r = await send({ type: "word", word: dictW, tl: S.target, sl: S.srcLang }); if (dictW !== me) return; drawDict.res = r; drawDict(dictW, r);
+  const me = dictW, r = await send({ type: "word", word: dictW, tl: S.target, sl: S.srcLang }); if (dictW !== me) return; drawDict.res = r; drawDict(dictW, r); fillImgs("#dict");
   const sx = await send({ type: "sentences", word: dictW, tl: S.target, sl: S.srcLang }); if (dictW !== me) return; drawDict.sent = sx.s || []; drawDict(dictW, r);
 }
 function drawDict(w, res) {
@@ -259,7 +259,7 @@ function drawDict(w, res) {
   d.innerHTML = '<div class="dh"><b>词典</b><button id="dx" title="关闭">' + I("x") + '</button></div>' +
     '<div class="ds"><label><input id="dq" value="' + esc(w) + '" spellcheck="false" autocomplete="off"><button id="dqx" title="清空">' + I("x") + '</button></label><button id="dsay" class="rnd" title="朗读">' + I("say") + '</button><button id="dhis" class="rnd" title="查过的词">' + I("hist") + '</button></div><div class="his" id="hisl" hidden>' + (hist.map(x => '<a data-h="' + esc(x) + '">' + esc(x) + "</a>").join("") || "<span>还没有查过别的词</span>") + "</div>" +
     '<div class="dm"><span class="fbar"><i style="width:' + Math.round(f * 100) + '%"></i></span><span class="rk">' + (r === Infinity ? "生僻" : r) + '</span><span class="sp"></span><button class="mk k' + (st === "known" ? " on" : "") + '" data-m="known" title="已掌握">' + I("check") + '</button><button class="mk l' + (st === "learn" ? " on" : "") + '" data-m="learn" title="学习中">' + I("book") + '</button><button class="mk g' + (st === "ignore" ? " on" : "") + '" data-m="ignore" title="不学习">' + I("ban") + '</button><button id="dmore" class="more' + (drawDict.open ? " on" : "") + '" title="更多">' + I("down") + "</button></div>" +
-    '<div class="bd">' + (drawDict.open ? '<div class="mx"><div class="hint">' + (r === Infinity ? "不在常用词表里" : "排名 " + r + " · " + (r <= lv ? "符合你的水平" : "高于你的水平（" + lv + "）")) + "</div>" +
+    '<div class="bd"><div class="dimg" data-im="' + esc(w) + '">' + (imgsSync(w) ? imgsHtml(w, imgsSync(w), true) : "") + '</div>' + (drawDict.open ? '<div class="mx"><div class="hint">' + (r === Infinity ? "不在常用词表里" : "排名 " + r + " · " + (r <= lv ? "符合你的水平" : "高于你的水平（" + lv + "）")) + "</div>" +
       big("k", "check", "已掌握", "保存为已掌握。不会学习或推荐。") + big("l", "book", "学习中", "保存到你的项目，加入复习队列。") + big("g", "ban", "不学习", "不学习且不推荐。") +
       '<div class="hint">' + (st ? "这是你自己标记的" : "根据你的词汇量水平预测：" + auto) + '</div><div class="tgr"><button data-tg="" class="t0' + (tags[w] ? "" : " on") + '">/</button>' + TAGS.map(t => '<button data-tg="' + t[0] + '" class="t-' + t[0] + (tags[w] === t[0] ? " on" : "") + '" title="' + t[2] + '">#</button>').join("") + '</div><div class="hint">你自己的分类标签，可在列表里按标签筛选。</div>' +
       '<button class="bigm nx" id="dnext">' + I("bolt") + '下次学习</button><div class="hint">下一次复习从这个词开始。</div></div>' : "") +
@@ -283,3 +283,70 @@ function drawDict(w, res) {
 let extT = null;
 chrome.storage.onChanged.addListener((c, a) => { if (a !== "local" || Date.now() - selfWrite < 1500) return; if (!Object.keys(c).some(k => /^(saved|savedSents|savedCtx|marks|srs|tags)$/.test(k) || k.startsWith("med:"))) return; clearTimeout(extT); extT = setTimeout(() => { const y = scrollY; load(() => { draw(); scrollTo(0, y); if (dictW) drawDict(dictW, drawDict.res); }); }, 400); });
 load(draw);
+
+// ---------- 单词配图：每个词尽量 2 张，方便记忆 ----------
+// 优先用视频里保存时截的两帧（这句开头和结尾）；不够的从维基百科（生词本词条指定的页面 → 按这个词搜索）和维基共享资源找。
+// 找到的候选存在本地 wimg:单词 = { c: [候选图], o: 从第几张开始显示, off: 不要图 }，不重复去网上找。
+const IMG_BAD = /(Commons-logo|Wiktionary|Edit-|OOjs|Ambox|Question_book|Wikidata|Red_pog|Location|_map|\bmap\b|Increase|Decrease|icon|logo|flag|disambig|placeholder|no[_-]?image|nuvola|symbol|\.svg|\.tif)/i;
+const imgMem = {};
+async function wikiCands(w) {
+  // 先找这个词本身的维基百科条目（或生词本词条指定的页面）：条目主图 + 条目里的其它图，基本都切题；消歧义页跳过
+  // 找不到再搜维基共享资源，只要文件名里有这个词本身的（排除 Pond's 这种品牌名）；都没有就不配图，宁缺毋滥
+  const out = [], seen = new Set(), add = u => { if (!u || IMG_BAD.test(u)) return; const k = decodeURIComponent(u.split("/").pop()).replace(/\?.*$/, "").replace(/^\d+px-/, "").toLowerCase(); if (seen.has(k)) return; seen.add(k); out.push(u); }; // 同一张图的不同尺寸只算一张
+  const get = async u => { try { const r = await fetch(u); return r.ok ? await r.json() : null; } catch (e) { return null; } };
+  const L = lem(w), e = NBW[w];
+  if (!(e && e.wiki) && /ly$/.test(L) && L.length > 5) return []; // 副词（-ly）很难有切题的图，宁缺毋滥
+  const titles = [e && e.wiki, L.charAt(0).toUpperCase() + L.slice(1)].filter(Boolean);
+  for (const t of titles) {
+    if (out.length >= 4) break;
+    const j = await get("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages%7Cpageprops&ppprop=disambiguation&piprop=thumbnail&pithumbsize=480&titles=" + encodeURIComponent(t));
+    const p = Object.values((j && j.query && j.query.pages) || {})[0];
+    if (!p || p.missing !== undefined || (p.pageprops && p.pageprops.disambiguation !== undefined)) continue;
+    add(p.thumbnail && p.thumbnail.source);
+    const j2 = await get("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&generator=images&gimlimit=30&prop=imageinfo&iiprop=url%7Cmime&iiurlwidth=480&titles=" + encodeURIComponent(p.title));
+    Object.values((j2 && j2.query && j2.query.pages) || {}).forEach(q => { const ii = q.imageinfo && q.imageinfo[0]; if (ii && /^image\/(jpeg|png|webp)/.test(ii.mime || "")) add(ii.thumburl || ii.url); });
+  }
+  if (!out.length) {
+    const re = new RegExp("(^|[^a-z])" + L.replace(/[^a-z]/g, "") + "(s|es)?(?!['’]s)([^a-z]|$)", "i");
+    const j3 = await get("https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=20&gsrsearch=" + encodeURIComponent(L + " filetype:bitmap") + "&prop=imageinfo&iiprop=url%7Cmime&iiurlwidth=480");
+    Object.values((j3 && j3.query && j3.query.pages) || {}).sort((x, y) => (x.index || 0) - (y.index || 0)).forEach(q => { const ii = q.imageinfo && q.imageinfo[0]; if (ii && /^image\/(jpeg|png|webp)/.test(ii.mime || "") && re.test(String(q.title || "").replace(/^File:/, "").replace(/\.[a-z]+$/i, ""))) add(ii.thumburl || ii.url); });
+  }
+  return out.slice(0, 8);
+}
+async function imgState(w) {
+  if (imgMem[w]) return imgMem[w];
+  const k = "wimg:" + w; let st = (await chrome.storage.local.get(k))[k];
+  if (!st) { st = { c: await wikiCands(w), o: 0 }; chrome.storage.local.set({ [k]: st }); }
+  return (imgMem[w] = st);
+}
+function imgsSync(w) { // 已经查过的直接给（词典面板重画时不用再等）；没查过返回 null
+  const m = mOf(w), fr = m ? [m.img, m.img2].filter(Boolean).map(u => ({ u, f: 1 })) : [];
+  if (fr.length >= 2) return fr.slice(0, 2);
+  const st = imgMem[w]; if (!st) return null; if (st.off) return fr;
+  const c = st.c || [], o = c.length ? st.o % c.length : 0; return fr.concat(c.slice(o).concat(c.slice(0, o)).map(u => ({ u }))).slice(0, 2);
+}
+async function imgsFor(w) { // 返回 [{u, f}]，f = 视频截图
+  const m = mOf(w), fr = m ? [m.img, m.img2].filter(Boolean).map(u => ({ u, f: 1 })) : [];
+  if (fr.length >= 2) return fr.slice(0, 2);
+  const st = await imgState(w); if (st.off) return fr;
+  const c = st.c || [], o = c.length ? st.o % c.length : 0, rot = c.slice(o).concat(c.slice(0, o));
+  return fr.concat(rot.map(u => ({ u }))).slice(0, 2);
+}
+function imgsHtml(w, list, big) {
+  const st = imgMem[w] || {}, more = !mOf(w) || !mOf(w).img2;
+  return (list.length ? list.map(x => '<img src="' + esc(x.u) + '" loading="lazy" alt="" title="' + (x.f ? "视频里保存时的画面" : "来自维基百科 / 维基共享资源") + '" data-fb="1">').join("") : '<span class="noimg">' + (st.off ? "已关闭配图" : "没找到合适的图") + "</span>") +
+    (more ? '<span class="imb"><button data-ia="next" data-w="' + esc(w) + '" title="换一组图">↻</button><button data-ia="off" data-w="' + esc(w) + '" title="' + (st.off ? "重新显示配图" : "不要配图") + '">' + (st.off ? "＋" : "✕") + "</button></span>" : "") + (big ? '<div class="imsrc">图片来自视频画面或维基百科 / 维基共享资源</div>' : "");
+}
+async function fillImgs(scope) {
+  const cells = $$((scope || "#wrap") + " [data-im]");
+  let i = 0; const worker = async () => { while (i < cells.length) { const el = cells[i++]; if (!el.isConnected) continue; const w = el.dataset.im; try { const L = await imgsFor(w); if (el.isConnected) el.innerHTML = imgsHtml(w, L, el.classList.contains("dimg")); } catch (e) {} } };
+  await Promise.all([worker(), worker(), worker()]); // 同时最多查 3 个词
+}
+// 图片加载失败就隐藏（扩展页不允许内联 onerror）
+document.addEventListener("error", e => { const t = e.target; if (t && t.tagName === "IMG" && t.dataset.fb) t.style.display = "none"; }, true);
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-ia]"); if (b) { e.stopPropagation(); const w = b.dataset.w, st = await imgState(w), k = "wimg:" + w;
+    if (b.dataset.ia === "off") st.off = !st.off; else { st.off = false; st.o = (st.o || 0) + 2; }
+    chrome.storage.local.set({ [k]: st }); $$("[data-im]").filter(el => el.dataset.im === w).forEach(async el => { el.innerHTML = imgsHtml(w, await imgsFor(w), el.classList.contains("dimg")); }); return; }
+  const im = e.target.closest("[data-im] img"); if (im) { e.stopPropagation(); const v = document.createElement("div"); v.className = "imgview"; const big = document.createElement("img"); big.src = im.src; v.append(big); v.onclick = () => v.replaceWith(); document.body.append(v); }
+}, true);
