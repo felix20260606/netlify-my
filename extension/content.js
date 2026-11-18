@@ -1,9 +1,9 @@
 (function () {
-  const DEF = { gramLabel: "abbr", capSync: true, savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 12, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
+  const DEF = { showPat: true, gramLabel: "abbr", capSync: true, savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 12, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
   let tagOpen = false, wtags = {}, suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
-  let root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wtag = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
+  let pEl, root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wtag = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
   const pendIdx = new Set(), retry = {};
 
   const $ = (s, r) => (r || document).querySelector(s);
@@ -282,13 +282,17 @@
     oEl = document.createElement("div"); oEl.className = "vs-o";
     tEl = document.createElement("div"); tEl.className = "vs-t";
     hEl = document.createElement("div"); hEl.className = "vs-h";
+    pEl = document.createElement("div"); pEl.className = "vs-p";
+    pEl.addEventListener("mouseover", e => { const c = e.target.closest(".vs-pc"); if (c) patShow(+c.dataset.i, false); });
+    pEl.addEventListener("mouseleave", () => patShow(-1, false));
+    pEl.addEventListener("click", e => { e.stopPropagation(); const c = e.target.closest(".vs-pc"); if (c) patShow(+c.dataset.i, true); });
     const rp = document.createElement("i"); rp.className = "vs-rp"; rp.innerHTML = I("play"); rp.dataset.tip = "重播本句 (S)";
     const sv = document.createElement("i"); sv.className = "vs-sv"; sv.innerHTML = I("star"); sv.dataset.tip = "保存当前字幕 (R)";
     rp.addEventListener("click", e => { e.stopPropagation(); replay(); });
     sv.addEventListener("click", e => { e.stopPropagation(); if (cur >= 0) { toggleSent(cur); syncStar(); } });
     // 隐藏字幕：鼠标移到或点击哪一行，就显示哪一行，之后保持显示，直到换句
     ["mouseenter", "click"].forEach(ev => { oEl.addEventListener(ev, () => { if (!revO) { revO = true; applyHide(); } }); [tEl, hEl].forEach(x => x.addEventListener(ev, () => { if (!revT) { revT = true; applyHide(); } })); });
-    box.append(rp, oEl, tEl, hEl, sv); root.append(box); host.append(root); root.classList.toggle("below", host !== p);
+    box.append(rp, oEl, tEl, hEl, pEl, sv); root.append(box); host.append(root); root.classList.toggle("below", host !== p);
     box.addEventListener("mouseenter", () => clearTimeout(hideT));
     box.addEventListener("mouseleave", () => schedResume());
     box.addEventListener("mouseup", () => {
@@ -352,6 +356,7 @@
     if (!oEl) return;
     const m = S.hideMode, both = m === "transFirst" || m === "origFirst";
     oEl.classList.toggle("hid", (m === "orig" || both) && !revO);
+    if (pEl) pEl.classList.toggle("hid", oEl.classList.contains("hid")); // 原文隐藏时句型也藏起来，免得提前看到
     const ht = (m === "trans" || both) && !revT;
     tEl.classList.toggle("hid", ht); hEl.classList.toggle("hid", ht);
   }
@@ -407,14 +412,34 @@
   }
   const gramLine = el => { const g = [...el.classList].filter(c => /^g-/.test(c)).map(c => VS_GRAM_NAME[c.slice(2)] && VS_GRAM_NAME[c.slice(2)] + " " + VS_GRAM_ABBR[c.slice(2)]).filter(Boolean); return g.length ? '<div class="gm">语法：' + g.join(" · ") + "</div>" : ""; };
   // ---------- 渲染当前句 ----------
+  // ---------- 句型提示：字幕下面一排小标签，悬停高亮关键词并显示讲解 ----------
+  let pats = [], patPin = -1;
+  function renderPat() {
+    if (!pEl) return; pats = []; patPin = -1;
+    const on = S.showPat !== false && typeof vsPatterns === "function" && !oEl.querySelector(".vs-note");
+    if (on) pats = vsPatterns([...oEl.querySelectorAll(".vs-w")].map(x => x.dataset.w));
+    pEl.innerHTML = pats.map((p, i) => '<span class="vs-pc" data-i="' + i + '">📐 <b>' + esc(p.name) + "</b> " + esc(p.zh) + "</span>").join("") + '<div class="vs-pd"></div>';
+    pEl.style.display = pats.length ? "" : "none";
+  }
+  function patShow(i, pin) {
+    if (pin) { patPin = patPin === i ? -1 : i; i = patPin; } else if (i < 0) i = patPin;
+    const ws = oEl ? [...oEl.querySelectorAll(".vs-w")] : [];
+    ws.forEach(w => w.classList.remove("vs-pk"));
+    pEl.querySelectorAll(".vs-pc").forEach(c => c.classList.toggle("on", +c.dataset.i === i));
+    const d = pEl.querySelector(".vs-pd"), p = pats[i];
+    if (!p) { if (d) d.classList.remove("show"); return; }
+    p.keys.forEach(k => ws[k] && ws[k].classList.add("vs-pk"));
+    d.innerHTML = '<div class="tp">' + esc(p.tip) + '</div>' + (p.ex ? '<div class="ex">例：' + esc(p.ex) + "</div>" : "");
+    d.classList.add("show");
+  }
   function render(i) {
     if (!build()) return;
     revO = revT = false; applyHide();
     if (i < 0) { box.style.display = "none"; return; }
     const c = cues[i]; box.style.display = "";
     hEl.textContent = (!c.note && human[i]) || "";
-    if (c.note) { oEl.innerHTML = '<span class="vs-note">' + vsMark(esc(c.t), S) + "</span>"; setTrans(i); markPanel(i); syncStar(); return; }
-    oEl.innerHTML = wordsHtml(c.t);
+    if (c.note) { oEl.innerHTML = '<span class="vs-note">' + vsMark(esc(c.t), S) + "</span>"; renderPat(); setTrans(i); markPanel(i); syncStar(); return; }
+    oEl.innerHTML = wordsHtml(c.t); renderPat();
     setTrans(i); markPanel(i); syncStar();
     // 提前查好这一句里的生词，悬停时直接显示
     [...new Set([...oEl.querySelectorAll(".vs-u1,.vs-u2,.vs-lo,.vs-ln")].map(x => x.dataset.w))].slice(0, 6).forEach(w => liteLookup(w));

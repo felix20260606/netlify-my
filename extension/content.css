@@ -459,3 +459,14 @@ html.vs-gab #vs-sub .vs-o .vs-w.g-pl::after{color:#B0B7C0}html.vs-gl-abbr #vs-su
 html.vs-gab #vs-sub .vs-o .vs-w.g-art::after{color:#E8D36B}html.vs-gl-abbr #vs-sub .vs-o .vs-w.g-art::after{content:"art."}html.vs-gl-zh #vs-sub .vs-o .vs-w.g-art::after{content:"冠词"}html.vs-gl-en #vs-sub .vs-o .vs-w.g-art::after{content:"article"}html.vs-gab #vs-sub .vs-o .vs-w.g-art+.vs-w.g-art::after{content:none}
 html.vs-gab #vs-sub .vs-o .vs-w.g-cmp::after{color:#C9A0FF}html.vs-gl-abbr #vs-sub .vs-o .vs-w.g-cmp::after{content:"comp."}html.vs-gl-zh #vs-sub .vs-o .vs-w.g-cmp::after{content:"比较"}html.vs-gl-en #vs-sub .vs-o .vs-w.g-cmp::after{content:"compar."}html.vs-gab #vs-sub .vs-o .vs-w.g-cmp+.vs-w.g-cmp::after{content:none}
 html.vs-gab #vs-sub .vs-o .vs-w.g-neg::after{color:#FF5C5C}html.vs-gl-abbr #vs-sub .vs-o .vs-w.g-neg::after{content:"neg."}html.vs-gl-zh #vs-sub .vs-o .vs-w.g-neg::after{content:"否定"}html.vs-gl-en #vs-sub .vs-o .vs-w.g-neg::after{content:"negative"}html.vs-gab #vs-sub .vs-o .vs-w.g-neg+.vs-w.g-neg::after{content:none}
+
+/* 句型提示 */
+#vs-sub .vs-p{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:6px;position:relative;transition:filter .18s}
+#vs-sub .vs-p.hid{filter:blur(.23em)}
+#vs-sub .vs-pc{cursor:pointer;font:600 clamp(11px,1vw,14px)/1.5 system-ui,-apple-system,"PingFang SC",sans-serif;color:#d8e9ff;background:rgba(47,109,176,.38);border:1px solid rgba(120,175,240,.45);border-radius:999px;padding:1px 10px;text-shadow:none;white-space:nowrap}
+#vs-sub .vs-pc b{color:#fff;font-weight:800}
+#vs-sub .vs-pc:hover,#vs-sub .vs-pc.on{background:#2F6DB0;border-color:#7fb3ee}
+#vs-sub .vs-w.vs-pk{background:rgba(120,175,240,.32);box-shadow:0 0 0 2px rgba(120,175,240,.32);border-radius:4px}
+#vs-sub .vs-pd{display:none;flex-basis:100%;max-width:min(560px,80vw);margin:2px auto 0;background:#0f1d2e;border:1px solid #2F6DB0;border-radius:10px;padding:9px 13px;text-align:left;font:500 clamp(12px,1.05vw,15px)/1.6 system-ui,-apple-system,"PingFang SC",sans-serif;color:#e8eef5;text-shadow:none;white-space:normal;box-shadow:0 6px 24px rgba(0,0,0,.45)}
+#vs-sub .vs-pd.show{display:block}
+#vs-sub .vs-pd .ex{margin-top:5px;color:#ffd77a}
