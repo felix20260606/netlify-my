@@ -174,6 +174,15 @@ async function vocabPatch(patch) {
   try { const r = await fetch(VOCAB, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ patch: q }) }); if (!r.ok) throw 0; await chrome.storage.local.set({ srsQueue: { srs: {}, progress: {} } }); return { ok: true }; }
   catch (e) { await chrome.storage.local.set({ srsQueue: q }); return { ok: false, queued: true }; }
 }
+// 在插件里把某个词标为已掌握 / 将要学习（视频字幕、已保存页、复习页）：生词本里有这个词，就同步它的掌握状态
+async function vocabMark(word, st) {
+  const k = String(word || "").toLowerCase().trim(); if (!k || !/^(known|learning)$/.test(st)) return { ok: false };
+  let nb = (await chrome.storage.local.get({ vocabCache: null })).vocabCache;
+  const find = d => ((d && d.custom) || []).find(e => e && String(e.word || "").toLowerCase().trim() === k && !(d.deleted || []).includes(e.id));
+  let e = find(nb); if (!e) { try { nb = await vocabGet(); await chrome.storage.local.set({ vocabCache: nb }); e = find(nb); } catch (er) {} }
+  if (!e) return { ok: false, missing: true };
+  return vocabPatch({ progress: { [e.id]: st } });
+}
 async function flushSrs() { const q = (await chrome.storage.local.get({ srsQueue: null })).srsQueue; if (q && (Object.keys(q.srs || {}).length || Object.keys(q.progress || {}).length)) vocabPatch({}); }
 async function syncAll(tl) {
   const st = await chrome.storage.local.get({ saved: [], savedSents: [], savedCtx: {} });
@@ -223,6 +232,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "syncAll") syncAll(m.tl).then(send);
   else if (m.type === "vocab") vocabGet().then(d => { chrome.storage.local.set({ vocabCache: d }); flushSrs(); send(d); }).catch(() => chrome.storage.local.get({ vocabCache: null }, v => send(Object.assign({ offline: true }, v.vocabCache || {}))));
   else if (m.type === "vocabPatch") vocabPatch(m.patch).then(send);
+  else if (m.type === "vocabMark") vocabMark(m.word, m.st).then(send);
   else return false;
   return true;
 });

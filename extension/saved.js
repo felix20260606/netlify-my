@@ -13,6 +13,7 @@ const IC = {
 const I = n => '<svg class="vi" viewBox="0 0 24 24">' + IC[n] + "</svg>";
 const DAY = 864e5, PER = 50, DONE = 5;
 let S = { level: -1, ratio: 1.5, target: "zh-CN", srcLang: "en" }, saved = [], ctx = {}, srs = {}, marks = {}, sents = [], med = {};
+let NBW = {}, nbSents = [], nbSynced = false; // 网站生词本：NBW 单词词条（按小写的词），nbSents 短语 / 句子词条（「短语和句子」页显示，不存进插件本地）
 let tab = "words", q = "", sort = "date", filt = "learn", src = "", page = 0, picked = new Set(), player = null, allShown = 1e9, tags = {}, tagF = new Set(), allSort = "freq", allView = "cell", allF = new Set(), dictW = "", miniT = null, miniW = null, hist = [];
 const TAGS = [["g", "#8EE05A", "绿色"], ["y", "#F1E46B", "黄色"], ["r", "#FF6B5E", "红色"], ["b", "#6FD3FF", "蓝色"]];
 const tagDot = k => (tags[k] ? '<i class="tg t-' + tags[k] + '"></i>' : "");
@@ -24,12 +25,38 @@ const tm = x => Math.floor(x / 60) + ":" + String(Math.floor(x % 60)).padStart(2
 const dayOf = at => (at ? new Date(at).toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric" }) : "更早保存的");
 const mOf = w => med["med:w:" + w] || null, sOf = x => med["med:s:" + x.k] || null;
 
+// 和网站生词本合并：生词本里在学的词 = 插件里「将要学习」，已掌握 = 「已知」；插件里标过已知的写回生词本；插件里有、生词本没有的补上去
+function mergeNotebook(cb) {
+  send({ type: "vocab" }).then(nb => {
+    if (!nb || !nb.custom) { cb(); return; } // 断网：只显示插件本地的
+    const del = new Set(nb.deleted || []), P = nb.progress || {}, cloud = nb.srs || {};
+    NBW = {}; nbSents = [];
+    nb.custom.filter(e => e && e.id && e.word && !del.has(e.id) && !/[\u4e00-\u9fff]/.test(e.word)).forEach(e => {
+      const k = String(e.word).toLowerCase().trim(), t = e.type || "word", at = Date.parse(e.date) || 0;
+      if (t === "word" && /^[a-z][a-z'’-]*$/i.test(k)) { if (!NBW[k]) NBW[k] = e; }
+      else if (t === "phrase" || t === "sentence") nbSents.push({ k: "nb:" + e.id, t: e.word, tr: e.zh || "", ph: t === "phrase", at, nb: e });
+    });
+    let changed = false; const toKnown = {};
+    Object.keys(NBW).forEach(k => { const e = NBW[k];
+      if (P[e.id] === "known") { if (marks[k] !== "known") { marks[k] = "known"; changed = true; } if (saved.includes(k)) { saved = saved.filter(x => x !== k); changed = true; } }
+      else if (marks[k] === "known") toKnown[e.id] = "known";
+      else if (!saved.includes(k) && marks[k] !== "ignore") { saved.push(k); changed = true; }
+    });
+    if (Object.keys(toKnown).length) send({ type: "vocabPatch", patch: { progress: toKnown } });
+    Object.keys(NBW).forEach(k => { const r = cloud[NBW[k].id]; if (r) srs[k] = r; }); // 复习进度以生词本里的为准
+    if (!nbSynced) { nbSynced = true; if (saved.some(k => !NBW[k])) send({ type: "syncAll", tl: S.target }); }
+    VS_SAVED = new Set(saved); VS_MARKS = marks;
+    if (changed) persist(cb); else cb();
+  });
+}
+const nbEx = w => { const e = NBW[w], x = e && (e.examples || []).find(y => Array.isArray(y) && y[0]); return x ? String(x[0]).replace(/[{}]/g, "") : ""; };
+const nbId = k => (String(k).startsWith("nb:") ? k.slice(3) : NBW[k] ? NBW[k].id : "");
 function load(cb) {
   chrome.storage.sync.get({ level: -1, ratio: 1.5, target: "zh-CN", srcLang: "en", greenKnown: false, fadeRare: true, showMarks: true }, s => { S = s;
     chrome.storage.local.get(null, v => {
       saved = [...new Set((v.saved || []).map(w => w.toLowerCase()))]; ctx = v.savedCtx || {}; srs = v.srs || {}; marks = v.marks || {}; sents = v.savedSents || []; tags = v.tags || {}; hist = v.dictHist || [];
       med = {}; Object.keys(v).forEach(k => { if (k.startsWith("med:")) med[k] = v[k]; });
-      VS_SAVED = new Set(saved); VS_MARKS = marks; cb();
+      VS_SAVED = new Set(saved); VS_MARKS = marks; mergeNotebook(cb);
     });
   });
 }
@@ -59,7 +86,7 @@ function sourcesOf(list, get) { const m = new Map(); list.forEach(x => { const o
 function drawWords() {
   const known = Object.keys(marks).filter(k => marks[k] === "known"), ign = Object.keys(marks).filter(k => marks[k] === "ignore");
   let base = filt === "known" ? known : filt === "ignore" ? ign : saved.slice();
-  const at = w => (mOf(w) || {}).at || (ctx[w] || {}).at || 0, vOf = w => mOf(w) || ctx[w];
+  const at = w => (mOf(w) || {}).at || (ctx[w] || {}).at || (NBW[w] ? Date.parse(NBW[w].date) || 0 : 0), vOf = w => mOf(w) || ctx[w];
   let list = base.map((w, n) => ({ w, n, at: at(w), r: Math.min(vsRank(w), vsRank(lem(w))) }));
   if (q) { const k = q.toLowerCase(); list = list.filter(o => o.w.includes(k) || ((vOf(o.w) || {}).t || "").toLowerCase().includes(k)); }
   if (src) list = list.filter(o => (vOf(o.w) || {}).v === src);
@@ -72,23 +99,24 @@ function drawWords() {
   if (!pg.length) h += '<div class="empty">' + (base.length ? "没有符合条件的单词。" : filt === "learn" ? "还没有保存的单词。看视频时右键点击单词，把它加入“正在学习”。" : "这一类还没有单词。") + "</div>";
   let last = null, open = false;
   pg.forEach(o => {
-    const d = sort === "date" ? dayOf(o.at) : "", m = mOf(o.w), c = ctx[o.w], t = (m && m.t) || (c && c.t) || "";
+    const d = sort === "date" ? dayOf(o.at) : "", m = mOf(o.w), c = ctx[o.w], t = (m && m.t) || (c && c.t) || nbEx(o.w);
     if (sort === "date" && d !== last) { if (open) h += "</table>"; last = d; h += '<div class="day">' + d + "<span>" + list.filter(x => dayOf(x.at) === d).length + "</span></div><table><colgroup><col style=\"width:38px\"><col style=\"width:20%\"><col style=\"width:19%\"><col style=\"width:76px\"><col><col style=\"width:120px\"><col style=\"width:230px\"></colgroup><tr><th></th><th>单词</th><th>翻译</th><th style=\"text-align:right;padding-right:22px\">排名</th><th>上下文</th><th>阶段</th><th>来源</th></tr>"; open = true; }
     else if (!open) { h += "<table><colgroup><col style=\"width:38px\"><col style=\"width:20%\"><col style=\"width:19%\"><col style=\"width:76px\"><col><col style=\"width:120px\"><col style=\"width:230px\"></colgroup><tr><th></th><th>单词</th><th>翻译</th><th style=\"text-align:right;padding-right:22px\">排名</th><th>上下文</th><th>阶段</th><th>来源</th></tr>"; open = true; }
-    h += '<tr data-w="' + esc(o.w) + '"><td class="c"><input type="checkbox"' + (picked.has(o.w) ? " checked" : "") + '></td><td class="w"><span class="pl" title="' + (m && m.aud ? "播放原声" : "朗读") + '">' + I("play") + '</span>' + tagDot(o.w) + '<span class="vs-w ' + (filt === "learn" ? "wb" : "") + '" data-w="' + esc(o.w) + '">' + esc(o.w) + '</span></td><td class="t" data-tr="' + esc(o.w) + '"></td><td class="r">' + (o.r === Infinity ? "—" : o.r) + '</td><td class="x">' + (t ? ctxHtml(t, o.w) : '<span class="no" style="color:#555b63">—</span>') + '</td><td class="st">' + (filt === "learn" ? stage(o.w) : "—") + '</td><td class="so"><div class="so">' + srcCell(m, c) + '<span class="rm" title="' + (filt === "learn" ? "删除" : "取消标记") + '">' + I("x") + "</span></div></td></tr>";
+    h += '<tr data-w="' + esc(o.w) + '"><td class="c"><input type="checkbox"' + (picked.has(o.w) ? " checked" : "") + '></td><td class="w"><span class="pl" title="' + (m && m.aud ? "播放原声" : "朗读") + '">' + I("play") + '</span>' + tagDot(o.w) + '<span class="vs-w ' + (filt === "learn" ? "wb" : "") + '" data-w="' + esc(o.w) + '">' + esc(o.w) + '</span></td>' + (NBW[o.w] && NBW[o.w].zh ? '<td class="t" title="生词本词条">' + esc(NBW[o.w].zh) + "</td>" : '<td class="t" data-tr="' + esc(o.w) + '"></td>') + '<td class="r">' + (o.r === Infinity ? "—" : o.r) + '</td><td class="x">' + (t ? ctxHtml(t, o.w) : '<span class="no" style="color:#555b63">—</span>') + '</td><td class="st">' + (filt === "learn" ? stage(o.w) : "—") + '</td><td class="so"><div class="so">' + srcCell(m, c) + '<span class="rm" title="' + (filt === "learn" ? "删除" : "取消标记") + '">' + I("x") + "</span></div></td></tr>";
   });
   if (open) h += "</table>";
   $("#wrap").innerHTML = h; bind(list.length);
   (async () => { const me = tab + page + filt + sort + q + src; for (const el of $$("td[data-tr]")) { if (me !== tab + page + filt + sort + q + src || !el.isConnected) return; const r = await send({ type: "wordLite", word: el.dataset.tr, tl: S.target, sl: S.srcLang }), g = r.g, out = []; if (g) { if (g.t) out.push(g.t); (g.zh || []).forEach(z => z.words.forEach(x => { if (!out.includes(x)) out.push(x); })); } el.textContent = out.slice(0, 3).join(", "); } })();
 }
 function drawSents() {
-  let list = sents.map((x, n) => ({ x, n, at: x.at || (sOf(x) || {}).at || 0 }));
+  const allS = sents.concat(nbSents.filter(y => !sents.some(x => x.t.toLowerCase() === y.t.toLowerCase())));
+  let list = allS.map((x, n) => ({ x, n, at: x.at || (sOf(x) || {}).at || 0 }));
   if (q) { const k = q.toLowerCase(); list = list.filter(o => o.x.t.toLowerCase().includes(k) || (o.x.tr || "").includes(q)); }
   if (src) list = list.filter(o => o.x.v === src);
   list = list.filter(o => tagOk(o.x.k));
   list.sort((a, b) => b.at - a.at || b.n - a.n);
   const pg = list.slice(page * PER, page * PER + PER);
-  let h = '<div class="hd"><h1>保存的短语</h1><span>' + sents.length + "</span><em>你用 ☆ 保存的待复习句子</em></div>" + tools("搜索", sourcesOf(sents, x => Object.assign({}, x, sOf(x) || {}))) + '<div class="chips"><span class="chip l on">' + I("book") + "标记为将要学习 <b>" + sents.length + '</b></span><span style="width:14px"></span>' + tagChips() + pager(list.length) + '</div><div class="sel" id="sel"><span id="seln"></span><button data-b="copy">复制</button>' + tagBtns + '<button class="del" data-b="del">删除</button></div>';
+  let h = '<div class="hd"><h1>保存的短语</h1><span>' + allS.length + "</span><em>你用 ☆ 保存的待复习句子</em></div>" + tools("搜索", sourcesOf(sents, x => Object.assign({}, x, sOf(x) || {}))) + '<div class="chips"><span class="chip l on">' + I("book") + "标记为将要学习 <b>" + sents.length + '</b></span><span style="width:14px"></span>' + tagChips() + pager(list.length) + '</div><div class="sel" id="sel"><span id="seln"></span><button data-b="copy">复制</button>' + tagBtns + '<button class="del" data-b="del">删除</button></div>';
   if (!pg.length) h += '<div class="empty">' + (sents.length ? "没有符合条件的短语。" : "还没有保存的短语。看视频时点字幕旁边的 ☆ 保存整句。") + "</div>";
   let last = null, open = false;
   pg.forEach(o => { const d = dayOf(o.at), m = sOf(o.x);
@@ -137,6 +165,7 @@ function drawAll() {
 }
 function setMark(w, m) { // learn | known | ignore | ""
   w = w.toLowerCase();
+  if (m === "known" || m === "learn") send({ type: "vocabMark", word: w, st: m === "known" ? "known" : "learning" }); // 生词本里的掌握状态跟着变
   Object.keys(marks).forEach(x => { if (vsSame(x, w)) delete marks[x]; });
   if (m === "learn") { if (vsMarkOf(w) !== "learn") { saved.push(w); ctx[w] = ctx[w] || { at: Date.now() }; send({ type: "add", word: w }); } }
   else { saved = saved.filter(x => !vsSame(x, w)); if (m) marks[w] = m; VS_SAVED = new Set(saved); }
@@ -170,9 +199,12 @@ function bind(n) {
 }
 function removeKeys(keys) { fresh(() => removeKeys0(keys)); }
 function removeKeys0(keys) {
-  if (keys.length > 1 && !confirm("确定要" + (tab === "words" && filt !== "learn" ? "取消标记" : "删除") + "这 " + keys.length + " 项吗？保存的原声和画面也会一起删除。")) return;
-  if (tab === "words") { keys.forEach(w => { if (filt === "learn") { saved = saved.filter(x => x !== w); delete ctx[w]; delete srs[w]; delete med["med:w:" + w]; } else delete marks[w]; }); if (filt === "learn") chrome.storage.local.remove(keys.map(w => "med:w:" + w)); chrome.storage.local.set({ srs }); }
-  else { sents = sents.filter(x => !keys.includes(x.k)); chrome.storage.local.remove(keys.map(k => "med:s:" + k)); }
+  const inNb = keys.filter(k => nbId(k)).length && (tab !== "words" || filt === "learn");
+  if ((keys.length > 1 || inNb) && !confirm("确定要" + (tab === "words" && filt !== "learn" ? "取消标记" : "删除") + "这 " + keys.length + " 项吗？保存的原声和画面也会一起删除。" + (inNb ? "\n其中有网站生词本里的词条，生词本里也会删除（可以从备份还原）。" : ""))) return;
+  if (tab === "words") { keys.forEach(w => { if (filt === "learn") { saved = saved.filter(x => x !== w); delete ctx[w]; delete srs[w]; delete med["med:w:" + w]; } else delete marks[w]; }); if (filt === "learn") chrome.storage.local.remove(keys.map(w => "med:w:" + w)); }
+  else { sents = sents.filter(x => !keys.includes(x.k)); nbSents = nbSents.filter(x => !keys.includes(x.k)); chrome.storage.local.remove(keys.map(k => "med:s:" + k)); }
+  const gone = (tab === "words" ? (filt === "learn" ? keys : []) : keys).map(nbId).filter(Boolean); // 删除的是生词本词条：生词本里也删（仓库和后台都有备份）
+  if (gone.length) { send({ type: "vocabPatch", patch: { deleted: gone } }); gone.forEach(id => Object.keys(NBW).forEach(k => { if (NBW[k].id === id) delete NBW[k]; })); }
   persist(() => { picked.clear(); draw(); });
 }
 function draw() { head(); if (tab === "words") drawWords(); else if (tab === "sents") drawSents(); else drawAll(); }

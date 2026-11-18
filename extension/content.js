@@ -803,6 +803,7 @@
       if (m) VS_MARKS[k] = m; else delete VS_MARKS[k];
     }
     chrome.storage.local.set({ marks: VS_MARKS }); refreshMarks();
+    if (m === "known" || m === "learn") send({ type: "vocabMark", word, st: m === "known" ? "known" : "learning" }); // 生词本里的掌握状态跟着变
     toast(word + " → " + ({ learn: "将要学习", known: "已掌握", ignore: "不学习", "": "取消标记" })[m]);
   }
   document.addEventListener("contextmenu", e => {

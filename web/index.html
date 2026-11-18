@@ -357,6 +357,14 @@
   html.show-trip #view-trip{display:flex;flex-direction:column}
   #view-ielts{display:none;padding-top:98px}
   html.show-ielts #view-en{display:none}
+  /* 「已保存」「复习」：直接嵌入电脑插件自己的页面（插件里的 site.js 告诉网页插件的 ID） */
+  #view-ext{display:none;position:fixed;top:98px;left:0;right:0;bottom:0;background:#1b1d21}
+  #view-ext{display:none;flex-direction:column}
+  #view-ext .ext-bar{flex:0 0 auto;display:flex;align-items:center;gap:12px;height:34px;padding:0 16px;background:#24262b;color:#9aa3ad;font-size:12.5px}
+  #view-ext .ext-bar #ext-name{color:#fff;font-weight:700}#view-ext .ext-bar a{margin-left:auto;color:#B985E6;text-decoration:none;font-weight:700}#view-ext .ext-bar a:hover{text-decoration:underline}
+  #view-ext iframe{width:100%;flex:1 1 auto;min-height:0;border:0;display:block}
+  html.show-ext #view-en{display:none}
+  html.show-ext #view-ext{display:flex}
   html.show-ielts #view-ielts{display:block}
   #trip-dest{flex:0 0 auto;display:flex;align-items:center;justify-content:safe center;gap:8px;
     padding:0 14px;height:40px;background:var(--paper);border-bottom:1px solid var(--line);overflow-x:auto}
@@ -393,6 +401,8 @@
 </div>
 <div id="subtabs">
   <div class="subgrp on" data-l1="en">
+    <button id="tab-xsaved" type="button" hidden title="插件的「已保存项目」页（电脑上装了插件才有）">⭐ 已保存</button>
+    <button id="tab-xreview" type="button" hidden title="插件的复习页（电脑上装了插件才有）">🔁 复习</button>
     <button id="tab-notebook" class="on" type="button">📖 生词本</button>
     <button id="tab-ielts" type="button">🎓 雅思</button>
   </div>
@@ -549,6 +559,7 @@
   </div>
 </div>
 </div><!-- /view-en -->
+<div id="view-ext"><div class="ext-bar"><span id="ext-name"></span><span>插件页面，数据和网站生词本同步</span><a id="ext-open" target="_blank" rel="noopener">在新标签页打开 ↗</a></div><iframe id="extframe" title="插件页面" allow="clipboard-write; autoplay"></iframe></div>
 <div id="view-fat">
   <div id="fat-region">
     <div class="seg-wrap">
@@ -840,7 +851,7 @@
     #apptabs{height:calc(56px + var(--sat));padding:var(--sat) calc(10px + var(--sar)) 0 calc(10px + var(--sal))}
     #subtabs{top:calc(56px + var(--sat));padding-left:calc(14px + var(--sal));padding-right:calc(14px + var(--sar))}
     #view-en,#view-ielts{padding-top:calc(98px + var(--sat))}
-    #view-fat,#view-trip{top:calc(98px + var(--sat))}
+    #view-fat,#view-trip,#view-ext{top:calc(98px + var(--sat))}
     #view-ielts{padding-bottom:calc(64px + var(--sab))}
     #view-ielts .ielts-header{top:calc(98px + var(--sat))}
     .wrap{padding-left:max(14px,var(--sal));padding-right:max(14px,var(--sar))}
@@ -958,7 +969,7 @@
     .subgrp{max-width:none;margin:0;justify-content:flex-start;gap:26px}
     .subgrp button{font-size:14px;padding:8px 2px}
     #view-en,#view-ielts{padding-top:56px}
-    #view-fat,#view-trip{top:56px}
+    #view-fat,#view-trip,#view-ext{top:56px}
     #ielts-subnav{top:56px}
     #view-ielts .ielts-header{top:56px}
     /* 内容铺满，两侧留白 */
@@ -1619,7 +1630,11 @@ refresh(); // show seed words immediately, no waiting on storage
     if(fr)fr.setAttribute('src',FAT_FILES[r]||FAT_FILES.wrap);
     try{localStorage.setItem('fat_region',r);}catch(e){}
   }
-  var L2_OWNER={notebook:'en',ielts:'en',fat:'life',trip:'life'};
+  var L2_OWNER={notebook:'en',ielts:'en',xsaved:'en',xreview:'en',fat:'life',trip:'life'};
+  var tXs=document.getElementById('tab-xsaved'),tXr=document.getElementById('tab-xreview'),xf=document.getElementById('extframe');
+  var extId=function(){return document.documentElement.getAttribute('data-ban-ext')||'';}; // 插件在这台电脑上：显示「已保存」「复习」
+  function extTabs(){var on=!!extId();if(tXs)tXs.hidden=!on;if(tXr)tXr.hidden=!on;return on;}
+  extTabs();
   function show(which){
     var l1=L2_OWNER[which]||'en';
     L2_OF[l1]=which;
@@ -1630,10 +1645,11 @@ refresh(); // show seed words immediately, no waiting on storage
     // L2 按钮高亮
     tNb.classList.toggle('on',which==='notebook');
     if(tIelts)tIelts.classList.toggle('on',which==='ielts');
+    if(tXs)tXs.classList.toggle('on',which==='xsaved'); if(tXr)tXr.classList.toggle('on',which==='xreview');
     tFat.classList.toggle('on',which==='fat');
     tTrip.classList.toggle('on',which==='trip');
     // 内容区切换
-    root.classList.remove('show-fat','show-trip','show-ielts');
+    root.classList.remove('show-fat','show-trip','show-ielts','show-ext');
     if(which==='fat'){
       root.classList.add('show-fat');
       if(!fatLoaded){fatLoaded=true;
@@ -1648,6 +1664,11 @@ refresh(); // show seed words immediately, no waiting on storage
       }
     }else if(which==='ielts'){
       root.classList.add('show-ielts');
+    }else if(which==='xsaved'||which==='xreview'){
+      root.classList.add('show-ext');
+      var u='chrome-extension://'+extId()+'/'+(which==='xsaved'?'saved.html':'review.html');
+      if(xf&&xf.getAttribute('src')!==u)xf.setAttribute('src',u);
+      var eo=document.getElementById('ext-open'),en=document.getElementById('ext-name'); if(eo)eo.href=u; if(en)en.textContent=which==='xsaved'?'⭐ 已保存':'🔁 复习';
     }
     try{localStorage.setItem('vocab_tab',which);}catch(e){}
   }
@@ -1664,6 +1685,8 @@ refresh(); // show seed words immediately, no waiting on storage
   l1En.onclick=function(){show(L2_OF.en);};
   l1Life.onclick=function(){show(L2_OF.life);};
   tNb.onclick=function(){show('notebook');};
+  if(tXs)tXs.onclick=function(){show('xsaved');};
+  if(tXr)tXr.onclick=function(){show('xreview');};
   if(tIelts)tIelts.onclick=function(){show('ielts');};
   tFat.onclick=function(){show('fat');};
   if(fatNav)fatNav.onclick=function(){setFatRegion('nav');};
@@ -1677,7 +1700,11 @@ refresh(); // show seed words immediately, no waiting on storage
   if(fatBkk)fatBkk.onclick=function(){setFatRegion('bkk');};
   tTrip.onclick=function(){show('trip');};
   var saved='';try{saved=localStorage.getItem('vocab_tab')||'';}catch(e){}
-  if((saved==='fat'||saved==='trip'||saved==='ielts')&&!root.classList.contains('collect-mode'))show(saved);
+  var hasExt=extTabs();
+  if(!saved&&hasExt)saved='xsaved'; // 新加的入口排最前；装了插件的电脑第一次打开默认进「已保存」，之后记住上次的选择
+  if((saved==='xsaved'||saved==='xreview')&&!hasExt)saved='';
+  if((saved==='fat'||saved==='trip'||saved==='ielts'||saved==='xsaved'||saved==='xreview')&&!root.classList.contains('collect-mode'))show(saved);
+  window.addEventListener('ban-ext',function(){extTabs();});
 })();
 
 /* ===== 雅思页内二级：基本常识 / 笔记(ielts-notes.html) ===== */
