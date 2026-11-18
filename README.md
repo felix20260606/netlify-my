@@ -5,7 +5,7 @@
 | 目录 | 内容 |
 |---|---|
 | `extension/` | 浏览器插件「双语字幕 · 生词收集」（图标为 BAN）（Manifest V3，Chrome / Brave / Edge） |
-| `site/` | 生词本网页（单文件 `index.html`，部署在 Netlify）和加词书签安装页 |
+| `site/` | 生词本网页的早期副本（线上版在 `ruilearning-my` 仓库，部署在 Cloudflare Pages）和加词书签安装页 |
 | `tests/` | Playwright 回归测试脚本（加载插件 + 模拟的 YouTube 页面） |
 
 插件的使用习惯对齐 Language Reactor（下文简称 LR）：功能和操作方式一致，代码、图标、名称都是自己的，不使用 LR 的服务器。
@@ -466,13 +466,13 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 
 ## 生词本网站与手机端
 
-生词本网站是 <https://ruilearning-my.netlify.app/>，手机和电脑用浏览器打开即可，建议加到主屏幕。它和插件配合，做到电脑上看视频、收生词，手机上随时看视频、复习。
+生词本网站是 <https://ruilearning-my.pages.dev/>（2026-11-18 从 Netlify 搬到 Cloudflare Pages；旧网址 ruilearning-my.netlify.app 只作备份），手机和电脑用浏览器打开即可，建议加到主屏幕。它和插件配合，做到电脑上看视频、收生词，手机上随时看视频、复习。
 
 ### 仓库与部署
 
-- 线上网站部署自另一个仓库 **`felix20260606/netlify-my`**，推送到 `main` 即自动部署。和本功能有关的文件：`index.html`（主页面）、`watch.js`（「🎬 视频」）、`netlify/functions/cap.mjs`（字幕存取接口）、`package.json`（接口依赖 `@netlify/blobs`）。
+- 线上网站部署自另一个仓库 **`felix20260606/ruilearning-my`**（原名 `netlify-my`），推送到 `main` 即自动部署到 Cloudflare Pages。和本功能有关的文件：`index.html`（主页面）、`watch.js`（「🎬 视频」）、`_worker.js`（字幕存取接口，数据存在 Cloudflare KV，绑定名 `CAPTIONS`）、`_routes.json`（只让接口请求经过 `_worker.js`）。Netlify 时期的版本在该仓库的 `netlify` 分支。
 - 本仓库的 `site/` 只保留早期副本和书签小工具的源码 `site/bookmarklet.src.js`，不是线上版本。
-- **部署要省着用**：Netlify 免费额度每月 300 点，每次生产部署扣 15 点（约 20 次）。网站改动先在本地测好、攒在一起再推。日常访问、字幕同步、生词同步都不算部署。
+- 部署额度：Cloudflare Pages 免费版每月 500 次构建，静态文件流量不限。字幕接口每天 10 万次请求；KV 每天 10 万次读取、各 1,000 次写入 / 删除 / 列表，存储 1 GB。超额只让当天那部分操作失败，网站本身照常打开。
 - 那个仓库是公开的，里面带着 JSONBin 的同步密钥（网页源码里本来也能看到）。
 
 ### 日常流程
@@ -482,7 +482,7 @@ NODE_PATH=$(npm root -g) node tests/t18.js
    │  播放约 20 秒后自动上传字幕和译文
    │  标成「正在学习」的单词自动生成词条
    ▼
-【网站】保存视频字幕（Netlify Blobs）和生词本（JSONBin）
+【网站】保存视频字幕（Cloudflare KV）和生词本（JSONBin）
    ▼
 【手机】浏览器打开网站
    ├─ 🎬 视频：选视频 → 双语字幕 → 点词查词 → 加入生词本
@@ -499,15 +499,16 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 
 ### 视频字幕怎么同步
 
-都通过网站上的一个接口 `/.netlify/functions/cap`：
+都通过网站上的一个接口 `/.netlify/functions/cap`（搬到 Cloudflare 后沿用这个路径，`/api/cap` 是同一个接口）：
 
 | 动作 | 请求 | 说明 |
 |---|---|---|
-| 保存一个视频的字幕 | `POST`，请求头 `X-Key` 带同步密钥 | 内容是视频 ID、标题、频道、每句的起止时间、原文、译文。接口核对密钥后存进 Netlify Blobs，并更新一张总目录 |
+| 保存一个视频的字幕 | `POST`，请求头 `X-Key` 带同步密钥 | 内容是视频 ID、标题、频道、每句的起止时间、原文、译文。接口核对密钥后存进 Cloudflare KV（目录信息放在每条记录的元数据里，新视频最多约一分钟后出现在目录中） |
 | 取视频目录 | `GET ?list=1` | 返回已保存的视频列表（最多 300 个） |
 | 取一个视频的字幕 | `GET ?v=<视频ID>` | 返回这个视频的全部字幕 |
 | 删除 | `DELETE ?v=<视频ID>`，需要 `X-Key` | |
 
+- 插件的 `config.js` 里 `site` 要填 `https://ruilearning-my.pages.dev`；`manifest.json` 已允许访问 `*.pages.dev`。
 - **上传方**：插件在视频连续播放约 20 秒后上传，每个视频只传一次；暂停时、没有字幕时不传。设置里「看过的视频字幕同步到生词本网站」可关闭。
 - **读取方**：网站打开「🎬 视频」时取目录，点开视频时取字幕。读取不需要密钥，所以手机上不用登录；这也意味着知道网址的人能读到这些字幕（只有公开视频的字幕和译文）。
 - 没有译文的句子，网页会在浏览器里分批翻译并缓存在本机。
