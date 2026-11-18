@@ -10,6 +10,7 @@
   ※ 不要直接双击 index.html（file:// 下图片和 tab 都加载不出来）
 
 【部署到线上】
+  ※ 部署、后台接口、备份与还原等完整流程见仓库根目录的「流程说明.md」。
   网站托管在 Cloudflare Pages，网址 https://ruilearning-my.pages.dev
   连着 GitHub 仓库 felix20260606/ruilearning-my 的 main 分支，推送就自动部署
   （免费版每月 500 次构建，流量不限）。

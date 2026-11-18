@@ -11,8 +11,22 @@
   const WORD = /[A-Za-z][A-Za-z'’-]*/g;
   const tip = m => { try { toast(m); } catch (e) {} };
 
-  let set = Object.assign({ autoPause: false, hideTr: false, rate: 1 }, LS.get("wt:set", {}));
+  let set = Object.assign({ autoPause: false, hideTr: false, hideEn: false, rate: 1, fs: 1 }, LS.get("wt:set", {}));
   let doc = null, cues = [], cur = -1, player = null, ready = false, timer = null, pausedFor = -1, lock = false, follow = true, userScroll = 0, apiP = null, sheetWord = "";
+  let loop = null, abA = -1, loopAt = 0, started = false, resumeAt = 0; // loop = {a,b}：循环第 a～b 句（单句循环时 a === b）
+
+  /* ---------- 本机记录：观看进度、收藏、看过（只存在这台设备的浏览器里） ----------
+     wt:meta = { 视频ID: { p: 看到第几秒, d: 视频总长, t: 最近观看时间, f: 1 收藏, w: 1 看过 } } */
+  let M = LS.get("wt:meta", null);
+  if (!M) { M = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf("wt:pos:") === 0) { const p = +LS.get(k, 0); if (p > 0) M[k.slice(7)] = { p }; } } } catch (e) {} LS.set("wt:meta", M); } // 旧版只存了 wt:pos:ID
+  const meta = v => M[v] || (M[v] = {});
+  const saveMeta = () => LS.set("wt:meta", M);
+  let lv = Object.assign({ sort: "add", filter: "all" }, LS.get("wt:lv", {})), allItems = LS.get("wt:list", []), listState = allItems.length ? "ok" : "loading", q = "";
+  const durOf = (v, x) => (M[v] && M[v].d) || (x && x.dur) || 0;
+  const pctOf = (v, x) => { const m = M[v] || {}, d = durOf(v, x); return m.w ? 1 : d && m.p ? Math.min(1, m.p / d) : 0; };
+  const stOf = (v, x) => { const m = M[v] || {}; return m.w ? "seen" : (m.p || 0) > 5 && pctOf(v, x) < 0.97 ? "ing" : "new"; };
+  const fineKeys = () => { try { return matchMedia("(hover:hover) and (pointer:fine)").matches; } catch (e) { return false; } };
+  async function copyText(s) { try { await navigator.clipboard.writeText(s); return true; } catch (e) { const ta = document.createElement("textarea"); ta.value = s; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;opacity:0;top:0"; document.body.append(ta); ta.select(); let ok = false; try { ok = document.execCommand("copy"); } catch (er) {} ta.remove(); return ok; } }
 
   /* 书签小工具：在 YouTube 页面里读出正在显示的字幕，存到本站，再跳回来学习（手机上不依赖电脑） */
   const BM_SRC = "(function(){ var S=\"__SITE__\",D=document,L=location; if(!/(^|\\.)youtube\\.com$/.test(L.hostname)){alert(\"请先在 Safari 里打开 YouTube 的视频页，再点这个书签\");return;} var m=L.href.match(/[?&]v=([\\w-]{11})/)||L.href.match(/\\/shorts\\/([\\w-]{11})/); if(!m){alert(\"请先打开一个 YouTube 视频，再点这个书签\");return;} var v=m[1],p=D.getElementById(\"movie_player\")||D.querySelector(\".html5-video-player\"),done=false,hit=false; var box=D.createElement(\"div\");box.style.cssText=\"position:fixed;left:12px;right:12px;top:12px;z-index:2147483647;background:#0c9370;color:#fff;font:600 15px/1.4 system-ui;padding:12px 14px;border-radius:12px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.35)\"; var say=function(t){box.textContent=t;if(!box.parentNode)D.body.appendChild(box);}; say(\"正在读取字幕…\"); function parse(t){var j=JSON.parse(t),c=[],i,e,s;for(i=0;i<(j.events||[]).length;i++){e=j.events[i];if(!e.segs)continue;s=e.segs.map(function(x){return x.utf8||\"\"}).join(\"\").replace(/\\s+/g,\" \").trim();if(!s)continue;c.push({s:(e.tStartMs||0)/1000,e:((e.tStartMs||0)+(e.dDurationMs||0))/1000,t:s});} for(i=0;i<c.length-1;i++)if(c[i].e>c[i+1].s)c[i].e=c[i+1].s;return c.filter(function(x){return x.e>x.s});} function send(c,lang){if(done||!c.length)return;done=true;hit=true;say(\"共 \"+c.length+\" 句（\"+c.filter(function(x){return x.r}).length+\" 句有中文），正在保存…\");var a=\"\";try{a=p.getVideoData().author||\"\"}catch(e){} F.call(window,S+\"/api/cap\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:JSON.stringify({v:v,tl:\"zh-CN\",title:D.title.replace(/^\\(\\d+\\)\\s*/,\"\").replace(/ - YouTube$/,\"\"),author:a,lang:lang||\"en\",cues:c})}).then(function(r){return r.json()}).then(function(r){if(r&&r.ok){say(\"已保存，正在打开学习页…\");L.href=S+\"/?v=\"+v;}else{done=false;say(\"保存失败：\"+((r&&r.error)||\"未知错误\"));}}).catch(function(){done=false;say(\"保存失败：网络问题，请再点一次书签\");});} var F=window.fetch,O=XMLHttpRequest.prototype.open,seen={}; function cl(t){t=String(t||\"\").replace(/\\[[^\\]]*\\]|\\u266a|>>+|\\u00bb/g,\" \").replace(/\\s+/g,\" \").trim();return /^\\([^)]*\\)$/.test(t)?\"\":t;} function merge(c,z){var m={},i,k,b,d;for(i=0;i<z.length;i++)m[Math.round(z[i].s*10)]=z[i].t; for(i=0;i<c.length;i++){k=Math.round(c[i].s*10);c[i].r=m[k]||m[k-1]||m[k+1]||\"\";if(!c[i].r&&z.length){b=null;for(d=0;d<z.length;d++)if(z[d].s<c[i].e&&z[d].e>c[i].s&&Math.abs(z[d].s-c[i].s)<1.5){b=z[d];break;}if(b)c[i].r=b.t;}} var o=[];for(i=0;i<c.length;i++){c[i].t=cl(c[i].t);c[i].r=cl(c[i].r);if(c[i].t)o.push(c[i]);}return o;} function grab(u){if(done||!/\\/api\\/timedtext/.test(u))return;var a;try{a=new URL(u,L.href)}catch(e){return}if(a.searchParams.get(\"v\")&&a.searchParams.get(\"v\")!==v)return;a.searchParams.delete(\"tlang\");a.searchParams.set(\"fmt\",\"json3\");var k=a.href;if(seen[k])return;seen[k]=1;var lang=a.searchParams.get(\"lang\")||\"en\"; F.call(window,k).then(function(r){return r.ok?r.text():\"\"}).then(function(t){if(!t||done)return;var c=parse(t);if(!c.length)return;say(\"拿到 \"+c.length+\" 句字幕，正在取中文…\");a.searchParams.set(\"tlang\",\"zh-Hans\"); return F.call(window,a.href).then(function(r){return r.ok?r.text():\"\"}).then(function(x){var z=[];try{z=x?parse(x):[]}catch(e){}send(merge(c,z),lang)},function(){send(merge(c,[]),lang)});}).catch(function(){seen[k]=0});} XMLHttpRequest.prototype.open=function(a,u){try{grab(String(u))}catch(e){}return O.apply(this,arguments);}; window.fetch=function(i){try{grab(String(typeof i===\"string\"?i:(i&&i.url)||\"\"))}catch(e){}return F.apply(this,arguments);}; var scan=function(){if(done)return;var es=performance.getEntriesByType(\"resource\"),i;for(i=es.length-1;i>=0;i--)grab(es[i].name);}; var kick=function(){if(done||!p)return;try{p.loadModule&&p.loadModule(\"captions\");var tl=p.getOption(\"captions\",\"tracklist\")||[],en=tl.filter(function(x){return /^en/.test(x.languageCode)}),tr=en.filter(function(x){return x.kind!==\"asr\"})[0]||en[0]||tl[0];p.setOption(\"captions\",\"track\",{});if(tr)setTimeout(function(){try{p.setOption(\"captions\",\"track\",{languageCode:tr.languageCode})}catch(e){}},350);else if(p.toggleSubtitlesOn)p.toggleSubtitlesOn();}catch(e){}}; scan();setTimeout(function(){if(!done)kick()},1200);setTimeout(kick,4000);setTimeout(kick,7500);var iv=setInterval(function(){if(done)clearInterval(iv);else scan()},700);setTimeout(function(){clearInterval(iv)},11000); setTimeout(function(){if(!hit)say(\"没拿到字幕：这个视频可能没有字幕。请先点一下播放，再点一次书签试试\");setTimeout(function(){if(!hit&&box.parentNode)box.parentNode.removeChild(box)},6000);},11000); })();";
@@ -89,7 +103,71 @@
     .wt-video{border-radius:10px}
   }
   @media (max-width:640px) and (orientation:landscape){ .wt-video{max-height:62vh;aspect-ratio:auto;height:62vh} }
-  }`;
+  /* 列表：搜索、排序、筛选 */
+  .wt-tools{display:flex;gap:8px;margin-bottom:8px}
+  .wt-q{flex:1;min-width:0;display:flex;align-items:center;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:0 10px}
+  .wt-q:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(15,163,122,.1)}
+  .wt-q input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:16px;padding:9px 0;color:var(--ink)}
+  .wt-q button{border:0;background:transparent;color:var(--muted);font-size:18px;min-width:32px;min-height:40px;cursor:pointer;display:none}
+  .wt-q.has button{display:block}
+  .wt-sel{flex:none;max-width:118px;border:1px solid var(--line);background:var(--paper);border-radius:12px;font:inherit;font-size:16px;color:var(--ink);padding:0 8px;min-height:44px} /* 16px：iOS 点开不放大页面 */
+  .wt-ib{flex:none;width:44px;min-height:44px;border:1px solid var(--line);background:var(--paper);border-radius:12px;font-size:18px;color:var(--ink);cursor:pointer}
+  .wt-ib.spin{animation:wtspin .8s linear infinite}@keyframes wtspin{to{transform:rotate(360deg)}}
+  .wt-chips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:10px;padding-bottom:2px}
+  .wt-chips::-webkit-scrollbar{display:none}
+  .wt-chips button{flex:none;background:var(--paper);border:1px solid var(--line);color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;padding:0 11px;min-height:34px;border-radius:999px;cursor:pointer;white-space:nowrap}
+  .wt-chips button.on{background:var(--gold);color:#3a2c08;border-color:var(--gold);font-weight:700}
+  .wt-chips button em{font-style:normal;opacity:.7;margin-left:3px;font-weight:500}
+  .wt-cnt{color:var(--muted);font-size:12px;margin:0 2px 8px}
+  .wt-cont{display:flex;gap:12px;align-items:center;background:linear-gradient(150deg,#F2FBF7,#fff);border:1px solid #CDEBDF;border-radius:14px;padding:10px;margin-bottom:12px;cursor:pointer}
+  .wt-cont .wt-th{width:96px}
+  .wt-cont small{display:block;color:var(--jade);font-size:11.5px;font-weight:800;letter-spacing:.06em}
+  .wt-cont b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px;line-height:1.35;margin-top:2px}
+  .wt-cont span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+  .wt-cont .go{flex:none;width:44px;height:44px;border-radius:50%;background:var(--jade);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;margin-left:auto}
+  .wt-item>div:nth-child(2),.wt-cont>div:nth-child(2){flex:1;min-width:0}
+  .wt-th{position:relative;flex:none;width:112px;border-radius:9px;overflow:hidden;background:var(--paper-2)}
+  .wt-th img,.wt-item .wt-th img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:0}
+  .wt-th .dur{position:absolute;right:4px;bottom:6px;background:rgba(0,0,0,.72);color:#fff;font-size:10.5px;font-weight:600;padding:1px 5px;border-radius:4px;line-height:1.4}
+  .wt-th .pg{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.55)}
+  .wt-th .pg i{display:block;height:100%;background:var(--jade)}
+  .wt-item{position:relative}
+  .wt-item.seen .wt-th img{opacity:.62}
+  .wt-item b .st{color:var(--gold);margin-right:3px}
+  .wt-item span em{font-style:normal;white-space:nowrap}
+  .wt-item .ok{color:var(--jade);font-weight:700}.wt-item .ing{color:var(--jade)}.wt-item .tq{color:#c9741f}
+  .wt-more{flex:none;align-self:stretch;width:36px;border:0;background:transparent;color:var(--muted);font-size:20px;font-weight:700;border-radius:10px;cursor:pointer;margin:-8px -8px -8px -6px;padding:0}
+  .wt-more:active{background:var(--paper-2)}
+  .wt-empty .wt-btn{margin-top:12px}
+  .wt-empty ol{text-align:left;display:inline-block;margin:10px 0 0;padding-left:20px;color:var(--ink)}
+  .wt-empty li{margin-bottom:4px}
+  /* 播放页 */
+  .wt-ctl+.wt-ctl{margin-top:6px}
+  .wt-ctl button.lp{background:var(--gold);border-color:var(--gold);color:#3a2c08}
+  .wt-sub.hide-en .en:not(.none){filter:blur(8px);cursor:pointer;user-select:none;-webkit-user-select:none}.wt-sub.hide-en .en.rv{filter:none;user-select:auto;-webkit-user-select:auto}
+  .wt-sub .rs{display:block;margin-top:8px}
+  .wt-sub .rs button{border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:999px;font:inherit;font-size:13px;padding:0 14px;min-height:34px;cursor:pointer}
+  #watch.hide-tr .wt-row .r{filter:blur(5px)}
+  #watch.hide-en .wt-row .t{filter:blur(6px)}
+  .wt-row.lp{background:#FFF8EC;box-shadow:inset 4px 0 0 var(--gold)}
+  .wt-row.lp.cur{background:#FDF0D8}
+  #watch.fs0 .wt-sub .en{font-size:16px}#watch.fs0 .wt-sub .zh{font-size:13.5px}#watch.fs0 .wt-row{font-size:14px}
+  #watch.fs2 .wt-sub .en{font-size:23px}#watch.fs2 .wt-sub .zh{font-size:17px}#watch.fs2 .wt-row{font-size:17.5px}
+  /* 菜单（底部弹出） */
+  .wt-mh b{display:block;font-size:16px;line-height:1.4;padding-right:6px}
+  .wt-mh span{display:block;color:var(--muted);font-size:13px;margin-top:3px}
+  .wt-menu{margin-top:10px;border-top:1px solid var(--line)}
+  .wt-menu button,.wt-menu a{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;border:0;border-bottom:1px solid var(--line);background:transparent;font:inherit;font-size:15.5px;color:var(--ink);text-align:left;padding:0 4px;cursor:pointer;text-decoration:none}
+  .wt-menu button:active,.wt-menu a:active{background:var(--paper-2)}
+  .wt-menu .del{color:#C8432F;font-weight:700}
+  .wt-mrow{display:flex;align-items:center;gap:12px;margin-top:12px;font-size:14px;color:var(--muted)}
+  .wt-seg{display:flex;gap:3px;background:var(--paper-2);border:1px solid var(--line);border-radius:11px;padding:3px;flex:1}
+  .wt-seg button{flex:1;border:0;background:transparent;border-radius:8px;min-height:38px;font:inherit;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer}
+  .wt-seg button.on{background:var(--paper);color:var(--jade);box-shadow:0 1px 4px rgba(20,30,45,.1)}
+  .wt-keys{margin-top:12px;font-size:13px;color:var(--muted);line-height:1.9}
+  .wt-keys kbd{display:inline-block;min-width:22px;text-align:center;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;margin-right:4px;font:600 12px/1.6 ui-monospace,Menlo,monospace;color:var(--ink);background:var(--paper)}
+  .wt-keys span{display:inline-block;margin-right:14px;white-space:nowrap}
+  @media (max-width:400px){ .wt-th{width:100px}.wt-cont .wt-th{width:84px}.wt-sel{max-width:104px}.wt-ctl button{font-size:12.5px} }`;
 
   /* ---------- 生词本状态 ---------- */
   let book = new Map();
@@ -118,6 +196,12 @@
           <div class="wt-bma"><button class="wt-btn" id="wt-bmc">复制书签代码</button><a id="wt-bml" class="wt-bml">学这个视频</a></div>
           <p>电脑上可以直接把右边的「学这个视频」拖到书签栏。安卓 Chrome：同样存成书签，然后在 YouTube 页面的地址栏里输入「学这个视频」并点选它。</p>
         </details>
+        <div class="wt-tools">
+          <label class="wt-q" id="wt-qbox"><input id="wt-q" type="search" placeholder="搜索标题、频道…" autocomplete="off" enterkeyhint="search"><button type="button" id="wt-qx" aria-label="清除搜索">×</button></label>
+          <select class="wt-sel" id="wt-sort" aria-label="排序"><option value="add">最近添加</option><option value="watch">最近观看</option><option value="title">标题</option><option value="dur">时长</option></select>
+          <button class="wt-ib" id="wt-ref" type="button" aria-label="刷新列表" title="刷新列表">↻</button>
+        </div>
+        <div class="wt-chips" id="wt-chips"></div>
         <div id="wt-items"></div>
       </div>
       <div class="wt-play">
@@ -125,12 +209,18 @@
         <div class="wt-video"><div id="wt-yt"></div></div>
         <div class="wt-sub" id="wt-sub"><div class="en none">点 ▶ 开始播放</div><div class="zh"></div></div>
         <div class="wt-ctl">
-          <button id="wt-prev" aria-label="上一句">⏮ 上句</button>
-          <button id="wt-rep" aria-label="重播这句">🔁 重听</button>
-          <button id="wt-next" aria-label="下一句">下句 ⏭</button>
-          <button id="wt-ap">逐句停</button>
-          <button id="wt-ht">藏译文</button>
-          <button id="wt-rate">1×</button>
+          <button id="wt-prev" aria-label="上一句" title="上一句（←）">⏮ 上句</button>
+          <button id="wt-rep" aria-label="重播这句" title="重听这句（R）">🔁 重听</button>
+          <button id="wt-next" aria-label="下一句" title="下一句（→）">下句 ⏭</button>
+          <button id="wt-loop" title="单句循环（L）">🔂 单句</button>
+          <button id="wt-ab" title="区间循环：先在起点那句点一下，再在终点那句点一下（B）">A-B</button>
+        </div>
+        <div class="wt-ctl">
+          <button id="wt-ap" title="每句播完自动暂停（P）">逐句停</button>
+          <button id="wt-ht" title="模糊中文译文（T）">藏译文</button>
+          <button id="wt-he" title="模糊英文原文，练听力（E）">藏原文</button>
+          <button id="wt-rate" title="播放速度">1×</button>
+          <button id="wt-more2" aria-label="更多">⋯ 更多</button>
         </div>
         <div class="wt-note" id="wt-note" style="display:none"></div>
         <div class="wt-list" id="wt-list"></div>
@@ -144,7 +234,8 @@
 
     // 一级标签：和「英语 / 生活」并列
     const H = document.documentElement, btn = document.createElement("button"); btn.id = "l1-video"; btn.type = "button"; btn.textContent = "🎬 视频";
-    seg.append(btn); seg.classList.add("three");
+    const l1en = seg.querySelector("#l1-en"); if (l1en) l1en.after(btn); else seg.append(btn); // 顺序：英语 · 视频 · 生活
+    seg.classList.add("three");
     const leave = () => { if (!H.classList.contains("show-video")) return; H.classList.remove("show-video", "wt-playing"); btn.classList.remove("on"); LS.set("wt:tab", 0); try { player && player.pauseVideo && player.pauseVideo(); } catch (e) {} };
     seg.querySelectorAll("button").forEach(b => { if (b !== btn) b.addEventListener("click", leave); });
     enter = () => {
@@ -154,16 +245,40 @@
     };
     btn.onclick = enter;
     $("#wt-bml").href = bookmarklet(); $("#wt-bml").onclick = e => { e.preventDefault(); tip("把它拖到书签栏；手机上请用「复制书签代码」"); };
-    $("#wt-bmc").onclick = async () => { const code = bookmarklet(); try { await navigator.clipboard.writeText(code); tip("已复制，按上面第 2、3 步存成书签"); } catch (e) { const ta = document.createElement("textarea"); ta.value = code; ta.style.cssText = "position:fixed;opacity:0"; document.body.append(ta); ta.select(); let ok = false; try { ok = document.execCommand("copy"); } catch (er) {} ta.remove(); tip(ok ? "已复制，按上面第 2、3 步存成书签" : "复制失败，请长按右边的链接复制"); } };
+    $("#wt-bmc").onclick = async () => { tip(await copyText(bookmarklet()) ? "已复制，按上面第 2、3 步存成书签" : "复制失败，请长按右边的链接复制"); };
     $("#wt-go").onclick = () => openUrl($("#wt-url").value);
     $("#wt-url").addEventListener("keydown", e => { if (e.key === "Enter") openUrl(e.target.value); });
-    $("#wt-items").addEventListener("click", e => { const it = e.target.closest(".wt-item"); if (it) open(it.dataset.v); });
+    // 列表：搜索 / 排序 / 筛选 / 刷新 / 每条的「⋯」菜单
+    const qi = $("#wt-q"), qb = $("#wt-qbox");
+    qi.addEventListener("input", () => { q = qi.value.trim().toLowerCase(); qb.classList.toggle("has", !!qi.value); drawList(); });
+    qi.addEventListener("keydown", e => { if (e.key === "Enter") qi.blur(); });
+    $("#wt-qx").onclick = e => { e.preventDefault(); qi.value = ""; q = ""; qb.classList.remove("has"); drawList(); };
+    $("#wt-sort").value = lv.sort; $("#wt-sort").onchange = e => { lv.sort = e.target.value; LS.set("wt:lv", lv); drawList(); };
+    $("#wt-chips").addEventListener("click", e => { const b = e.target.closest("button[data-f]"); if (!b) return; lv.filter = b.dataset.f; LS.set("wt:lv", lv); drawList(); });
+    $("#wt-ref").onclick = () => loadList(true);
+    $("#wt-items").addEventListener("click", e => {
+      const a = e.target.closest("[data-act]"); if (a) { e.stopPropagation(); if (a.dataset.act === "clear") { qi.value = ""; q = ""; qb.classList.remove("has"); lv.filter = "all"; LS.set("wt:lv", lv); drawList(); } else if (a.dataset.act === "bm") { const d = $("#wt-bm"); d.open = true; d.scrollIntoView({ behavior: "smooth", block: "start" }); } else if (a.dataset.act === "retry") loadList(true); return; }
+      const m = e.target.closest(".wt-more"); if (m) { menu(m.dataset.v, false); return; }
+      const it = e.target.closest(".wt-item,.wt-cont"); if (it) open(it.dataset.v);
+    });
     $("#wt-back").onclick = closePlay;
     $("#wt-prev").onclick = () => jump(-1); $("#wt-next").onclick = () => jump(1); $("#wt-rep").onclick = () => jump(0);
+    $("#wt-loop").onclick = toggleLoop; $("#wt-ab").onclick = toggleAB;
     $("#wt-ap").onclick = () => { set.autoPause = !set.autoPause; saveSet(); };
     $("#wt-ht").onclick = () => { set.hideTr = !set.hideTr; saveSet(); };
+    $("#wt-he").onclick = () => { set.hideEn = !set.hideEn; saveSet(); };
+    $("#wt-more2").onclick = () => doc && menu(doc.v, true);
     $("#wt-rate").onclick = () => { const R = [1, 0.75, 0.5, 1.25]; set.rate = R[(R.indexOf(set.rate) + 1) % R.length]; saveSet(); try { player.setPlaybackRate(set.rate); } catch (e) {} };
-    subEl.addEventListener("click", e => { const w = e.target.closest(".wt-w"); if (w) { lookup(w.dataset.w, cur); return; } const z = e.target.closest(".zh"); if (z) z.classList.toggle("rv"); });
+    subEl.addEventListener("click", e => {
+      if (e.target.closest(".rs button")) { fromStart(); return; }
+      const en = e.target.closest(".en"); if (en && set.hideEn && !en.classList.contains("rv") && !en.classList.contains("none")) { en.classList.add("rv"); return; } // 藏原文时先点一下才显示
+      const w = e.target.closest(".wt-w"); if (w) { lookup(w.dataset.w, cur); return; } const z = e.target.closest(".zh"); if (z) z.classList.toggle("rv");
+    });
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("keyup", e => { if (e.key === " " && root.classList.contains("playing") && e.target && e.target.tagName === "BUTTON" && root.contains(e.target)) e.preventDefault(); }); // 空格已经当作播放/暂停，别再触发按钮
+    // 离开页面 / 切到后台时记下看到哪里
+    document.addEventListener("visibilitychange", () => { if (document.hidden) savePos(true); });
+    addEventListener("pagehide", () => savePos(true));
     listEl.addEventListener("click", e => { if (e.target.closest(".wt-back")) { follow = true; listEl.classList.remove("away"); scrollCur(true); return; } const w = e.target.closest(".wt-w"), row = e.target.closest(".wt-row"); if (!row) return; const i = +row.dataset.i; if (w) { lookup(w.dataset.w, i); return; } seek(i); });
     const away = () => { userScroll = Date.now(); follow = false; listEl.classList.add("away"); };
     listEl.addEventListener("touchmove", away, { passive: true }); listEl.addEventListener("wheel", away, { passive: true });
@@ -174,21 +289,149 @@
     return true;
   }
   function saveSet() { LS.set("wt:set", set); paintSet(); }
-  function paintSet() { $("#wt-ap").classList.toggle("on", set.autoPause); $("#wt-ht").classList.toggle("on", set.hideTr); $("#wt-rate").textContent = set.rate + "×"; subEl.classList.toggle("hide", set.hideTr); }
+  function paintSet() {
+    $("#wt-ap").classList.toggle("on", set.autoPause); $("#wt-ht").classList.toggle("on", set.hideTr); $("#wt-he").classList.toggle("on", set.hideEn); $("#wt-rate").textContent = set.rate + "×";
+    subEl.classList.toggle("hide", set.hideTr); subEl.classList.toggle("hide-en", set.hideEn);
+    root.classList.toggle("hide-tr", set.hideTr); root.classList.toggle("hide-en", set.hideEn);
+    root.classList.remove("fs0", "fs1", "fs2"); root.classList.add("fs" + set.fs);
+  }
+  function paintLoop() {
+    const single = !!loop && loop.a === loop.b, range = !!loop && loop.a !== loop.b;
+    $("#wt-loop").classList.toggle("lp", single);
+    const ab = $("#wt-ab"); ab.classList.toggle("lp", range || abA >= 0); ab.textContent = abA >= 0 ? "A→?" : range ? "A-B ✓" : "A-B";
+    Array.prototype.forEach.call(listEl.children, (r, i) => { if (r.classList.contains("wt-row")) r.classList.toggle("lp", !!loop && i >= loop.a && i <= loop.b); });
+  }
+  const curIdx = () => { if (cur >= 0) return cur; const i = find(now()); return i < 0 ? 0 : i; };
+  function toggleLoop() {
+    if (!cues.length) return; abA = -1;
+    if (loop && loop.a === loop.b) { loop = null; tip("已关闭单句循环"); }
+    else { const i = curIdx(); loop = { a: i, b: i }; tip("单句循环：第 " + (i + 1) + " 句"); }
+    paintLoop();
+  }
+  function toggleAB() {
+    if (!cues.length) return;
+    if (loop && loop.a !== loop.b) { loop = null; abA = -1; tip("已关闭区间循环"); }
+    else if (abA < 0) { loop = null; abA = curIdx(); tip("起点：第 " + (abA + 1) + " 句。播到终点那句时再点一次 A-B"); }
+    else { const i = curIdx(), a = Math.min(abA, i), b = Math.max(abA, i); abA = -1; loop = { a, b }; tip(a === b ? "起点和终点是同一句，改成单句循环" : "循环第 " + (a + 1) + "～" + (b + 1) + " 句"); }
+    paintLoop();
+  }
+  function togglePlay() { if (!ready) return; try { if (playing()) player.pauseVideo(); else player.playVideo(); } catch (e) {} }
+  async function copyCur() { const c = cues[cur]; if (!c) { tip("还没有正在播放的句子"); return; } tip(await copyText(c.t + (c.r ? "\n" + c.r : "")) ? "已复制这句" : "复制失败"); }
+  function onKey(e) { // 电脑上的快捷键（播放页）
+    if (!document.documentElement.classList.contains("show-video") || !root.classList.contains("playing")) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const tg = e.target; if (tg && (/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName) || tg.isContentEditable)) return;
+    if ($("#wt-sheet").classList.contains("on")) { if (e.key === "Escape") { e.preventDefault(); closeSheet(); } return; }
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    const act = { " ": togglePlay, k: togglePlay, ArrowLeft: () => jump(-1), ArrowRight: () => jump(1), r: () => jump(0), l: toggleLoop, b: toggleAB, p: () => $("#wt-ap").click(), t: () => $("#wt-ht").click(), e: () => $("#wt-he").click(), s: () => $("#wt-rate").click(), c: copyCur }[k];
+    if (!act) return; e.preventDefault(); act();
+  }
   function fit() { // 播放页占满一屏：视频、当前字幕、按钮固定，下面的字幕列表自己滚动
     const p = $(".wt-play", root); if (!root.classList.contains("playing") || !document.documentElement.classList.contains("show-video")) return;
     scrollTo(0, 0); const top = p.getBoundingClientRect().top, land = innerWidth > innerHeight && innerHeight < 520; p.style.height = land ? "auto" : Math.max(380, innerHeight - top - 8) + "px";
   }
 
   /* ---------- 视频列表 ---------- */
-  function drawList(items) {
-    const box = $("#wt-items");
-    box.innerHTML = items && items.length ? items.map(x => '<div class="wt-item" data-v="' + esc(x.v) + '"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + esc(x.v) + '/mqdefault.jpg"><div><b>' + esc(x.title || x.v) + "</b><span>" + esc(x.author || "") + (x.author ? " · " : "") + x.n + " 句" + (x.dur ? " · " + fmt(x.dur) : "") + "</span></div></div>").join("")
-      : '<div class="wt-empty">还没有视频。<br>在电脑上打开 YouTube，用插件看任意一个带字幕的视频约 20 秒，它就会出现在这里。</div>';
+  const FILTERS = [["all", "全部"], ["fav", "★ 收藏"], ["ing", "在看"], ["new", "未看"], ["seen", "看过"]];
+  const thumb = (x, withDur) => { const p = pctOf(x.v, x), d = durOf(x.v, x); return '<div class="wt-th"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + esc(x.v) + '/mqdefault.jpg">' + (withDur && d ? '<div class="dur">' + fmt(d) + "</div>" : "") + (p > 0.005 && p < 1 ? '<div class="pg"><i style="width:' + (p * 100).toFixed(1) + '%"></i></div>' : "") + "</div>"; };
+  function drawList() {
+    const box = $("#wt-items"), items = allItems || [];
+    // 筛选按钮带数量
+    const cnt = { all: items.length, fav: 0, ing: 0, new: 0, seen: 0 };
+    items.forEach(x => { cnt[stOf(x.v, x)]++; if ((M[x.v] || {}).f) cnt.fav++; });
+    $("#wt-chips").innerHTML = FILTERS.map(([k, l]) => '<button type="button" data-f="' + k + '" class="' + (lv.filter === k ? "on" : "") + '">' + l + (cnt[k] ? "<em>" + cnt[k] + "</em>" : "") + "</button>").join("");
+    if (!items.length) {
+      box.innerHTML = listState === "loading" ? '<div class="wt-empty">正在读取视频列表…</div>'
+        : listState === "err" ? '<div class="wt-empty">视频列表没读出来（网络问题）。<br><button class="wt-btn" data-act="retry">重试</button></div>'
+        : '<div class="wt-empty">还没有视频。有三种方法加进来：<ol><li>电脑上装好「双语字幕」插件，在 YouTube 看任意带字幕的视频约 20 秒，会自动出现在这里。</li><li>手机上用 Safari 书签小工具（见上面「📱 手机上给任意视频加字幕」）。</li><li>上面直接粘贴 YouTube 链接，可以先看视频（暂时没有字幕）。</li></ol><br><button class="wt-btn" data-act="bm">设置手机书签</button></div>';
+      return;
+    }
+    let list = items.filter(x => {
+      if (q && (String(x.title || "") + " " + String(x.author || "") + " " + x.v).toLowerCase().indexOf(q) < 0) return false;
+      const f = lv.filter; return f === "all" ? true : f === "fav" ? !!(M[x.v] || {}).f : stOf(x.v, x) === f;
+    });
+    const by = {
+      add: (a, b) => (b.at || 0) - (a.at || 0),
+      watch: (a, b) => ((M[b.v] || {}).t || 0) - ((M[a.v] || {}).t || 0) || (b.at || 0) - (a.at || 0),
+      title: (a, b) => String(a.title || a.v).localeCompare(String(b.title || b.v), "zh"),
+      dur: (a, b) => (durOf(a.v, a) || 1e9) - (durOf(b.v, b) || 1e9)
+    }[lv.sort] || (() => 0);
+    list = list.slice().sort((a, b) => (((M[b.v] || {}).f ? 1 : 0) - ((M[a.v] || {}).f ? 1 : 0)) || by(a, b)); // 收藏的置顶
+    // 继续上次：最近看过、还没看完的那个
+    let cont = "";
+    if (!q && lv.filter === "all") {
+      let best = null; items.forEach(x => { const m = M[x.v]; if (m && m.t && stOf(x.v, x) === "ing" && (!best || m.t > M[best.v].t)) best = x; });
+      if (best) { const m = M[best.v], d = durOf(best.v, best); cont = '<div class="wt-cont" data-v="' + esc(best.v) + '">' + thumb(best, false) + "<div><small>继续上次</small><b>" + esc(best.title || best.v) + "</b><span>看到 " + fmt(m.p) + (d ? " / " + fmt(d) : "") + '</span></div><div class="go">▶</div></div>'; }
+    }
+    const head = '<div class="wt-cnt">' + (list.length === items.length ? "共 " + items.length + " 个视频" : "显示 " + list.length + " / " + items.length + " 个") + "</div>";
+    if (!list.length) { box.innerHTML = cont + '<div class="wt-empty">' + (q ? "没有找到包含「" + esc($("#wt-q").value.trim()) + "」的视频。" : "这一类里还没有视频。") + '<br><button class="wt-btn" data-act="clear">显示全部</button></div>'; return; }
+    box.innerHTML = cont + head + list.map(x => {
+      const m = M[x.v] || {}, st = stOf(x.v, x), n = x.n || 0, tr = x.tr == null ? n : x.tr;
+      const bits = []; if (x.author) bits.push(esc(x.author)); bits.push(n + " 句");
+      if (n && tr < n) bits.push('<em class="tq">译文 ' + Math.floor(tr / n * 100) + "%</em>");
+      if (st === "seen") bits.push('<em class="ok">✓ 看过</em>'); else if (st === "ing") bits.push('<em class="ing">看到 ' + (durOf(x.v, x) ? Math.round(pctOf(x.v, x) * 100) + "%" : fmt(m.p)) + "</em>");
+      return '<div class="wt-item' + (st === "seen" ? " seen" : "") + '" data-v="' + esc(x.v) + '">' + thumb(x, true) + "<div><b>" + (m.f ? '<em class="st">★</em>' : "") + esc(x.title || x.v) + "</b><span>" + bits.join(" · ") + '</span></div><button type="button" class="wt-more" data-v="' + esc(x.v) + '" aria-label="更多操作">⋯</button></div>';
+    }).join("");
   }
-  async function loadList() {
-    drawList(LS.get("wt:list", []));
-    try { const r = await fetch(API + "?list=1"); const j = await r.json(); if (j && j.ok) { LS.set("wt:list", j.items); drawList(j.items); } } catch (e) {}
+  // KV 的列表有几十秒延迟：刚删的视频可能还会被列出来，先在本机藏起来（之后重新抓过字幕的照常显示）
+  let gone = LS.get("wt:gone", {}); { const old = Date.now() - 86400e3; let ch = false; for (const k in gone) if (gone[k] < old) { delete gone[k]; ch = true; } if (ch) LS.set("wt:gone", gone); }
+  const notGone = list => (list || []).filter(x => !gone[x.v] || (x.at || 0) > gone[x.v]);
+  let listSeq = 0;
+  async function loadList(manual) {
+    const my = ++listSeq; allItems = LS.get("wt:list", []); if (allItems.length) listState = "ok"; drawList();
+    const rb = $("#wt-ref"); rb.classList.add("spin");
+    try {
+      const r = await fetch(API + "?list=1"), j = await r.json(); if (my !== listSeq) return;
+      if (j && j.ok) { allItems = notGone(j.items); listState = "ok"; LS.set("wt:list", allItems); drawList(); if (manual) tip("已刷新，共 " + allItems.length + " 个视频"); }
+      else throw new Error(j && j.error);
+    } catch (e) { if (my !== listSeq) return; if (!allItems.length) { listState = "err"; drawList(); } if (manual) tip("刷新失败，请检查网络"); }
+    finally { if (my === listSeq) rb.classList.remove("spin"); }
+  }
+
+  /* ---------- 菜单：收藏 / 看过 / YouTube / 复制链接 / 删除（列表和播放页共用） ---------- */
+  let menuV = "";
+  function menu(v, inPlay) {
+    const x = allItems.find(y => y.v === v) || (doc && doc.v === v ? doc : { v }), m = M[v] || {}, sheet = $("#wt-sheet");
+    sheetWord = ""; menuV = v;
+    const t = inPlay && ready ? Math.floor(now()) : 0;
+    sheet.innerHTML = '<div class="wt-mh"><b>' + esc(x.title || v) + "</b><span>" + esc(x.author || "") + (x.author ? " · " : "") + (x.n || (x.cues || []).length || 0) + " 句" + (durOf(v, x) ? " · " + fmt(durOf(v, x)) : "") + "</span></div>" +
+      (inPlay ? '<div class="wt-mrow">字号<div class="wt-seg">' + ["小", "中", "大"].map((l, i) => '<button type="button" data-a="fs" data-n="' + i + '" class="' + (set.fs === i ? "on" : "") + '">' + l + "</button>").join("") + "</div></div>" : "") +
+      '<div class="wt-menu">' +
+      (inPlay ? '<button type="button" data-a="copy">📋 复制当前这句（英文＋中文）</button>' : "") +
+      '<button type="button" data-a="fav">' + (m.f ? "☆ 取消收藏" : "★ 收藏（排在最前面）") + "</button>" +
+      '<button type="button" data-a="seen">' + (m.w ? "↺ 标为未看（进度清零）" : "✓ 标为看过") + "</button>" +
+      '<a data-a="yt" href="https://www.youtube.com/watch?v=' + esc(v) + (t ? "&t=" + t + "s" : "") + '" target="_blank" rel="noopener">▶ 在 YouTube 打开' + (t ? "（从 " + fmt(t) + "）" : "") + "</a>" +
+      '<button type="button" data-a="link">🔗 复制视频链接</button>' +
+      '<button type="button" data-a="del" class="del">🗑 删除这个视频</button>' +
+      "</div>" +
+      (inPlay && fineKeys() ? '<div class="wt-keys"><span><kbd>空格</kbd>播放/暂停</span><span><kbd>←</kbd><kbd>→</kbd>上句/下句</span><span><kbd>R</kbd>重听</span><span><kbd>L</kbd>单句循环</span><span><kbd>B</kbd>A-B 循环</span><span><kbd>P</kbd>逐句停</span><span><kbd>T</kbd>藏译文</span><span><kbd>E</kbd>藏原文</span><span><kbd>S</kbd>变速</span><span><kbd>C</kbd>复制本句</span></div><div class="wt-keys" style="margin-top:2px">点过视频画面后快捷键会失灵，点一下字幕区或空白处即可恢复。</div>' : "") +
+      '<div class="a"><button data-a="x">关闭</button></div>';
+    sheet.classList.add("on"); $("#wt-mask").classList.add("on");
+  }
+  async function onMenu(a, b) {
+    const v = menuV, m = meta(v);
+    if (a === "fs") { set.fs = +b.dataset.n; saveSet(); b.parentNode.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); setTimeout(() => { fit(); scrollCur(true); }, 0); return; }
+    if (a === "copy") { closeSheet(); copyCur(); return; }
+    if (a === "fav") { if (m.f) delete m.f; else m.f = 1; saveMeta(); tip(m.f ? "已收藏" : "已取消收藏"); }
+    else if (a === "seen") { if (m.w) { delete m.w; m.p = 0; tip("已标为未看"); } else { m.w = 1; tip("已标为看过"); } saveMeta(); }
+    else if (a === "link") { tip(await copyText("https://www.youtube.com/watch?v=" + v) ? "已复制视频链接" : "复制失败"); }
+    else if (a === "yt") { try { if (playing()) player.pauseVideo(); } catch (e) {} }
+    else if (a === "del") { closeSheet(); del(v); return; }
+    closeSheet(); if (!root.classList.contains("playing")) drawList();
+  }
+  async function del(v) {
+    const x = allItems.find(y => y.v === v) || (doc && doc.v === v ? doc : { v });
+    if (!confirm("删除「" + (x.title || v) + "」？\n\n字幕会从网站上删除（想再学要重新用插件或书签抓一次字幕）。本机的观看进度和收藏也会一起清掉。")) return;
+    try {
+      const r = await fetch(API + "?v=" + encodeURIComponent(v), { method: "DELETE" }); let j = null; try { j = await r.json(); } catch (e) {}
+      if (!r.ok || !j || !j.ok) throw new Error((j && j.error) || "HTTP " + r.status);
+    } catch (e) { tip("删除失败：" + (e && e.message || "网络问题")); return; }
+    gone[v] = Date.now(); LS.set("wt:gone", gone);
+    allItems = allItems.filter(y => y.v !== v); LS.set("wt:list", allItems);
+    if (doc && doc.v === v) closePlay();
+    ["wt:doc:", "wt:tr:", "wt:pos:"].forEach(k => { try { localStorage.removeItem(k + v); } catch (e) {} });
+    delete M[v]; saveMeta(); drawList();
+    tip("已删除");
   }
   const vid = s => { s = String(s || "").trim(); const m = s.match(/(?:v=|youtu\.be\/|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/) || s.match(/^([\w-]{11})$/); return m ? m[1] : ""; };
   function openUrl(s) { const v = vid(s); if (!v) { tip("没认出这个链接，请粘贴 YouTube 视频地址"); return; } open(v); }
@@ -196,7 +439,12 @@
   /* ---------- 打开视频 ---------- */
   async function open(v) {
     root.classList.add("playing"); document.documentElement.classList.add("wt-playing");
+    closeSheet();
     doc = { v, title: "", cues: [] }; cues = []; cur = -1; pausedFor = -1; lock = false; follow = true; listEl.classList.remove("away");
+    loop = null; abA = -1; started = false; paintLoop();
+    // 续播：上次看到的位置（看完了或只看了开头就从头放）
+    const m = meta(v), md = m.d || 0; resumeAt = m.p > 8 && !m.w && (!md || m.p < md - 15) ? Math.max(0, m.p - 2) : 0;
+    m.t = Date.now(); saveMeta();
     note("");
     $("#wt-title").textContent = "加载中…"; listEl.innerHTML = '<div class="wt-empty">正在读取字幕…</div>'; showSub(-1); fit();
     startPlayer(v);
@@ -212,9 +460,10 @@
       listEl.innerHTML = '<div class="wt-empty">这个视频还没有字幕。<br>在电脑上用插件打开它看约 20 秒，字幕会自动同步过来；视频本身现在就可以播放。</div>';
     }
   }
-  function closePlay() { stopTick(); try { player && player.destroy && player.destroy(); } catch (e) {} player = null; ready = false; doc = null; root.classList.remove("playing"); document.documentElement.classList.remove("wt-playing"); $(".wt-video", root).innerHTML = '<div id="wt-yt"></div>'; loadList(); }
+  function closePlay() { savePos(true); closeSheet(); loop = null; abA = -1; stopTick(); try { player && player.destroy && player.destroy(); } catch (e) {} player = null; ready = false; doc = null; root.classList.remove("playing"); document.documentElement.classList.remove("wt-playing"); $(".wt-video", root).innerHTML = '<div id="wt-yt"></div>'; loadList(); }
   function drawCues() {
     listEl.innerHTML = cues.map((c, i) => '<div class="wt-row" data-i="' + i + '"><i>' + fmt(c.s) + '</i><span class="t">' + markup(c.t) + '</span><span class="r">' + esc(c.r || "") + "</span></div>").join("") + '<button class="wt-back">↓ 回到当前</button>';
+    paintLoop();
   }
   const clean = t => { t = String(t || "").replace(/\[[^\]]*\]|\u266a|>>+|\u00bb|&gt;&gt;/g, " ").replace(/\s+/g, " ").trim(); return /^\([^)]*\)$/.test(t) ? "" : t; };
   const tidy = list => { const o = []; (list || []).forEach(c => { const t = clean(c.t); if (t) o.push({ s: +c.s || 0, e: +c.e || 0, t, r: clean(c.r) }); }); for (let i = 0; i < o.length - 1; i++) if (o[i].e > o[i + 1].s) o[i].e = Math.max(o[i].s + 0.2, o[i + 1].s); return o; };
@@ -258,28 +507,45 @@
     stopTick(); ready = false; try { player && player.destroy && player.destroy(); } catch (e) {} player = null;
     $(".wt-video", root).innerHTML = '<div id="wt-yt"></div>';
     await loadApi(); if (!doc || doc.v !== v) return;
-    player = new YT.Player("wt-yt", { videoId: v, playerVars: { playsinline: 1, rel: 0, modestbranding: 1, cc_load_policy: 0, iv_load_policy: 3, start: Math.floor(LS.get("wt:pos:" + v, 0)) }, events: {
+    player = new YT.Player("wt-yt", { videoId: v, playerVars: { playsinline: 1, rel: 0, modestbranding: 1, cc_load_policy: 0, iv_load_policy: 3, start: Math.floor(resumeAt) }, events: {
       onReady: () => { ready = true; try { player.setPlaybackRate(set.rate); } catch (e) {} startTick(); },
-      onStateChange: e => { if (e.data === 1) { if (lock) { lock = false; } startTick(); } },
+      onStateChange: e => {
+        if (e.data === 1) { if (lock) { lock = false; } started = true; startTick(); if (!cues.length || cur < 0) showSub(cur); }
+        else if (e.data === 2) savePos(false);
+        else if (e.data === 0 && doc) { const m = meta(doc.v); m.w = 1; m.p = 0; saveMeta(); }
+      },
       onError: () => tip("这个视频不允许在站外播放，或暂时无法加载") } });
   }
   const now = () => { try { return player.getCurrentTime() || 0; } catch (e) { return 0; } };
   const playing = () => { try { return player.getPlayerState() === 1; } catch (e) { return false; } };
-  function startTick() { if (timer) return; let n = 0; timer = setInterval(() => { tick(); if (++n % 40 === 0 && doc) LS.set("wt:pos:" + doc.v, Math.max(0, now() - 2)); }, 120); }
+  function startTick() { if (timer) return; let n = 0; timer = setInterval(() => { tick(); if (++n % 40 === 0) savePos(false); }, 120); }
+  function savePos(force) { // 记下看到第几秒；播到 95% 以后算看过
+    if (!doc || !ready || !player || (!force && !playing()) || !started) return;
+    const t = now(), m = meta(doc.v); let d = 0; try { d = player.getDuration() || 0; } catch (e) {}
+    if (d > 0) m.d = Math.round(d);
+    if (t > 0) { m.p = Math.round(t); m.t = Date.now(); if (d > 0 && t >= d * 0.95) m.w = 1; }
+    saveMeta();
+  }
+  function fromStart() { resumeAt = 0; if (!ready) { tip("播放器还在加载，请稍等"); return; } try { player.seekTo(0, true); player.playVideo(); } catch (e) {} }
   function stopTick() { clearInterval(timer); timer = null; }
   function find(t) { let lo = 0, hi = cues.length - 1, a = -1; while (lo <= hi) { const m = (lo + hi) >> 1; if (cues[m].s <= t + 0.05) { a = m; lo = m + 1; } else hi = m - 1; } return a; }
   const endOf = i => Math.min(cues[i].e || cues[i].s + 4, cues[i + 1] ? Math.max(cues[i + 1].s, cues[i].s + 0.3) : Infinity);
   function tick() {
-    if (!ready || !cues.length) return;
+    if (!ready || !cues.length || !started) return;
     const t = now(), on = playing();
     if (lock && !on) return;                      // 逐句停时锁住当前句，不跳到下一句
     const i = find(t);
-    if (set.autoPause && on && cur >= 0 && pausedFor !== cur && i >= cur && t >= endOf(cur) - 0.14) { pausedFor = cur; lock = true; try { player.pauseVideo(); } catch (e) {} return; }
+    if (loop && on && Date.now() - loopAt > 500) { // 循环：播完最后一句跳回第一句；用户把进度条拖到别处就退出循环
+      if ((i === loop.b || i === loop.b + 1) && t >= endOf(loop.b) - 0.12) { loopAt = Date.now(); try { player.seekTo(cues[loop.a].s + 0.01, true); } catch (e) {} if (cur !== loop.a) { cur = loop.a; showSub(cur); markRow(); } return; }
+      if (i > loop.b + 1 || i < loop.a) { loop = null; abA = -1; paintLoop(); tip("已退出循环"); }
+    }
+    if (!loop && set.autoPause && on && cur >= 0 && pausedFor !== cur && i >= cur && t >= endOf(cur) - 0.14) { pausedFor = cur; lock = true; try { player.pauseVideo(); } catch (e) {} return; }
     if (i !== cur) { cur = i; showSub(i); markRow(); }
   }
   function showSub(i) {
     const c = cues[i];
-    subEl.innerHTML = c ? '<div class="en">' + markup(c.t) + '</div><div class="zh">' + esc(c.r || "") + "</div>" : '<div class="en none">' + (cues.length ? "…" : "点 ▶ 开始播放") + '</div><div class="zh"></div>';
+    subEl.innerHTML = c ? '<div class="en">' + markup(c.t) + '</div><div class="zh">' + esc(c.r || "") + "</div>"
+      : '<div class="en none">' + (!started && resumeAt > 0 ? "点 ▶ 从上次的 " + fmt(resumeAt) + " 继续" + '<span class="rs"><button type="button">从头开始</button></span>' : started && cues.length ? "…" : "点 ▶ 开始播放") + '</div><div class="zh"></div>';
   }
   function markRow() {
     const old = $(".wt-row.cur", listEl); if (old) old.classList.remove("cur");
@@ -288,7 +554,10 @@
     scrollCur(false);
   }
   function scrollCur(force) { const row = listEl.children[cur]; if (!row || (!follow && !force)) return; listEl.scrollTo({ top: Math.max(0, row.offsetTop - listEl.clientHeight * 0.3), behavior: "smooth" }); }
-  function seek(i) { if (!cues[i] || !ready) return; lock = false; pausedFor = -1; cur = i; showSub(i); follow = true; listEl.classList.remove("away"); markRow(); try { player.seekTo(cues[i].s + 0.01, true); player.playVideo(); } catch (e) {} }
+  function seek(i) {
+    if (!cues[i] || !ready) return;
+    if (loop && (i < loop.a || i > loop.b)) { if (loop.a === loop.b) loop = { a: i, b: i }; else { loop = null; tip("已退出区间循环"); } paintLoop(); } // 单句循环跟着换句
+    loopAt = Date.now(); lock = false; pausedFor = -1; cur = i; showSub(i); follow = true; listEl.classList.remove("away"); markRow(); try { player.seekTo(cues[i].s + 0.01, true); player.playVideo(); } catch (e) {} }
   function jump(d) { if (!cues.length) return; const base = cur < 0 ? find(now()) : cur; seek(Math.max(0, Math.min(cues.length - 1, (base < 0 ? 0 : base) + d))); }
 
   /* ---------- 查词 ---------- */
@@ -327,8 +596,9 @@
   }
   function closeSheet() { sheetWord = ""; $("#wt-sheet").classList.remove("on"); $("#wt-mask").classList.remove("on"); }
   async function onSheet(e) {
-    const b = e.target.closest("button[data-a]"); if (!b) return; const a = b.dataset.a, w = sheetWord;
+    const b = e.target.closest("[data-a]"); if (!b) return; const a = b.dataset.a, w = sheetWord;
     if (a === "x") return closeSheet();
+    if (!w) return onMenu(a, b);
     if (a === "say") { try { speak(w); } catch (er) {} return; }
     if (a === "add") {
       if (b.classList.contains("in")) return;

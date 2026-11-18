@@ -4,12 +4,15 @@
 
 2026-11-18 由网站和插件（原 `LearnVocab`）两个仓库合并而成，两边的提交历史都保留了。
 
+**部署、后台接口、备份与还原、插件更新、迁移记录、待办等流程，见 [流程说明.md](流程说明.md)。**
+
 | 目录 | 内容 |
 |---|---|
-| `web/` | 网站，部署到 <https://ruilearning-my.pages.dev>（生词本、🎬 视频、减脂、旅游等；字幕接口 `_worker.js`）。本地说明见 `web/README.txt` |
+| `web/` | 网站，部署到 <https://ruilearning-my.pages.dev>（生词本、🎬 视频、减脂、旅游等；后台接口 `_worker.js`）。本地说明见 `web/README.txt` |
 | `extension/` | 浏览器插件「双语字幕 · 生词收集」（图标为 BAN）（Manifest V3，Chrome / Brave / Edge） |
 | `site/` | 书签小工具的源码 `bookmarklet.src.js` 和安装页 `install-bookmarklet.html` |
 | `tests/` | Playwright 回归测试脚本（加载插件 + 模拟的 YouTube 页面） |
+| `data/` | 自动备份：`vocab.json`（生词本）、`captions/`（视频字幕），由 `.github/workflows/backup-vocab.yml` 每 6 小时更新 |
 
 插件的使用习惯对齐 Language Reactor（下文简称 LR）：功能和操作方式一致，代码、图标、名称都是自己的，不使用 LR 的服务器。
 
@@ -23,7 +26,7 @@
 4. [查词](#查词)
 5. [单词颜色与词汇水平](#单词颜色与词汇水平)
 6. [语法下划线](#语法下划线)
-7. [句型提示](#句型提示)
+7. [学习注释](#学习注释)
 8. [右侧栏：字幕 / 词语 / 已保存](#右侧栏字幕--词语--已保存)
    - [复习](#复习)
 9. [播放控制与快捷键](#播放控制与快捷键)
@@ -182,16 +185,22 @@
 
 ---
 
-## 句型提示
+## 学习注释
 
-视频字幕下面用一排小标签提示这句用到的常见句型，例如「📐 There be 某处有…」「📐 so … that 太…以至于…」。
+视频字幕下面用一排小标签提示这句里值得学的东西，每句最多 5 个；鼠标移到标签上，句子里对应的词会高亮，旁边浮出讲解和例句（不占位置，不会把字幕顶出视频）；点一下固定显示。
 
-- 鼠标移到标签上：句子里的关键词会高亮，标签下面展开讲解和例句；点一下标签可以固定显示，再点一下收起。
-- 目前收了 50 多个口语和书面里常见的句型：There be、It is … to do、It takes … to do、used to / be used to、so / such … that、too … to、If … would / will、should / could / must have done、as … as、the more … the more、not only … but、either … or、had better、would rather、can't wait to、look forward to、动词 + doing、let / make sb do、How about…、I was wondering if…、I don't think… 等。
-- 每句最多显示 3 个，更具体的句型优先。只看词序、不分析句子结构，偶尔会认错（比如 so … that 里的 that 其实是别的用法）。
-- 隐藏原文时标签也一起模糊，免得提前看到。
-- 设置里「句型提示」可以整体关掉。代码在 `extension/pattern.js`，加句型就在里面的列表里加一行。
+| 标签 | 内容 | 数据 |
+|---|---|---|
+| 📐 句型 | 80 多个：There be、It is … to do、倒装、强调句、反义疑问句、间接疑问句、虚拟（If … would、suggest that、Were I…）、定语从句、What … is、分词短语开头、祈使句 + or、倍数比较、口语结构（There's no point、end up、How come…）、get 被动、have sth done、简短回应（Me too / I hope not）等 | `extension/pattern.js` |
+| 🧩 习语 · 🔗 短语动词 · 🤝 搭配 | piece of cake、figure out（拆开的 figure it out 也认）、make a decision 等，搭配会提示中式错误 | `extension/data-phrases.js` |
+| 💬 口语缩略 · 💭 语气词 | gonna = going to、y'all；you know / I mean / like 等填充词（只在被逗号隔开或句首时算） | `extension/data-morph.js` |
+| 🔊 连读 | want to → wanna、did you → didja 等 | `extension/data-morph.js` |
 
+单词注释显示在悬停小窗（最重要的 3 条）和点词后的词典里（全部）：原形和变化、口语缩略、中式英语易混、语域（口语 / 书面 / 俚语 / 粗口）、可数性、缩写、英美差异、不发音字母、重音、弱读、近义词辨析、高级替换、词根词缀拆解、难度等级（按词频估计 A1–C2）、专有名词的维基百科链接。数据在 `extension/data-words.js` 和 `extension/data-morph.js`，直接增删行即可。
+
+**填空模式**：设置里打开后，字幕里高于你水平的生词先被遮住，听完把鼠标移上去看答案。
+
+设置「学习注释」一栏可以分别关掉句型、习语/短语动词/搭配、口语、连读、单词注释。所有判断都靠词序和词表，不分析句子结构，偶尔会认错。
 ---
 
 ## 右侧栏：字幕 / 词语 / 已保存
@@ -294,7 +303,7 @@
 | 词汇 | 词汇水平与单词颜色、在文本中显示标记、显示迷你词典时自动暂停、单击时朗读单词、已收集的词 |
 | 播放 | 每句结束自动暂停、播放速度、显示字幕控件、隐藏播放栏、显示字幕列表视图、在视频下方显示字幕、覆盖方向键 |
 | 语法下划线 | 总开关和十类各自的开关 |
-| 句型提示 | 显示句型提示 |
+| 学习注释 | 句型、习语/短语动词/搭配、口语缩略/语气词、连读、单词注释、填空模式 |
 | 外观 | 预览、字体、字体大小；折叠项里有原文字号、翻译字号、翻译颜色、背景颜色、背景不透明度、字幕位置 |
 | 更多功能（折叠） | 翻译引擎、按整句合并字幕、自定义词典网址 |
 | 键盘快捷键（折叠） | 快捷键列表 |
@@ -363,6 +372,10 @@ extension/
   vlevel.js            词形还原、单词分类（vsCat）、给文本加颜色标记（vsMark）
   gram.js              语法识别（vsGram）和给标记后的文本加下划线类名（vsGramHtml）
   pattern.js           句型识别（vsPatterns）：返回这句命中的句型和关键词位置
+  data-phrases.js      习语、短语动词、固定搭配词表
+  data-words.js        单词注释词表（可数性、英美、语域、缩写、不发音、易混、近义、高级替换、重音）
+  data-morph.js        词根词缀、口语缩略、连读、弱读、语气词
+  notes.js             学习注释：句子级标签（vsSentNotes）和单词注释（vsWordNotesHtml）
   content.js           主逻辑：字幕、气泡、词典、侧栏、快捷键
   content.css          页面内所有样式
   background.js        后台：翻译、查词、短语检查、音标、生词同步
@@ -386,7 +399,7 @@ web/
   *.html 及图片等       减脂、旅游、雅思等页面，逐个说明见 web/README.txt
 ```
 
-内容脚本的加载顺序：`inject.js`（主环境，文档开始时）→ `freq.js` → `vlevel.js` → `gram.js` → `pattern.js` → `content.js`。
+内容脚本的加载顺序：`inject.js`（主环境，文档开始时）→ `freq.js` → `vlevel.js` → `gram.js` → `pattern.js` → 三个 `data-*.js` → `notes.js` → `content.js`。
 
 ### 关键流程
 
@@ -524,7 +537,7 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 
 ### 备份与还原
 
-- **仓库备份**：GitHub Actions（`.github/workflows/backup-vocab.yml`）每 6 小时把线上生词本存成 `data/vocab.json`，有变化才提交。每个版本都在 Git 历史里，也可以在 Actions 页面点「Run workflow」立即备份一次。`data/` 不在 `web/` 里，不会触发网站部署。
+- **仓库备份**：GitHub Actions（`.github/workflows/backup-vocab.yml`）每 6 小时把线上生词本存成 `data/vocab.json`、视频字幕存进 `data/captions/`（只下新增或变化的视频；网站上删掉的视频备份里保留），有变化才提交。每个版本都在 Git 历史里，也可以在 Actions 页面点「Run workflow」立即备份一次。`data/` 不在 `web/` 里，不会触发网站部署。
 - **后台存档**：每天第一次改动前，后台先把改动前的整份生词本存一份，保留 30 天。`GET /api/vocab?history=1` 列出有存档的日期，`GET /api/vocab?at=2026-11-18` 取那天的存档。
 - **还原**：把要还原的那份内容整份写回去：`POST /api/vocab`，内容为 `{"replace": 备份内容}`。例如用仓库里的备份：
   `jq '{replace: .}' data/vocab.json | curl -X POST -H 'Content-Type: application/json' --data-binary @- https://ruilearning-my.pages.dev/api/vocab`
@@ -548,9 +561,14 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 
 ### 网站的「🎬 视频」
 
-- 顶部一级标签，和「英语」「生活」并列，会记住上次停留的标签。
+- 顶部一级标签，顺序为「英语 · 视频 · 生活」，会记住上次停留的标签。
 - 首页：粘贴 YouTube 链接的输入框，和已同步视频的列表。粘贴链接只对已经存过字幕的视频有双语字幕，否则只能播放。
+- 视频列表：按标题 / 频道搜索；排序（最近添加 / 最近观看 / 标题 / 时长）；筛选（全部 / ★收藏 / 在看 / 未看 / 看过，带数量）；每个视频显示时长、句数、译文完整度、观看进度条；顶部「继续上次」卡片；刷新按钮；列表为空时有添加视频的三种方法说明。
+- 每个视频的「⋯」菜单：收藏（排最前）、标为看过 / 未看、删除（确认后从网站删除；字幕在仓库 `data/captions/` 有备份，可找回）。收藏、看过、进度只存在当前设备的浏览器里。
+- 重新打开视频时从上次位置往前 2 秒继续，旁边有「从头开始」。
 - 播放页占满一屏：YouTube 官方嵌入播放器、当前双语字幕、一排按钮（上句 / 重听 / 下句 / 逐句停 / 藏译文 / 变速），下面是可滚动的字幕列表，点任意一句跳过去，当前句高亮并自动跟随。
+- 播放页新增：单句循环、A-B 区间循环、藏原文（练听力）、「更多」菜单（字号小 / 中 / 大、复制当前句、在 YouTube 从当前时间打开、复制视频链接、删除）。
+- 电脑键盘快捷键：空格 / K 播放暂停，← → 上下句，R 重听，L 单句循环，B / E 设区间起点 / 终点，P 逐句停，T 藏译文，S 变速，C 复制本句，Esc 关菜单。点过视频画面后焦点在 YouTube 播放器里，快捷键会失灵，点一下页面空白处即可。
 - 点字幕里的单词：底部弹出释义、音标、英文释义和原句，可发音，可一键加入生词本（带原句）。
 - `/?v=<视频ID>` 可以直接打开某个视频。
 - 做不到的：字幕叠在画面上、全屏时显示字幕、保存原声。
