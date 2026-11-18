@@ -13,6 +13,8 @@ const srv = http.createServer((q, r) => { const u = new URL(q.url, 'http://x'); 
     const n0 = await p.evaluate(() => words.length);
     await p.click('#l1-video'); await p.waitForSelector('.wt-item'); ok(await p.evaluate(()=>getComputedStyle(document.getElementById('subtabs')).display==='none'&&getComputedStyle(document.getElementById('view-en')).display==='none'), name+' other views hidden'); ok(await p.evaluate(()=>[...document.querySelectorAll('#apptabs button')].every(b=>{const r=b.getBoundingClientRect();return (innerWidth>640||r.height>=40)&&r.right<=innerWidth&&r.left>=0})), name+' tabs fit');
     ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), name + ' home overflow');
+    { const bm = await p.evaluate(() => { const c = decodeURIComponent(document.getElementById('wt-bml').href.slice(11)); let okJs = true; try { new Function(c); } catch (e) { okJs = false; } return { okJs, key: c.includes('var K="' + SYNC_KEY + '"'), site: c.includes('S="' + location.origin + '"'), left: /__KEY__|__SITE__/.test(c) }; }); ok(bm.okJs && bm.key && bm.site && !bm.left, name + ' bookmarklet ' + JSON.stringify(bm)); }
+    await p.click('#wt-bm summary'); ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), name + ' bm overflow');
     await p.screenshot({ path: OUT + '/' + name + '-home.png' });
     await p.click('.wt-item'); await p.waitForSelector('.wt-row'); await p.waitForTimeout(600);
     ok(await p.locator('.wt-row').count() === 40, name + ' rows');
@@ -45,6 +47,7 @@ const srv = http.createServer((q, r) => { const u = new URL(q.url, 'http://x'); 
     await p.click('#wt-back'); await p.reload(); await p.waitForTimeout(800); ok(await p.evaluate(()=>document.documentElement.classList.contains('show-video')), name+' tab remembered'); await p.click('#l1-en'); await p.waitForTimeout(200); ok(await p.evaluate(()=>!document.documentElement.classList.contains('show-video')&&document.getElementById('l1-en').classList.contains('on')&&!document.getElementById('l1-video').classList.contains('on')&&getComputedStyle(document.getElementById('view-en')).display!=='none'), name+' back to english'); await p.click('.modes button[data-mode=flash]'); await p.waitForTimeout(300);
     ok(await p.evaluate(() => document.getElementById('flash').classList.contains('on')), name + ' flash works'); await p.click('#l1-life'); await p.waitForTimeout(200); ok(await p.evaluate(()=>document.getElementById('l1-life').classList.contains('on')), name+' life tab'); await p.click('#l1-en');
     await p.click('.modes button[data-mode=list]'); ok(await p.isVisible('#list-view'), name + ' list visible');
+    await p.goto('http://localhost:' + port + '/?v=arj7oStGLkU'); await p.waitForSelector('.wt-row'); ok(await p.evaluate(() => document.documentElement.classList.contains('show-video') && !location.search && document.querySelectorAll('.wt-row').length === 40), name + ' deep link');
     ok(!errs.length, name + ' pageerrors ' + errs.join(' | ')); await ctx.close();
   }
   console.log(fail ? 'FAILED ' + fail : 'watch ok'); await b.close(); srv.close();

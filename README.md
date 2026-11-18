@@ -468,3 +468,4 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 - 网站：顶部一级标签「🎬 视频」（和 英语 / 生活 并列）。列表里是同步过的视频；播放页用 YouTube 官方嵌入播放器，下方同步显示双语字幕，支持上句 / 重听 / 下句、逐句停、藏译文、变速；点单词查词并一键加入生词本（带原句）。
 - 网站后台直接向 YouTube 取字幕的方案试过，被 YouTube 拦截（“Sign in to confirm you’re not a bot”），所以字幕只能由电脑端插件同步。
 - 测试：`tests/t39-watch.js`（三种视口，播放器和网络请求用桩）。
+- 手机上不依赖电脑：网站「🎬 视频」首页有一个书签小工具（源码 `site/bookmarklet.src.js`）。在手机浏览器里打开 YouTube 视频后点这个书签，它在 YouTube 页面内读取播放器正在使用的字幕、存到网站，再跳到 `/?v=<视频ID>` 学习。
