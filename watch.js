@@ -14,6 +14,9 @@
   let set = Object.assign({ autoPause: false, hideTr: false, rate: 1 }, LS.get("wt:set", {}));
   let doc = null, cues = [], cur = -1, player = null, ready = false, timer = null, pausedFor = -1, lock = false, follow = true, userScroll = 0, apiP = null, sheetWord = "";
 
+  /* 书签小工具：在 YouTube 页面里读出正在显示的字幕，存到本站，再跳回来学习（手机上不依赖电脑） */
+  const BM_SRC = "(function(){ var K=\"__KEY__\",S=\"__SITE__\",D=document,L=location; if(!/(^|\\.)youtube\\.com$/.test(L.hostname)){alert(\"请先在 Safari 里打开 YouTube 的视频页，再点这个书签\");return;} var m=L.href.match(/[?&]v=([\\w-]{11})/)||L.href.match(/\\/shorts\\/([\\w-]{11})/); if(!m){alert(\"请先打开一个 YouTube 视频，再点这个书签\");return;} var v=m[1],p=D.getElementById(\"movie_player\")||D.querySelector(\".html5-video-player\"),done=false; var box=D.createElement(\"div\");box.style.cssText=\"position:fixed;left:12px;right:12px;top:12px;z-index:2147483647;background:#0c9370;color:#fff;font:600 15px/1.4 system-ui;padding:12px 14px;border-radius:12px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.35)\"; var say=function(t){box.textContent=t;if(!box.parentNode)D.body.appendChild(box);}; say(\"正在读取字幕…\"); function parse(t){var j=JSON.parse(t),c=[],i,e,s;for(i=0;i<(j.events||[]).length;i++){e=j.events[i];if(!e.segs)continue;s=e.segs.map(function(x){return x.utf8||\"\"}).join(\"\").replace(/\\s+/g,\" \").trim();if(!s)continue;c.push({s:(e.tStartMs||0)/1000,e:((e.tStartMs||0)+(e.dDurationMs||0))/1000,t:s});} for(i=0;i<c.length-1;i++)if(c[i].e>c[i+1].s)c[i].e=c[i+1].s;return c.filter(function(x){return x.e>x.s});} function send(c,lang){if(done||!c.length)return;done=true;say(\"拿到 \"+c.length+\" 句字幕，正在保存…\");var a=\"\";try{a=p.getVideoData().author||\"\"}catch(e){} F.call(window,S+\"/.netlify/functions/cap\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\",\"X-Key\":K},body:JSON.stringify({v:v,title:D.title.replace(/^\\(\\d+\\)\\s*/,\"\").replace(/ - YouTube$/,\"\"),author:a,lang:lang||\"en\",cues:c})}).then(function(r){return r.json()}).then(function(r){if(r&&r.ok){say(\"已保存，正在打开学习页…\");L.href=S+\"/?v=\"+v;}else{done=false;say(\"保存失败：\"+((r&&r.error)||\"未知错误\"));}}).catch(function(){done=false;say(\"保存失败：网络问题，请再点一次书签\");});} function got(t,u){if(done)return;var lang=(u.match(/[?&]lang=([^&]+)/)||[])[1];try{send(parse(t),lang);}catch(e){F.call(window,u.replace(/([?&])fmt=[^&]*/,\"$1fmt=json3\")).then(function(r){return r.text()}).then(function(x){send(parse(x),lang)}).catch(function(){});}} var ok=function(u){return /\\/api\\/timedtext/.test(u)&&!/[?&]tlang=/.test(u)}; var F=window.fetch,O=XMLHttpRequest.prototype.open; XMLHttpRequest.prototype.open=function(a,u){u=String(u);if(ok(u))this.addEventListener(\"load\",function(){try{got(this.responseText,u)}catch(e){}});return O.apply(this,arguments);}; window.fetch=function(i){var u=String(typeof i===\"string\"?i:(i&&i.url)||\"\"),r=F.apply(this,arguments);if(ok(u))r.then(function(x){return x.clone().text()}).then(function(t){got(t,u)}).catch(function(){});return r;}; var seen={},scan=function(){if(done)return;var es=performance.getEntriesByType(\"resource\"),i,u;for(i=es.length-1;i>=0;i--){u=es[i].name;if(ok(u)&&u.indexOf(\"v=\"+v)>0&&!seen[u]){seen[u]=1;(function(u){F.call(window,u.replace(/([?&])fmt=[^&]*/,\"$1fmt=json3\")).then(function(r){return r.ok?r.text():\"\"}).then(function(t){if(t)got(t,u)}).catch(function(){})})(u);break;}}}; var kick=function(){if(done||!p)return;try{p.loadModule&&p.loadModule(\"captions\");var tl=p.getOption(\"captions\",\"tracklist\")||[],en=tl.filter(function(x){return /^en/.test(x.languageCode)}),tr=en.filter(function(x){return x.kind!==\"asr\"})[0]||en[0]||tl[0];p.setOption(\"captions\",\"track\",{});if(tr)setTimeout(function(){try{p.setOption(\"captions\",\"track\",{languageCode:tr.languageCode,kind:tr.kind||\"\"});p.setOption(\"captions\",\"reload\",true)}catch(e){}},250);else if(p.toggleSubtitlesOn)p.toggleSubtitlesOn();}catch(e){}}; scan();setTimeout(function(){if(!done)kick()},1200);setTimeout(kick,4000);setTimeout(kick,7500);var iv=setInterval(function(){if(done)clearInterval(iv);else scan()},700);setTimeout(function(){clearInterval(iv)},11000); setTimeout(function(){if(!done)say(\"没拿到字幕：这个视频可能没有字幕。请先点一下播放，再点一次书签试试\");setTimeout(function(){if(!done&&box.parentNode)box.parentNode.removeChild(box)},6000);},11000); })();";
+  const bookmarklet = () => { let k = ""; try { k = SYNC_KEY; } catch (e) {} return "javascript:" + encodeURIComponent(BM_SRC.replace("__KEY__", () => k).replace("__SITE__", () => location.origin)); };
   /* ---------- 样式 ---------- */
   const css = `
   #view-video{display:none;padding-top:calc(56px + env(safe-area-inset-top,0px))}
@@ -31,6 +34,11 @@
   .wt-item img{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:9px;background:var(--paper-2);flex:none}
   .wt-item b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14.5px;line-height:1.35}
   .wt-item span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+  .wt-bm{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:0 14px;margin-bottom:12px;font-size:14px;line-height:1.6}
+  .wt-bm summary{cursor:pointer;font-weight:700;padding:12px 0;min-height:44px;list-style-position:inside}
+  .wt-bm ol{margin:0 0 10px;padding-left:20px}.wt-bm li{margin-bottom:6px}.wt-bm p{color:var(--muted);font-size:13px;margin:10px 0 14px}
+  .wt-bma{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .wt-bml{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:1px dashed var(--jade);border-radius:12px;color:var(--jade);font-weight:700;text-decoration:none;cursor:grab}
   .wt-empty{text-align:center;color:var(--muted);padding:28px 10px;font-size:14px;line-height:1.7}
   .wt-play{display:none;flex-direction:column;min-height:420px}
   #watch.playing .wt-home{display:none}#watch.playing .wt-play{display:flex}
@@ -98,6 +106,16 @@
       <div class="wt-home">
         <div class="wt-open"><input id="wt-url" inputmode="url" placeholder="粘贴 YouTube 链接…" autocomplete="off" autocapitalize="off"><button class="wt-btn" id="wt-go">打开</button></div>
         <div class="wt-hint">在电脑上用「双语字幕」插件看过的视频会自动出现在这里，带双语字幕，可以点词查词、加入生词本。</div>
+        <details class="wt-bm" id="wt-bm"><summary>📱 手机上给任意视频加字幕（不用电脑）</summary>
+          <ol>
+            <li>点下面的按钮，复制书签代码。</li>
+            <li>在 Safari 里把任意网页加入书签（分享 → 添加书签），名字改成「学这个视频」。</li>
+            <li>打开书签列表 → 编辑 → 点这个书签，把「地址」整段删掉，粘贴刚才复制的代码，保存。</li>
+            <li>以后在 Safari 里打开 YouTube 视频（要用浏览器，不是 YouTube App），点一下播放，再从书签里点「学这个视频」。</li>
+          </ol>
+          <div class="wt-bma"><button class="wt-btn" id="wt-bmc">复制书签代码</button><a id="wt-bml" class="wt-bml">学这个视频</a></div>
+          <p>电脑上可以直接把右边的「学这个视频」拖到书签栏。安卓 Chrome：同样存成书签，然后在 YouTube 页面的地址栏里输入「学这个视频」并点选它。</p>
+        </details>
         <div id="wt-items"></div>
       </div>
       <div class="wt-play">
@@ -132,6 +150,8 @@
       scrollTo(0, 0); loadBook(); loadList(); fit();
     };
     btn.onclick = enter;
+    $("#wt-bml").href = bookmarklet(); $("#wt-bml").onclick = e => { e.preventDefault(); tip("把它拖到书签栏；手机上请用「复制书签代码」"); };
+    $("#wt-bmc").onclick = async () => { const code = bookmarklet(); try { await navigator.clipboard.writeText(code); tip("已复制，按上面第 2、3 步存成书签"); } catch (e) { const ta = document.createElement("textarea"); ta.value = code; ta.style.cssText = "position:fixed;opacity:0"; document.body.append(ta); ta.select(); let ok = false; try { ok = document.execCommand("copy"); } catch (er) {} ta.remove(); tip(ok ? "已复制，按上面第 2、3 步存成书签" : "复制失败，请长按右边的链接复制"); } };
     $("#wt-go").onclick = () => openUrl($("#wt-url").value);
     $("#wt-url").addEventListener("keydown", e => { if (e.key === "Enter") openUrl(e.target.value); });
     $("#wt-items").addEventListener("click", e => { const it = e.target.closest(".wt-item"); if (it) open(it.dataset.v); });
@@ -306,6 +326,6 @@
     }
   }
 
-  function init() { if (!build()) return; if (LS.get("wt:tab", 0) && !document.documentElement.classList.contains("collect-mode")) enter(); window.__wt = { open, state: () => ({ cur, n: cues.length, lock, follow, set }) }; }
+  function init() { if (!build()) return; { const q = new URLSearchParams(location.search).get("v"); if (q && /^[\w-]{11}$/.test(q)) { try { history.replaceState(null, "", location.pathname); } catch (e) {} enter(); open(q); window.__wt = { open, state: () => ({ cur, n: cues.length, lock, follow, set }) }; return; } } if (LS.get("wt:tab", 0) && !document.documentElement.classList.contains("collect-mode")) enter(); window.__wt = { open, state: () => ({ cur, n: cues.length, lock, follow, set }) }; }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
