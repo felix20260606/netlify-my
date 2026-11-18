@@ -437,13 +437,14 @@
   function openUrl(s) { const v = vid(s); if (!v) { tip("没认出这个链接，请粘贴 YouTube 视频地址"); return; } open(v); }
 
   /* ---------- 打开视频 ---------- */
-  async function open(v) {
+  async function open(v, at) { // at：从第几秒开始（频道地图里的样片用）
     root.classList.add("playing"); document.documentElement.classList.add("wt-playing");
     closeSheet();
     doc = { v, title: "", cues: [] }; cues = []; cur = -1; pausedFor = -1; lock = false; follow = true; listEl.classList.remove("away");
     loop = null; abA = -1; started = false; paintLoop();
     // 续播：上次看到的位置（看完了或只看了开头就从头放）
     const m = meta(v), md = m.d || 0; resumeAt = m.p > 8 && !m.w && (!md || m.p < md - 15) ? Math.max(0, m.p - 2) : 0;
+    if (at > 0 && !resumeAt) resumeAt = at;
     m.t = Date.now(); saveMeta();
     note("");
     $("#wt-title").textContent = "加载中…"; listEl.innerHTML = '<div class="wt-empty">正在读取字幕…</div>'; showSub(-1); fit();
