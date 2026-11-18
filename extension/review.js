@@ -78,11 +78,11 @@ async function sentenceFor(w, used, first) {
   if (isS(w)) { // 保存的短语 / 句子：用它所在的原句
     const x = sObj(w) || { t: "", tr: "" }, m2 = med["med:s:" + x.k], en = x.ph ? x.ctx || x.t : x.t; let tr = x.ph ? (x.ctx ? (m2 && m2.tr) || "" : x.tr || "") : x.tr || (m2 && m2.tr) || "";
     if (!tr && en) { const t = await Promise.race([late(6000), send({ type: "translate", text: en, tl: S.target, engine: "google", sl: S.srcLang })]); tr = t.t || ""; }
-    return { en, tr, md: m2 || null, note: x.ph && x.ctx ? x.t + "：" + (x.tr || "") : "" };
+    return { en, tr, hu: (m2 && m2.hu) || "", md: m2 || null, note: x.ph && x.ctx ? x.t + "：" + (x.tr || "") : "" };
   }
   const md = med["med:w:" + w];
   if (first && md && md.t && find(md.t, w) && !used.has(md.t)) { // 第一张用保存时的原句，配原声、画面和出处
-    used.add(md.t); const s = { en: md.t, tr: md.tr || "", md };
+    used.add(md.t); const s = { en: md.t, tr: md.tr || "", hu: md.hu || "", md };
     if (!s.tr) { const t = await Promise.race([late(6000), send({ type: "translate", text: s.en, tl: S.target, engine: "google", sl: S.srcLang })]); s.tr = t.t || ""; }
     return s;
   }
@@ -119,7 +119,9 @@ function playPause() { // 空格：播放 / 暂停
   const c = cards[at]; if (c && c.s) say(c);
 }
 const tm = x => Math.floor(x / 60) + ":" + String(Math.floor(x % 60)).padStart(2, "0");
-function mediaTop(c) { const m = c.s.md; return m && m.img && c.first ? '<img class="shot" src="' + m.img + '" alt="">' : ""; }
+function mediaTop(c) { const m = c.s.md; if (!m || !c.first || !(m.img || m.img2)) return ""; return '<div class="shots">' + [m.img, m.img2].filter(Boolean).map(u => '<img src="' + u + '" alt="">').join("") + "</div>"; }
+// 译文：有视频自带的人工翻译时分两行，Ⓗ 人工、Ⓜ 机器（同 LR）；只有一种就只显示一行
+function trHtml(c) { const hu = c.s.hu && c.first ? c.s.hu.trim() : "", tr = (c.s.tr || "").trim(); if (hu && tr && hu !== tr) return '<div class="tl"><i>H</i>' + esc(hu) + '</div><div class="tl"><i>M</i>' + esc(tr) + "</div>"; return esc(hu || tr); }
 function srcTip(c) { const m = c.s.md; if (m && c.first) return '来源：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=' + encodeURIComponent(m.v) + "&t=" + Math.max(0, Math.floor(m.s)) + 's">' + esc(m.title || "YouTube") + (m.ch ? " · " + esc(m.ch) : "") + " · " + tm(m.s) + "</a>" + (m.aud ? "（原声）" : ""); return c.s.src === "Tatoeba" ? "来源：Tatoeba 例句库 CC-BY" : c.s.src ? "来源：" + esc(c.s.src) : "来源：单词本身"; }
 function speakLocal(t) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = S.srcLang === "en" ? "en-US" : S.srcLang; u.rate = 0.95 * rate; const vs = speechSynthesis.getVoices().filter(x => x.lang && x.lang.toLowerCase().startsWith(u.lang.slice(0, 2).toLowerCase())), pick = vs.find(x => /Samantha|Google US English|Microsoft Aria|Alex/i.test(x.name)) || vs.find(x => x.lang === u.lang && x.localService) || vs[0]; if (pick) u.voice = pick; speechSynthesis.speak(u); } catch (e) {} }
 // 没有原声时：用在线朗读（单词用词典真人录音），取不到再用浏览器自带语音
@@ -150,7 +152,7 @@ function show() {
   if (c.k === "listen") {
     c.rev = c.rev || 0;
     $("hint").innerHTML = "<small>🔊 听力练习</small>在展示文本之前试着理解。";
-    $("card").innerHTML = '<span class="pl" id="pl" title="播放">' + I("play") + "</span>" + corner + mediaTop(c) + '<div class="en' + (c.rev < 1 ? " hid" : "") + '" id="en">' + sentHtml(c) + '</div><div class="zh' + (c.rev < 2 ? " hid" : "") + '" id="zh">' + esc(c.s.tr || "") + "</div>" + (c.s.note ? '<div class="pn' + (c.rev < 2 ? " hid" : "") + '">' + esc(c.s.note) + "</div>" : "") + br + sugChip(c);
+    $("card").innerHTML = '<span class="pl" id="pl" title="播放">' + I("play") + "</span>" + corner + mediaTop(c) + '<div class="en' + (c.rev < 1 ? " hid" : "") + '" id="en">' + sentHtml(c) + '</div><div class="zh' + (c.rev < 2 ? " hid" : "") + '" id="zh">' + trHtml(c) + "</div>" + (c.s.note ? '<div class="pn' + (c.rev < 2 ? " hid" : "") + '">' + esc(c.s.note) + "</div>" : "") + br + sugChip(c);
     $("ctl").innerHTML = btn("bA", "prev", "A", "", "上一个") + btn("bS", "replay", "S", "", "重复") + btn("bE", "eye", "E", "", "显示") + btn("bD", "next", "D", "pri", "下一个");
     $("bE").disabled = c.rev >= 2;
     $("bE").onclick = () => reveal(c);
@@ -158,7 +160,7 @@ function show() {
   } else {
     const f = find(c.s.en, c.w) || { i: 0, t: c.s.en };
     $("hint").innerHTML = "<small>✏️ 测验</small>填空题：输入句子里缺少的单词，按回车检查。";
-    $("card").innerHTML = '<span class="pl" id="pl" title="播放（会念出答案）">' + I("play") + "</span>" + corner + mediaTop(c) + '<div class="en" id="en">' + (typeof vsMark === "function" ? vsMark(esc(c.s.en.slice(0, f.i)), S) : esc(c.s.en.slice(0, f.i))) + '<input id="inp" autocomplete="off" spellcheck="false" size="' + Math.max(4, f.t.length + 1) + '"' + (c.done ? ' disabled value="' + esc(c.typed || "") + '" class="' + (c.ok ? "ok" : "no") + '"' : "") + ">" + (typeof vsMark === "function" ? vsMark(esc(c.s.en.slice(f.i + f.t.length)), S) : esc(c.s.en.slice(f.i + f.t.length))) + '</div><div class="zh">' + esc(c.s.tr || "") + '</div><div class="ans' + (c.done && !c.ok ? " no" : "") + '" id="ans">' + (c.done ? (c.ok ? "正确" : "答案：" + esc(f.t)) : "") + "</div>" + (c.done ? br : "");
+    $("card").innerHTML = '<span class="pl" id="pl" title="播放（会念出答案）">' + I("play") + "</span>" + corner + mediaTop(c) + '<div class="en" id="en">' + (typeof vsMark === "function" ? vsMark(esc(c.s.en.slice(0, f.i)), S) : esc(c.s.en.slice(0, f.i))) + '<input id="inp" autocomplete="off" spellcheck="false" size="' + Math.max(4, f.t.length + 1) + '"' + (c.done ? ' disabled value="' + esc(c.typed || "") + '" class="' + (c.ok ? "ok" : "no") + '"' : "") + ">" + (typeof vsMark === "function" ? vsMark(esc(c.s.en.slice(f.i + f.t.length)), S) : esc(c.s.en.slice(f.i + f.t.length))) + '</div><div class="zh">' + trHtml(c) + '</div><div class="ans' + (c.done && !c.ok ? " no" : "") + '" id="ans">' + (c.done ? (c.ok ? "正确" : "答案：" + esc(f.t)) : "") + "</div>" + (c.done ? br : "");
     $("ctl").innerHTML = btn("bA", "prev", "A", "", "上一个") + btn("bS", "replay", "S", "", "重复（会念出答案）") + btn("bE", "eye", "E", "", "看答案（算作没答对）") + btn("bD", "next", "D", "pri", "下一个");
     const inp = $("inp"); if (!c.done) inp.focus(); $("bE").disabled = !!c.done;
     const check = give => { if (c.done) return; c.typed = inp.value.trim(); const ok = !give && c.typed.toLowerCase().replace(/’/g, "'") === f.t.toLowerCase().replace(/’/g, "'"); grade(c, ok); show(); if (opt.speak) say(c); };
@@ -210,7 +212,7 @@ function paintPopBtns(p, w) { p.querySelector('[data-k="known"]').classList.togg
 async function wordPop(el) {
   closePops(); const w = el.dataset.w, r = el.getBoundingClientRect();
   const p = document.createElement("div"); p.className = "wpop"; p.dataset.w = w;
-  p.innerHTML = '<span class="hw">' + esc(w) + '</span><ul><li>…</li></ul><div class="wb"><button data-k="known" title="已掌握">' + I("check") + '</button><button data-k="learn" title="将要学习">' + I("book") + "</button></div>";
+  const lm = lem(w); p.innerHTML = (lm && lm !== w.toLowerCase() ? '<span class="hw">' + esc(lm) + "</span>" : "") + '<ul><li>…</li></ul><div class="wb"><button data-k="known" title="已掌握">' + I("check") + '</button><button data-k="learn" title="将要学习">' + I("book") + "</button></div>";
   document.body.append(p); paintPopBtns(p, w);
   const place = () => { const h = p.offsetHeight, wd = p.offsetWidth; p.style.left = Math.max(8, Math.min(innerWidth - wd - 8, r.left + r.width / 2 - wd / 2)) + "px"; p.style.top = (r.top - h - 8 > 8 ? r.top - h - 8 : r.bottom + 8) + "px"; };
   place();
