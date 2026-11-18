@@ -1,11 +1,10 @@
 // 网站后台接口（Cloudflare Pages），数据存在 KV，绑定名 CAPTIONS
 //
-// 一、视频字幕 /.netlify/functions/cap（沿用 Netlify 时期的路径；/api/cap 是同一个接口）
+// 一、视频字幕 /api/cap（/.netlify/functions/cap 是旧地址，留着兼容早先添加的手机书签）
 //   GET    ?list=1   → { ok, items:[{v,title,author,n,tr,dur,at}] }
 //   GET    ?v=<ID>   → { ok, v, title, author, cues:[{s,e,t,r}] }
 //   POST             → 写入（需要 X-Key）
 //   DELETE ?v=<ID>   → 删除（需要 X-Key）
-//   POST   ?migrate=1 → 从旧的 Netlify 站点搬字幕过来，每次最多 20 个（需要 X-Key）
 //
 // 二、生词本 /api/vocab（2026-11-18 从 JSONBin 搬来；整份存在 KV 的 "vocab" 这一条里）
 //   GET              → { ok, custom, progress, deleted, pending }   读取不需要口令
@@ -13,8 +12,7 @@
 //   POST {add:[词条]} → 加入完整词条：从待整理队列和已删除列表里移除同名词（插件用；需要 X-Key）
 // 写入口令只在服务器上存 SHA-256 指纹；网页源码里没有口令，每台设备第一次同步时输入一次
 const KEY_SHA = "947d04a67b6309d28e86acd947f64e86145130b89ebb580fc6a157db9748c299"; // 同步口令的 SHA-256，只用来校验写入（字幕和生词本共用）
-const OLD_API = "https://ruilearning-my.netlify.app/.netlify/functions/cap";
-const API_PATHS = ["/.netlify/functions/cap", "/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab";
+const API_PATHS = ["/api/cap", "/.netlify/functions/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
 const sha256 = async s => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, "0")).join("");
 const authed = async req => (await sha256(req.headers.get("x-key") || "")) === KEY_SHA;
@@ -45,18 +43,6 @@ async function cap(req, env, u) {
       const v = u.searchParams.get("v"); if (!okId(v)) return json({ ok: false, error: "bad id" }, 400);
       await kv.delete("v/" + v);
       return json({ ok: true });
-    }
-    if (req.method === "POST" && u.searchParams.get("migrate")) {
-      const src = await (await fetch(OLD_API + "?list=1")).json();
-      if (!src || !src.ok) return json({ ok: false, error: "old site unavailable" }, 502);
-      const have = new Set((await listAll(kv)).map(x => x.v));
-      const todo = src.items.filter(x => okId(x.v) && !have.has(x.v));
-      let moved = 0; const failed = [];
-      for (const it of todo.slice(0, 20)) {
-        try { const d = await (await fetch(OLD_API + "?v=" + it.v)).json(); if (!d || !d.ok || !Array.isArray(d.cues) || !d.cues.length) throw new Error("bad doc"); const doc = clean(d, d.at || it.at); if (!doc.cues.length) throw new Error("no cues"); await put(kv, doc); moved++; }
-        catch (e) { failed.push(it.v); }
-      }
-      return json({ ok: true, source: src.items.length, moved, failed, left: todo.length - moved - failed.length });
     }
     if (req.method === "POST") {
       const raw = await req.text(); if (raw.length > 2000000) return json({ ok: false, error: "too large" }, 413);

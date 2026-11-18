@@ -218,7 +218,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "openReview") { chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); send({}); }
   else if (m.type === "sentences") sentences(m.word, m.tl, m.sl).then(s => send({ s })).catch(() => send({ s: [] }));
   else if (m.type === "add") addWord(m.word, m.queueOnly, m).then(send);
-  else if (m.type === "capUp") { if (!CLOUD) send({ ok: false }); else fetch(SITE + "/.netlify/functions/cap", { method: "POST", headers: { "Content-Type": "application/json", "X-Key": KEY }, body: JSON.stringify(m.body) }).then(r => r.json()).then(send).catch(() => send({ ok: false })); }
+  else if (m.type === "capUp") { if (!CLOUD) send({ ok: false }); else fetch(SITE + "/api/cap", { method: "POST", headers: { "Content-Type": "application/json", "X-Key": KEY }, body: JSON.stringify(m.body) }).then(r => r.json()).then(send).catch(() => send({ ok: false })); }
   else if (m.type === "syncAll") syncAll(m.tl).then(send);
   else return false;
   return true;

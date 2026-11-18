@@ -15,7 +15,6 @@
     "https://api.datamuse.com/*",
     "https://tatoeba.org/*",
     "https://ssl.gstatic.com/*",
-    "https://*.netlify.app/*",
     "https://*.pages.dev/*"
   ],
   "background": {

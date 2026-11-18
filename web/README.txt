@@ -18,12 +18,11 @@
      （改插件不会触发部署）。
   ※ 视频字幕和生词本都存在 Cloudflare KV 里，Pages 项目绑定的 KV 变量名是 CAPTIONS。
     （生词本 2026-11-18 之前存在 JSONBin，已停用。）
-  ※ netlify 分支是搬家前的 Netlify 版本（旧站 https://ruilearning-my.netlify.app），留作备份。
 
 【文件清单】
   index.html             主页面（顶部：英语 / 生活 / 视频）
   watch.js               「🎬 视频」：嵌入播放器 + 同步双语字幕 + 点词查词 + 书签小工具
-  _worker.js             后台接口：视频字幕（/.netlify/functions/cap）和生词本（/api/vocab），数据在 Cloudflare KV；
+  _worker.js             后台接口：视频字幕（/api/cap）和生词本（/api/vocab），数据在 Cloudflare KV；
                          写入需要同步口令，口令只在各设备上输入，代码里只有它的指纹
   _routes.json           只让接口请求经过 _worker.js，其它文件直接当静态文件发
   fat-nav.html           减脂导航页（减脂 → 🧭导航，默认；全部减脂页面卡片目录）

@@ -373,8 +373,8 @@ extension/
 web/
   index.html           主页面（顶部：英语 / 生活 / 视频），生词本和它的云同步都在这里
   watch.js             「🎬 视频」：嵌入播放器、同步双语字幕、点词查词、手机书签小工具
-  _worker.js           后台接口：视频字幕 /.netlify/functions/cap、生词本 /api/vocab（Cloudflare KV，绑定名 CAPTIONS）
-  _routes.json         只让 /.netlify/functions/* 和 /api/* 经过 _worker.js
+  _worker.js           后台接口：视频字幕 /api/cap、生词本 /api/vocab（Cloudflare KV，绑定名 CAPTIONS）
+  _routes.json         只让接口请求（/api/*）经过 _worker.js
   sw.js                超市价格清单的离线缓存
   *.html 及图片等       减脂、旅游、雅思等页面，逐个说明见 web/README.txt
 ```
@@ -482,7 +482,7 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 
 ## 生词本网站与手机端
 
-生词本网站是 <https://ruilearning-my.pages.dev/>（2026-11-18 从 Netlify 搬到 Cloudflare Pages；旧网址 ruilearning-my.netlify.app 只作备份），手机和电脑用浏览器打开即可，建议加到主屏幕。它和插件配合，做到电脑上看视频、收生词，手机上随时看视频、复习。
+生词本网站是 <https://ruilearning-my.pages.dev/>（Cloudflare Pages），手机和电脑用浏览器打开即可，建议加到主屏幕。它和插件配合，做到电脑上看视频、收生词，手机上随时看视频、复习。
 
 ### 仓库与部署
 
@@ -519,7 +519,7 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 
 ### 视频字幕怎么同步
 
-都通过网站上的一个接口 `/.netlify/functions/cap`（搬到 Cloudflare 后沿用这个路径，`/api/cap` 是同一个接口）：
+都通过网站上的一个接口 `/api/cap`：
 
 | 动作 | 请求 | 说明 |
 |---|---|---|
