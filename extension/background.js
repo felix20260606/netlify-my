@@ -1,8 +1,10 @@
 // 生词本同步配置放在 config.js（不进仓库；参照 config.example.js 创建）
-let VS_SYNC = { bin: "", key: "", site: "" };
+// 生词本和视频字幕都存在生词本网站的后台（Cloudflare），key 是网站的同步口令
+let VS_SYNC = { key: "", site: "" };
 try { importScripts("config.js"); } catch (e) {}
-const BIN = VS_SYNC.bin, KEY = VS_SYNC.key;
-const BASE = "https://api.jsonbin.io/v3/b/" + BIN;
+const KEY = VS_SYNC.key, SITE = (VS_SYNC.site || "").replace(/\/$/, "");
+const CLOUD = !!(KEY && SITE), VOCAB = SITE + "/api/vocab";
+const vocabGet = () => fetch(VOCAB).then(r => { if (!r.ok) throw 0; return r.json(); });
 
 // ---------- 翻译 ----------
 async function gTranslate(text, tl, sl) {
@@ -140,7 +142,7 @@ async function addWord(word, queueOnly, m) {
     const st = await chrome.storage.local.get({ saved: [] });
     if (!st.saved.some(w => w.toLowerCase() === word.toLowerCase())) { st.saved.push(word); await chrome.storage.local.set({ saved: st.saved }); }
   }
-  if (!BIN || !KEY) return { ok: true, cloud: false };
+  if (!CLOUD) return { ok: true, cloud: false };
   const e = await makeEntry(word, m || {});
   return cloudAdd([e]);
 }
@@ -158,32 +160,23 @@ async function makeEntry(word, m) {
   return { id: entryId(word), type: isPh ? "phrase" : "word", word, phon: d && d.phonetic ? (/^\//.test(d.phonetic) ? d.phonetic : "/" + d.phonetic + "/") : "", en: def, zh: zs.slice(0, 4).join("；") || "(未查到，可手动补)", tag: "视频", date: new Date().toISOString().slice(0, 10), forms: [], examples: ex, tip: "" };
 }
 let cloudChain = Promise.resolve();
-function cloudAdd(entries) { // 串行读-改-写，避免连续加词互相覆盖
+function cloudAdd(entries) { // 网站后台负责合并（同名词跳过、移出待整理队列）；这里串行发送，避免连续加词互相覆盖
   const run = async () => {
     try {
-      const r = await fetch(BASE + "/latest", { headers: { "X-Access-Key": KEY, "X-Bin-Meta": "false" } });
-      if (!r.ok) throw 0;
-      const d = await r.json(); d.custom = d.custom || []; d.pending = d.pending || []; d.deleted = d.deleted || [];
-      let n = 0;
-      for (const e of entries) {
-        const lw = e.word.toLowerCase();
-        d.pending = d.pending.filter(w => (w + "").toLowerCase() !== lw);
-        d.deleted = d.deleted.filter(x => x !== e.id);
-        if (d.custom.some(x => x && (x.id === e.id || (x.word || "").toLowerCase() === lw))) continue;
-        d.custom.push(e); n++;
-      }
-      const p = await fetch(BASE, { method: "PUT", headers: { "Content-Type": "application/json", "X-Access-Key": KEY }, body: JSON.stringify({ custom: d.custom, progress: d.progress || {}, deleted: d.deleted, pending: d.pending }) });
-      return { ok: p.ok, cloud: p.ok, added: n, total: d.custom.length };
+      if (!entries.length) return { ok: true, cloud: true, added: 0 };
+      const p = await fetch(VOCAB, { method: "POST", headers: { "Content-Type": "application/json", "X-Key": KEY }, body: JSON.stringify({ add: entries }) });
+      const j = await p.json().catch(() => ({}));
+      return { ok: p.ok, cloud: p.ok && !!j.ok, added: j.added || 0, total: j.total };
     } catch (e) { return { ok: true, cloud: false }; }
   };
   const res = cloudChain.then(run, run); cloudChain = res.catch(() => {}); return res;
 }
 // 把本机已保存的单词 / 短语，以及云端待整理队列里的词，一次补齐成完整词条
 async function syncAll(tl) {
-  if (!BIN || !KEY) return { ok: false, cloud: false };
+  if (!CLOUD) return { ok: false, cloud: false };
   const st = await chrome.storage.local.get({ saved: [], savedSents: [], savedCtx: {} });
   let pend = [], have = new Set();
-  try { const r = await fetch(BASE + "/latest", { headers: { "X-Access-Key": KEY, "X-Bin-Meta": "false" } }); const d = await r.json(); pend = d.pending || []; (d.custom || []).forEach(x => x && have.add((x.word || "").toLowerCase())); } catch (e) { return { ok: false, cloud: false }; }
+  try { const d = await vocabGet(); pend = d.pending || []; (d.custom || []).forEach(x => x && have.add((x.word || "").toLowerCase())); } catch (e) { return { ok: false, cloud: false }; }
   const items = new Map();
   st.saved.forEach(w => items.set(w.toLowerCase(), { word: w }));
   st.savedSents.filter(x => x.ph).forEach(x => items.set(x.t.toLowerCase(), { word: x.t, zh: x.tr, ctx: x.ctx ? { t: x.ctx } : null }));
@@ -216,8 +209,8 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "wordLite") gWord(/['’]/.test(m.word) ? m.word.replace(/’/g, "'") : m.word.toLowerCase(), m.tl, m.sl).then(g => send({ g })).catch(() => send({}));
   else if (m.type === "word") Promise.all([gWord(/['’]/.test(m.word) ? m.word.replace(/’/g, "'") : m.word.toLowerCase(), m.tl, m.sl).catch(() => null), dict(m.word)]).then(([g, d]) => send({ g, d }));
   else if (m.type === "reloadSelf") { send({}); setTimeout(() => chrome.runtime.reload(), 200); }
-  else if (m.type === "pending" && (!BIN || !KEY)) send({});
-  else if (m.type === "pending") fetch(BASE + "/latest", { headers: { "X-Access-Key": KEY, "X-Bin-Meta": "false" } }).then(r => r.json()).then(d => send({ pending: d.pending || [] })).catch(() => send({}));
+  else if (m.type === "pending" && !CLOUD) send({});
+  else if (m.type === "pending") vocabGet().then(d => send({ pending: d.pending || [] })).catch(() => send({}));
   else if (m.type === "openSettings") { chrome.windows.create({ url: chrome.runtime.getURL("popup.html"), type: "popup", width: 340, height: 760 }); send({}); }
   else if (m.type === "openLevel") { chrome.runtime.openOptionsPage(); send({}); }
   else if (m.type === "openSaved") { chrome.tabs.create({ url: chrome.runtime.getURL("saved.html") }); send({}); }
@@ -225,7 +218,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "openReview") { chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); send({}); }
   else if (m.type === "sentences") sentences(m.word, m.tl, m.sl).then(s => send({ s })).catch(() => send({ s: [] }));
   else if (m.type === "add") addWord(m.word, m.queueOnly, m).then(send);
-  else if (m.type === "capUp") { if (!VS_SYNC.site || !KEY) send({ ok: false }); else fetch(VS_SYNC.site.replace(/\/$/, "") + "/.netlify/functions/cap", { method: "POST", headers: { "Content-Type": "application/json", "X-Key": KEY }, body: JSON.stringify(m.body) }).then(r => r.json()).then(send).catch(() => send({ ok: false })); }
+  else if (m.type === "capUp") { if (!CLOUD) send({ ok: false }); else fetch(SITE + "/.netlify/functions/cap", { method: "POST", headers: { "Content-Type": "application/json", "X-Key": KEY }, body: JSON.stringify(m.body) }).then(r => r.json()).then(send).catch(() => send({ ok: false })); }
   else if (m.type === "syncAll") syncAll(m.tl).then(send);
   else return false;
   return true;

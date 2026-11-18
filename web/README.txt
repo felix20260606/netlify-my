@@ -16,13 +16,15 @@
   ※ 网站文件都在仓库的 web/ 文件夹里；仓库里的 extension/ 是浏览器插件，tests/ 是测试。
   ※ Cloudflare 构建设置：不需要构建命令，输出目录 web，只监听 web/ 的改动
      （改插件不会触发部署）。
-  ※ 视频字幕存在 Cloudflare KV 里，Pages 项目绑定的 KV 变量名是 CAPTIONS。
+  ※ 视频字幕和生词本都存在 Cloudflare KV 里，Pages 项目绑定的 KV 变量名是 CAPTIONS。
+    （生词本 2026-11-18 之前存在 JSONBin，已停用。）
   ※ netlify 分支是搬家前的 Netlify 版本（旧站 https://ruilearning-my.netlify.app），留作备份。
 
 【文件清单】
   index.html             主页面（顶部：英语 / 生活 / 视频）
   watch.js               「🎬 视频」：嵌入播放器 + 同步双语字幕 + 点词查词 + 书签小工具
-  _worker.js             视频字幕存取接口（Cloudflare KV；写入需要同步密钥）；接口路径仍是 /.netlify/functions/cap
+  _worker.js             后台接口：视频字幕（/.netlify/functions/cap）和生词本（/api/vocab），数据在 Cloudflare KV；
+                         写入需要同步口令，口令只在各设备上输入，代码里只有它的指纹
   _routes.json           只让接口请求经过 _worker.js，其它文件直接当静态文件发
   fat-nav.html           减脂导航页（减脂 → 🧭导航，默认；全部减脂页面卡片目录）
   jianzhi-wrap.html      减脂·卷饼公式（减脂 → 卷饼公式，默认；照用户实拍小票+超市目录规划）

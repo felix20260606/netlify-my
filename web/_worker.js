@@ -1,13 +1,20 @@
-// Cloudflare Pages 版的视频字幕接口（原 netlify/functions/cap.mjs，数据存在 KV，绑定名 CAPTIONS）
-// 路径沿用 /.netlify/functions/cap，这样网页、书签小工具、浏览器扩展都不用改接口地址；/api/cap 是同一个接口
+// 网站后台接口（Cloudflare Pages），数据存在 KV，绑定名 CAPTIONS
+//
+// 一、视频字幕 /.netlify/functions/cap（沿用 Netlify 时期的路径；/api/cap 是同一个接口）
 //   GET    ?list=1   → { ok, items:[{v,title,author,n,tr,dur,at}] }
 //   GET    ?v=<ID>   → { ok, v, title, author, cues:[{s,e,t,r}] }
 //   POST             → 写入（需要 X-Key）
 //   DELETE ?v=<ID>   → 删除（需要 X-Key）
 //   POST   ?migrate=1 → 从旧的 Netlify 站点搬字幕过来，每次最多 20 个（需要 X-Key）
-const KEY_SHA = "c4599543d020223762a97f5ab87a7ce9fb17af6f6128d7bbb05ceb9602b7b45b"; // 同步密钥的 SHA-256，只用来校验写入
+//
+// 二、生词本 /api/vocab（2026-11-18 从 JSONBin 搬来；整份存在 KV 的 "vocab" 这一条里）
+//   GET              → { ok, custom, progress, deleted, pending }   读取不需要口令
+//   POST {state}     → 和云端合并后保存，返回合并结果 { ok, state }（需要 X-Key）
+//   POST {add:[词条]} → 加入完整词条：从待整理队列和已删除列表里移除同名词（插件用；需要 X-Key）
+// 写入口令只在服务器上存 SHA-256 指纹；网页源码里没有口令，每台设备第一次同步时输入一次
+const KEY_SHA = "947d04a67b6309d28e86acd947f64e86145130b89ebb580fc6a157db9748c299"; // 同步口令的 SHA-256，只用来校验写入（字幕和生词本共用）
 const OLD_API = "https://ruilearning-my.netlify.app/.netlify/functions/cap";
-const API_PATHS = ["/.netlify/functions/cap", "/api/cap"];
+const API_PATHS = ["/.netlify/functions/cap", "/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
 const sha256 = async s => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, "0")).join("");
 const authed = async req => (await sha256(req.headers.get("x-key") || "")) === KEY_SHA;
@@ -62,10 +69,61 @@ async function cap(req, env, u) {
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
 
+// ---------- 生词本 ----------
+const vdef = () => ({ custom: [], progress: {}, deleted: [], pending: [] });
+const vnorm = s => ({ custom: Array.isArray(s && s.custom) ? s.custom : [], progress: s && s.progress && typeof s.progress === "object" && !Array.isArray(s.progress) ? s.progress : {}, deleted: Array.isArray(s && s.deleted) ? s.deleted : [], pending: Array.isArray(s && s.pending) ? s.pending : [] });
+// 和网页里的 mergeState 一样：两份取并集；同一个 id 以 b 为准；删除会传播
+function vmerge(a, b) {
+  a = vnorm(a); b = vnorm(b);
+  const byId = {};
+  a.custom.forEach(e => { if (e && e.id) byId[e.id] = e; });
+  b.custom.forEach(e => { if (e && e.id) byId[e.id] = e; });
+  const deleted = Array.from(new Set([...a.deleted, ...b.deleted]));
+  const del = new Set(deleted);
+  const custom = Object.values(byId).filter(e => !del.has(e.id));
+  const progress = Object.assign({}, a.progress, b.progress);
+  const pend = {}; [...a.pending, ...b.pending].forEach(w => { if (w) pend[(w + "").toLowerCase()] = w; });
+  return { custom, progress, deleted, pending: Object.values(pend) };
+}
+// 和插件原来的 cloudAdd 一样：同名词已存在就跳过；加入时从待整理队列、已删除列表里去掉
+function vadd(d, entries) {
+  d = vnorm(d); let n = 0;
+  for (const e of entries) {
+    if (!e || !e.id || !e.word) continue;
+    const lw = String(e.word).toLowerCase();
+    d.pending = d.pending.filter(w => (w + "").toLowerCase() !== lw);
+    d.deleted = d.deleted.filter(x => x !== e.id);
+    if (d.custom.some(x => x && (x.id === e.id || (x.word || "").toLowerCase() === lw))) continue;
+    d.custom.push(e); n++;
+  }
+  return { d, n };
+}
+async function vocab(req, env) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  const kv = env.CAPTIONS;
+  if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
+  try {
+    const stored = vnorm(await kv.get(VOCAB_KEY, "json"));
+    if (req.method === "GET") return json(Object.assign({ ok: true }, stored));
+    if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
+    if (!(await authed(req))) return json({ ok: false, error: "unauthorized" }, 401);
+    const raw = await req.text(); if (raw.length > 5000000) return json({ ok: false, error: "too large" }, 413);
+    const b = JSON.parse(raw || "{}");
+    let next, added = 0;
+    if (Array.isArray(b.add)) { const r = vadd(stored, b.add.slice(0, 2000)); next = r.d; added = r.n; }
+    else if (b.state && typeof b.state === "object") next = vmerge(stored, b.state);
+    else return json({ ok: false, error: "bad body" }, 400);
+    const changed = JSON.stringify(next) !== JSON.stringify(stored);
+    if (changed) await kv.put(VOCAB_KEY, JSON.stringify(next));
+    return json({ ok: true, changed, added, total: next.custom.length, state: next });
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
+
 export default {
   async fetch(req, env) {
     const u = new URL(req.url);
     if (API_PATHS.includes(u.pathname)) return cap(req, env, u);
+    if (u.pathname === VOCAB_PATH) return vocab(req, env);
     return env.ASSETS.fetch(req);
   }
 };
