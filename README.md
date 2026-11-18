@@ -368,6 +368,18 @@ extension/
   icons/               图标
 ```
 
+网站部分：
+
+```
+web/
+  index.html           主页面（顶部：英语 / 生活 / 视频），生词本和 JSONBin 同步都在这里
+  watch.js             「🎬 视频」：嵌入播放器、同步双语字幕、点词查词、手机书签小工具
+  _worker.js           字幕存取接口 /.netlify/functions/cap（Cloudflare KV，绑定名 CAPTIONS）
+  _routes.json         只让 /.netlify/functions/* 和 /api/* 经过 _worker.js
+  sw.js                超市价格清单的离线缓存
+  *.html 及图片等       减脂、旅游、雅思等页面，逐个说明见 web/README.txt
+```
+
 内容脚本的加载顺序：`inject.js`（主环境，文档开始时）→ `freq.js` → `vlevel.js` → `gram.js` → `content.js`。
 
 ### 关键流程
@@ -395,9 +407,10 @@ extension/
 |---|---|
 | `chrome.storage.sync` | 所有设置项（语言、开关、外观、词汇水平、语法开关等），随浏览器账号同步 |
 | `chrome.storage.local` | 保存时的原声、截图和出处（`med:w:单词`、`med:s:句子`，每条约几十 KB）、复习记录（`srs`）、建议词（`sugg`）、已保存的单词（`saved`）和句子（`savedSents`）、手动标记（`marks`）、单词保存时的原句（`savedCtx`）、查词缓存（`dc:语言:单词`）、侧栏状态 |
-| JSONBin | 生词本待整理队列（仅在配置了 `config.js` 时） |
+| JSONBin | 生词本待整理队列和词条（仅在配置了 `config.js` 时） |
+| 网站（Cloudflare KV） | 看过的视频的字幕和译文（仅在 `config.js` 填了 `site` 且设置里没关掉同步时） |
 
-除了 JSONBin 同步和向翻译、词典接口发出的查询，数据不离开浏览器。
+除了 JSONBin 同步、向网站上传字幕，以及向翻译、词典接口发出的查询，数据不离开浏览器。
 
 ---
 
@@ -439,7 +452,7 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 | `t33` | 已保存项目页：悬停气泡、词典面板、标签、下次学习、分类筛选 |
 
 | `t38` | 同步到生词本网站：词条生成、去重、并发写入不丢、一次性补齐（Node 直接跑，不需要浏览器） |
-| `t39-watch` | 网站「🎬 视频」：三种视口下的列表、播放页、逐句停、查词、加入生词本、书签代码、`?v=` 深链接（播放器和网络请求用桩；需要本机有 `netlify-my` 仓库） |
+| `t39-watch` | 网站「🎬 视频」：三种视口下的列表、播放页、逐句停、查词、加入生词本、书签代码、`?v=` 深链接（播放器和网络请求用桩；直接读取本仓库 `web/` 里的网页） |
 | `t40` | 语法下划线下方的标识：缩写 / 中文 / 英文 / 不显示四种模式 |
 
 模拟页面测不到的东西（真实字幕接口、全屏、YouTube 改版）需要在真实页面上手动确认。

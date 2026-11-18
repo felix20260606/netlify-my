@@ -23,4 +23,6 @@ Ctrl/⌘+C 复制当前句子  E 显示被隐藏的翻译  O 单句循环  Z/X �
 - 词频表来自 OpenSubtitles 字幕语料（hermitdave/FrequencyWords，CC-BY-SA-4.0）
 - 想让单词着色接近 Language Reactor：词汇水平选 700，比率选 2.0x
 - 语法下划线（时态、被动、复数、冠词等）可在设置里整体或逐类开关
+- 生词本网站：https://ruilearning-my.pages.dev（config.js 里的 site 填这个；不填就不上传字幕）
+- 不建 config.js 也能用：生词只存在浏览器本地，不同步、不上传
 - 更详细的说明见仓库根目录的 README.md
