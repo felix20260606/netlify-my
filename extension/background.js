@@ -143,8 +143,13 @@ async function addWord(word, queueOnly, m) {
 }
 
 // ---------- 同步到生词本网站：直接生成完整词条（释义、音标、原句），手机上打开就能复习 ----------
-const entryId = w => "v_" + w.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+const entryId = w => "v_" + w.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 70);
 async function makeEntry(word, m) {
+  if (m.kind === "sentence") { // 整句：不查词典，只要译文
+    const t = word.replace(/\s+/g, " ").trim(); let zh = m.zh || "";
+    if (!zh) { try { zh = (await translateMany([t], m.tl || "zh-CN", "google", "en"))[0] || ""; } catch (e) {} }
+    return { id: entryId(t), type: "sentence", word: t, phon: "", en: "", zh: zh || "(未查到，可手动补)", tag: "视频", date: new Date().toISOString().slice(0, 10), forms: [], examples: [], tip: "" };
+  }
   const lw = word.toLowerCase(), isPh = /\s/.test(word.trim()), tl = m.tl || "zh-CN";
   const [g, d] = await Promise.all([gWord(lw, tl, "en").catch(() => null), isPh ? null : dict(lw).catch(() => null)]);
   const zs = []; const add = x => { x = String(x || "").trim(); if (x && !zs.includes(x) && x.toLowerCase() !== lw) zs.push(x); };

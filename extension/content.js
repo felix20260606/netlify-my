@@ -1,7 +1,7 @@
 (function () {
   const DEF = { showPat: true, n_phrase: true, n_spoken: true, n_link: true, n_word: true, cloze: false, gramLabel: "abbr", capSync: true, savePhrase: true, saveMedia: true, panelTrans: "popup", showGram: true, g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, target: "zh-CN", showTrans: true, hoverPause: true, level: -1, greenKnown: false, fadeRare: true, trColor: "#FFD77A", trSize: 100, origSize: 100, bgColor: "#0E141C", bgOpacity: 78, engine: "youtube", merge: true, autoPause: false, blurTrans: false, posBottom: 12, panelOpen: true, ctlHidden: false, srcLang: "en", showHuman: true, hideMode: "off", enabled: true, ratio: 1.5, showMarks: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", speakOnClick: true, arrowKeys: false, rate: 1, font: "", hideBar: false, below: false, dictUrls: "" };
   let S = Object.assign({}, DEF);
-  let tagOpen = false, wtags = {}, suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
+  let selCi = -1, tagOpen = false, wtags = {}, suggDone = "", humanAt = {}, srcVia = false, viaBase = "", pendUrl = "", lastStatus = 200, limitTry = 0, revO = false, revT = false, asr = false, custom = false, pill, tracks = [], human = [], hEl, loadedLang = "", raw = [], baseUrl = "", cues = [], trans = [], lazy = false, key = "", cur = -1, loopOn = false, loopIdx = -1, ver = 0;
   let pauseDone = -1, savedSet = new Set(), pausedByUs = false, pinned = false, hideT = null, vidId = "";
   let pEl, pdEl, root, box, oEl, tEl, tip, bar, nav, panel, listEl, tab = "subs", savedSents = [], wview = "learn", wpage = 0, wfilter = "", wtag = "", wlist = [], savedCtx = {}, showCtx = false, wtip = true, ctxDirty = false, panelMin = false, follow = true, autoScrollT = 0, userScrollT = 0;
   const pendIdx = new Set(), retry = {};
@@ -298,7 +298,7 @@
     box.addEventListener("mouseleave", () => schedResume());
     box.addEventListener("mouseup", () => {
       const sel = String(getSelection() || "").trim();
-      if (sel && /\s/.test(sel) && sel.length < 120) showTip(sel, box.getBoundingClientRect(), true);
+      if (sel && /\s/.test(sel) && sel.length < 120) { selCi = cur; showTip(sel, box.getBoundingClientRect(), true); }
     });
     oEl.addEventListener("click", e => { const w = e.target.closest(".vs-w"); if (w) showTip(w.dataset.w, null, true, undefined, w); });
     oEl.addEventListener("mouseover", e => { const w = e.target.closest(".vs-w"); if (w) hoverWord(w); });
@@ -404,6 +404,15 @@
   const WORD_RE = VS_WORD_RE;
   const wordsHtml = t => { const h = vsMark(esc(t), S); return phMark(S.showGram !== false && /\s/.test(t) ? vsGramHtml(h).replace(/ g-(\w+)(?=[ "])/g, (a, c) => (S["g_" + c] === false ? "" : a)) : h); };
   // 保存过的短语在字幕里整段标出来（连续的几个词一起带框）
+  function phraseAt(el) { // el 所在的已保存短语（可能不止一个）
+    if (!el.classList.contains("vs-ph") || !el.parentNode) return [];
+    const ws = [...el.parentNode.children].filter(x => x.classList && x.classList.contains("vs-w")), i = ws.indexOf(el); let a = i, b = i;
+    while (a > 0 && ws[a].classList.contains("vs-ph") && !ws[a].classList.contains("ph-s")) a--; while (b < ws.length - 1 && ws[b].classList.contains("vs-ph") && !ws[b].classList.contains("ph-e")) b++;
+    const words = ws.slice(a, b + 1).map(x => x.dataset.w.toLowerCase()), at = i - a;
+    return savedSents.filter(x => { if (!x.ph || !x.t) return false; const p = x.t.toLowerCase().split(/\s+/);
+      for (let s0 = 0; s0 + p.length <= words.length; s0++) if (at >= s0 && at < s0 + p.length && p.every((q, k) => words[s0 + k] === q || (k === 0 && vsLemma(words[s0 + k]) === vsLemma(q)))) return true;
+      return false; });
+  }
   function phMark(h) {
     const phs = savedSents.filter(x => x.ph && x.t).map(x => x.t.toLowerCase().split(/\s+/)); if (!phs.length) return h;
     const re = /<span class="vs-w ([^"]*)" data-w="([^"]+)">/g, ws = []; let m; while ((m = re.exec(h))) ws.push(m[2].toLowerCase()); if (ws.length < 2) return h;
@@ -637,7 +646,7 @@
     const st = tip.querySelector(".bd") ? tip.querySelector(".bd").scrollTop : 0;
     tip.innerHTML = '<div class="th"><b>词典</b><span data-a="x" title="关闭">' + I("x") + '</span></div><div class="bd">' +
       '<div class="hw"><div><div class="w">' + esc(word) + (d && d.phonetic ? '<span class="ph">' + esc(d.phonetic) + "</span>" : "") + (d && d.lemma ? '<span class="ph">原形 ' + esc(d.lemma) + "</span>" : "") + '</div><div class="zh">' + (res ? esc(ms.slice(0, 4).join("，")) || "（无翻译）" : "…") + '</div></div><span class="sp" data-a="say" title="发音">' + I("say") + '</span></div>' +
-      (isPhrase ? "" : '<div class="fr">' + freqBar(word) + '<span class="rk">' + (r === Infinity ? "生僻" : r) + '</span></div><div class="mk"><a data-a="mk" data-m="known" class="' + (cat === "known" ? "on" : "") + '" title="已掌握">' + I("check") + '</a><a data-a="mk" data-m="learn" class="' + (cat === "learn" ? "on" : "") + '" title="将要学习（加入生词本）">' + I("book") + '</a><a data-a="mk" data-m="ignore" class="' + (cat === "ignore" ? "on" : "") + '" title="不学习">' + I("ban") + '</a><a data-a="tgo" class="cl" title="颜色标签 / 下次学习">标记 ' + (tagOpen || wtags[base] ? "&lt;&lt;" : "&gt;&gt;") + '</a></div><div class="mk2' + (tagOpen || wtags[base] ? "" : " hid") + '"><span class="tgr">' + [["", "/", "无标签"], ["g", "#", "绿色"], ["y", "#", "黄色"], ["r", "#", "红色"], ["b", "#", "蓝色"]].map(x => '<a data-a="tag" data-c="' + x[0] + '" class="t-' + (x[0] || "0") + ((wtags[base] || "") === x[0] ? " on" : "") + '" title="' + x[2] + (x[0] ? "标签" : "") + '">' + x[1] + '</a>').join("") + '</span><a data-a="next" class="nx" title="下一次复习从这个词开始">⚡ 下次学习</a></div>') +
+      (isPhrase ? '<div class="mk"><a data-a="svph" class="svp' + (savedSents.some(x => x.k === "ph|" + word.toLowerCase().trim()) ? " on" : "") + '" title="把选中的这段文字存进「保存的短语」，并同步到生词本网站">' + I("star") + (savedSents.some(x => x.k === "ph|" + word.toLowerCase().trim()) ? "已保存短语" : "保存短语") + '</a></div>' : '<div class="fr">' + freqBar(word) + '<span class="rk">' + (r === Infinity ? "生僻" : r) + '</span></div><div class="mk"><a data-a="mk" data-m="known" class="' + (cat === "known" ? "on" : "") + '" title="已掌握">' + I("check") + '</a><a data-a="mk" data-m="learn" class="' + (cat === "learn" ? "on" : "") + '" title="将要学习（加入生词本）">' + I("book") + '</a><a data-a="mk" data-m="ignore" class="' + (cat === "ignore" ? "on" : "") + '" title="不学习">' + I("ban") + '</a><a data-a="tgo" class="cl" title="颜色标签 / 下次学习">标记 ' + (tagOpen || wtags[base] ? "&lt;&lt;" : "&gt;&gt;") + '</a></div><div class="mk2' + (tagOpen || wtags[base] ? "" : " hid") + '"><span class="tgr">' + [["", "/", "无标签"], ["g", "#", "绿色"], ["y", "#", "黄色"], ["r", "#", "红色"], ["b", "#", "蓝色"]].map(x => '<a data-a="tag" data-c="' + x[0] + '" class="t-' + (x[0] || "0") + ((wtags[base] || "") === x[0] ? " on" : "") + '" title="' + x[2] + (x[0] ? "标签" : "") + '">' + x[1] + '</a>').join("") + '</span><a data-a="next" class="nx" title="下一次复习从这个词开始">⚡ 下次学习</a></div>') +
       (tip.dataset.phrase && tip.dataset.phraseT ? '<div class="sec phz"><div class="lw">' + esc(tip.dataset.phrase) + '</div><div class="ln">' + esc(tip.dataset.phraseT) + "</div></div>" : "") +
       (tip.dataset.lemma && tip.dataset.lemmaT ? '<div class="sec phz"><div class="lw">' + esc(tip.dataset.lemma) + ' <span class="ph">（' + esc(word) + ' 的原形）</span></div><div class="ln">' + esc(tip.dataset.lemmaT) + "</div></div>" : "") +
       (g && g.zh && g.zh.length ? '<div class="sec"><div class="lw">' + esc(word) + "</div>" + g.zh.map(z => '<div class="ln"><i>(' + esc(z.pos) + ")</i>" + esc(z.words.join("，")) + "</div>").join("") + "</div>" : "") +
@@ -661,6 +670,10 @@
         if (a === "say") { speak(word); return; }
         if (a === "tag") { const k = word.toLowerCase(), cc = e.target.dataset.c; if (cc) wtags[k] = cc; else delete wtags[k]; chrome.storage.local.set({ tags: wtags }); drawDict(word, tipData); return; }
         if (a === "next") { const k = word.toLowerCase(); if (vsMarkOf(k) !== "learn") setMark(word, "learn"); chrome.storage.local.get({ srs: {} }, v => { const key = [...savedSet].find(x => vsSame(x, k)) || k; v.srs[key] = Object.assign({ b: 0, n: 0 }, v.srs[key], { due: 1 }); chrome.storage.local.set({ srs: v.srs }, () => toast("已排到下次复习的最前面")); }); return; }
+        if (a === "svph") { const ph = word.toLowerCase().trim(), k = "ph|" + ph, at = savedSents.findIndex(x => x.k === k);
+          if (at >= 0) { savedSents.splice(at, 1); chrome.storage.local.set({ savedSents }); chrome.storage.local.remove("med:s:" + k); refreshMarks(); toast("已取消保存：" + ph); drawDict(word, tipData); }
+          else addPhrase(ph, selCi, true).then(() => drawDict(word, tipData));
+          return; }
         if (a === "tgo") { tagOpen = !tagOpen; drawDict(word, tipData); return; }
         if (a === "mk") { const mb = e.target.closest("[data-m]"), mm = mb.classList.contains("on") ? "" : mb.dataset.m; if (mm === "learn" && S.savePhrase !== false && tip.dataset.phrase && vsMarkOf(word) !== "learn") addPhrase(tip.dataset.phrase, +tip.dataset.ci); setMark(word, mm); return; }
         if (a === "star" && row) { toggleSent(+row.dataset.i); drawDict(word, tipData); return; }
@@ -690,31 +703,41 @@
   const liveAudio = v => { if (!recStream || !recStream.getAudioTracks().some(t => t.readyState === "live")) recStream = v.captureStream(); return recStream.getAudioTracks().filter(t => t.readyState === "live"); };
   const seekTo = (v, t) => new Promise(res => { let done = false; const f = () => { if (!done) { done = true; v.removeEventListener("seeked", f); res(); } }; v.addEventListener("seeked", f); v.currentTime = t; setTimeout(f, 2500); });
   // 补录：保存的那一句没有录到原声时（没从头播过、或还没播到），在视频暂停时静音回放这一句把声音录下来，再回到原来的位置
-  function needCapture(key, ci) { if (!capQ.some(x => x.key === key)) capQ.push({ key, ci, vid: vidId }); const v = video(); if (v && v.paused) setTimeout(runCap, 400); }
+  // 只在不打扰的时候补录：视频是用户自己暂停的（不是悬停暂停），鼠标不在字幕 / 侧栏 / 词典上，并且已经停了一会儿
+  let capAbort = false, capT = 0;
+  const capIdle = v => v && v.paused && !pausedByUs && !document.querySelector("#vs-sub:hover, #vs-panel:hover, #vs-tip:hover, #vs-mini, #vs-side");
+  const capSoon = ms => { clearTimeout(capT); capT = setTimeout(runCap, ms || 1500); };
+  function needCapture(key, ci) { if (!capQ.some(x => x.key === key)) capQ.push({ key, ci, vid: vidId, n: 0 }); capSoon(1500); }
+  ["keydown", "mousedown", "wheel", "touchstart"].forEach(t => document.addEventListener(t, () => { if (capBusy) capAbort = true; }, true)); // 补录时用户一动手就立刻让开
   async function runCap() {
-    if (capBusy || !capQ.length) return; const v = video(); if (!v || !v.paused || !v.captureStream || $(".ad-showing")) return;
+    if (capBusy || !capQ.length) return; const v = video(); if (!v || !v.captureStream || $(".ad-showing")) return;
+    if (!capIdle(v)) { if (v.paused && !pausedByUs) capSoon(2000); return; } // 现在不合适：留在队列里，等下次暂停再试；这一句之后正常播到的话会自动录上
     const job = capQ.shift(); if (job.vid !== vidId || !cues[job.ci]) return runCap();
     if (clips[job.ci]) { attach(job.key, clips[job.ci], job.ci); return runCap(); }
-    capBusy = true; const cu = cues[job.ci], t0 = v.currentTime, m0 = v.muted, r0 = v.playbackRate, hov0 = pausedByUs; let url = "";
-    toast("正在保存这一句的原声（静音回放一遍）…");
+    capBusy = true; capAbort = false; const cu = cues[job.ci], t0 = v.currentTime, m0 = v.muted, r0 = v.playbackRate; let url = "", r = null;
+    toast("正在补录这一句的原声（静音回放）…");
     try {
       recStop(false); v.muted = true; v.playbackRate = 1;
       await seekTo(v, Math.max(0, cu.s - 0.06)); const f0 = frameShot();
       const at = liveAudio(v); if (!at.length) throw 0;
-      const r = new MediaRecorder(new MediaStream([at[0]]), { mimeType: "audio/webm;codecs=opus", audioBitsPerSecond: 32000 }), chunks = [];
+      const chunks = []; r = new MediaRecorder(new MediaStream([at[0]]), { mimeType: "audio/webm;codecs=opus", audioBitsPerSecond: 32000 });
       r.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); }; const done = new Promise(res => (r.onstop = res));
       r.start(); await v.play();
       const end = Math.min(cueEnd(job.ci) + 0.1, cu.s + 20), lim = Date.now() + (end - cu.s) * 1000 + 4000;
-      while (v.currentTime < end && Date.now() < lim && !v.ended && job.vid === vidId) await sleep(40);
+      while (v.currentTime < end && Date.now() < lim && !v.ended && job.vid === vidId && !capAbort) await sleep(40);
+      const full = v.currentTime >= end - 0.15;
       shots[job.ci] = [f0, frameShot()]; v.pause(); r.stop(); await done;
       const b = new Blob(chunks, { type: "audio/webm" });
-      if (b.size > 900 && b.size < 600000) url = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(""); fr.readAsDataURL(b); });
-    } catch (e) {}
+      if (full && !capAbort && b.size > 900 && b.size < 600000) url = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(""); fr.readAsDataURL(b); });
+    } catch (e) { try { if (r && r.state !== "inactive") r.stop(); } catch (x) {} }
+    const aborted = capAbort;
     try { v.pause(); if (job.vid === vidId) await seekTo(v, t0); } catch (e) {}
-    v.muted = m0; v.playbackRate = r0; capBusy = false;
-    if (hov0 && !pausedByUs) v.play(); // 补录期间鼠标已经移开：照常继续播放
-    if (url) { clips[job.ci] = url; attach(job.key, url, job.ci); (pendMed[job.ci] || []).forEach(k => attach(k, url, job.ci)); delete pendMed[job.ci]; toast("原声已保存"); } else toast("这一句的原声没有录到");
-    setTimeout(runCap, 300);
+    try { v.playbackRate = r0; } catch (e) {}
+    v.muted = m0; capBusy = false; capAbort = false;
+    if (!m0) [250, 1200].forEach(ms => setTimeout(() => { const x = video(); if (x && x.muted && !capBusy) x.muted = false; }, ms)); // 保险：确保声音一定恢复
+    if (url) { clips[job.ci] = url; attach(job.key, url, job.ci); (pendMed[job.ci] || []).forEach(k => attach(k, url, job.ci)); delete pendMed[job.ci]; toast("原声已保存"); }
+    else if (job.vid === vidId && ++job.n < 3) capQ.push(job); // 没录成不提示：留着下次暂停时再试，或等正常播到这一句时自动录上
+    if (!aborted) capSoon(600);
   }
   const cueEnd = i => (cues[i] ? Math.min(cues[i].e, cues[i + 1] ? Math.max(cues[i + 1].s, cues[i].s + 0.3) : Infinity) : 0); // 这一句实际显示到什么时候（下一句开始或自己结束）
   function recStop(full) { const r = recR; recR = null; if (r && r.state !== "inactive") { r._full = full; try { r.stop(); } catch (e) {} } }
@@ -725,7 +748,7 @@
       recStop(false);
       if (recV !== v) { recV = v; recStream = null; 
         // 句末暂停：这一句录完了。句子中途暂停（比如悬停查词）：录音也暂停，继续播放时接着录，不丢这一句
-        v.addEventListener("pause", () => { if (capBusy) return; if (capQ.length && !pausedByUs) setTimeout(runCap, 700); const r = recR; if (!r) return; if (v.currentTime >= cueEnd(r._i) - 0.5) recStop(true); else if (r.state === "recording") { try { r.pause(); r._pt = v.currentTime; } catch (e) { recStop(false); } } });
+        v.addEventListener("pause", () => { if (capBusy) return; if (capQ.length) capSoon(1500); const r = recR; if (!r) return; if (v.currentTime >= cueEnd(r._i) - 0.5) recStop(true); else if (r.state === "recording") { try { r.pause(); r._pt = v.currentTime; } catch (e) { recStop(false); } } });
         v.addEventListener("playing", () => { if (capBusy) return; const r = recR; if (r && r.state === "paused") { if (cur === r._i && Math.abs(v.currentTime - r._pt) < 0.5) { try { r.resume(); } catch (e) { recStop(false); } } else recStop(false); } if (!recR && cur >= 0) recStart(cur); });
         v.addEventListener("seeking", () => { if (capBusy) return; const r = recR; if (r && !(r.state === "paused" && Math.abs(v.currentTime - r._pt) < 0.5)) recStop(false); });
       }
@@ -770,7 +793,7 @@
     } catch (e) {}
   }
   // 保存短语：进“保存的短语”，带上所在的原句、原声、画面和出处
-  async function addPhrase(ph, ci) {
+  async function addPhrase(ph, ci, manual) {
     try {
       ph = String(ph).toLowerCase().trim(); const k = "ph|" + ph; if (!ph || savedSents.some(x => x.k === k)) return;
       const cu = cues[ci] || cues[cur] || null, g = await liteLookup(ph).catch(() => null);
@@ -778,7 +801,7 @@
       savedSents.push({ k, v: cu ? vidId : "", s: cu ? cu.s : 0, t: ph, tr: (g && g.t) || "", at: Date.now(), ph: 1, ctx: cu ? cu.t : "" });
       chrome.storage.local.set({ savedSents }); if (cu) saveMedia("med:s:" + k, cues.indexOf(cu)); send({ type: "add", word: ph, queueOnly: true, tl: S.target, zh: (g && g.t) || "", ctx: cu ? { t: cu.t, tr: trans[cues.indexOf(cu)] || "" } : null });
       refreshMarks();
-      setTimeout(() => toast("短语 “" + ph + "” 也一起保存了"), 1900);
+      if (manual) toast("已保存短语：" + ph); else setTimeout(() => toast("短语 “" + ph + "” 也一起保存了"), 1900);
     } catch (e) {}
   }
   function noteCtx(k) {
@@ -804,15 +827,23 @@
     }
     chrome.storage.local.set({ marks: VS_MARKS }); refreshMarks();
     if (m === "known" || m === "learn") send({ type: "vocabMark", word, st: m === "known" ? "known" : "learning" }); // 生词本里的掌握状态跟着变
-    toast(word + " → " + ({ learn: "将要学习", known: "已掌握", ignore: "不学习", "": "取消标记" })[m]);
+    toast(word + " → " + ({ learn: "将要学习", known: "已掌握", ignore: "不学习", "": "恢复默认" })[m]);
   }
   document.addEventListener("contextmenu", e => {
     const w = e.target.closest && e.target.closest(".vs-w"); if (!w || !S.enabled) return;
     e.preventDefault(); e.stopPropagation();
     if (!alive()) { toast("插件刚更新过，请刷新这个页面后再标记"); return; } // 插件重新加载后，旧页面里的标记保存不了
-    const lw = w.dataset.w.toLowerCase(), on = vsMarkOf(lw) === "learn";
+    // 这个词在一个已保存的短语框里：右键先取消这个短语（和单词一样，恢复成原来的样子）
+    { const phs = phraseAt(w); if (phs.length) {
+        phs.forEach(x => { const at = savedSents.indexOf(x); if (at >= 0) savedSents.splice(at, 1); chrome.storage.local.remove("med:s:" + x.k); });
+        chrome.storage.local.set({ savedSents });
+        if (vsMarkOf(w.dataset.w.toLowerCase()) !== "learn") { refreshMarks(); toast("已取消保存短语：" + phs.map(x => x.t).join("、")); return; } // 词本身没在学习：只取消短语
+    } }
+    // 右键循环：本来的颜色 → 正在学习（带框）→ 已掌握（白色）→ 回到本来的颜色。本来就是白色的词只在“白色 / 带框”之间切换
+    const lw = w.dataset.w.toLowerCase(), mk = vsMarkOf(lw), def = vsCat(w.dataset.w, S, false, false, true), plain = def === "known" || def === "";
+    const next = mk === "learn" ? (plain ? "" : "known") : mk === "known" ? (plain ? "learn" : "") : "learn", on = next !== "learn";
     if (!on && S.savePhrase !== false) { const it = w.closest(".it[data-i], .ex[data-i]"), ci = it ? +it.dataset.i : cur; findPhrase(w).then(ph => { if (ph && ph !== lw) addPhrase(ph, ci); }).catch(() => {}); } // 这个词在一个短语里：短语也一起保存
-    setMark(w.dataset.w, on ? "known" : "learn"); // 没有框的词：右键直接加入学习；已在学习的词：右键标为已掌握
+    setMark(w.dataset.w, next);
   }, true);
   // 朗读：先用后台取回的真人录音 / 在线朗读（经 AudioContext 播放，不受页面限制）；取不到再用浏览器自带语音
   let actx = null, ttsNode = null;
@@ -894,6 +925,8 @@
       ["wheel", "touchmove", "pointerdown", "keydown"].forEach(ev => listEl.addEventListener(ev, () => { userScrollT = Date.now(); }, { passive: true }));
       $("#vs-back", panel).onclick = () => { userScrollT = 0; markPanel(cur, true); };
       listEl.addEventListener("click", e => {
+        { const sel = String(getSelection() || "").replace(/\s+/g, " ").trim(), row = e.target.closest(".it[data-i]"); // 在一行里拖选了几个词：查这个短语，可在词典里保存
+          if (sel && /\s/.test(sel) && sel.length < 120 && row) { selCi = +row.dataset.i; showTip(sel, row.getBoundingClientRect(), true); return; } }
         const st = e.target.closest(".st"), w = e.target.closest(".vs-w"), it = e.target.closest(".it"), rm = e.target.closest(".rm");
         if (rm) { if (rm.dataset.w) { savedSet.delete(rm.dataset.w.toLowerCase()); chrome.storage.local.get({ saved: [] }, v => chrome.storage.local.set({ saved: v.saved.filter(x => x.toLowerCase() !== rm.dataset.w.toLowerCase()) })); } else { savedSents.splice(+rm.dataset.si, 1); chrome.storage.local.set({ savedSents }); } buildPanel(); cur = -1; return; }
         if (st) { toggleSent(+st.dataset.i); return; }
@@ -952,6 +985,7 @@
     const c = cues[i]; if (!c) return; const k = sentKey(c), at = savedSents.findIndex(x => x.k === k);
     if (at >= 0) savedSents.splice(at, 1); else savedSents.push({ k, v: vidId, s: c.s, t: c.t, tr: trans[i] || "", at: Date.now() });
     chrome.storage.local.set({ savedSents }); if (at < 0) saveMedia("med:s:" + k, i); else chrome.storage.local.remove("med:s:" + k);
+    if (at < 0) { send({ type: "add", word: c.t, queueOnly: true, kind: "sentence", tl: S.target, zh: trans[i] || "" }); toast("已保存整句"); } else toast("已取消保存整句");
     if (listEl) listEl.querySelectorAll('.st[data-i="' + i + '"]').forEach(el => { el.classList.toggle("on", at < 0); });
   }
   function rowHtml(i, sk, hl) {

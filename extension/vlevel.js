@@ -52,9 +52,9 @@ function vsMarkOf(k) {
   var m = VS_MARKS[k]; for (i = 0; !m && i < ks.length; i++) m = _vsIdx.M[ks[i]];
   return m === "known" || m === "ignore" ? m : "";
 }
-function vsCat(w, S, first, capAdj) {
+function vsCat(w, S, first, capAdj, noMark) { // noMark：忽略手动标记，只看这个词本来属于哪一类
   var k = String(w).toLowerCase();
-  var mk = vsMarkOf(k); if (mk) return mk;
+  var mk = noMark ? "" : vsMarkOf(k); if (mk) return mk;
   if (S.level == null || S.level < 0) return "";
   if (/^\d/.test(w) || VS_NUM.has(k)) return "special";
   if (/^[A-Z]{2,}$/.test(w) && !/^(OK|TV|AM|PM|US|UK|ID|DJ|CEO|DNA|FBI|CIA|USA|NO|YES|OH|GO|STOP|WOW)$/.test(w)) return "special";
