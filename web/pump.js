@@ -1,11 +1,11 @@
 /* 生词本「🔊 练习」：照 Language Reactor 的 PhrasePump 做的练法，复习进度存在生词本里（state.srs，网站后台），哪台设备练都算
    一个词这一轮要么听 3 句例句（词条自带的 + Tatoeba 例句库，每次换着听），要么做 1 道填空（用保存时的原句）；被动听过 2 次之后才出填空（同 PhrasePump）。
-   排程按遗忘曲线（FSRS-4.5 的公式和默认参数）：每个词记着「稳定度」S（天）——过了 S 天还有 90% 的把握记得；
-   记得的概率 R = (1 + 19/81 · t/S)^-0.5，降到 90% 时安排复习；越接近遗忘时复习，S 涨得越多，答错 S 变短、10 分钟后重来。
-   S 到 42 天（同 Language Reactor：至少 6 周都很可能记得）自动标为「已掌握」。没有到期的词时，挑现在最可能忘的做「额外练习」。
+   排程用 Ebisu（同 Language Reactor 默认的 EBISU 排程，公式照 Ebisu 2.1 官方库）：每个词一个模型 [α, β, t]，算出「现在记得的概率」和「半衰期」；
+   记得的概率降到 50%（过了半衰期）该复习，降到 30% 算紧急；答对半衰期变长（越接近遗忘时答对涨得越多），答错变短。
+   半衰期到 42 天（同 LR「至少 6 周都很可能记得」）自动标为「已掌握」。没有到期的词时，挑现在最可能忘的做「额外练习」。
    依赖 index.html 的全局：state / words / save / speak / toast */
 (function () {
-  const DAY = 864e5, RELEARN = 10 * 6e4, PER = 3, NUMS = [20, 40, 60, 80, 100], NEWS = [0, 5, 10, 15, 20, 25];
+  const DAY = 864e5, PER = 3, NUMS = [20, 40, 60, 80, 100], NEWS = [0, 5, 10, 15, 20, 25];
   const LG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, LS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const today = () => new Date().toISOString().slice(0, 10);
@@ -13,25 +13,38 @@
   const DEF = { quiz: true, sugg: true, listen: true, num: 60, newPct: 15, tags: [], recall: true, dir: "en", types: ["word", "phrase"] };
   let opt = Object.assign(JSON.parse(JSON.stringify(DEF)), LG("pump:opt", {})); if (!Array.isArray(opt.tags)) opt.tags = [];
   if (!LG("pump:def60", false)) { if (opt.num === 20) opt.num = 60; LS("pump:def60", true); LS("pump:opt", opt); } // 以前默认 20：没改过的换成 PhrasePump 的默认 60
-  // ---------- 遗忘曲线（FSRS-4.5：公式和官方默认参数，github.com/open-spaced-repetition） ----------
-  const W = [0.4872, 1.4003, 3.7145, 13.8206, 5.1618, 1.2298, 0.8975, 0.031, 1.6474, 0.1367, 1.0461, 2.1072, 0.0793, 0.3246, 1.587, 0.2272, 2.8755];
-  const RET = 0.9, DECAY = -0.5, FACTOR = 19 / 81, KNOWN_S = 42, LEVELS = [1, 3, 7, 16, 35, 90]; // LEVELS：换算成原来的「级别」，给插件等旧显示用
-  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
-  const recall = (S, tDays) => Math.pow(1 + FACTOR * Math.max(0, tDays) / S, DECAY);       // 过了 t 天还记得的概率
-  const interval = S => S / FACTOR * (Math.pow(RET, 1 / DECAY) - 1);                        // 记得的概率降到 90% 要多少天（= S）
-  const initD = g => clamp(W[4] - (g - 3) * W[5], 1, 10);
-  const memOf = r => (r && r.s ? { s: r.s, d: r.d || 5 } : { s: [0.4, 1, 3, 7, 16, 35, 90][(r && r.b) || 0] || 0.4, d: 5 }); // 旧进度（只有级别）换算成稳定度
-  const rNow = r => { if (!r || !r.at) return 0; return recall(memOf(r).s, (Date.now() - r.at) / DAY); };
-  function review(r, g) { // g：1 忘了，3 记得；返回新的 { s 稳定度, d 难度 }
-    if (!r || !(r.s || r.b || r.n)) return { s: W[g - 1], d: initD(g) };
-    const m = memOf(r), R = recall(m.s, (Date.now() - (r.at || Date.now())) / DAY);
-    const d = clamp(W[7] * initD(4) + (1 - W[7]) * (m.d - W[6] * (g - 3)), 1, 10);
-    const s = g === 1 ? Math.min(m.s, W[11] * Math.pow(m.d, -W[12]) * (Math.pow(m.s + 1, W[13]) - 1) * Math.exp(W[14] * (1 - R)))
-      : m.s * (1 + Math.exp(W[8]) * (11 - m.d) * Math.pow(m.s, -W[9]) * (Math.exp(W[10] * (1 - R)) - 1));
-    return { s: Math.max(0.1, s), d };
+  // ---------- 排程：Ebisu（同 Language Reactor 默认的 EBISU 排程；公式照 Ebisu 2.1 官方库 github.com/fasiha/ebisu） ----------
+  // 每个词一个模型 [α, β, t]：过了 t 天，记得的概率服从 Beta(α, β)。更新后自动把 t 调到「半衰期」（记得的概率降到 50% 的时间）
+  const EB_INIT = [3, 3, 1];                 // 新词：Ebisu 默认 α = β = 3，半衰期先按 1 天
+  const DUE_R = 0.5, URGENT_R = 0.3, KNOWN_H = 42; // 记得的概率降到 50%（过了半衰期）该复习，降到 30% 算紧急；半衰期 ≥ 42 天算已学会（同 LR：「至少 6 周都很可能记得」）
+  const LANCZOS = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  function lgamma(x) { if (x < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * x))) - lgamma(1 - x); x -= 1; let a = LANCZOS[0]; const t = x + 7.5; for (let i = 1; i < 9; i++) a += LANCZOS[i] / (x + i); return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a); }
+  const betaln = (a, b) => lgamma(a) + lgamma(b) - lgamma(a + b);
+  const ebPredict = (m, tDays) => Math.exp(betaln(m[0] + Math.max(0, tDays) / m[2], m[1]) - betaln(m[0], m[1])); // 过了 t 天记得的概率
+  function ebDecay(m, p) { // 记得的概率降到 p 要多少天
+    let lo = 1e-6, hi = m[2]; while (ebPredict(m, hi) > p && hi < 1e7) hi *= 2;
+    for (let i = 0; i < 80; i++) { const mid = Math.sqrt(lo * hi); if (ebPredict(m, mid) > p) lo = mid; else hi = mid; }
+    return Math.sqrt(lo * hi);
   }
-  // 掌握进度：稳定度到 42 天（6 周，同 Language Reactor）= 100 % 已掌握；中间按对数换算，前期的进步也看得出来（4 天 ≈ 43 %，14 天 ≈ 72 %，30 天 ≈ 91 %）
-  const mastery = (r, w) => (w && w.status === "known" ? 1 : !r || !(r.s || r.b) ? 0 : Math.min(1, Math.log(1 + memOf(r).s) / Math.log(1 + KNOWN_S)));
+  // Ebisu 2.1 _updateRecallSingle（rebalance）：result 1 = 记得，0 = 忘了；tnow = 距上次复习多少天
+  function ebUpdate(m, result, tnow) {
+    const [a, b, t] = m, z = result > 0.5, q1 = z ? result : 1 - result, q0 = 1 - q1, dt = Math.max(tnow, 1e-6) / t;
+    const c = z ? q1 - q0 : q0 - q1, d = z ? q0 : 1 - q0;
+    const lin = terms => { const mx = Math.max(...terms.map(x => x[1])); const s = terms.reduce((acc, x) => acc + x[0] * Math.exp(x[1] - mx), 0); return [s, mx]; }; // Σ coef·exp(logB)
+    const moment = (N, et) => { const tm = [[c, betaln(a + dt + N * dt * et, b)]]; if (d) tm.push([d, betaln(a + N * dt * et, b)]); return lin(tm); };
+    const den = moment(0, 0), ratio = (N, et) => { const [s, mx] = moment(N, et); return (s / den[0]) * Math.exp(mx - den[1]); };
+    let lo = 1e-6, hi = 1; while (ratio(1, hi) > 0.5 && hi < 1e8) hi *= 2; while (ratio(1, lo) < 0.5 && lo > 1e-12) lo /= 2; // 找后验平均记得概率 = 0.5 的时间（新半衰期）
+    for (let i = 0; i < 90; i++) { const mid = Math.sqrt(lo * hi); if (ratio(1, mid) > 0.5) lo = mid; else hi = mid; }
+    const et = Math.sqrt(lo * hi), mean = ratio(1, et), m2 = ratio(2, et), v = Math.max(1e-12, m2 - mean * mean), k = mean * (1 - mean) / v - 1;
+    return [mean * k, (1 - mean) * k, et * Math.max(tnow, 1e-6)];
+  }
+  const LEVELS = [1, 3, 7, 16, 35, 90]; // 换算成原来的「级别」，给插件等旧显示用
+  // 旧进度换算成 Ebisu 模型：之前的 FSRS 稳定度 / 级别当作半衰期
+  const ebOf = r => (r && Array.isArray(r.e) ? r.e : !r ? null : [3, 3, r.s ? Math.max(0.25, r.s) : [0.5, 1, 3, 7, 16, 35, 90][r.b || 0] || 0.5]);
+  const halfOf = r => { const m = ebOf(r); return !m ? 0 : r.h || ebDecay(m, 0.5); };
+  const rNow = r => { if (!r || !r.at) return 0; return ebPredict(ebOf(r), (Date.now() - r.at) / DAY); }; // 现在记得的概率
+  // 掌握进度：半衰期到 42 天（同 LR「至少 6 周都很可能记得」）= 100 % 已掌握；中间按对数换算（1 天 ≈ 18 %，7 天 ≈ 55 %，14 天 ≈ 72 %）
+  const mastery = (r, w) => (w && w.status === "known" ? 1 : !r || !(r.e || r.s || r.b) ? 0 : Math.min(1, Math.log(1 + halfOf(r)) / Math.log(1 + KNOWN_H)));
   const pcent = x => Math.round(x * 100);
   const mbar = (x, known) => '<span class="pp-mb' + (known ? " known" : "") + '"><i style="width:' + pcent(x) + '%"></i></span>';
   const levelOf = s => { let b = 0; LEVELS.forEach((x, i) => { if (s >= x) b = i + 1; }); return b; };
@@ -179,13 +192,13 @@
   function plan() {
     const S = srs(), now = Date.now(), tagOf = w => (EXT && EXT.tags[String(w.word).toLowerCase().trim()]) || "", mode = modeOf();
     const P = (typeof words !== "undefined" ? words : []).filter(usable).filter(w => !opt.tags.length || opt.tags.includes(tagOf(w))), live = P.filter(w => w.status !== "known");
-    const due = live.filter(w => S[w.id] && S[w.id].due <= now).sort((a, b) => rNow(S[a.id]) - rNow(S[b.id])); // 该复习的（记得的概率降到 90% 以下），最可能忘的先练
+    const due = live.filter(w => S[w.id] && S[w.id].at && rNow(S[w.id]) <= DUE_R).sort((a, b) => rNow(S[a.id]) - rNow(S[b.id])); // 该复习的（记得的概率降到 50% 以下，过了半衰期），最可能忘的先练
     const fresh = live.filter(w => !S[w.id]).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
     // 建议（同 PhrasePump「来自你的混合内容的新词」）：从看过的视频里挑还没收、没标记过的词；练了不记进度，想学就点「＋ 收进生词本」
     const have = new Set((typeof words !== "undefined" ? words : []).map(w => String(w.word || "").toLowerCase().trim()));
     const pool = opt.sugg && EXT && !opt.tags.length ? Object.keys(EXT.sugg).filter(w => !have.has(w) && !EXT.marks[w] && !EXT.saved.has(w)).sort((a, b) => (EXT.sugg[b].n || 1) - (EXT.sugg[a].n || 1) || (EXT.sugg[b].at || 0) - (EXT.sugg[a].at || 0)) : [];
     const sugg = pool.map(w => ({ id: "sg_" + w, word: w, zh: "", type: "word", sg: 1, examples: [[EXT.sugg[w].t, ""]] }));
-    const early = live.filter(w => S[w.id] && S[w.id].at && !(S[w.id].due <= now)).sort((a, b) => rNow(S[a.id]) - rNow(S[b.id])); // 还没到期的复习，最可能忘的先
+    const early = live.filter(w => S[w.id] && S[w.id].at && rNow(S[w.id]) > DUE_R).sort((a, b) => rNow(S[a.id]) - rNow(S[b.id])); // 还没到期的复习，最可能忘的先
     // 名额 = 练习数量。顺序同 PhrasePump：该复习的 → 新词（最多 练习数量 × 新项目）→ 建议（用新词剩下的名额）→ 没到期的复习 → 还有剩就用例句库的额外句子补满
     // 最后一个词放不下时：剩下的名额够它一半就照样放（所以选 60 有时是 61 张），不够就停
     const N = opt.num, queue = []; let rem = N, newSlots = Math.round(N * opt.newPct / 100);
@@ -225,18 +238,18 @@
     const lrn = p.P.filter(w => S[w.id] && w.status !== "known").length, done = p.P.filter(w => w.status === "known").length;
     const rs = p.live.filter(w => S[w.id] && S[w.id].at).map(w => rNow(S[w.id])), avgR = rs.length ? Math.round(rs.reduce((a, x) => a + x, 0) / rs.length * 100) : 0;
     p.list.slice(0, 12).forEach(w => sentFor(w)); // 先把例句取回来
-    const urgent = p.due.filter(w => Date.now() - S[w.id].due > DAY).length, n = p.n;
+    const urgent = p.due.filter(w => rNow(S[w.id]) <= URGENT_R).length, n = p.n;
     const tg = (id, on, name, small) => '<label class="pp-row"><span>' + name + " <small>" + small + '</small></span><input type="checkbox" class="pp-tg" id="' + id + '"' + (on ? " checked" : "") + "></label>";
     const seg = (k, list, isOn, title) => '<div class="pp-row"' + (title ? ' title="' + title + '"' : "") + "><span>" + list.name + '</span><span class="pp-seg" data-k="' + k + '">' + list.items.map(([v, t]) => '<b data-v="' + esc(v) + '" class="' + (isOn(v) ? "on" : "") + '">' + esc(t) + "</b>").join("") + "</span></div>";
     const tags = EXT ? [...new Set(Object.values(EXT.tags))] : [];
     // 布局、文字、顺序同 PhrasePump：左边统计和开始，右边「会话」设置（测验 · 建议 · 练习 · 练习数量 · 新项目 · 筛选），我们自己加的放在后面
     root.innerHTML = lastSum + '<div class="pp-home"><div class="pp-hc"><h2>🔊 <b>练习</b></h2>' +
       '<div class="pp-today"><span class="emo">' + emoji() + "</span>今天<b>" + day.n + " 张卡片</b></div>" + dayBar() +
-      '<div class="pp-st"><div title="记得的概率已经降到 90% 以下、该复习的；「紧急」= 过期超过一天"><small>待复习</small><b>' + p.due.length + "</b><em>" + (urgent ? urgent + " 个紧急" : "") + '</em></div>' +
-      '<div title="' + (rs.length ? "按遗忘曲线算，现在平均记得 " + avgR + "%" : "正在练的词") + '"><small>学习中</small><b>' + lrn + "</b><em>+" + p.fresh.length + ' 个排队中</em></div>' +
-      '<div title="稳定度到了 42 天（至少 6 周都很可能记得），自动算已掌握"><small>已学习</small><b>' + done + "</b></div></div>" +
+      '<div class="pp-st"><div title="记得的概率已经降到 50% 以下（过了半衰期）、该复习的；「紧急」= 降到 30% 以下"><small>待复习</small><b>' + p.due.length + "</b><em>" + (urgent ? urgent + " 个紧急" : "") + '</em></div>' +
+      '<div title="' + (rs.length ? "按 Ebisu 算，现在平均记得 " + avgR + "%" : "正在练的词") + '"><small>学习中</small><b>' + lrn + "</b><em>+" + p.fresh.length + ' 个排队中</em></div>' +
+      '<div title="半衰期到了 42 天（至少 6 周都很可能记得），自动算已掌握"><small>已学习</small><b>' + done + "</b></div></div>" +
       (() => { const all = p.P.filter(w => !w.sg), kn = all.filter(w => w.status === "known").length, lr = all.filter(w => w.status !== "known" && S[w.id]), avg = lr.length ? lr.reduce((a, w) => a + mastery(S[w.id], w), 0) / lr.length : 0, tot = all.length ? kn / all.length : 0;
-        return '<div class="pp-master" title="稳定度到 42 天（至少 6 周都很可能记得）算已掌握"><div class="h"><span>🏆 已掌握</span><b>' + pcent(tot) + "%</b><small>" + kn + " / " + all.length + " 个</small></div>" + mbar(tot, true) + (lr.length ? '<div class="h2">学习中的 ' + lr.length + " 个词平均掌握进度 <b>" + pcent(avg) + "%</b></div>" + mbar(avg) : "") + "</div>"; })() +
+        return '<div class="pp-master" title="半衰期到 42 天（至少 6 周都很可能记得）算已掌握"><div class="h"><span>🏆 已掌握</span><b>' + pcent(tot) + "%</b><small>" + kn + " / " + all.length + " 个</small></div>" + mbar(tot, true) + (lr.length ? '<div class="h2">学习中的 ' + lr.length + " 个词平均掌握进度 <b>" + pcent(avg) + "%</b></div>" + mbar(avg) : "") + "</div>"; })() +
       '<div class="pp-go"><button id="pp-start"' + (n ? "" : " disabled") + ">开始练习</button><span>" + (n ? n + " 张卡片" : p.mode === "none" ? (opt.sugg ? "测验、练习都关了：只练建议，现在没有建议" : "测验、练习、建议都关了，没有可练的") : "现在没有要练的") + "</span></div>" +
       (p.queue.length ? '<div class="pp-next"><b>接下来</b> · 你的队列，然后是推荐' + '<div class="pp-q">' + p.queue.slice(0, 12).map(q => { const r = S[q.w.id]; const m = mastery(r, q.w); return "<span" + (q.kind === "sugg" ? ' class="sg" title="推荐：从看过的视频里来的新词"' : ' title="掌握进度 ' + pcent(m) + "%" + (r && r.at ? " · 现在记得 " + pcent(rNow(r)) + "%" : " · 新词") + '"') + ">" + esc(q.w.word) + (q.kind === "sugg" ? "" : " <i>" + pcent(m) + "%</i>" + mbar(m)) + "</span>"; }).join("") + "</div></div>" : "") + "</div>" +
       '<div class="pp-opt"><h4>会话' + (JSON.stringify(Object.keys(DEF).map(k => opt[k])) !== JSON.stringify(Object.keys(DEF).map(k => DEF[k])) ? '<a id="pp-reset" href="javascript:void 0">重置</a>' : "") + "</h4>" +
@@ -250,7 +263,7 @@
       tg("pp-recall", opt.recall, "认词卡", "先看词回想意思，翻开后自己判断认不认识（原来的「背诵」「自测」）") +
       (opt.recall ? seg("dir", { name: "认词方向", items: [["en", "看英文想中文"], ["zh", "看中文想英文"]] }, v => opt.dir === v) : "") +
       seg("types", { name: "类型", items: [["word", "单词"], ["phrase", "短语"], ["sentence", "句子"], ["pattern", "规律"]] }, v => opt.types.includes(v)) +
-      '<p class="pp-note">插件里的「复习」也打开这里，进度是同一份：在哪台设备练都算。「练习数量」是这一组的卡片张数；「新项目」是其中新词最多占的比例。每个词这一轮要么听 3 句例句（每次换着听），要么做 1 道填空。按遗忘曲线排复习：记得的概率降到 90% 时再练，越接近遗忘时练记得越久；至少 6 周都很可能记得（稳定度 42 天），自动算「已掌握」。电脑上可以用键盘（同 Language Reactor）：A 上一个、S 播放、E 显示 / 看答案、D 下一个；测验和认词卡 Z 忘了、C 记得；建议 Z 已知、X 学习、C 跳过。</p></div></div>';
+      '<p class="pp-note">插件里的「复习」也打开这里，进度是同一份：在哪台设备练都算。「练习数量」是这一组的卡片张数；「新项目」是其中新词最多占的比例。每个词这一轮要么听 3 句例句（每次换着听），要么做 1 道填空。按 Ebisu 排复习（同 Language Reactor）：记得的概率降到 50%（过了半衰期）时再练，越接近遗忘时答对，半衰期涨得越多；半衰期到 42 天（至少 6 周都很可能记得），自动算「已掌握」。电脑上可以用键盘（同 Language Reactor）：A 上一个、S 播放、E 显示 / 看答案、D 下一个；测验和认词卡 Z 忘了、C 记得；建议 Z 已知、X 学习、C 跳过。</p></div></div>';
     root.querySelector("#pp-start").onclick = () => { lastSum = ""; start(); };
     const sx = root.querySelector("#pp-sumx"); if (sx) sx.onclick = () => { lastSum = ""; home(); };
     root.querySelector("#pp-quiz").onchange = e => { opt.quiz = e.target.checked; LS("pump:opt", opt); home(); }; // 关了「测验」：只听不考
@@ -285,8 +298,15 @@
     const S = srs(), id = c.w.id, r = Object.assign({ n: 0 }, S[id]), now = Date.now();
     const lapsed = cards.some(x => x !== c && x.w.id === id && x.done && !x.ok); // 这一轮前面已经错过一张（已经按「忘了」算过）
     r.n++;
-    if (!ok && !lapsed) { const m = review(S[id], 1); Object.assign(r, m, { at: now, due: now + RELEARN, b: 0 }); } // 忘了：稳定度变短，10 分钟后再来
-    else if (ok && c.last && !lapsed) { const m = review(S[id], 3); Object.assign(r, m, { at: now, due: now + Math.max(1, interval(m.s)) * DAY, b: levelOf(m.s) }); r.x = (c.x0 || 0) + 1; if (m.s >= KNOWN_S) { const was = state.progress[id] === "known"; state.progress[id] = "known"; if (!was) { c.w.justKnown = true; toast("🏆 「" + c.w.word + "」已掌握！"); } } } // 这一轮都对：按遗忘曲线排下次
+    const upd = res => { // 用 Ebisu 更新这个词的模型，按「记得的概率降到 50%」排下次
+      const prev = S[id], m0 = ebOf(prev), tnow = prev && prev.at ? (now - prev.at) / DAY : 0;
+      const m = !prev || !(prev.e || prev.s || prev.b) ? (res ? EB_INIT.slice() : [3, 3, 0.25]) : ebUpdate(m0, res, tnow); // 新词：第一轮只是初始化（同 LR 第一次见），第一轮就忘了的半衰期先按 6 小时
+      const h = ebDecay(m, 0.5); delete r.s; delete r.d;
+      Object.assign(r, { e: m.map(x => +x.toFixed(4)), h: +h.toFixed(3), at: now, due: now + ebDecay(m, DUE_R) * DAY, b: levelOf(h) });
+      if (h >= KNOWN_H) { const was = state.progress[id] === "known"; state.progress[id] = "known"; if (!was) { c.w.justKnown = true; toast("🏆 「" + c.w.word + "」已掌握！"); } }
+    };
+    if (!ok && !lapsed) upd(0);                                  // 忘了：马上按「忘了」更新（半衰期变短）
+    else if (ok && c.last && !lapsed) { upd(1); r.x = (c.x0 || 0) + 1; } // 这一轮都对：按「记得」更新
     else if (c.last && lapsed) r.x = (c.x0 || 0) + 1;
     S[id] = r; save(state);
   }
@@ -317,7 +337,7 @@
     const c = cards[at], pct = (at + 1) / cards.length * 100; prefetch(at);
     if (MED && MED[String(c.w.word || "").toLowerCase().trim()] && !(MED[String(c.w.word).toLowerCase().trim()] in medRec)) medFor(c.w).then(() => { if (cards[at] === c && medOf(c)) show(); }); // 原声截图到了：重画这张卡片
     const mNow = c.w.sg || c.w.pump ? null : mastery(srs()[c.w.id], c.w), known = c.w.justKnown || (mNow != null && mNow >= 1);
-    const prog = mNow == null ? "" : '<div class="pp-prog' + (known ? " known" : "") + '" title="这个词的掌握进度：稳定度到 42 天（6 周）算已掌握">' + (known ? "🏆 已掌握" : "掌握进度") + mbar(mNow, known) + "<b>" + pcent(mNow) + "%</b>" + (c.done && mNow > (c.m0 || 0) + 0.005 ? '<em>+' + (pcent(mNow) - pcent(c.m0 || 0)) + "%</em>" : "") + "</div>";
+    const prog = mNow == null ? "" : '<div class="pp-prog' + (known ? " known" : "") + '" title="这个词的掌握进度：半衰期到 42 天（6 周）算已掌握">' + (known ? "🏆 已掌握" : "掌握进度") + mbar(mNow, known) + "<b>" + pcent(mNow) + "%</b>" + (c.done && mNow > (c.m0 || 0) + 0.005 ? '<em>+' + (pcent(mNow) - pcent(c.m0 || 0)) + "%</em>" : "") + "</div>";
     const typ = x => (x.k === "quiz" ? "t" : x.k === "sugg" ? "p" : "e"), segs = ["t", "p", "e"].map(k => ({ k, n: cards.filter(x => typ(x) === k).length, d: cards.filter((x, i) => typ(x) === k && (i < at || x.done)).length })).filter(g => g.n);
     const bar = '<div class="pp-segbar" title="测验 / 建议 / 练习">' + segs.map(g => '<span class="sg-' + g.k + '" style="flex:' + g.n + '"><i style="width:' + (g.d / g.n * 100) + '%"></i></span>').join("") + "</div>";
     const top = '<div class="pp-top"><button id="pp-back">← 返回</button>' + bar + "<span>" + (at + 1) + "/" + cards.length + "</span></div>" + prog;
@@ -332,7 +352,7 @@
       const back = big(esc(plain(w.word))) + (w.phon ? '<div class="rc-p">' + esc(w.phon) + "</div>" : "") + '<div class="rc-zh">' + esc(w.zh || "") + "</div>" + (w.en ? '<div class="rc-en">' + esc(w.en) + "</div>" : "") +
         (fm.length ? '<div class="rc-fm">' + fm.map(x => "<div><b>" + esc(x[0]) + "</b> <span>" + esc(x[1] || "") + "</span> " + esc(x[2] || "") + "</div>").join("") + "</div>" : "") +
         (ex.length ? '<div class="rc-ex">' + ex.map(x => "<div>" + html(String(x[0])) + "<span>" + esc(x[1] || "") + "</span></div>").join("") + "</div>" : "") + (w.tip ? '<div class="rc-tip">🧠 ' + esc(w.tip) + "</div>" : "");
-      root.innerHTML = top + '<div class="pp-hint"><b>🃏 认词</b>' + (c.flip ? (c.done ? (c.ok ? "认识 ✓" : "不认识，10 分钟后再出现") : "记得吗？自己判断：忘了按 Z，记得按 C") : "先回想，再点卡片或按 E 翻开") + '</div><div class="pp-card pp-rc' + (c.flip ? " back" : "") + '" id="pp-rc"><button class="pl" id="pp-pl" title="朗读">▶</button><button class="cp" id="pp-cp">复制</button>' + (c.flip ? back : front) + "</div>" +
+      root.innerHTML = top + '<div class="pp-hint"><b>🃏 认词</b>' + (c.flip ? (c.done ? (c.ok ? "认识 ✓" : "忘了：半衰期变短，很快会再练") : "记得吗？自己判断：忘了按 Z，记得按 C") : "先回想，再点卡片或按 E 翻开") + '</div><div class="pp-card pp-rc' + (c.flip ? " back" : "") + '" id="pp-rc"><button class="pl" id="pp-pl" title="朗读">▶</button><button class="cp" id="pp-cp">复制</button>' + (c.flip ? back : front) + "</div>" +
         (c.flip && !c.done ? '<div class="pp-rate"><button id="pp-no"><kbd>Z</kbd>忘了</button><button id="pp-yes"><kbd>C</kbd>记得</button></div>' : "") + ctl("recall");
       root.querySelector("#pp-rc").onclick = e => { if (e.target.closest("button")) return; flip(c); };
       if (c.flip && !c.done) { root.querySelector("#pp-no").onclick = () => rate(c, false); root.querySelector("#pp-yes").onclick = () => rate(c, true); }

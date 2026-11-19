@@ -41,7 +41,7 @@
   function wikiImgs(o) { if (!o || o.off || !o.c || !o.c.length) return []; const c = o.c, s = (o.o || 0) % c.length; return c.slice(s).concat(c.slice(0, s)).slice(0, 2); }
   function card(o, i) {
     const e = o.e, mm = e && typeof masteryOf === "function" ? masteryOf(e) : 0, mk = mm >= 1; // 掌握进度：和练习、列表同一个算法
-    const st = e ? '<span class="sw-ms' + (mk ? " k" : "") + '" title="掌握进度：稳定度到 42 天（6 周）算已掌握"><span class="pp-mb' + (mk ? " known" : "") + '"><i style="width:' + Math.round(mm * 100) + '%"></i></span>' + (mk ? "🏆 已掌握" : Math.round(mm * 100) + "%") + "</span>" : "";
+    const st = e ? '<span class="sw-ms' + (mk ? " k" : "") + '" title="掌握进度：半衰期到 42 天（6 周）算已掌握"><span class="pp-mb' + (mk ? " known" : "") + '"><i style="width:' + Math.round(mm * 100) + '%"></i></span>' + (mk ? "🏆 已掌握" : Math.round(mm * 100) + "%") + "</span>" : "";
     const ex = e && (e.examples || []).find(y => Array.isArray(y) && y[0]);
     let cx = o.x ? (o.x.ph ? o.x.ctx || "" : o.x.t) : (o.ctx && o.ctx.t) || (ex ? String(ex[0]).replace(/[{}]/g, "") : ""), tr = o.x ? (o.x.ph ? "" : o.x.tr || "") : ex ? ex[1] || "" : "";
     if (o.x && !o.x.ph) cx = ""; // 整句本身就是标题
