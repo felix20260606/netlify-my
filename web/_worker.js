@@ -135,7 +135,7 @@ async function vocab(req, env) {
     else if (b.replace && typeof b.replace === "object") next = vnorm(b.replace);
     else if (isObj(b.patch)) { // 只改复习进度 / 掌握状态（插件每练一张卡发一次，不用传整本生词本）
       unpoison(b.patch);
-      if (isObj(b.patch.progress) && b.patch.progress.v_possessions === "known" && Date.now() < Date.UTC(2026, 11, 1) && !(stored.srs.v_possessions && stored.srs.v_possessions.s >= 60)) delete b.patch.progress.v_possessions; // 插件里测试时误标的「已知」写回来的：12 月前不收（真练到已掌握会带着稳定度 ≥ 60）
+      if (isObj(b.patch.progress) && b.patch.progress.v_possessions === "known" && Date.now() < Date.UTC(2026, 11, 1) && !(stored.srs.v_possessions && stored.srs.v_possessions.s >= 60) && !(isObj(b.patch.srs) && b.patch.srs.v_possessions && b.patch.srs.v_possessions.s >= 60)) delete b.patch.progress.v_possessions; // 插件里测试时误标的「已知」写回来的：12 月前不收（真练到已掌握会带着稳定度 ≥ 60）
       next = vnorm(JSON.parse(before)); next.srs = srsMerge(next.srs, isObj(b.patch.srs) ? b.patch.srs : {});
       if (isObj(b.patch.progress)) for (const k in b.patch.progress) { const v = b.patch.progress[k]; if (v === "known" || v === "learning") next.progress[k] = v; }
       if (Array.isArray(b.patch.deleted) && b.patch.deleted.length) { const del = new Set(next.deleted.concat(b.patch.deleted.filter(x => typeof x === "string").slice(0, 500))); next.deleted = [...del]; next.custom = next.custom.filter(e => !del.has(e.id)); } // 插件「已保存」页里删除生词本词条
