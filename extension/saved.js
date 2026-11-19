@@ -71,7 +71,9 @@ function srcCell(m, c) {
   const url = "https://www.youtube.com/watch?v=" + encodeURIComponent(o.v) + "&t=" + Math.max(0, Math.floor(o.s || 0)) + "s", title = (m && m.title) || "YouTube";
   return '<a href="' + url + '" target="_blank" rel="noopener" title="' + esc(title + (m && m.ch ? " · " + m.ch : "") + " · " + tm(o.s || 0)) + '">' + (m && m.img ? '<img src="' + m.img + '" alt="">' : '<span class="yt">' + I("play") + "</span>") + '<span class="ti">' + esc(title) + "</span></a>";
 }
-function stage(w) { return '<span class="stg" title="复习阶段和下次复习时间">' + I("book") + stage0(w) + "</span>"; }
+// 掌握进度：和网站「🔊 练习」、列表同一个算法——稳定度到 60 天 = 100 % 已掌握，中间按对数换算
+const mastOf = w => { const r = srs[w]; if (marks[w] === "known" || (r && (r.s ? r.s >= 60 : r.b >= DONE))) return 1; if (!r || !(r.s || r.b)) return 0; const s = r.s || [0.4, 1, 3, 7, 16, 35, 90][r.b || 0] || 0.4; return Math.min(1, Math.log(1 + s) / Math.log(61)); };
+function stage(w) { const m = mastOf(w), k = m >= 1, p = Math.round(m * 100); return '<span class="stg' + (k ? " known" : "") + '" title="掌握进度（稳定度到 60 天算已掌握）· ' + esc(stage0(w)) + '">' + I("book") + '<span class="mb"><i style="width:' + p + '%"></i></span><b>' + (k ? "🏆 已掌握" : p + "%") + "</b>" + (k ? "" : "<small>" + esc(stage0(w)) + "</small>") + "</span>"; }
 function stage0(w) { const r = srs[w]; if (!r) return "未开始"; if (r.s ? r.s >= 60 : r.b >= DONE) return "已学会"; const d = r.due - Date.now(); return (r.s ? "能记 " + Math.round(r.s) + " 天" : "第 " + (r.b + 1) + " 级") + " · " + (d <= 0 ? "到期" : d < DAY ? Math.ceil(d / 36e5) + " 小时后" : Math.ceil(d / DAY) + " 天后"); } // 和网站「🔊 练习」一样按遗忘曲线：稳定度到 60 天算已学会
 function ctxHtml(t, w) { const L = lem(w); return vsMark(esc(t), S).replace(/<span class="vs-w ([^"]*)" data-w="([^"]+)">/g, (a, cl, x) => (x.toLowerCase() === w || lem(x) === L || lem(x) === w ? '<span class="vs-w wb" data-w="' + x + '">' : a)); }
 function head() {

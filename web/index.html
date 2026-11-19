@@ -140,6 +140,9 @@
     }
   }
   .card.known{box-shadow:0 0 0 2px var(--gold) inset}
+  /* 掌握进度（列表卡片、网站版已保存）：已掌握用金色 */
+  .pp-mb{display:inline-block;vertical-align:middle;width:64px;height:6px;border-radius:3px;background:var(--ui-surface-3,#363940);overflow:hidden}.pp-mb i{display:block;height:100%;background:var(--ui-pur,#9C3FD0);border-radius:3px}.pp-mb.known i{background:linear-gradient(90deg,#f6c453,#ffdf80)}
+  .mprog{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--ui-muted,#959ca5)}.mprog .pp-mb{width:90px}.mprog b{font-weight:700;color:var(--ui-ink-2,#c9ced4)}.mprog.known b{color:#f6c453}
   .stamp{
     position:absolute;top:10px;right:10px;font-family:var(--ui-font);
     font-size:10px;letter-spacing:.18em;text-transform:uppercase;
@@ -1113,6 +1116,16 @@ function speak(text){
 }
 
 /* ===== self-test (cover & reveal) ===== */
+/* ===== 掌握进度（和「🔊 练习」pump.js 同一个算法）：稳定度到 60 天 = 100 % 已掌握，中间按对数换算 ===== */
+function masteryOf(w){
+  if(!w)return 0; if(w.status==="known")return 1;
+  const r=(state.srs||{})[w.id]; if(!r||!(r.s||r.b))return 0;
+  const s=r.s||[0.4,1,3,7,16,35,90][r.b||0]||0.4; return Math.min(1,Math.log(1+s)/Math.log(61));
+}
+function masteryHtml(w){
+  const m=masteryOf(w),k=m>=1,p=Math.round(m*100);
+  return `<div class="mprog${k?" known":""}" title="掌握进度：稳定度到 60 天（两个月后还有九成把握记得）算已掌握"><span class="pp-mb${k?" known":""}"><i style="width:${p}%"></i></span><b>${k?"🏆 已掌握":p+"%"}</b></div>`;
+}
 /* ===== list ===== */
 function renderList(){
   const box=document.getElementById("list");
@@ -1131,6 +1144,7 @@ function renderList(){
          ${w.phon?`<div class="phon">${w.phon}</div>`:""}
          ${w.en?`<div class="endef">${w.en}</div>`:""}
          <div class="tagrow">${w.tag?`<span class="tag">${w.tag}</span>`:""}<span class="tag">${w.date||""}</span></div>
+         ${masteryHtml(w)}
        </div>
        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
      </div>
@@ -1546,6 +1560,6 @@ refresh(); // show seed words immediately, no waiting on storage
 <script src="watch.js?v=13"></script>
 <script src="channels.js?v=3"></script>
 <script src="pump.js?v=15"></script>
-<script src="saved-web.js?v=2"></script>
+<script src="saved-web.js?v=3"></script>
 </body>
 </html>

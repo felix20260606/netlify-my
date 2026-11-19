@@ -16,6 +16,8 @@
   .sw-tx{flex:1 1 auto;min-width:0}
   .sw-w{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px}.sw-w b{font-size:18px;color:var(--ui-ink)}.sw-w .ph{color:var(--ui-muted);font-size:13px}
   .sw-st{font-size:11.5px;border-radius:999px;padding:0 8px;line-height:20px;background:var(--ui-orange-soft);color:var(--ui-orange)}.sw-st.k{background:var(--ui-green-soft);color:var(--ui-green)}
+  .sw-ms{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ui-muted)}.sw-ms .pp-mb{width:56px;height:5px}.sw-ms.k{color:#f6c453;font-weight:700}
+  .sw-it.k{border-color:rgba(246,196,83,.55)}
   .sw-zh{margin-top:3px;color:var(--ui-ink-2);font-size:14px}
   .sw-cx{margin-top:7px;font-size:13.5px;color:var(--ui-ink-2);line-height:1.5}.sw-cx em{font-style:normal;color:var(--ui-orange);font-weight:700}.sw-cx .tr{display:block;color:var(--ui-muted);font-size:12.5px}
   .sw-bt{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.sw-bt button{height:28px;border-radius:8px;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);font:inherit;font-size:12.5px;padding:0 10px;cursor:pointer}.sw-bt button:hover{border-color:var(--ui-pur);color:var(--ui-pur-text)}
@@ -38,14 +40,15 @@
   }
   function wikiImgs(o) { if (!o || o.off || !o.c || !o.c.length) return []; const c = o.c, s = (o.o || 0) % c.length; return c.slice(s).concat(c.slice(0, s)).slice(0, 2); }
   function card(o, i) {
-    const e = o.e, st = e ? (e.status === "known" ? '<span class="sw-st k">已掌握</span>' : '<span class="sw-st">学习中</span>') : "";
+    const e = o.e, mm = e && typeof masteryOf === "function" ? masteryOf(e) : 0, mk = mm >= 1; // 掌握进度：和练习、列表同一个算法
+    const st = e ? '<span class="sw-ms' + (mk ? " k" : "") + '" title="掌握进度：稳定度到 60 天算已掌握"><span class="pp-mb' + (mk ? " known" : "") + '"><i style="width:' + Math.round(mm * 100) + '%"></i></span>' + (mk ? "🏆 已掌握" : Math.round(mm * 100) + "%") + "</span>" : "";
     const ex = e && (e.examples || []).find(y => Array.isArray(y) && y[0]);
     let cx = o.x ? (o.x.ph ? o.x.ctx || "" : o.x.t) : (o.ctx && o.ctx.t) || (ex ? String(ex[0]).replace(/[{}]/g, "") : ""), tr = o.x ? (o.x.ph ? "" : o.x.tr || "") : ex ? ex[1] || "" : "";
     if (o.x && !o.x.ph) cx = ""; // 整句本身就是标题
     const hl = s => esc(s).replace(new RegExp("\\b(" + o.w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+") + "\\w*)", "i"), "<em>$1</em>");
     const vid = (o.x && o.x.v) || (o.ctx && o.ctx.v) || "", sec = (o.x && o.x.s) || (o.ctx && o.ctx.s) || 0;
     const imgs = o.mk ? "" : wikiImgs(o.wi).map(u => '<img src="' + esc(u) + '" loading="lazy" alt="">').join("");
-    return '<div class="sw-it" data-i="' + i + '"' + (o.mk ? ' data-mk="' + esc(o.mk) + '"' : "") + '><div class="sw-im">' + imgs + '</div><div class="sw-tx">' +
+    return '<div class="sw-it' + (mk ? " k" : "") + '" data-i="' + i + '"' + (o.mk ? ' data-mk="' + esc(o.mk) + '"' : "") + '><div class="sw-im">' + imgs + '</div><div class="sw-tx">' +
       '<div class="sw-w"><b>' + esc(o.w) + "</b>" + (e && e.phon ? '<span class="ph">' + esc(e.phon) + "</span>" : "") + st + (o.tags && o.tags.length ? o.tags.map(t => '<span class="sw-st" style="background:var(--ui-pur-soft);color:var(--ui-pur-text)">' + esc(t) + "</span>").join("") : "") + "</div>" +
       '<div class="sw-zh">' + esc((e && e.zh) || (o.x && o.x.tr) || "") + "</div>" +
       (cx ? '<div class="sw-cx">' + hl(cx) + (tr ? '<span class="tr">' + esc(tr) + "</span>" : "") + "</div>" : "") +
