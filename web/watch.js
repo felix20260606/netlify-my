@@ -210,14 +210,14 @@
   const VS_FILES = ["freq.js", "vlevel.js", "gram.js", "pattern.js", "data-phrases.js", "data-words.js", "data-morph.js", "notes.js"];
   const VS_DEF = { showMarks: true, level: -1, ratio: 1.5, greenKnown: false, fadeRare: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", showGram: true, gramLabel: "abbr", g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, showPat: true, n_phrase: true, n_spoken: true, n_link: true, n_word: true, cloze: false, target: "zh-CN" };
   const VS_CSS = `
-  #view-video .vs-w{cursor:pointer;border-radius:3px}
-  #view-video .vs-w.vs-k{color:var(--vs-ck,#7CE3B8)}#view-video .vs-w.vs-u1,#view-video .vs-w.vs-ln{color:var(--vs-cs,#FFB86B)}#view-video .vs-w.vs-u2{color:var(--vs-ci,#CDA8F7)}#view-video .vs-w.vs-sp{color:var(--vs-cp,#7CE3B8)}
-  #view-video .vs-w.vs-rare{opacity:.55}
-  #view-video .vs-w.vs-lo{box-shadow:inset 0 0 0 1.5px #E9CF8A;background:rgba(255,226,140,.14);border-radius:6px;padding:0 3px}
-  #view-video .vs-w.vs-pk{background:rgba(120,175,240,.32);box-shadow:0 0 0 2px rgba(120,175,240,.32);border-radius:4px}
-  #view-video .vs-w[class*=" g-"]{text-underline-offset:4px}
-  #view-video .vs-w.g-pa{text-decoration:underline solid #5BB0FF 2px}#view-video .vs-w.g-pf{text-decoration:underline double #35D0BA 2px}#view-video .vs-w.g-pg{text-decoration:underline wavy #8EE05A 2px}#view-video .vs-w.g-md{text-decoration:underline dashed #FF8FC7 2px}#view-video .vs-w.g-pv{text-decoration:underline solid #FF7A59 3.5px}#view-video .vs-w.g-s3{text-decoration:underline dotted #5BB0FF 2.5px}#view-video .vs-w.g-pl{text-decoration:underline dotted #B0B7C0 2.5px}#view-video .vs-w.g-art{text-decoration:underline dotted #E8D36B 2.5px}#view-video .vs-w.g-cmp{text-decoration:underline dashed #C9A0FF 2px}#view-video .vs-w.g-neg{box-shadow:inset 0 2px 0 #FF5C5C}
-  #view-video .vs-w.vs-ph{background:rgba(255,226,140,.13);box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A;border-radius:0;padding:0 2px}#view-video .vs-w.vs-ph.ph-s{border-radius:5px 0 0 5px;box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A,inset 1.5px 0 0 #E9CF8A}#view-video .vs-w.vs-ph.ph-e{border-radius:0 5px 5px 0;box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A,inset -1.5px 0 0 #E9CF8A}
+  :is(#view-video,#pump) .vs-w{cursor:pointer;border-radius:3px}
+  :is(#view-video,#pump) .vs-w.vs-k{color:var(--vs-ck,#7CE3B8)}:is(#view-video,#pump) .vs-w.vs-u1,:is(#view-video,#pump) .vs-w.vs-ln{color:var(--vs-cs,#FFB86B)}:is(#view-video,#pump) .vs-w.vs-u2{color:var(--vs-ci,#CDA8F7)}:is(#view-video,#pump) .vs-w.vs-sp{color:var(--vs-cp,#7CE3B8)}
+  :is(#view-video,#pump) .vs-w.vs-rare{opacity:.55}
+  :is(#view-video,#pump) .vs-w.vs-lo{box-shadow:inset 0 0 0 1.5px #E9CF8A;background:rgba(255,226,140,.14);border-radius:6px;padding:0 3px}
+  :is(#view-video,#pump) .vs-w.vs-pk{background:rgba(120,175,240,.32);box-shadow:0 0 0 2px rgba(120,175,240,.32);border-radius:4px}
+  :is(#view-video,#pump) .vs-w[class*=" g-"]{text-underline-offset:4px}
+  :is(#view-video,#pump) .vs-w.g-pa{text-decoration:underline solid #5BB0FF 2px}:is(#view-video,#pump) .vs-w.g-pf{text-decoration:underline double #35D0BA 2px}:is(#view-video,#pump) .vs-w.g-pg{text-decoration:underline wavy #8EE05A 2px}:is(#view-video,#pump) .vs-w.g-md{text-decoration:underline dashed #FF8FC7 2px}:is(#view-video,#pump) .vs-w.g-pv{text-decoration:underline solid #FF7A59 3.5px}:is(#view-video,#pump) .vs-w.g-s3{text-decoration:underline dotted #5BB0FF 2.5px}:is(#view-video,#pump) .vs-w.g-pl{text-decoration:underline dotted #B0B7C0 2.5px}:is(#view-video,#pump) .vs-w.g-art{text-decoration:underline dotted #E8D36B 2.5px}:is(#view-video,#pump) .vs-w.g-cmp{text-decoration:underline dashed #C9A0FF 2px}:is(#view-video,#pump) .vs-w.g-neg{box-shadow:inset 0 2px 0 #FF5C5C}
+  :is(#view-video,#pump) .vs-w.vs-ph{background:rgba(255,226,140,.13);box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A;border-radius:0;padding:0 2px}:is(#view-video,#pump) .vs-w.vs-ph.ph-s{border-radius:5px 0 0 5px;box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A,inset 1.5px 0 0 #E9CF8A}:is(#view-video,#pump) .vs-w.vs-ph.ph-e{border-radius:0 5px 5px 0;box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A,inset -1.5px 0 0 #E9CF8A}
   #view-video.vs-cloze .wt-sub .en .vs-w:is(.vs-u1,.vs-u2,.vs-lo,.vs-ln){color:transparent!important;background:rgba(255,255,255,.16);border-radius:4px;border-bottom:2px dashed rgba(255,255,255,.55)}#view-video.vs-cloze .wt-sub .en .vs-w:is(.vs-u1,.vs-u2,.vs-lo,.vs-ln):hover{color:#fff!important}
   .wt-sub .vs-p{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:8px}
   .wt-sub .vs-pc{cursor:pointer;font:600 13px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif;color:#d8e9ff;background:rgba(47,109,176,.38);border:1px solid rgba(120,175,240,.45);border-radius:999px;padding:1px 10px;text-align:left}
@@ -239,6 +239,7 @@
     })().catch(() => { vsP = null; });
     return vsP;
   }
+  window.__vs = { load: () => vsLoad(), ready: () => !!VS, html: t => (VS ? vsHtml(t) : null) }; // 练习页（pump.js）也用同一套上色
   async function vsData() {
     let it = {}; try { it = (await (await fetch("/api/ext", { cache: "no-store" })).json()).items || {}; } catch (e) {}
     const S = Object.assign({}, VS_DEF), marks = {}, saved = new Set(), sents = [];

@@ -188,6 +188,15 @@ async function vocabMark(word, st) {
   if (!e) return { ok: false, missing: true };
   return vocabPatch({ progress: { [e.id]: st } });
 }
+// 「排到下次复习的最前面」：把这个词的复习时间改成现在（写进生词本的复习进度，网站「🔊 练习」下一组最先练它）
+async function reviewNext(word) {
+  const k = String(word || "").toLowerCase().trim(); if (!k) return { ok: false };
+  let nb = (await chrome.storage.local.get({ vocabCache: null })).vocabCache;
+  const find = d => ((d && d.custom) || []).find(e => e && String(e.word || "").toLowerCase().trim() === k);
+  let e = find(nb); if (!e) { try { nb = await vocabGet(); await chrome.storage.local.set({ vocabCache: nb }); e = find(nb); } catch (er) {} }
+  const id = e ? e.id : "v_" + k.replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+  return vocabPatch({ srs: { [id]: Object.assign({ b: 0, n: 0 }, (nb && nb.srs && nb.srs[id]) || {}, { due: 1, at: Date.now() }) } });
+}
 async function flushSrs() { const q = (await chrome.storage.local.get({ srsQueue: null })).srsQueue; if (q && (Object.keys(q.srs || {}).length || Object.keys(q.progress || {}).length)) vocabPatch({}); }
 async function syncAll(tl) {
   const st = await chrome.storage.local.get({ saved: [], savedSents: [], savedCtx: {} });
@@ -228,9 +237,9 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "pending") vocabGet().then(d => send({ pending: d.pending || [] })).catch(() => send({}));
   else if (m.type === "openSettings") { chrome.windows.create({ url: chrome.runtime.getURL("popup.html"), type: "popup", width: 340, height: 760 }); send({}); }
   else if (m.type === "openLevel") { chrome.runtime.openOptionsPage(); send({}); }
-  else if (m.type === "openSaved") { chrome.tabs.create({ url: chrome.runtime.getURL("saved.html") }); send({}); }
+  else if (m.type === "openSaved") { chrome.tabs.create({ url: SITE + "/?go=saved" }); send({}); } // 已保存统一从网站生词本进（里面嵌的就是插件页面，能编辑）
   else if (m.type === "tts") tts(m.text, m.lang).then(a => send({ a })).catch(() => send({ a: "" }));
-  else if (m.type === "openReview") { chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); send({}); }
+  else if (m.type === "openReview") { chrome.tabs.create({ url: SITE + "/?go=pump" }); send({}); } // 复习统一用网站「🔊 练习」（手机、电脑同一个，进度同一份）
   else if (m.type === "sentences") sentences(m.word, m.tl, m.sl).then(s => send({ s })).catch(() => send({ s: [] }));
   else if (m.type === "add") addWord(m.word, m.queueOnly, m).then(send);
   else if (m.type === "capUp") { fetch(SITE + "/api/cap", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(m.body) }).then(r => r.json()).then(send).catch(() => send({ ok: false })); }
@@ -238,6 +247,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "vocab") vocabGet().then(d => { chrome.storage.local.set({ vocabCache: d }); flushSrs(); send(d); }).catch(() => chrome.storage.local.get({ vocabCache: null }, v => send(Object.assign({ offline: true }, v.vocabCache || {}))));
   else if (m.type === "vocabPatch") vocabPatch(m.patch).then(send);
   else if (m.type === "vocabMark") vocabMark(m.word, m.st).then(send);
+  else if (m.type === "reviewNext") reviewNext(m.word).then(send);
   else if (m.type === "extSync") fullSync().then(send);
   else if (m.type === "pageSync") { if (Date.now() - fullAt > 120000) fullSync(); send({}); } // 打开 YouTube 页面：两分钟内最多同步一次
   else return false;
@@ -250,7 +260,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
 // 录音截图很大，每条单独存（/api/media），整份数据里只放它的索引；本机没有的从云端下载
 const EXT = SITE + "/api/ext", MEDIA = SITE + "/api/media";
 const SY_ARR = { saved: w => String(w || "").toLowerCase(), savedSents: x => x && x.k }; // 列表：按小写词 / 句子的 k 区分
-const SY_MAP = ["savedCtx", "marks", "tags"];                                           // 对象：按里面的键区分
+const SY_MAP = ["savedCtx", "marks", "tags", "sugg"];                                           // 对象：按里面的键区分
 const SY_ONE = ["reviewOpt", "reviewRate", "dictHist", "showCtx", "wtipOff"];             // 整个值一起
 const syHash = x => { const s = JSON.stringify(x); let h = 5381; for (let i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0; return s.length + ":" + (h >>> 0).toString(36); };
 const medSig = r => r ? [r.at || 0, (r.aud || "").length, (r.img || "").length, (r.img2 || "").length].join(":") : "";
@@ -333,6 +343,10 @@ async function nbApply() {
   });
   if (ch) await chrome.storage.local.set({ saved, marks });
   if (Object.keys(toKnown).length) await vocabPatch({ progress: toKnown });
+  // 插件早期在本机按词记的复习进度：生词本里还没有的迁移上去，然后清掉（以前由插件复习页做，复习页已并进网站「练习」）
+  const old = (await chrome.storage.local.get({ srs: {} })).srs || {}, cloud = nb.srs || {}, mig = {};
+  for (const k in old) { const e = (nb.custom || []).find(x => x && String(x.word || "").toLowerCase().trim() === k), id = e ? e.id : "v_" + k.replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, ""); if (!cloud[id] && old[k] && old[k].due) mig[id] = Object.assign({ at: Date.now() }, old[k]); }
+  if (Object.keys(old).length) { const r = Object.keys(mig).length ? await vocabPatch({ srs: mig }) : { ok: true }; if (r.ok) await chrome.storage.local.remove("srs"); }
   return { ok: true, changed: ch };
 }
 let fullAt = 0;

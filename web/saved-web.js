@@ -1,12 +1,11 @@
 /* ⭐ 已保存（网站版）：没装插件的设备（手机、别的浏览器）也能看插件里保存的单词、句子和短语，
    带视频截图、原声、配图、出处和中文；数据来自 Cloudflare 的 /api/ext 和 /api/media，和插件是同一份。
-   装了插件的电脑上，「⭐ 已保存」仍然直接打开插件自己的页面（能编辑）。 */
+   生词本「⭐ 已保存」模式：装了插件的电脑上仍然直接嵌入插件自己的页面（能编辑）。 */
 (function () {
   const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const CSS = `
-  #ext-web{display:none;flex:1 1 auto;min-height:0;overflow:auto;padding:14px 16px 40px}
-  #view-ext.web #ext-web{display:block}#view-ext.web iframe,#view-ext.web .ext-bar,#view-ext.web #ext-none{display:none!important}
-  .sw{max-width:1100px;margin:0 auto}
+  #ext-web{display:none;padding:6px 0 30px}#savedbox.web #ext-web{display:block}
+  .sw{max-width:1200px;margin:0 auto}
   .sw-hd{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
   .sw-hd h2{margin:0;font-size:19px;color:var(--ui-ink)}.sw-hd .n{color:var(--ui-muted);font-size:13px}
   .sw-hd input{flex:1 1 200px;min-width:0;height:36px;border-radius:10px;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);padding:0 12px;font:inherit}

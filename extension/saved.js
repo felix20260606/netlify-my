@@ -209,7 +209,7 @@ function removeKeys0(keys) {
 }
 function draw() { head(); if (tab === "words") drawWords(); else if (tab === "sents") drawSents(); else drawAll(); }
 $$(".tabs b").forEach(b => (b.onclick = () => { tab = b.dataset.t; q = ""; src = ""; page = 0; picked.clear(); if (tab !== "words") sort = "date"; draw(); scrollTo(0, 0); }));
-$("#rv").onclick = () => (location.href = "review.html");
+$("#rv").onclick = () => window.open("https://ruilearning-my.pages.dev/?go=pump", "_top"); // 复习统一用网站「🔊 练习」（嵌在网站里时整页切过去）
 // 导出：制表符分隔的文本，Anki 的“导入文件”可以直接读（正面 / 背面 / 例句 / 例句翻译 / 来源 / 标签）
 $("#exp").onclick = async () => {
   const b = $("#exp"); b.disabled = true; const rows = [], clean = x => String(x || "").replace(/[\t\r\n]+/g, " ");
@@ -277,7 +277,7 @@ function drawDict(w, res) {
   $("#dmore").onclick = () => { drawDict.open = !drawDict.open; drawDict(w, res); };
   d.querySelectorAll("[data-m]").forEach(b => (b.onclick = () => fresh(() => { setMark(w, stateOf(w) === b.dataset.m ? "" : b.dataset.m); redraw(); })));
   d.querySelectorAll("[data-tg]").forEach(b => (b.onclick = () => fresh(() => { if (b.dataset.tg) tags[w] = b.dataset.tg; else delete tags[w]; selfWrite = Date.now(); chrome.storage.local.set({ tags }, redraw); })));
-  if ($("#dnext")) $("#dnext").onclick = () => fresh(() => { if (stateOf(w) !== "learn") setMark(w, "learn"); const key = saved.find(x => x === w || lem(x) === lem(w)) || w; srs[key] = Object.assign({ b: 0, n: 0 }, srs[key], { due: 1 }); chrome.storage.local.set({ srs }, () => { redraw(); }); });
+  if ($("#dnext")) $("#dnext").onclick = () => fresh(() => { if (stateOf(w) !== "learn") setMark(w, "learn"); const key = saved.find(x => x === w || lem(x) === lem(w)) || w; srs[key] = Object.assign({ b: 0, n: 0 }, srs[key], { due: 1 }); send({ type: "reviewNext", word: key }).then(() => redraw()); });
 }
 // 别处（视频页、复习页）改了数据：这里自动跟着刷新
 let extT = null;

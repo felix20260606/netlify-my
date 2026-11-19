@@ -20,7 +20,7 @@ els.forEach(el => { const h = () => { V[el.dataset.k] = val(el); chrome.storage.
 $("sizePreset").onchange = e => { if (!e.target.value) return; V.origSize = V.trSize = +e.target.value; chrome.storage.sync.set({ origSize: V.origSize, trSize: V.trSize }); show(); };
 $("rst").onclick = () => { const o = {}; LOOK.forEach(k => (o[k] = V[k] = D[k])); chrome.storage.sync.set(o); show(); };
 $("lv").onclick = () => chrome.runtime.openOptionsPage();
-$("sv").onclick = e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("saved.html") }); };
+$("sv").onclick = e => { e.preventDefault(); chrome.tabs.create({ url: "https://ruilearning-my.pages.dev/?go=saved" }); }; // 已保存统一从网站生词本进（里面嵌的就是插件页面）
 chrome.storage.sync.get(D, v => { V = v; show(); });
 chrome.storage.onChanged.addListener((c, a) => { if (a !== "sync") return; for (const k in c) if (k in V) V[k] = c[k].newValue; show(); });
 chrome.storage.local.get({ saved: [], trackLangs: [] }, v => {
@@ -34,4 +34,4 @@ $("audio").onchange = e => chrome.storage.local.set({ audioPick: { i: e.target.v
 document.addEventListener("click", e => { const i = e.target.closest(".inf"); if (!i) return; e.preventDefault(); const h = i.closest("label").nextElementSibling; if (h && h.classList.contains("hint")) h.classList.toggle("on"); });
 
 $("sy").onclick = e => { e.preventDefault(); $("syr").textContent = "同步中…"; chrome.runtime.sendMessage({ type: "syncAll", tl: V.target }, r => { $("syr").textContent = !r || !r.cloud ? "同步失败（未配置或网络问题）" : "新增 " + (r.added || 0) + " 个，网站共 " + r.total + " 个自定义词条"; }); };
-$("rv").onclick = e => { e.preventDefault(); chrome.tabs.create({ url: chrome.runtime.getURL("review.html") }); };
+$("rv").onclick = e => { e.preventDefault(); chrome.tabs.create({ url: "https://ruilearning-my.pages.dev/?go=pump" }); }; // 复习统一用网站「🔊 练习」

@@ -681,7 +681,7 @@
         if (a === "x") { closeTip(); if (pausedByUs) { const v = video(); if (v) v.play(); pausedByUs = false; } return; }
         if (a === "say") { speak(word); return; }
         if (a === "tag") { const k = word.toLowerCase(), cc = e.target.dataset.c; if (cc) wtags[k] = cc; else delete wtags[k]; chrome.storage.local.set({ tags: wtags }); drawDict(word, tipData); return; }
-        if (a === "next") { const k = word.toLowerCase(); if (vsMarkOf(k) !== "learn") setMark(word, "learn"); chrome.storage.local.get({ srs: {} }, v => { const key = [...savedSet].find(x => vsSame(x, k)) || k; v.srs[key] = Object.assign({ b: 0, n: 0 }, v.srs[key], { due: 1 }); chrome.storage.local.set({ srs: v.srs }, () => toast("已排到下次复习的最前面")); }); return; }
+        if (a === "next") { const k = word.toLowerCase(); if (vsMarkOf(k) !== "learn") setMark(word, "learn"); send({ type: "reviewNext", word: [...savedSet].find(x => vsSame(x, k)) || k }).then(r => toast(r && r.ok ? "已排到下次复习的最前面" : "没连上网络，稍后再试")); return; }
         if (a === "svph") { const ph = word.toLowerCase().trim(), k = "ph|" + ph, at = savedSents.findIndex(x => x.k === k);
           if (at >= 0) { savedSents.splice(at, 1); chrome.storage.local.set({ savedSents }); chrome.storage.local.remove("med:s:" + k); refreshMarks(); toast("已取消保存：" + ph); drawDict(word, tipData); }
           else addPhrase(ph, selCi, true).then(() => drawDict(word, tipData));
