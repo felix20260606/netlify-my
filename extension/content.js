@@ -64,6 +64,7 @@
   chrome.storage.onChanged.addListener((c, a) => { if (a === "local" && c.audioPick && c.audioPick.newValue) window.postMessage({ src: "VS-C", type: "set-audio", index: c.audioPick.newValue.i }, "*"); });
   // 一次性迁移：旧版本的 ✕ 会把侧栏彻底关掉，新版本改为收起，所以把被关掉的侧栏恢复出来
   chrome.storage.local.get({ pm1: false }, v => { if (!v.pm1) { chrome.storage.local.set({ pm1: true }); chrome.storage.sync.set({ panelOpen: true }); } });
+  send({ type: "pageSync" }); // 拿一下云端和生词本的最新状态（别的电脑、网站上的改动）
   // 一次性：把已保存的词补齐成生词本网站上的完整词条
   chrome.storage.local.get({ cloudFill1: false }, v => { if (!v.cloudFill1) setTimeout(() => send({ type: "syncAll", tl: S.target }).then(r => { if (r && r.cloud) { chrome.storage.local.set({ cloudFill1: true }); if (r.added) toast("已同步 " + r.added + " 个词到生词本网站"); } }), 6000); });
   chrome.storage.local.get({ saved: [], savedSents: [], marks: {}, savedCtx: {}, showCtx: false, wtipOff: false, panelMin: false, tags: {} }, v => { wtags = v.tags || {}; panelMin = !!v.panelMin; if (panel) panel.classList.toggle("min", panelMin); savedCtx = v.savedCtx || {}; showCtx = !!v.showCtx; wtip = !v.wtipOff; savedSet = new Set(v.saved.map(w => w.toLowerCase())); VS_SAVED = savedSet; VS_MARKS = v.marks || {}; savedSents = v.savedSents; cur = -1; });

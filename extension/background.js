@@ -238,7 +238,8 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "vocab") vocabGet().then(d => { chrome.storage.local.set({ vocabCache: d }); flushSrs(); send(d); }).catch(() => chrome.storage.local.get({ vocabCache: null }, v => send(Object.assign({ offline: true }, v.vocabCache || {}))));
   else if (m.type === "vocabPatch") vocabPatch(m.patch).then(send);
   else if (m.type === "vocabMark") vocabMark(m.word, m.st).then(send);
-  else if (m.type === "extSync") extSync(true).then(send);
+  else if (m.type === "extSync") fullSync().then(send);
+  else if (m.type === "pageSync") { if (Date.now() - fullAt > 120000) fullSync(); send({}); } // 打开 YouTube 页面：两分钟内最多同步一次
   else return false;
   return true;
 });
@@ -318,6 +319,24 @@ async function syApply(items, L) {
   }
   return { got, wrote: Object.keys(put).length + del.length };
 }
+// 生词本里的掌握状态 → 插件的颜色标记（网站上标为已掌握 / 练到已掌握：字幕里这个词变白、移出「正在学习」；插件里标过已掌握的写回生词本）
+async function nbApply() {
+  let nb; try { nb = await vocabGet(); await chrome.storage.local.set({ vocabCache: nb }); } catch (e) { return { ok: false }; }
+  const st = await chrome.storage.local.get({ saved: [], marks: {} }), del = new Set(nb.deleted || []), P = nb.progress || {}, seen = new Set(), toKnown = {};
+  let saved = st.saved, marks = st.marks, ch = false; const has = k => saved.some(x => String(x).toLowerCase() === k);
+  (nb.custom || []).forEach(e => {
+    if (!e || !e.id || !e.word || del.has(e.id) || (e.type || "word") !== "word") return;
+    const k = String(e.word).toLowerCase().trim(); if (!/^[a-z][a-z'’-]*$/.test(k) || seen.has(k)) return; seen.add(k);
+    if (P[e.id] === "known") { if (marks[k] !== "known") { marks[k] = "known"; ch = true; } if (has(k)) { saved = saved.filter(x => String(x).toLowerCase() !== k); ch = true; } }
+    else if (marks[k] === "known") toKnown[e.id] = "known";
+    else if (!has(k) && marks[k] !== "ignore") { saved.push(k); ch = true; }
+  });
+  if (ch) await chrome.storage.local.set({ saved, marks });
+  if (Object.keys(toKnown).length) await vocabPatch({ progress: toKnown });
+  return { ok: true, changed: ch };
+}
+let fullAt = 0;
+const fullSync = () => { fullAt = Date.now(); return nbApply().catch(() => {}).then(() => extSync(true)); };
 let syBusy = null, syAgain = false, syLast = 0, syT = 0;
 function extSyncSoon(ms) { clearTimeout(syT); syT = setTimeout(() => extSync(), ms == null ? 4000 : ms); }
 function extSync(force) {
@@ -371,6 +390,6 @@ chrome.storage.onChanged.addListener((c, area) => {
   if (Object.keys(med).length) medIdxUpdate(med);
   if (hit) extSyncSoon();
 });
-chrome.runtime.onStartup.addListener(() => extSyncSoon(3000));
-chrome.runtime.onInstalled.addListener(() => { chrome.alarms.create("extSync", { periodInMinutes: 15 }); extSyncSoon(3000); });
-chrome.alarms.onAlarm.addListener(a => { if (a.name === "extSync") extSync(true); });
+chrome.runtime.onStartup.addListener(() => setTimeout(fullSync, 3000));
+chrome.runtime.onInstalled.addListener(() => { chrome.alarms.create("extSync", { periodInMinutes: 15 }); setTimeout(fullSync, 3000); });
+chrome.alarms.onAlarm.addListener(a => { if (a.name === "extSync") fullSync(); });
