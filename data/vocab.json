@@ -16687,6 +16687,186 @@
         ]
       ],
       "tip": ""
+    },
+    {
+      "id": "v_kebab",
+      "type": "word",
+      "word": "kebab",
+      "phon": "/kəbˈɑb/",
+      "en": "A dish usually made of cut meat roasted on a skewer or spit, especially one based on Middle Eastern or South Asian cuisine. A hand-held dish…",
+      "zh": "烤肉串；烤肉霸",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "Best {kebab} I've ever had. If you're ever in Berlin, that was so good.",
+          "我吃过最好吃的烤肉串。如果你有机会去柏林，那真是太棒了。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_skip_the_line",
+      "type": "phrase",
+      "word": "skip the line",
+      "phon": "",
+      "en": "",
+      "zh": "免排队",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "Oh my god, if you {skip the line}. If you skip the line, Germans would be very offended, because everyone has to be in line",
+          "我的天哪，如果你插队的话。如果你插队，德国人会非常生气，因为每个人都必须一个接"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_skip",
+      "type": "word",
+      "word": "skip",
+      "phon": "/skˈɪp/",
+      "en": "To move by hopping on alternate feet.",
+      "zh": "跳过；跳跃；踊跃；跃",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "Oh my god, if you {skip} the line. If you skip the line, Germans would be very offended, because everyone has to be in line",
+          "我的天哪，如果你插队的话。如果你插队，德国人会非常生气，因为每个人都必须一个接"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_offended",
+      "type": "word",
+      "word": "offended",
+      "phon": "/əfˈɛndəd/",
+      "en": "This term needs a definition. Please help out and add a definition, then remove the text {{rfdef}}.",
+      "zh": "冒犯了；生气的",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "Oh my god, if you skip the line. If you skip the line, Germans would be very {offended}, because everyone has to be in line",
+          "我的天哪，如果你插队的话。如果你插队，德国人会非常生气，因为每个人都必须一个接"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_assumed",
+      "type": "word",
+      "word": "assumed",
+      "phon": "/əsˈumd/",
+      "en": "simple past and past participle of assume",
+      "zh": "假定；假装的",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "So, I would have {assumed} if you skipped the line in Germany, people would be offended.",
+          "所以，我原本以为如果你在德国插队，人们会觉得被冒犯了。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_stereotypes",
+      "type": "word",
+      "word": "stereotypes",
+      "phon": "/stˈɛɹiətaɪps/",
+      "en": "plural of stereotype",
+      "zh": "刻板印象；铅板；铅印",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "And then Torres is literally proving at the moment that {stereotypes} are not really working. This guy's skipping the line.",
+          "而托雷斯目前正在用实际行动证明，刻板印象其实并不奏效。这家伙插队了。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_good_looking",
+      "type": "word",
+      "word": "good-looking",
+      "phon": "/ɡˈʊdlʊkɪŋ/",
+      "en": "Physically attractive (of a person).",
+      "zh": "好看；睆；美貌；漂亮",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "I'm just too {good-looking}, man. They let me jump the line.",
+          "我长得太帅了，老兄。他们让我插队了。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_licking",
+      "type": "word",
+      "word": "licking",
+      "phon": "/lˈɪkɪŋ/",
+      "en": "The act by which something is licked.",
+      "zh": "舔；舐；打败；餂",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "they're all camping here until I see the guy just start {licking} things and we saw the knife.",
+          "这里露营，直到我看到那个人开始舔东西，然后我们还看到了刀。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_pickpocket",
+      "type": "word",
+      "word": "pickpocket",
+      "phon": "/pˈɪkpɑkət/",
+      "en": "One who steals from the pocket of a passerby, usually by sleight of hand.",
+      "zh": "扒手；掱",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "Have you ever been {pickpocket}?",
+          "你曾被扒窃过吗？"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_chilling",
+      "type": "word",
+      "word": "chilling",
+      "phon": "/tʃˈɪlɪŋ/",
+      "en": "Becoming cold.",
+      "zh": "令人不寒而栗；变冷；镇；使冷",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "{chilling} and sitting down.",
+          "放松地坐着。"
+        ]
+      ],
+      "tip": ""
     }
   ],
   "progress": {
@@ -16710,7 +16890,9 @@
     "v_bone": "known",
     "v_happen": "known",
     "v_pump": "known",
-    "v_cuz": "learning"
+    "v_cuz": "learning",
+    "v_skip": "known",
+    "v_stereotypes": "learning"
   },
   "deleted": [
     "u_1782668109496_exc6",

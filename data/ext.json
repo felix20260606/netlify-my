@@ -1,5 +1,5 @@
 {
-  "ver": 1795083732374,
+  "ver": 1795102103832,
   "items": {
     "saved|applause": {
       "v": "Applause",
@@ -2896,12 +2896,12 @@
       "at": 1795083714909
     },
     "set|below": {
-      "v": false,
-      "at": 1795083714909
+      "v": true,
+      "at": 1795089899153
     },
     "set|bgOpacity": {
-      "v": 39,
-      "at": 1795083714909
+      "v": 73,
+      "at": 1795090339854
     },
     "set|blurTrans": {
       "v": false,
@@ -2948,8 +2948,8 @@
       "at": 1795083714909
     },
     "set|gramLabel": {
-      "v": "zh",
-      "at": 1795083714909
+      "v": "off",
+      "at": 1795102103677
     },
     "set|greenKnown": {
       "v": false,
@@ -2972,8 +2972,8 @@
       "at": 1795083714909
     },
     "set|merge": {
-      "v": false,
-      "at": 1795083714909
+      "v": true,
+      "at": 1795089755057
     },
     "set|origSize": {
       "v": 100,
@@ -2988,8 +2988,8 @@
       "at": 1795083714909
     },
     "set|posBottom": {
-      "v": 10,
-      "at": 1795083714909
+      "v": 19,
+      "at": 1795090339854
     },
     "set|ratio": {
       "v": 1,
@@ -3158,6 +3158,235 @@
     "med|med:w:wrist": {
       "v": "1795079032088:0:11531:0",
       "at": 1795083714909
+    },
+    "saved|kebab": {
+      "v": "kebab",
+      "at": 1795089804964
+    },
+    "savedCtx|kebab": {
+      "v": {
+        "at": 1795089800883,
+        "s": 126.28,
+        "t": "Best kebab I've ever had. If you're ever in Berlin, that was so good.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795089804964
+    },
+    "med|med:w:kebab": {
+      "v": "1795089800884:30419:16299:18115",
+      "at": 1795089813223
+    },
+    "savedCtx|skip": {
+      "v": {
+        "at": 1795089930220,
+        "s": 178.36,
+        "t": "Oh my god, if you skip the line. If you skip the line, Germans would be very offended, because everyone has to be in line",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795089935958
+    },
+    "marks|skip": {
+      "v": "known",
+      "at": 1795089935958
+    },
+    "med|med:w:skip": {
+      "v": "1795089930220:42739:21983:25475",
+      "at": 1795089957543
+    },
+    "savedSents|ph|skip the line": {
+      "v": {
+        "at": 1795089945010,
+        "ctx": "Oh my god, if you skip the line. If you skip the line, Germans would be very offended, because everyone has to be in line",
+        "k": "ph|skip the line",
+        "ph": 1,
+        "s": 178.36,
+        "t": "skip the line",
+        "tr": "免排队",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795089949064
+    },
+    "med|med:s:ph|skip the line": {
+      "v": "1795089945010:42739:21983:25475",
+      "at": 1795089957543
+    },
+    "saved|offended": {
+      "v": "offended",
+      "at": 1795089957543
+    },
+    "savedCtx|offended": {
+      "v": {
+        "at": 1795089953495,
+        "s": 178.36,
+        "t": "Oh my god, if you skip the line. If you skip the line, Germans would be very offended, because everyone has to be in line",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795089957543
+    },
+    "med|med:w:offended": {
+      "v": "1795089953495:42739:21983:25475",
+      "at": 1795089957543
+    },
+    "saved|assumed": {
+      "v": "assumed",
+      "at": 1795090071376
+    },
+    "savedCtx|assumed": {
+      "v": {
+        "at": 1795090067302,
+        "s": 240.92,
+        "t": "So, I would have assumed if you skipped the line in Germany, people would be offended.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795090071376
+    },
+    "med|med:w:assumed": {
+      "v": "1795090067302:24635:23479:24411",
+      "at": 1795090078139
+    },
+    "wimg|assumed": {
+      "v": {
+        "c": [],
+        "o": 0
+      },
+      "at": 1795090078139
+    },
+    "saved|stereotypes": {
+      "v": "stereotypes",
+      "at": 1795090114193
+    },
+    "savedCtx|stereotypes": {
+      "v": {
+        "at": 1795090110156,
+        "s": 246.28,
+        "t": "And then Torres is literally proving at the moment that stereotypes are not really working. This guy's skipping the line.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795090114193
+    },
+    "wimg|stereotypes": {
+      "v": {
+        "c": [
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/V%C3%B6lkertafel.jpg/500px-V%C3%B6lkertafel.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Minstrel_PosterBillyVanWare_edit.jpg/500px-Minstrel_PosterBillyVanWare_edit.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Bettie_Page_driving.jpg/500px-Bettie_Page_driving.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Cops_in_a_Donut_Shop_2011_Shankbone.jpg/500px-Cops_in_a_Donut_Shop_2011_Shankbone.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Mixed_stereotype_content_model_%28Fiske_et_al.%29.png/500px-Mixed_stereotype_content_model_%28Fiske_et_al.%29.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Posters11.jpg/500px-Posters11.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/Stereotype_threat_-_osborne_2007.png/500px-Stereotype_threat_-_osborne_2007.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/TheUsualIrishWayofDoingThings.jpg/500px-TheUsualIrishWayofDoingThings.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        ],
+        "o": 0
+      },
+      "at": 1795090114193
+    },
+    "med|med:w:stereotypes": {
+      "v": "1795090110156:42751:23675:0",
+      "at": 1795090114193
+    },
+    "saved|good-looking": {
+      "v": "good-looking",
+      "at": 1795090159898
+    },
+    "savedCtx|good-looking": {
+      "v": {
+        "at": 1795090155859,
+        "s": 274.08,
+        "t": "I'm just too good-looking, man. They let me jump the line.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795090159898
+    },
+    "med|med:w:good-looking": {
+      "v": "1795090155860:12579:21879:21815",
+      "at": 1795090159898
+    },
+    "set|bgColor": {
+      "v": "#000000",
+      "at": 1795090328288
+    },
+    "saved|licking": {
+      "v": "licking",
+      "at": 1795090274343
+    },
+    "savedCtx|licking": {
+      "v": {
+        "at": 1795090266343,
+        "s": 290.48,
+        "t": "they're all camping here until I see the guy just start licking things and we saw the knife.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795090274343
+    },
+    "wimg|licking": {
+      "v": {
+        "c": [
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Lick_Observatory_Shane_Telescope.jpg/500px-Lick_Observatory_Shane_Telescope.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/Lick_Observatory_%28NBY_18365%29.jpg/500px-Lick_Observatory_%28NBY_18365%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Lick_Observatory_Refractor.jpg/500px-Lick_Observatory_Refractor.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Lick_Observatory_3.JPG/500px-Lick_Observatory_3.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/James_Lick_telescope_c.a._1900.jpg/500px-James_Lick_telescope_c.a._1900.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Lick_Obsevatory_Mount_Hamilton_California.jpg/500px-Lick_Obsevatory_Mount_Hamilton_California.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Lick-Greaves_LO-IV-191H_LTVT.jpg/500px-Lick-Greaves_LO-IV-191H_LTVT.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Lick_Observatory_aerial.jpg/500px-Lick_Observatory_aerial.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        ],
+        "o": 0
+      },
+      "at": 1795090274343
+    },
+    "med|med:w:licking": {
+      "v": "1795090266343:30675:15307:0",
+      "at": 1795090274343
+    },
+    "saved|pickpocket": {
+      "v": "pickpocket",
+      "at": 1795090582169
+    },
+    "savedCtx|pickpocket": {
+      "v": {
+        "at": 1795090578119,
+        "s": 465.84,
+        "t": "Have you ever been pickpocket?",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795090582169
+    },
+    "med|med:w:pickpocket": {
+      "v": "1795090578120:8035:13443:0",
+      "at": 1795090582169
+    },
+    "saved|chilling": {
+      "v": "chilling",
+      "at": 1795090856551
+    },
+    "savedCtx|chilling": {
+      "v": {
+        "at": 1795090852423,
+        "s": 711.92,
+        "t": "chilling and sitting down.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795090856551
+    },
+    "med|med:w:chilling": {
+      "v": "1795090852423:18991:20511:24099",
+      "at": 1795090986835
+    },
+    "wimg|pickpocket": {
+      "v": {
+        "c": [
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Policemen_apprehend_a_pickpocket_taking_a_license_from_a_pub_Wellcome_V0019439.jpg/500px-Policemen_apprehend_a_pickpocket_taking_a_license_from_a_pub_Wellcome_V0019439.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Colmar-PV-Pickpockets.jpg/500px-Colmar-PV-Pickpockets.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Dandy_pickpockets%2C_diving.jpg/500px-Dandy_pickpockets%2C_diving.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/74/Frontispiece_from_the_memoirs_of_George_Barrington.jpg/500px-Frontispiece_from_the_memoirs_of_George_Barrington.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Hieronymus_Bosch_051.jpg/500px-Hieronymus_Bosch_051.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Johann_Liss_002a.jpg/500px-Johann_Liss_002a.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Pickpocket_caught_by_camera_1972-07.png/500px-Pickpocket_caught_by_camera_1972-07.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Watch_for_pickpockets.JPG/500px-Watch_for_pickpockets.JPG?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+        ],
+        "o": 0
+      },
+      "at": 1795100697039
     }
   }
 }

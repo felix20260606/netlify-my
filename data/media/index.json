@@ -1,0 +1,197 @@
+{
+ "med:s:ph|nasal consonant": {
+  "dir": "s",
+  "name": "ph_nasal_consonant",
+  "sig": "1794990183511:55015:18203:0"
+ },
+ "med:s:ph|pump fake": {
+  "dir": "s",
+  "name": "ph_pump_fake",
+  "sig": "1795078707715:0:17803:17803"
+ },
+ "med:s:ph|skip the line": {
+  "dir": "s",
+  "name": "ph_skip_the_line",
+  "sig": "1795089945010:42739:21983:25475"
+ },
+ "med:s:ph|sorts of": {
+  "dir": "s",
+  "name": "ph_sorts_of",
+  "sig": "1795081602379:30747:11063:0"
+ },
+ "med:w:assumed": {
+  "dir": "w",
+  "name": "assumed",
+  "sig": "1795090067302:24635:23479:24411"
+ },
+ "med:w:athletic": {
+  "dir": "w",
+  "name": "athletic",
+  "sig": "1795078588393:0:16847:0"
+ },
+ "med:w:backspin": {
+  "dir": "w",
+  "name": "backspin",
+  "sig": "1795081678716:15507:7891:0"
+ },
+ "med:w:bone": {
+  "dir": "w",
+  "name": "bone",
+  "sig": "1794906056219:28771:10279:0"
+ },
+ "med:w:careless": {
+  "dir": "w",
+  "name": "careless",
+  "sig": "1794905907484:28771:10239:0"
+ },
+ "med:w:chilling": {
+  "dir": "w",
+  "name": "chilling",
+  "sig": "1795090852423:18991:20511:24099"
+ },
+ "med:w:consonant": {
+  "dir": "w",
+  "name": "consonant",
+  "sig": "1794990183465:55015:18203:0"
+ },
+ "med:w:cruel": {
+  "dir": "w",
+  "name": "cruel",
+  "sig": "1794905908665:28771:10239:0"
+ },
+ "med:w:cuz": {
+  "dir": "w",
+  "name": "cuz",
+  "sig": "1795079065422:0:10279:0"
+ },
+ "med:w:dedicated": {
+  "dir": "w",
+  "name": "dedicated",
+  "sig": "1795079561783:18791:7543:0"
+ },
+ "med:w:fake": {
+  "dir": "w",
+  "name": "fake",
+  "sig": "1795078717219:0:17803:10963"
+ },
+ "med:w:flick": {
+  "dir": "w",
+  "name": "flick",
+  "sig": "1795079030533:0:11531:0"
+ },
+ "med:w:genes": {
+  "dir": "w",
+  "name": "genes",
+  "sig": "1795078589872:0:16847:0"
+ },
+ "med:w:good-looking": {
+  "dir": "w",
+  "name": "good_looking",
+  "sig": "1795090155860:12579:21879:21815"
+ },
+ "med:w:growth": {
+  "dir": "w",
+  "name": "growth",
+  "sig": "1794907109098:0:17035:0"
+ },
+ "med:w:happen": {
+  "dir": "w",
+  "name": "happen",
+  "sig": "1794906989964:13295:0:0"
+ },
+ "med:w:impacts": {
+  "dir": "w",
+  "name": "impacts",
+  "sig": "1794907103309:19763:16983:0"
+ },
+ "med:w:kebab": {
+  "dir": "w",
+  "name": "kebab",
+  "sig": "1795089800884:30419:16299:18115"
+ },
+ "med:w:knack": {
+  "dir": "w",
+  "name": "knack",
+  "sig": "1795079641436:21891:7695:0"
+ },
+ "med:w:laces": {
+  "dir": "w",
+  "name": "laces",
+  "sig": "1795078683460:0:17791:0"
+ },
+ "med:w:licking": {
+  "dir": "w",
+  "name": "licking",
+  "sig": "1795090266343:30675:15307:0"
+ },
+ "med:w:mindset": {
+  "dir": "w",
+  "name": "mindset",
+  "sig": "1794907111021:0:17035:0"
+ },
+ "med:w:obsessed": {
+  "dir": "w",
+  "name": "obsessed",
+  "sig": "1795080008083:22095:8051:0"
+ },
+ "med:w:of": {
+  "dir": "w",
+  "name": "of",
+  "sig": "1795079767714:31443:7719:0"
+ },
+ "med:w:offended": {
+  "dir": "w",
+  "name": "offended",
+  "sig": "1795089953495:42739:21983:25475"
+ },
+ "med:w:pickpocket": {
+  "dir": "w",
+  "name": "pickpocket",
+  "sig": "1795090578120:8035:13443:0"
+ },
+ "med:w:pitch": {
+  "dir": "w",
+  "name": "pitch",
+  "sig": "1794906123155:45899:11383:0"
+ },
+ "med:w:pump": {
+  "dir": "w",
+  "name": "pump",
+  "sig": "1795078718687:0:17803:10963"
+ },
+ "med:w:reinvented": {
+  "dir": "w",
+  "name": "reinvented",
+  "sig": "1794907083777:22771:7603:0"
+ },
+ "med:w:scoop": {
+  "dir": "w",
+  "name": "scoop",
+  "sig": "1794907036204:50131:12191:0"
+ },
+ "med:w:skip": {
+  "dir": "w",
+  "name": "skip",
+  "sig": "1795089930220:42739:21983:25475"
+ },
+ "med:w:sorts": {
+  "dir": "w",
+  "name": "sorts",
+  "sig": "1795081590998:30747:10255:0"
+ },
+ "med:w:stereotypes": {
+  "dir": "w",
+  "name": "stereotypes",
+  "sig": "1795090110156:42751:23675:0"
+ },
+ "med:w:thesis": {
+  "dir": "w",
+  "name": "thesis",
+  "sig": "1794906898806:13187:6759:0"
+ },
+ "med:w:wrist": {
+  "dir": "w",
+  "name": "wrist",
+  "sig": "1795079032088:0:11531:0"
+ }
+}
