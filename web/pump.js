@@ -122,7 +122,7 @@
   }
   function start() {
     const p = plan(); if (!p.list.length) return; const S = srs(); cards = []; at = 0; bad = 0; playing = true;
-    medMap().then(() => { prefetch(0); }); // 原声截图在后台取，取到之前先用朗读
+    medMap().then(() => { prefetch(0); const c = cards[at]; if (c && playing) medFor(c.w).then(() => { if (playing && cards[at] === c && medOf(c)) show(); }); }); // 原声截图在后台取，取到之前先用朗读；取到了重画当前卡片
     p.list.forEach(w => {
       const L = sentences(w).map(x => ({ en: mark(x.en, w), zh: x.zh })), n = Math.min(PER, L.length), wasNew = !S[w.id];
       const canQuiz = opt.quiz && !wasNew && w.type !== "sentence" && /\{[^}]+\}/.test(L[0].en);
