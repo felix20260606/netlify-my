@@ -201,7 +201,106 @@
   function loadBook() { book = new Map(); try { words.forEach(w => { const k = String(w.word || "").toLowerCase().replace(/[{}]/g, ""); if (k) book.set(k, w.status === "known" ? "kn" : "lr"); }); } catch (e) {} }
   function stems(w) { const o = [w]; if (/ies$/.test(w)) o.push(w.slice(0, -3) + "y"); if (/(es|ed)$/.test(w)) o.push(w.slice(0, -2), w.slice(0, -1)); if (/s$/.test(w)) o.push(w.slice(0, -1)); if (/ing$/.test(w)) o.push(w.slice(0, -3), w.slice(0, -3) + "e"); if (/(.)\1(ed|ing)$/.test(w)) o.push(w.replace(/(.)\1(ed|ing)$/, "$1")); return o; }
   const statusOf = w => { for (const s of stems(w.toLowerCase())) if (book.has(s)) return book.get(s); return ""; };
-  const markup = t => esc(t).replace(WORD, w => '<span class="wt-w ' + statusOf(w.replace(/’/g, "'")) + '" data-w="' + w.replace(/’/g, "'") + '">' + w + "</span>");
+  const markup0 = t => esc(t).replace(WORD, w => '<span class="wt-w ' + statusOf(w.replace(/’/g, "'")) + '" data-w="' + w.replace(/’/g, "'") + '">' + w + "</span>");
+  const markup = t => (VS ? vsHtml(t) : markup0(t));
+
+  /* ---------- 和插件一致：按词汇水平上色、语法下划线、句型 / 习语 / 短语动词注释、单词注释、颜色标记 ----------
+     判断规则和数据用插件同一份（web/vs/，由 tools/sync-shared.sh 从 extension/ 复制）；
+     插件设置（词汇水平、颜色、开关）和你的标记从 /api/ext 读，在网站上改标记也写回 /api/ext，插件那边自动跟上 */
+  const VS_FILES = ["freq.js", "vlevel.js", "gram.js", "pattern.js", "data-phrases.js", "data-words.js", "data-morph.js", "notes.js"];
+  const VS_DEF = { showMarks: true, level: -1, ratio: 1.5, greenKnown: false, fadeRare: true, showSuggest: true, showLearn: true, showLearnOutline: true, showIgnore: true, showSpecial: true, colKnown: "#7CE3B8", colSuggest: "#FFB86B", colIgnore: "#CDA8F7", colSpecial: "#7CE3B8", showGram: true, gramLabel: "abbr", g_pa: true, g_pf: true, g_pg: true, g_md: true, g_pv: true, g_s3: true, g_pl: true, g_art: true, g_cmp: true, g_neg: true, showPat: true, n_phrase: true, n_spoken: true, n_link: true, n_word: true, cloze: false, target: "zh-CN" };
+  const VS_CSS = `
+  #view-video .vs-w{cursor:pointer;border-radius:3px}
+  #view-video .vs-w.vs-k{color:var(--vs-ck,#7CE3B8)}#view-video .vs-w.vs-u1,#view-video .vs-w.vs-ln{color:var(--vs-cs,#FFB86B)}#view-video .vs-w.vs-u2{color:var(--vs-ci,#CDA8F7)}#view-video .vs-w.vs-sp{color:var(--vs-cp,#7CE3B8)}
+  #view-video .vs-w.vs-rare{opacity:.55}
+  #view-video .vs-w.vs-lo{box-shadow:inset 0 0 0 1.5px #E9CF8A;background:rgba(255,226,140,.14);border-radius:6px;padding:0 3px}
+  #view-video .vs-w.vs-pk{background:rgba(120,175,240,.32);box-shadow:0 0 0 2px rgba(120,175,240,.32);border-radius:4px}
+  #view-video .vs-w[class*=" g-"]{text-underline-offset:4px}
+  #view-video .vs-w.g-pa{text-decoration:underline solid #5BB0FF 2px}#view-video .vs-w.g-pf{text-decoration:underline double #35D0BA 2px}#view-video .vs-w.g-pg{text-decoration:underline wavy #8EE05A 2px}#view-video .vs-w.g-md{text-decoration:underline dashed #FF8FC7 2px}#view-video .vs-w.g-pv{text-decoration:underline solid #FF7A59 3.5px}#view-video .vs-w.g-s3{text-decoration:underline dotted #5BB0FF 2.5px}#view-video .vs-w.g-pl{text-decoration:underline dotted #B0B7C0 2.5px}#view-video .vs-w.g-art{text-decoration:underline dotted #E8D36B 2.5px}#view-video .vs-w.g-cmp{text-decoration:underline dashed #C9A0FF 2px}#view-video .vs-w.g-neg{box-shadow:inset 0 2px 0 #FF5C5C}
+  #view-video .vs-w.vs-ph{background:rgba(255,226,140,.13);box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A;border-radius:0;padding:0 2px}#view-video .vs-w.vs-ph.ph-s{border-radius:5px 0 0 5px;box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A,inset 1.5px 0 0 #E9CF8A}#view-video .vs-w.vs-ph.ph-e{border-radius:0 5px 5px 0;box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A,inset -1.5px 0 0 #E9CF8A}
+  #view-video.vs-cloze .wt-sub .en .vs-w:is(.vs-u1,.vs-u2,.vs-lo,.vs-ln){color:transparent!important;background:rgba(255,255,255,.16);border-radius:4px;border-bottom:2px dashed rgba(255,255,255,.55)}#view-video.vs-cloze .wt-sub .en .vs-w:is(.vs-u1,.vs-u2,.vs-lo,.vs-ln):hover{color:#fff!important}
+  .wt-sub .vs-p{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:8px}
+  .wt-sub .vs-pc{cursor:pointer;font:600 13px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif;color:#d8e9ff;background:rgba(47,109,176,.38);border:1px solid rgba(120,175,240,.45);border-radius:999px;padding:1px 10px;text-align:left}
+  .wt-sub .vs-pc b{color:#fff;font-weight:800}.wt-sub .vs-pc:hover,.wt-sub .vs-pc.on{background:#2F6DB0;border-color:#7fb3ee}
+  .wt-sub .vs-pc.k-idiom{background:rgba(176,112,32,.42);border-color:rgba(240,190,110,.55);color:#ffe6c2}.wt-sub .vs-pc.k-phv{background:rgba(32,140,110,.42);border-color:rgba(110,220,180,.5);color:#d4fff0}.wt-sub .vs-pc.k-col{background:rgba(120,80,170,.42);border-color:rgba(190,160,240,.5);color:#eee2ff}.wt-sub .vs-pc.k-red,.wt-sub .vs-pc.k-fill{background:rgba(90,96,110,.5);border-color:rgba(190,196,210,.45);color:#eef0f4}.wt-sub .vs-pc.k-link{background:rgba(170,60,90,.4);border-color:rgba(240,140,170,.5);color:#ffe0ea}.wt-sub .vs-pc.on{filter:brightness(1.35)}
+  .wt-sub .vs-pd{display:none;margin:8px auto 0;max-width:560px;background:#0f1d2e;border:1px solid #2F6DB0;border-radius:10px;padding:9px 13px;text-align:left;font:500 14px/1.6 system-ui,-apple-system,"PingFang SC",sans-serif;color:#e6eef8}.wt-sub .vs-pd.show{display:block}.wt-sub .vs-pd .hd{font-weight:800;color:#9cc8ff;margin-bottom:3px}.wt-sub .vs-pd .ex{margin-top:5px;color:#ffd77a}
+  .vs-wns{margin:8px 0 2px;display:flex;flex-direction:column;gap:3px;font:500 13px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif;text-align:left}.vs-wn{display:flex;gap:6px;align-items:baseline}.vs-wn>i{flex:0 0 auto;font-style:normal;font-weight:800;font-size:11px;color:#9cc8ff;background:rgba(47,109,176,.25);border-radius:5px;padding:0 5px;line-height:1.6}.vs-wn.warn>i{color:#ffd77a;background:rgba(232,162,60,.22)}.vs-wn.bad>i{color:#ff9d9d;background:rgba(220,60,60,.22)}.vs-wn.dim{opacity:.75}.vs-wn>span b{color:#fff}.vs-wn a{color:#7fb3ee}
+  #wt-sheet .gm{margin-top:6px;font-size:13px;color:#9cc8ff}
+  #wt-sheet .mk{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}#wt-sheet .mk button{flex:1 1 auto;min-height:36px;border-radius:9px;border:1px solid var(--ui-line-2,#454950);background:var(--ui-surface-2,#2d2f34);color:var(--ui-ink,#E6E8EB);font:inherit;font-size:13.5px;cursor:pointer}
+  #wt-sheet .mk button.on{background:var(--ui-pur,#9C3FD0);border-color:var(--ui-pur,#9C3FD0);color:#fff}`;
+  let VS = null, vsP = null; // VS = { S 插件设置, sents 已保存短语（拆成词） }
+  function vsLoad() {
+    if (vsP) return vsP;
+    vsP = (async () => {
+      let ver = ""; try { ver = (await (await fetch("vs/VERSION", { cache: "no-store" })).text()).trim(); } catch (e) {}
+      await new Promise((res, rej) => { VS_FILES.forEach((f, i) => { const s = document.createElement("script"); s.src = "vs/" + f + "?v=" + ver; s.async = false; if (i === VS_FILES.length - 1) { s.onload = res; s.onerror = rej; } document.head.append(s); }); }); // async=false：按顺序执行
+      const st = document.createElement("style"); st.textContent = VS_CSS; document.head.append(st);
+      await vsData();
+    })().catch(() => { vsP = null; });
+    return vsP;
+  }
+  async function vsData() {
+    let it = {}; try { it = (await (await fetch("/api/ext", { cache: "no-store" })).json()).items || {}; } catch (e) {}
+    const S = Object.assign({}, VS_DEF), marks = {}, saved = new Set(), sents = [];
+    for (const k in it) { const i = k.indexOf("|"), n = k.slice(0, i), id = k.slice(i + 1), v = it[k].v;
+      if (n === "set") S[id] = v; else if (n === "marks" && (v === "known" || v === "ignore")) marks[id] = v; else if (n === "saved") saved.add(id); else if (n === "savedSents" && v && v.ph && v.t) sents.push(String(v.t).toLowerCase().split(/\s+/)); }
+    try { words.forEach(w => { const k = String(w.word || "").toLowerCase().trim(); if (!/^[a-z][a-z'’-]*$/.test(k)) return; if (w.status === "known") { if (!marks[k]) marks[k] = "known"; saved.delete(k); } else if (!marks[k]) saved.add(k); }); } catch (e) {} // 网站生词本：在学的算「正在学习」，已掌握的算「已知」
+    VS_MARKS = marks; VS_SAVED = saved; VS = { S, sents };
+    const de = document.documentElement.style; de.setProperty("--vs-ck", S.colKnown); de.setProperty("--vs-cs", S.colSuggest); de.setProperty("--vs-ci", S.colIgnore); de.setProperty("--vs-cp", S.colSpecial);
+    const vv = document.getElementById("view-video"); if (vv) vv.classList.toggle("vs-cloze", !!S.cloze);
+    vsRedraw();
+  }
+  function vsRedraw() { if (!listEl) return; if (cur >= 0) showSub(cur); if (cues.length) { const top = listEl.scrollTop; drawCues(); listEl.scrollTop = top; const row = listEl.children[cur]; if (row && row.classList.contains("wt-row")) row.classList.add("cur"); } }
+  function vsPh(h) { // 保存过的短语整段带框（同插件）
+    if (!VS.sents.length) return h;
+    const re = /<span class="vs-w ([^"]*)" data-w="([^"]+)">/g, ws = []; let m; while ((m = re.exec(h))) ws.push(m[2].toLowerCase()); if (ws.length < 2) return h;
+    const tag = {};
+    VS.sents.forEach(p => { for (let i = 0; i + p.length <= ws.length; i++) { let ok = true; for (let k = 0; k < p.length; k++) if (ws[i + k] !== p[k] && !(k === 0 && vsLemma(ws[i + k]) === vsLemma(p[k]))) { ok = false; break; } if (ok) for (let k = 0; k < p.length; k++) tag[i + k] = "vs-ph" + (k === 0 ? " ph-s" : "") + (k === p.length - 1 ? " ph-e" : ""); } });
+    let n = 0; return h.replace(re, (a, cl, w) => { const t = tag[n++]; return t ? '<span class="vs-w ' + cl + " " + t + '" data-w="' + w + '">' : a; });
+  }
+  function vsHtml(t) {
+    const S = VS.S; let h = vsMark(esc(t), S);
+    if (S.showGram !== false && /\s/.test(t) && typeof vsGramHtml === "function") h = vsGramHtml(h).replace(/ g-(\w+)(?=[ "])/g, (a, c) => (S["g_" + c] === false ? "" : a));
+    return vsPh(h).replace(/<span class="vs-w /g, '<span class="wt-w vs-w ');
+  }
+  let vsPats = [];
+  function vsPatHtml(c) { // 句型 / 习语 / 短语动词 / 口语缩略 / 连读：当前句下面一排小标签（同插件）
+    vsPats = []; if (!VS || !c) return "";
+    const ws = (c.t.match(VS_WORD_RE) || []), S = VS.S;
+    if (S.showPat !== false && typeof vsPatterns === "function") vsPats = vsPatterns(ws, 3, c.t) || [];
+    if (typeof vsSentNotes === "function") vsPats = vsPats.concat(vsSentNotes(ws, c.t, S, Math.max(1, 5 - vsPats.length), [].concat(...vsPats.map(p => p.keys))) || []);
+    return vsPats.length ? '<div class="vs-p">' + vsPats.map((p, i) => '<span class="vs-pc' + (p.cls ? " " + p.cls : "") + '" data-pi="' + i + '">' + (p.icon || "📐") + " <b>" + esc(p.name) + "</b> " + esc(p.zh) + "</span>").join("") + '</div><div class="vs-pd"></div>' : "";
+  }
+  function vsPatShow(i) {
+    const pd = subEl.querySelector(".vs-pd"), ws = [...subEl.querySelectorAll(".en .vs-w")], p = vsPats[i], chips = subEl.querySelectorAll(".vs-pc");
+    const on = p && !(chips[i] && chips[i].classList.contains("on"));
+    ws.forEach(w => w.classList.remove("vs-pk")); chips.forEach(x => x.classList.toggle("on", on && +x.dataset.pi === i));
+    if (!pd) return; if (!on) { pd.classList.remove("show"); fit(); return; }
+    p.keys.forEach(k => ws[k] && ws[k].classList.add("vs-pk"));
+    pd.innerHTML = '<div class="hd">' + (p.icon || "📐") + " " + esc(p.name) + " · " + esc(p.zh) + "</div><div>" + esc(p.tip || "") + "</div>" + (p.ex ? '<div class="ex">例：' + esc(p.ex) + "</div>" : "");
+    pd.classList.add("show"); fit();
+  }
+  const vsMarkNow = w => { if (!VS) return ""; const k = w.toLowerCase(); const m = vsMarkOf(k); return m; };
+  function vsSheetExtra(w, el) { // 查词卡片里：语法、单词注释、标记按钮（同插件）
+    if (!VS) return "";
+    const g = el ? [...el.classList].filter(c => /^g-/.test(c)).map(c => typeof VS_GRAM_NAME !== "undefined" && VS_GRAM_NAME[c.slice(2)] && VS_GRAM_NAME[c.slice(2)] + " " + VS_GRAM_ABBR[c.slice(2)]).filter(Boolean) : [];
+    const notes = VS.S.n_word !== false && typeof vsWordNotesHtml === "function" && !/\s/.test(w) ? vsWordNotesHtml(w, false) : "", m = vsMarkNow(w);
+    return (g.length ? '<div class="gm">语法：' + g.join(" · ") + "</div>" : "") + notes +
+      '<div class="mk"><button data-a="mk" data-m="learn" class="' + (m === "learn" ? "on" : "") + '">📌 将要学习</button><button data-a="mk" data-m="known" class="' + (m === "known" ? "on" : "") + '">✅ 已掌握</button><button data-a="mk" data-m="ignore" class="' + (m === "ignore" ? "on" : "") + '">🚫 不学习</button><button data-a="mk" data-m="">↺ 恢复默认</button></div>';
+  }
+  async function vsSetMark(w, m) { // 和插件右键 / 词典里的标记一样；写回 /api/ext，插件那边同步过去
+    const k = w.toLowerCase(), at = Date.now(), ch = {};
+    const marks = Object.assign({}, VS_MARKS), saved = new Set(VS_SAVED);
+    if (m === "learn") { delete marks[k]; saved.add(k); ch["marks|" + k] = { del: 1, at }; ch["saved|" + k] = { v: k, at }; }
+    else { saved.delete(k); ch["saved|" + k] = { del: 1, at }; if (m) { marks[k] = m; ch["marks|" + k] = { v: m, at }; } else { delete marks[k]; ch["marks|" + k] = { del: 1, at }; } }
+    VS_MARKS = marks; VS_SAVED = saved;
+    try { // 生词本里的掌握状态跟着变
+      const e = (state.custom || []).find(x => x && String(x.word || "").toLowerCase() === k);
+      if (e && (m === "known" || m === "learn")) { state.progress = state.progress || {}; if (m === "known") state.progress[e.id] = "known"; else delete state.progress[e.id]; refresh(); save(state); loadBook(); }
+    } catch (er) {}
+    vsRedraw();
+    try { await fetch("/api/ext", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ changes: ch }) }); } catch (er) { tip("没连上网络，标记只在这台设备生效"); }
+  }
 
   /* ---------- 搭界面 ---------- */
   let root, listEl, subEl, enter = () => {};
@@ -268,7 +367,7 @@
     enter = () => {
       seg.querySelectorAll("button").forEach(x => x.classList.remove("on")); btn.classList.add("on");
       H.classList.add("show-video"); H.classList.toggle("wt-playing", root.classList.contains("playing")); LS.set("wt:tab", 1);
-      scrollTo(0, 0); $("#wt-bml").href = bookmarklet(); loadBook(); loadList(); fit();
+      scrollTo(0, 0); $("#wt-bml").href = bookmarklet(); loadBook(); loadList(); fit(); if (VS) vsData(); else vsLoad();
     };
     btn.onclick = enter;
     $("#wt-bml").href = bookmarklet(); $("#wt-bml").onclick = e => { e.preventDefault(); tip("把它拖到书签栏；手机上请用「复制书签代码」"); };
@@ -299,14 +398,15 @@
     subEl.addEventListener("click", e => {
       if (e.target.closest(".rs button")) { fromStart(); return; }
       const en = e.target.closest(".en"); if (en && set.hideEn && !en.classList.contains("rv") && !en.classList.contains("none")) { en.classList.add("rv"); return; } // 藏原文时先点一下才显示
-      const w = e.target.closest(".wt-w"); if (w) { lookup(w.dataset.w, cur); return; } const z = e.target.closest(".zh"); if (z) z.classList.toggle("rv");
+      const pc = e.target.closest(".vs-pc"); if (pc) { vsPatShow(+pc.dataset.pi); return; }
+      const w = e.target.closest(".wt-w"); if (w) { lookup(w.dataset.w, cur, w); return; } const z = e.target.closest(".zh"); if (z) z.classList.toggle("rv");
     });
     document.addEventListener("keydown", onKey);
     document.addEventListener("keyup", e => { if (e.key === " " && root.classList.contains("playing") && e.target && e.target.tagName === "BUTTON" && root.contains(e.target)) e.preventDefault(); }); // 空格已经当作播放/暂停，别再触发按钮
     // 离开页面 / 切到后台时记下看到哪里
     document.addEventListener("visibilitychange", () => { if (document.hidden) savePos(true); });
     addEventListener("pagehide", () => savePos(true));
-    listEl.addEventListener("click", e => { if (e.target.closest(".wt-back")) { follow = true; listEl.classList.remove("away"); scrollCur(true); return; } const w = e.target.closest(".wt-w"), row = e.target.closest(".wt-row"); if (!row) return; const i = +row.dataset.i; if (w) { lookup(w.dataset.w, i); return; } seek(i); });
+    listEl.addEventListener("click", e => { if (e.target.closest(".wt-back")) { follow = true; listEl.classList.remove("away"); scrollCur(true); return; } const w = e.target.closest(".wt-w"), row = e.target.closest(".wt-row"); if (!row) return; const i = +row.dataset.i; if (w) { lookup(w.dataset.w, i, w); return; } seek(i); });
     const away = () => { userScroll = Date.now(); follow = false; listEl.classList.add("away"); };
     listEl.addEventListener("touchmove", away, { passive: true }); listEl.addEventListener("wheel", away, { passive: true });
     mask.onclick = closeSheet;
@@ -572,7 +672,7 @@
   }
   function showSub(i) {
     const c = cues[i];
-    subEl.innerHTML = c ? '<div class="en">' + markup(c.t) + '</div><div class="zh">' + esc(c.r || "") + "</div>"
+    subEl.innerHTML = c ? '<div class="en">' + markup(c.t) + '</div><div class="zh">' + esc(c.r || "") + "</div>" + vsPatHtml(c)
       : '<div class="en none">' + (!started && resumeAt > 0 ? "点 ▶ 从上次的 " + fmt(resumeAt) + " 继续" + '<span class="rs"><button type="button">从头开始</button></span>' : started && cues.length ? "…" : "点 ▶ 开始播放") + '</div><div class="zh"></div>';
   }
   function markRow() {
@@ -595,7 +695,7 @@
     const c = LS.get("wt:w:" + k, null); if (c) return dc[k] = c;
     const o = { zh: [], phon: "", en: "" };
     try {
-      const j = await (await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&dt=bd&q=" + encodeURIComponent(k))).json();
+      const j = await (await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=" + encodeURIComponent((VS && VS.S.target) || "zh-CN") + "&dt=t&dt=bd&q=" + encodeURIComponent(k))).json();
       const add = x => { x = String(x || "").trim(); if (x && x.toLowerCase() !== k && !o.zh.includes(x)) o.zh.push(x); };
       add((j[0] || []).map(x => x[0]).join("")); (j[1] || []).forEach(e => (e[1] || []).slice(0, 4).forEach(add));
       o.pos = (j[1] || []).slice(0, 3).map(e => ({ p: e[0], w: (e[1] || []).slice(0, 4) }));
@@ -608,12 +708,12 @@
   }
   const POS = { noun: "名", verb: "动", adjective: "形", adverb: "副", preposition: "介", pronoun: "代", conjunction: "连", interjection: "叹" };
   let sheetCtx = null;
-  async function lookup(w, ci) {
+  async function lookup(w, ci, el) {
     try { if (playing()) player.pauseVideo(); } catch (e) {}
     sheetWord = w; const c = cues[ci], sheet = $("#wt-sheet"), st = statusOf(w);
     sheetCtx = c ? { t: c.t, r: c.r || "" } : null;
     const ctxHtml = c ? '<div class="x">' + esc(c.t).replace(new RegExp("\\b(" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")\\b", "i"), "<b>$1</b>") + "<span>" + esc(c.r || "") + "</span></div>" : "";
-    sheet.innerHTML = "<h3>" + esc(w) + '<small id="wt-ph"></small></h3><div class="m" id="wt-m">查询中…</div><div class="p" id="wt-p"></div><div class="d" id="wt-d"></div>' + ctxHtml +
+    sheet.innerHTML = "<h3>" + esc(w) + '<small id="wt-ph"></small></h3><div class="m" id="wt-m">查询中…</div><div class="p" id="wt-p"></div><div class="d" id="wt-d"></div>' + vsSheetExtra(w, el) + ctxHtml +
       '<div class="a"><button data-a="say">🔊 发音</button><button data-a="add" class="add' + (st ? " in" : "") + '">' + (st ? (st === "kn" ? "已掌握" : "已在生词本") : "＋ 加入生词本") + '</button><button data-a="x">关闭</button></div>';
     sheet.classList.add("on"); $("#wt-mask").classList.add("on");
     try { speak(w); } catch (e) {}
@@ -628,6 +728,7 @@
     if (a === "x") return closeSheet();
     if (!w) return onMenu(a, b);
     if (a === "say") { try { speak(w); } catch (er) {} return; }
+    if (a === "mk") { const m = b.dataset.m; b.parentNode.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b && !!m)); await vsSetMark(w, m); tip(w + " → " + ({ learn: "将要学习", known: "已掌握", ignore: "不学习", "": "恢复默认" })[m]); if (m === "learn") { const ab = $("#wt-sheet [data-a=add]"); if (ab && !ab.classList.contains("in")) ab.click(); } return; } // 将要学习 = 同时加进生词本
     if (a === "add") {
       if (b.classList.contains("in")) return;
       const lw = w.toLowerCase(), g = await gword(w), id = "v_" + lw.replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
@@ -638,6 +739,7 @@
         if (!state.custom.some(x => x && (x.id === id || String(x.word || "").toLowerCase() === lw))) state.custom.push(entry);
         refresh(); save(state); loadBook();
         b.classList.add("in"); b.textContent = "已在生词本"; tip("已加入生词本：" + lw);
+        if (VS && vsMarkNow(lw) !== "learn") { vsSetMark(lw, "learn"); const lb = $("#wt-sheet [data-m=learn]"); if (lb) { lb.parentNode.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === lb)); } }
         // 重新上色
         if (cur >= 0) showSub(cur); const top = listEl.scrollTop; drawCues(); listEl.scrollTop = top; const row = listEl.children[cur]; if (row && row.classList.contains("wt-row")) row.classList.add("cur");
       } catch (er) { tip("保存失败"); }
