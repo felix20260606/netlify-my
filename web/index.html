@@ -366,6 +366,10 @@
   #view-ext iframe{width:100%;flex:1 1 auto;min-height:0;border:0;display:block}
   html.show-ext #view-en{display:none}
   html.show-ext #view-ext{display:flex}
+  #ext-none{display:none;margin:40px auto;max-width:560px;width:calc(100% - 32px);padding:22px 24px;line-height:1.7;color:var(--ui-ink-2,#c9ced6)}
+  #ext-none .en-t{font-size:17px;font-weight:800;color:var(--ui-ink,#fff);margin-bottom:6px}#ext-none p{margin:6px 0;font-size:14px}
+  #ext-none .en-b{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  #view-ext.none #ext-none{display:block}#view-ext.none iframe,#view-ext.none .ext-bar{display:none}
   html.show-ielts #view-ielts{display:block}
   #trip-dest{flex:0 0 auto;display:flex;align-items:center;justify-content:safe center;gap:8px;
     padding:0 14px;height:40px;background:var(--paper);border-bottom:1px solid var(--line);overflow-x:auto}
@@ -402,8 +406,8 @@
 </div>
 <div id="subtabs">
   <div class="subgrp on" data-l1="en">
-    <button id="tab-xsaved" type="button" hidden title="插件的「已保存项目」页（电脑上装了插件才有）">⭐ 已保存</button>
-    <button id="tab-xreview" type="button" hidden title="插件的复习页（电脑上装了插件才有）">🔁 复习</button>
+    <button id="tab-xsaved" type="button" title="插件的「已保存项目」页（数据和生词本同步）">⭐ 已保存</button>
+    <button id="tab-xreview" type="button" title="插件的复习页（复习进度和生词本同步）">🔁 复习</button>
     <button id="tab-notebook" class="on" type="button">📖 生词本</button>
     <button id="tab-ielts" type="button">🎓 雅思</button>
   </div>
@@ -560,7 +564,7 @@
   </div>
 </div>
 </div><!-- /view-en -->
-<div id="view-ext"><div class="ext-bar"><span id="ext-name"></span><span>插件页面，数据和网站生词本同步</span><a id="ext-open" target="_blank" rel="noopener">在新标签页打开 ↗</a></div><iframe id="extframe" title="插件页面" allow="clipboard-write; autoplay"></iframe></div>
+<div id="view-ext"><div class="ext-bar"><span id="ext-name"></span><span>插件页面，数据和网站生词本同步</span><a id="ext-open" target="_blank" rel="noopener">在新标签页打开 ↗</a></div><iframe id="extframe" title="插件页面" allow="clipboard-write; autoplay"></iframe><div id="ext-none" class="ui-card"><div class="en-t">这台设备上没检测到「双语字幕」插件</div><p>「⭐ 已保存」和「🔁 复习」是插件里的页面，要在装了插件的电脑浏览器（Brave / Chrome）上打开。电脑上装了插件还看到这句：刷新一下页面（插件刚更新或重新加载过时会这样）。</p><p>生词本是同一份，手机或别的浏览器上可以用网站自己的：</p><div class="en-b"><button type="button" class="ui-btn" data-go="reload">↻ 刷新页面</button><button type="button" class="ui-btn" data-go="list">📖 生词列表</button><button type="button" class="ui-btn" data-go="pump">🔊 练习（复习进度通用）</button></div></div></div>
 <div id="view-fat">
   <div id="fat-region">
     <div class="seg-wrap">
@@ -1658,7 +1662,7 @@ refresh(); // show seed words immediately, no waiting on storage
   var L2_OWNER={notebook:'en',ielts:'en',xsaved:'en',xreview:'en',fat:'life',trip:'life'};
   var tXs=document.getElementById('tab-xsaved'),tXr=document.getElementById('tab-xreview'),xf=document.getElementById('extframe');
   var extId=function(){return document.documentElement.getAttribute('data-ban-ext')||'';}; // 插件在这台电脑上：显示「已保存」「复习」
-  function extTabs(){var on=!!extId();if(tXs)tXs.hidden=!on;if(tXr)tXr.hidden=!on;return on;}
+  function extTabs(){return !!extId();} // 两个入口一直显示；没检测到插件时页面里给提示和替代入口
   extTabs();
   function show(which){
     var l1=L2_OWNER[which]||'en';
@@ -1691,6 +1695,8 @@ refresh(); // show seed words immediately, no waiting on storage
       root.classList.add('show-ielts');
     }else if(which==='xsaved'||which==='xreview'){
       root.classList.add('show-ext');
+      var ve=document.getElementById('view-ext'); if(ve)ve.classList.toggle('none',!extId());
+      if(!extId()){try{localStorage.setItem('vocab_tab',which);}catch(e){} return;}
       var u='chrome-extension://'+extId()+'/'+(which==='xsaved'?'saved.html':'review.html');
       if(xf&&xf.getAttribute('src')!==u)xf.setAttribute('src',u);
       var eo=document.getElementById('ext-open'),en=document.getElementById('ext-name'); if(eo)eo.href=u; if(en)en.textContent=which==='xsaved'?'⭐ 已保存':'🔁 复习';
@@ -1727,9 +1733,9 @@ refresh(); // show seed words immediately, no waiting on storage
   var saved='';try{saved=localStorage.getItem('vocab_tab')||'';}catch(e){}
   var hasExt=extTabs();
   if(!saved&&hasExt)saved='xsaved'; // 新加的入口排最前；装了插件的电脑第一次打开默认进「已保存」，之后记住上次的选择
-  if((saved==='xsaved'||saved==='xreview')&&!hasExt)saved='';
   if((saved==='fat'||saved==='trip'||saved==='ielts'||saved==='xsaved'||saved==='xreview')&&!root.classList.contains('collect-mode'))show(saved);
-  window.addEventListener('ban-ext',function(){extTabs();});
+  window.addEventListener('ban-ext',function(){if(root.classList.contains('show-ext'))show(tXr&&tXr.classList.contains('on')?'xreview':'xsaved');}); // 插件晚一点才连上：自动换成插件页面
+  var en0=document.getElementById('ext-none'); if(en0)en0.addEventListener('click',function(e){var b=e.target.closest('[data-go]'); if(!b)return; var g=b.dataset.go; if(g==='reload'){location.reload();return;} show('notebook'); var m=document.querySelector('[data-mode="'+g+'"]'); if(m)m.click();});
 })();
 
 /* ===== 雅思页内二级：基本常识 / 笔记(ielts-notes.html) ===== */
