@@ -30,6 +30,10 @@
       : m.s * (1 + Math.exp(W[8]) * (11 - m.d) * Math.pow(m.s, -W[9]) * (Math.exp(W[10] * (1 - R)) - 1));
     return { s: Math.max(0.1, s), d };
   }
+  // 掌握进度：稳定度到 60 天（两个月后还有九成把握）= 100 % 已掌握；中间按对数换算，前期的进步也看得出来（4 天 ≈ 38 %，14 天 ≈ 66 %，47 天 ≈ 94 %）
+  const mastery = (r, w) => (w && w.status === "known" ? 1 : !r || !(r.s || r.b) ? 0 : Math.min(1, Math.log(1 + memOf(r).s) / Math.log(1 + KNOWN_S)));
+  const pcent = x => Math.round(x * 100);
+  const mbar = (x, known) => '<span class="pp-mb' + (known ? " known" : "") + '"><i style="width:' + pcent(x) + '%"></i></span>';
   const levelOf = s => { let b = 0; LEVELS.forEach((x, i) => { if (s >= x) b = i + 1; }); return b; };
   const seen = r => (r ? (r.x != null ? r.x : Math.round((r.n || 0) / PER)) : 0); // 练过几轮（被动听也算）
   // ---------- 例句：词条自带的 + Tatoeba 例句库（/api/sent，后台缓存）；听力每次换着听，最近听过的往后排 ----------
@@ -95,6 +99,16 @@
   .pp-rc .rc-ex{margin-top:10px;display:grid;gap:8px;font-size:14.5px;color:var(--ui-ink)}.pp-rc .rc-ex span{display:block;color:var(--ui-muted);font-size:13px}.pp-rc .rc-ex .t{color:var(--ui-orange);font-weight:700}
   .pp-rc .rc-tip{margin-top:10px;font-size:13.5px;color:var(--ui-ink-2)}
   .pp-rcb{display:flex;gap:10px;margin:12px 0 0}.pp-rcb button{flex:1;height:46px;border-radius:12px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink)}#pp-yes{background:var(--ui-pur);border-color:var(--ui-pur);color:#fff}#pp-no:hover{border-color:var(--ui-red);color:var(--ui-red)}
+  .pp-mb{display:inline-block;vertical-align:middle;width:64px;height:6px;border-radius:3px;background:var(--ui-surface-3);overflow:hidden}.pp-mb i{display:block;height:100%;background:var(--ui-pur);border-radius:3px}.pp-mb.known i{background:linear-gradient(90deg,#f6c453,#ffdf80)}
+  .pp-master{margin:14px 0 4px;padding:12px 14px;border-radius:12px;background:var(--ui-surface-2)}.pp-master .h{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}.pp-master .h span{color:#f6c453;font-weight:700}.pp-master .h b{font-size:20px;color:#ffdf80}.pp-master .h small{color:var(--ui-muted)}.pp-master>.pp-mb{width:100%;height:8px}
+  .pp-master .h2{margin:10px 0 6px;font-size:13px;color:var(--ui-muted)}.pp-master .h2 b{color:var(--ui-pur-text)}.pp-master .h2+.pp-mb{width:100%}
+  .pp-q span .pp-mb{width:34px;height:4px;margin-left:5px}
+  .pp-prog{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 10px;font-size:12.5px;color:var(--ui-muted)}.pp-prog .pp-mb{width:120px}.pp-prog b{color:var(--ui-ink)}.pp-prog em{font-style:normal;color:var(--ui-green);font-weight:700}
+  .pp-prog.known{color:#f6c453;font-weight:700}.pp-prog.known b{color:#ffdf80}
+  #pump.pp-known .pp-card{border-color:#f6c453;box-shadow:0 0 0 1px #f6c453,0 0 26px rgba(246,196,83,.25)}
+  .pp-new{margin:10px 0;padding:10px 12px;border-radius:10px;background:rgba(246,196,83,.12);border:1px solid rgba(246,196,83,.45);color:#ffdf80}.pp-new b{color:#fff}
+  .pp-sum{display:grid;gap:6px;margin:12px auto;max-width:460px;text-align:left}.pp-sum .row{display:grid;grid-template-columns:1fr 120px 110px;align-items:center;gap:10px;font-size:14px}.pp-sum .row .pp-mb{width:100%}.pp-sum .n{color:var(--ui-muted);font-size:13px}.pp-sum em{font-style:normal;color:var(--ui-green);font-weight:700}.pp-sum em.dn{color:var(--ui-red)}
+  .pp-sum .row.known .w{color:#ffdf80;font-weight:700}.pp-sum .row.known .n{color:#f6c453;font-weight:700}
   .pp-opt h4{display:flex;align-items:center}.pp-opt h4 #pp-reset{margin-left:auto;color:var(--ui-pur-text);text-decoration:none;font-weight:600}.pp-opt h4 #pp-reset:hover{text-decoration:underline}
   .pp-q span.sg{border-style:dashed}
   .pp-q span i{font-style:normal;font-size:11px;opacity:.7}
@@ -190,7 +204,7 @@
   }
   const html = en => esc(en).replace(/\{([^}]+)\}/g, '<span class="t">$1</span>');
   function home() {
-    playing = false; const p = plan(), S = srs();
+    playing = false; root.classList.remove("pp-known"); const p = plan(), S = srs();
     const lrn = p.P.filter(w => S[w.id] && w.status !== "known").length, done = p.P.filter(w => w.status === "known").length;
     const rs = p.live.filter(w => S[w.id] && S[w.id].at).map(w => rNow(S[w.id])), avgR = rs.length ? Math.round(rs.reduce((a, x) => a + x, 0) / rs.length * 100) : 0;
     p.list.slice(0, 12).forEach(w => sentFor(w)); // 先把例句取回来
@@ -204,8 +218,10 @@
       '<div class="pp-st"><div title="记得的概率已经降到 90% 以下、该复习的；「紧急」= 过期超过一天"><small>待复习</small><b>' + p.due.length + "</b><em>" + (urgent ? urgent + " 个紧急" : "") + '</em></div>' +
       '<div title="' + (rs.length ? "按遗忘曲线算，现在平均记得 " + avgR + "%" : "正在练的词") + '"><small>学习中</small><b>' + lrn + "</b><em>+" + p.fresh.length + ' 个排队中</em></div>' +
       '<div title="稳定度到了 60 天（两个月后还有九成把握记得），自动算已掌握"><small>已学习</small><b>' + done + "</b></div></div>" +
+      (() => { const all = p.P.filter(w => !w.sg), kn = all.filter(w => w.status === "known").length, lr = all.filter(w => w.status !== "known" && S[w.id]), avg = lr.length ? lr.reduce((a, w) => a + mastery(S[w.id], w), 0) / lr.length : 0, tot = all.length ? kn / all.length : 0;
+        return '<div class="pp-master" title="稳定度到 60 天（两个月后还有九成把握记得）算已掌握"><div class="h"><span>🏆 已掌握</span><b>' + pcent(tot) + "%</b><small>" + kn + " / " + all.length + " 个</small></div>" + mbar(tot, true) + (lr.length ? '<div class="h2">学习中的 ' + lr.length + " 个词平均掌握进度 <b>" + pcent(avg) + "%</b></div>" + mbar(avg) : "") + "</div>"; })() +
       '<div class="pp-go"><button id="pp-start"' + (n ? "" : " disabled") + ">开始练习</button><span>" + (n ? n + " 张卡片" : p.mode === "none" ? (opt.sugg ? "测验、练习都关了：只练建议，现在没有建议" : "测验、练习、建议都关了，没有可练的") : "现在没有要练的") + "</span></div>" +
-      (p.queue.length ? '<div class="pp-next"><b>接下来</b> · 你的队列，然后是推荐' + '<div class="pp-q">' + p.queue.slice(0, 12).map(q => { const r = S[q.w.id]; return "<span" + (q.kind === "sugg" ? ' class="sg" title="推荐：从看过的视频里来的新词"' : r && r.at ? ' title="现在记得的概率"' : "") + ">" + esc(q.w.word) + (r && r.at ? " <i>" + Math.round(rNow(r) * 100) + "%</i>" : "") + "</span>"; }).join("") + "</div></div>" : "") + "</div>" +
+      (p.queue.length ? '<div class="pp-next"><b>接下来</b> · 你的队列，然后是推荐' + '<div class="pp-q">' + p.queue.slice(0, 12).map(q => { const r = S[q.w.id]; const m = mastery(r, q.w); return "<span" + (q.kind === "sugg" ? ' class="sg" title="推荐：从看过的视频里来的新词"' : ' title="掌握进度 ' + pcent(m) + "%" + (r && r.at ? " · 现在记得 " + pcent(rNow(r)) + "%" : " · 新词") + '"') + ">" + esc(q.w.word) + (q.kind === "sugg" ? "" : " <i>" + pcent(m) + "%</i>" + mbar(m)) + "</span>"; }).join("") + "</div></div>" : "") + "</div>" +
       '<div class="pp-opt"><h4>会话' + (JSON.stringify(Object.keys(DEF).map(k => opt[k])) !== JSON.stringify(Object.keys(DEF).map(k => DEF[k])) ? '<a id="pp-reset" href="javascript:void 0">重置</a>' : "") + "</h4>" +
       tg("pp-quiz", opt.quiz, "测验", "填空题") +
       tg("pp-sugg", opt.sugg, "建议", "来自你看过的视频的新词（" + (p.pool ? p.pool.length : 0) + " 个）") +
@@ -233,7 +249,7 @@
     const p = plan(); if (!p.queue.length) return; const S = srs(); cards = []; at = 0; bad = 0; playing = true;
     medMap().then(() => { prefetch(0); const c = cards[at]; if (c && playing) medFor(c.w).then(() => { if (playing && cards[at] === c && medOf(c)) show(); }); }); // 原声截图在后台取，取到之前先用朗读；取到了重画当前卡片
     p.list.forEach(w => {
-      const r = S[w.id], wasNew = !r, x0 = seen(r), sp = spec(w), base = { w, wasNew, x0, rev: 0 }; // x0：这一轮开始前练过几轮
+      const r = S[w.id], wasNew = !r, x0 = seen(r), sp = spec(w), base = { w, wasNew, x0, m0: mastery(r, w), rev: 0 }; // x0：这一轮开始前练过几轮；m0：开始前的掌握进度
       if (sp.quiz) { const o = sentences(w)[0]; cards.push(Object.assign({ s: { en: mark(o.en, w), zh: o.zh, orig: true }, i: 0, k: "quiz" }, base)); return; } // 一道填空，用保存时的原句
       if (sp.recall) cards.push(Object.assign({ s: { en: hasEn(w) ? w.word : "", zh: w.zh || "" }, i: -1, k: "recall" }, base)); // 认词卡
       (sp.listen ? listenSet(w, sp.listen) : []).forEach((x, i) => cards.push(Object.assign({ s: { en: mark(x.en, w), zh: x.zh, orig: x.orig }, i, k: "listen" }, base)));
@@ -250,7 +266,7 @@
     const lapsed = cards.some(x => x !== c && x.w.id === id && x.done && !x.ok); // 这一轮前面已经错过一张（已经按「忘了」算过）
     r.n++;
     if (!ok && !lapsed) { const m = review(S[id], 1); Object.assign(r, m, { at: now, due: now + RELEARN, b: 0 }); } // 忘了：稳定度变短，10 分钟后再来
-    else if (ok && c.last && !lapsed) { const m = review(S[id], 3); Object.assign(r, m, { at: now, due: now + Math.max(1, interval(m.s)) * DAY, b: levelOf(m.s) }); r.x = (c.x0 || 0) + 1; if (m.s >= KNOWN_S) state.progress[id] = "known"; } // 这一轮都对：按遗忘曲线排下次
+    else if (ok && c.last && !lapsed) { const m = review(S[id], 3); Object.assign(r, m, { at: now, due: now + Math.max(1, interval(m.s)) * DAY, b: levelOf(m.s) }); r.x = (c.x0 || 0) + 1; if (m.s >= KNOWN_S) { const was = state.progress[id] === "known"; state.progress[id] = "known"; if (!was) { c.w.justKnown = true; toast("🏆 「" + c.w.word + "」已掌握！"); } } } // 这一轮都对：按遗忘曲线排下次
     else if (c.last && lapsed) r.x = (c.x0 || 0) + 1;
     S[id] = r; save(state);
   }
@@ -280,7 +296,10 @@
     if (at >= cards.length) return finish();
     const c = cards[at], pct = (at + 1) / cards.length * 100; prefetch(at);
     if (MED && MED[String(c.w.word || "").toLowerCase().trim()] && !(MED[String(c.w.word).toLowerCase().trim()] in medRec)) medFor(c.w).then(() => { if (cards[at] === c && medOf(c)) show(); }); // 原声截图到了：重画这张卡片
-    const top = '<div class="pp-top"><button id="pp-back">← 返回</button><div class="pp-bar"><i style="width:' + pct + '%"></i></div><span>' + (at + 1) + "/" + cards.length + "</span></div>";
+    const mNow = c.w.sg || c.w.pump ? null : mastery(srs()[c.w.id], c.w), known = c.w.justKnown || (mNow != null && mNow >= 1);
+    const prog = mNow == null ? "" : '<div class="pp-prog' + (known ? " known" : "") + '" title="这个词的掌握进度：稳定度到 60 天算已掌握">' + (known ? "🏆 已掌握" : "掌握进度") + mbar(mNow, known) + "<b>" + pcent(mNow) + "%</b>" + (c.done && mNow > (c.m0 || 0) + 0.005 ? '<em>+' + (pcent(mNow) - pcent(c.m0 || 0)) + "%</em>" : "") + "</div>";
+    const top = '<div class="pp-top"><button id="pp-back">← 返回</button><div class="pp-bar"><i style="width:' + pct + '%"></i></div><span>' + (at + 1) + "/" + cards.length + "</span></div>" + prog;
+    root.classList.toggle("pp-known", !!known); // 已掌握的词：卡片换成金色
     const ctl = (k) => '<div class="pp-ctl"><div><button id="pp-a" title="上一个"' + (at ? "" : " disabled") + '>‹</button><kbd>A</kbd></div><div><button id="pp-s" title="重听">↻</button><kbd>S</kbd></div><div><button id="pp-e" title="' + (k === "quiz" ? "看答案（算没答对）" : k === "recall" ? "翻开" : "显示") + '"' + ((k === "listen" && c.rev >= 2) || (k === "quiz" && c.done) || (k === "recall" && c.flip) ? " disabled" : "") + '>👁</button><kbd>E</kbd></div><div><button id="pp-d" class="pri" title="下一个">›</button><kbd>D</kbd></div></div>';
     const def = c.w.zh ? '<div class="pp-def' + (c.k === "listen" && c.rev < 2 ? " hid" : "") + '">' + esc(c.w.word) + "：" + esc(c.w.zh) + "</div>" : "";
     if (c.k === "recall") {
@@ -323,8 +342,14 @@
     try { speechSynthesis.cancel(); } catch (e) {} at = Math.max(0, at + d); show();
   }
   function finish() {
-    playing = false;
-    root.innerHTML = '<div class="pp-card pp-done"><h3>这一组练完了 ' + emoji() + "</h3><p>今天一共练了 " + day.n + " 张卡片" + (bad ? "，有 " + bad + " 张没答对或不认识" : "") + '</p><p style="font-size:13px">没答对的词 10 分钟后再出现；其余按遗忘曲线算：记得的概率降到 90% 时再来，记得越牢，间隔越长。</p><button id="pp-home">返回</button></div>';
+    playing = false; root.classList.remove("pp-known");
+    const S = srs(), seenW = new Map(); cards.forEach(c => { if (!c.w.sg && !c.w.pump && !seenW.has(c.w.id)) seenW.set(c.w.id, c); });
+    const rows = [...seenW.values()].map(c => ({ w: c.w, a: c.m0 || 0, b: mastery(S[c.w.id], c.w), k: !!c.w.justKnown })).sort((x, y) => y.k - x.k || (y.b - y.a) - (x.b - x.a));
+    const newly = rows.filter(r => r.k);
+    root.innerHTML = '<div class="pp-card pp-done"><h3>这一组练完了 ' + emoji() + "</h3><p>今天一共练了 " + day.n + " 张卡片" + (bad ? "，有 " + bad + " 张没答对或不认识" : "") + "</p>" +
+      (newly.length ? '<div class="pp-new">🏆 新掌握 ' + newly.length + " 个：" + newly.map(r => "<b>" + esc(r.w.word) + "</b>").join("、") + "</div>" : "") +
+      (rows.length ? '<div class="pp-sum">' + rows.map(r => '<div class="row' + (r.k || r.b >= 1 ? " known" : "") + '"><span class="w">' + esc(r.w.word) + "</span>" + mbar(r.b, r.k || r.b >= 1) + '<span class="n">' + (r.k || r.b >= 1 ? "🏆 已掌握" : pcent(r.b) + "%") + (r.b > r.a + 0.005 ? " <em>+" + (pcent(r.b) - pcent(r.a)) + "%</em>" : r.b < r.a - 0.005 ? ' <em class="dn">' + (pcent(r.b) - pcent(r.a)) + "%</em>" : "") + "</span></div>").join("") + "</div>" : "") +
+      '<p style="font-size:13px">没答对的词 10 分钟后再出现；其余按遗忘曲线算：记得的概率降到 90% 时再来，记得越牢，间隔越长。掌握进度到 100 % 自动算「已掌握」。</p><button id="pp-home">返回</button></div>';
     root.querySelector("#pp-home").onclick = home;
   }
   document.addEventListener("keydown", e => {
