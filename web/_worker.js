@@ -28,6 +28,7 @@
 //
 // 五、例句 /api/sent?w=单词（网站「🔊 练习」用：像 PhrasePump 一样每次换几句例句听）
 //   → { ok, w, items:[{en, zh}] }，来自 Tatoeba 例句库（只要 14 个词以内、带中文翻译、确实包含这个词的），在 KV 里缓存 30 天（"s/单词"）
+//   GET ?pump=数量 → 随机的额外句子（5–12 个词、带中文），练习名额没用完时补满（同 PhrasePump 的「pump」），不缓存
 const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab", EXT_PATH = "/api/ext", EXT_KEY = "ext", MEDIA_PATH = "/api/media", SENT_PATH = "/api/sent";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
 const okId = v => /^[\w-]{11}$/.test(v || "");
@@ -205,6 +206,18 @@ async function media(req, env) {
 // ---------- 例句（Tatoeba） ----------
 async function sent(req, env, u) {
   if (req.method === "OPTIONS") return json({ ok: true });
+  const pn = Math.min(30, +u.searchParams.get("pump") || 0);
+  if (pn > 0) {
+    try {
+      const out = [];
+      for (let i = 0; i < 3 && out.length < pn; i++) {
+        const r = await fetch("https://tatoeba.org/en/api_v0/search?from=eng&query=&sort=random&word_count_min=5&word_count_max=12&to=cmn&trans_filter=limit&trans_to=cmn&rand_seed=" + Math.random().toString(36).slice(2, 8), { headers: { "User-Agent": "ruilearning-my (personal study site)" } });
+        if (!r.ok) break; const j = await r.json();
+        (j.results || []).forEach(x => { const ts = (x.translations || []).flat().filter(t => t && t.lang === "cmn"), t = ts.find(t => t.script === "Hans") || ts[0]; if (x.text && t && x.text.length <= 90 && !out.some(o => o.en === x.text)) out.push({ en: String(x.text), zh: String(t.text || "") }); });
+      }
+      return json({ ok: true, items: out.slice(0, pn) });
+    } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+  }
   const w = String(u.searchParams.get("w") || "").toLowerCase().trim();
   if (!/^[a-z][a-z' -]{0,40}$/.test(w)) return json({ ok: false, error: "bad word" }, 400);
   const kv = env.CAPTIONS, key = "s/" + w;
