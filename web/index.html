@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ray's Life</title>
-<meta name="description" content="随手收词、精修词条、背诵自测——一本会长大的英语生词本">
+<meta name="description" content="随手收词、精修词条、间隔练习——一本会长大的英语生词本">
 <meta name="theme-color" content="#18191c">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -197,34 +197,8 @@
   .actions .del{flex:0 0 auto;color:var(--accent);background:transparent;border-color:transparent;padding:9px 12px}
 
   /* ---- Flashcards ---- */
-  #flash{display:none;padding-top:20px}
-  #flash.on{display:block}
-  .fc-stage{perspective:1200px;margin:6px 0 18px}
-  .fc{
-    position:relative;width:100%;min-height:330px;cursor:pointer;
-    transform-style:preserve-3d;transition:transform .5s;
-  }
-  .fc.flip{transform:rotateY(180deg)}
-  .fc-face{
-    position:absolute;inset:0;backface-visibility:hidden;
-    background:var(--paper);border-radius:16px;border:1px solid var(--line);
-    padding:26px;display:flex;flex-direction:column;
-    box-shadow:0 8px 24px rgba(20,30,45,.10);
-  }
-  .fc-front{align-items:center;justify-content:center;text-align:center}
-  .fc-front .w{font-family:var(--ui-font);font-weight:900;font-size:42px}
-  .fc-front .p{color:var(--muted);margin-top:8px}
-  .fc-front .hint{position:absolute;bottom:18px;font-size:12px;color:var(--muted);letter-spacing:.05em}
-  .fc-back{transform:rotateY(180deg);overflow:auto}
-  .fc-back .w{font-family:var(--ui-font);font-weight:900;font-size:22px}
-  .fc-controls{display:flex;gap:10px}
-  .fc-controls button{
-    flex:1;font-family:inherit;font-size:14px;font-weight:700;
-    padding:14px;border-radius:12px;cursor:pointer;border:0;
-  }
   .again{background:var(--paper-2);color:var(--ink);border:1px solid var(--line)!important}
   .got{background:var(--gold);color:#3a2c08}
-  .fc-meta{text-align:center;color:var(--muted);font-size:13px;margin-bottom:10px}
 
   /* ---- Add / Export drawers ---- */
   .panel{background:var(--paper);border-radius:14px;border:1px solid var(--line);padding:16px;margin-top:14px;display:none}
@@ -289,24 +263,8 @@
   .say-sm{width:22px;height:22px;min-width:22px;font-size:11px;margin-right:7px;position:relative;top:1px}
   .word-row{display:flex;align-items:center;gap:9px}
   /* self-test (cover & reveal) */
-  #test{display:none}
-  #test.on{display:block}
-  .test-ctrl{display:flex;gap:8px;margin:14px 0 2px}
-  #test-dir{flex:1;background:var(--jade);color:var(--paper);border:0;font-family:inherit;font-size:13px;font-weight:600;padding:11px;border-radius:12px;cursor:pointer}
-  #test-all{background:var(--paper);border:1px solid var(--line);color:var(--ink);font-family:inherit;font-size:13px;font-weight:600;padding:11px 14px;border-radius:12px;cursor:pointer;white-space:nowrap;transition:.15s}
-  #test-all:hover{border-color:var(--accent);color:var(--jade)}
-  .tlist{margin-top:12px;display:flex;flex-direction:column;gap:8px}
-  .trow{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:.12s}
-  .trow.show{box-shadow:0 0 0 1.5px var(--gold) inset}
-  .trow .tp{font-size:16px;font-weight:600;color:var(--ink);line-height:1.4}
   .tspk{background:var(--paper-2);border:1px solid var(--line);border-radius:8px;font-size:13px;line-height:1;padding:4px 8px;cursor:pointer;margin-right:8px;vertical-align:middle}
   .ans .tspk{margin-left:8px;margin-right:0}
-  .trow .tbadge{font-size:10px;font-weight:700;color:var(--accent);margin-right:6px;text-transform:uppercase;letter-spacing:.04em}
-  .trow .treveal{margin-top:8px}
-  .trow .cover{display:inline-block;font-size:12px;color:var(--muted);background:var(--paper-2);border:1px dashed var(--line);border-radius:8px;padding:4px 12px}
-  .trow .ans{display:none;font-size:15px;color:#1c2b29;font-weight:600;line-height:1.7;background:linear-gradient(transparent 58%, #ffdf80 58%);-webkit-box-decoration-break:clone;box-decoration-break:clone;padding:0 2px}
-  .trow.show .cover{display:none}
-  .trow.show .ans{display:inline}
   @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 <link rel="stylesheet" href="theme.css?v=1">
@@ -416,7 +374,7 @@
       <div class="hero-lead">
         <p class="eyebrow">Pocket Vocabulary</p>
         <h1>英语生词本</h1>
-        <p class="lede">随手收词 · 精修词条 · 背诵自测<br>一本会长大的生词本</p>
+        <p class="lede">随手收词 · 精修词条 · 间隔练习<br>一本会长大的生词本</p>
       </div>
       <div class="ring" id="mastery-ring">
         <div class="ring-in"><b id="ring-pct">0%</b><span>掌握</span></div>
@@ -431,8 +389,6 @@
       <button data-mode="saved">⭐ 已保存</button>
       <button data-mode="pump">🔊 练习</button>
       <button data-mode="list" class="on">📖 列表</button>
-      <button data-mode="flash">🎴 背诵</button>
-      <button data-mode="test">🃏 自测</button>
       <button data-mode="export">⚙ 设置</button>
     </div>
   </div>
@@ -472,54 +428,12 @@
   </div>
 
   <!-- FLASH -->
-  <div id="flash">
-    <div class="cats">
-      <button data-c="all" class="on">全部</button>
-      <button data-c="word">单词</button>
-      <button data-c="phrase">短语</button>
-      <button data-c="sentence">句子</button>
-      <button data-c="pattern">规律</button>
-    </div>
-    <div class="fc-meta" id="fc-meta"></div>
-    <div class="fc-stage">
-      <div class="fc" id="fc">
-        <div class="fc-face fc-front">
-          <div class="w" id="fc-word"></div>
-          <div class="p" id="fc-phon"></div>
-          <button class="say" id="fc-say" title="朗读" style="margin-top:14px">🔊</button>
-          <div class="hint">点卡片看答案</div>
-        </div>
-        <div class="fc-face fc-back" id="fc-back"></div>
-      </div>
-    </div>
-    <div class="fc-controls">
-      <button class="again" id="fc-again">再背一次</button>
-      <button class="got" id="fc-got">认识 ✓</button>
-    </div>
-    <div class="footer-tools"><button id="fc-shuffle">🔀 打乱顺序重背</button></div>
-  </div>
-
   <!-- ⭐ 已保存（插件收的词句：有插件嵌插件页面，没插件显示网站只读版 saved-web.js） -->
   <div id="savedbox"><div class="ext-bar"><span>插件的「已保存」页面，能编辑；数据和生词本、手机同步</span><a id="ext-open" target="_blank" rel="noopener">在新标签页打开 ↗</a></div><iframe id="extframe" title="插件的已保存页面" allow="clipboard-write; autoplay"></iframe><div id="ext-web"></div></div>
 
   <!-- 🔊 练习（PhrasePump 式，和插件复习共用进度，见 pump.js；插件里的「复习」也打开这里） -->
   <div id="pump"></div>
 
-  <!-- TEST (cover & reveal) -->
-  <div id="test">
-    <div class="cats">
-      <button data-c="all" class="on">全部</button>
-      <button data-c="word">单词</button>
-      <button data-c="phrase">短语</button>
-      <button data-c="sentence">句子</button>
-      <button data-c="pattern">规律</button>
-    </div>
-    <div class="test-ctrl">
-      <button id="test-dir">👁 看英文 → 想中文</button>
-      <button id="test-all">全部显示</button>
-    </div>
-    <div class="tlist" id="test-list"></div>
-  </div>
 
   <!-- ADD -->
   <!-- EXPORT -->
@@ -883,7 +797,6 @@
     #view-en>header{padding:16px 0 14px}
     #view-en>header .count{margin-top:8px}
     #view-en>header .modes{margin-top:12px}
-    html[data-mode="flash"] #view-en>header .modes,html[data-mode="test"] #view-en>header .modes{margin-top:0}
     .card-head{padding:14px 14px 10px;gap:10px}
     .card-head>div:first-child{min-width:0}
     .word,.zh,.endef,.zh-full,.ex .en,.ex .t,.tip,.forms .f,.forms .m{overflow-wrap:anywhere}
@@ -895,25 +808,6 @@
     .relchip{display:inline-flex;align-items:center;gap:4px;min-height:40px;padding:6px 14px}
     .actions button{min-height:44px}
     .actions .del{min-width:56px}
-
-    /* 自测：行内朗读按钮放大；方向/全部显示 按钮吸顶，滚动时一直够得着 */
-    .trow .tp{display:flex;align-items:center;gap:8px}
-    .trow .tp .say-sm{width:40px;height:40px;min-width:40px;margin:0;flex:0 0 auto}
-    .trow .tbadge{margin-right:0;flex:0 0 auto}
-    .trow .ans,.trow .tp{overflow-wrap:anywhere}
-    .trow .cover{padding:7px 14px}
-    .test-ctrl{position:sticky;top:calc(98px + var(--sat));z-index:5;background:var(--bg);margin:6px 0 0;padding:8px 0}
-    #test-dir,#test-all{min-height:44px}
-    .tlist{margin-top:4px}
-
-    /* 背诵 / 自测：收起大标题，把屏幕让给卡片 */
-    html[data-mode="flash"] #view-en>header,html[data-mode="test"] #view-en>header{padding:10px 0}
-    html[data-mode="flash"] #view-en>header .eyebrow,html[data-mode="flash"] #view-en>header h1,html[data-mode="flash"] #view-en>header .count,
-    html[data-mode="test"] #view-en>header .eyebrow,html[data-mode="test"] #view-en>header h1,html[data-mode="test"] #view-en>header .count{display:none}
-    html[data-mode="flash"] .modes,html[data-mode="test"] .modes{margin-top:0}
-    #test .cats,#flash .cats{margin-top:10px}
-    .fc-face{padding:20px}
-    .fc-controls button,.footer-tools button{min-height:48px}
 
     /* 设置页 */
     .panel{padding:14px}
@@ -944,22 +838,6 @@
     #view-ielts .chip{padding:8px 13px;font-size:13px}
   }
 
-  /* -- 背诵：卡片 + 认识/再背/打乱 按钮正好占满一屏，不用来回滚动 -- */
-  @media (max-width:640px) and (min-height:520px){
-    html[data-mode="flash"]:not(.show-fat):not(.show-trip):not(.show-ielts):not(.collect-mode) body{padding-bottom:0}
-    html[data-mode="flash"]:not(.show-fat):not(.show-trip):not(.show-ielts):not(.collect-mode) #view-en{
-      display:flex;flex-direction:column;height:100vh;height:100dvh}
-    html[data-mode="flash"] #view-en>header{flex:0 0 auto}
-    html[data-mode="flash"] #view-en>.wrap{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column}
-    html[data-mode="flash"] #flash.on{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;
-      padding-top:0;padding-bottom:calc(10px + var(--sab))}
-    html[data-mode="flash"] #flash .cats,html[data-mode="flash"] .fc-meta,
-    html[data-mode="flash"] .fc-controls,html[data-mode="flash"] #flash .footer-tools{flex:0 0 auto}
-    html[data-mode="flash"] .fc-meta{margin:8px 0 6px}
-    html[data-mode="flash"] .fc-stage{flex:1 1 auto;min-height:200px;margin:0 0 10px;display:flex}
-    html[data-mode="flash"] .fc{flex:1 1 auto;min-height:0}
-    html[data-mode="flash"] #flash .footer-tools{margin-top:8px}
-  }
 
   /* ===== 电脑端（≥1024px）：铺满屏幕、和手机分开排版；手机端完全不受影响 ===== */
   @media (min-width:1024px){
@@ -980,12 +858,10 @@
     #view-en>header .hero-top{flex:0 0 auto;align-items:center;gap:28px}
     #view-en>header .statline{flex:0 1 400px;margin-top:0}
     #view-en>header .modes{flex:0 0 auto;margin:0 0 0 auto;min-width:470px}
-    #list-view .cats,#flash .cats,#test .cats{max-width:900px}
+    #list-view .cats{max-width:900px}
     /* 词条列表：多列卡片 */
     .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:14px;align-items:start}
     .toolbar .search{max-width:520px}
-    /* 背诵 / 自测：卡片居中但更宽 */
-    #flash .fc-stage,#flash .fc-controls,#flash .fc-meta,#test .test-list{max-width:900px;margin-left:auto;margin-right:auto}
   }
 
   /* ===== 深色主题（和插件同一套配色；颜色变量在 theme.css，这里只改写死的浅色） ===== */
@@ -1004,7 +880,6 @@
   .typebadge.phrase{background:rgba(142,229,161,.12);color:var(--ui-green);border-color:rgba(142,229,161,.3)}
   .typebadge.sentence{background:rgba(185,133,230,.14);color:#C59BEF;border-color:rgba(185,133,230,.3)}
   .typebadge.pattern{background:rgba(255,184,107,.12);color:var(--ui-orange);border-color:rgba(255,184,107,.3)}
-  .trow .ans{color:var(--ui-ink);background:linear-gradient(transparent 58%,rgba(255,210,63,.3) 58%)}
   #fat-region button.on,#trip-dest button.on,#ielts-subnav button.on{background:var(--ui-pur-soft);color:var(--ui-pur-text)}
   #view-ielts nav a:hover{background:var(--ui-pur);border-color:var(--ui-pur)}
   #view-ielts .tip{background:rgba(255,184,107,.09);border-color:rgba(255,184,107,.28);color:#f3d3a8}#view-ielts .tip b{color:var(--ui-orange)}
@@ -1067,7 +942,7 @@ async function syncNow(){
   }catch(e){}finally{syncing=false; if(syncAgain){syncAgain=false;schedulePush();}}
 }
 function schedulePush(){ clearTimeout(pushTimer); pushTimer=setTimeout(syncNow,1500); }
-let state=def(), words=[], filter="all", query="", cat="all", addType="word", testDir="en", allShown=false, sortBy="new", deck=[], di=0;
+let state=def(), words=[], filter="all", query="", cat="all", addType="word", sortBy="new";
 function sortedWords(){
   let arr=words.map((w,i)=>({w,i}));
   if(sortBy==="az")arr.sort((a,b)=>a.w.word.toLowerCase().localeCompare(b.w.word.toLowerCase()));
@@ -1238,21 +1113,6 @@ function speak(text){
 }
 
 /* ===== self-test (cover & reveal) ===== */
-function renderTest(){
-  const box=document.getElementById("test-list");
-  let arr=sortedWords();
-  if(cat!=="all")arr=arr.filter(w=>w.type===cat);
-  if(!arr.length){box.innerHTML='<div class="empty">这个分类还没有内容。</div>';return;}
-  box.innerHTML=arr.map(w=>{
-    const prompt=testDir==="en"?w.word:w.zh;
-    const answer=testDir==="en"?w.zh:w.word;
-    return `<div class="trow${allShown?" show":""}">
-      <div class="tp"><button class="say say-sm" data-say="${eAttr(noBrace(w.word))}" title="朗读英文">🔊</button>${w.type!=="word"?`<span class="tbadge">${CATNAME[w.type]}</span>`:""}${eHtml(prompt)}</div>
-      <div class="treveal"><span class="cover">点击显示答案 👁</span><span class="ans">${eHtml(answer)}</span></div>
-    </div>`;
-  }).join("");
-}
-
 /* ===== list ===== */
 function renderList(){
   const box=document.getElementById("list");
@@ -1288,38 +1148,6 @@ function renderList(){
      </div>
    </div>`).join("");
   populateImgs();
-}
-
-/* ===== flashcards ===== */
-function newDeck(){
-  deck=words.filter(w=>cat==="all"||w.type===cat);
-  for(let i=deck.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[deck[i],deck[j]]=[deck[j],deck[i]];}
-  di=0;showCard();
-}
-function showCard(){
-  const fc=document.getElementById("fc");fc.classList.remove("flip");
-  const fw=document.getElementById("fc-word");const say=document.getElementById("fc-say");
-  if(!deck.length){say.style.display="none";fw.style.fontSize="";fw.textContent="这个分类还没内容";document.getElementById("fc-meta").textContent="";document.getElementById("fc-phon").textContent="";document.getElementById("fc-back").innerHTML="";return;}
-  if(di>=deck.length){
-    say.style.display="none";
-    document.getElementById("fc-meta").textContent="🎉 这一轮背完了！";
-    fw.style.fontSize="";fw.textContent="全部过完";
-    document.getElementById("fc-phon").textContent="点“打乱顺序重背”再来一轮";
-    document.getElementById("fc-back").innerHTML="";return;
-  }
-  const w=deck[di];
-  say.style.display="inline-flex";say.dataset.say=noBrace(w.word);
-  document.getElementById("fc-meta").textContent=`第 ${di+1} / ${deck.length} 张 · ${CATNAME[w.type]}`;
-  fw.style.fontSize=(w.type==="sentence"||w.word.length>20)?"22px":(w.word.length>12?"30px":"");
-  fw.textContent=w.word;
-  document.getElementById("fc-phon").textContent=w.phon||"";
-  document.getElementById("fc-back").innerHTML=`
-    <div class="w">${w.word}</div>
-    ${w.en?`<div class="endef">${w.en}</div>`:""}
-    <div class="zh" style="font-size:17px;margin:6px 0 4px">${w.zh}</div>
-    ${w.forms?`<div class="forms" style="margin-top:8px">${w.forms.map(f=>`<div><span class="f">${f[0]}</span><span class="p">${f[1]}</span><span class="m">${f[2]}</span></div>`).join("")}</div>`:""}
-    ${w.examples?`<div style="margin-top:10px">${w.examples.map(e=>`<div class="ex"><div class="en">${hl(e[0])}</div><div class="t">${e[1]}</div></div>`).join("")}</div>`:""}
-    ${w.tip?`<div class="tip" style="margin-top:10px">🧠 ${w.tip}</div>`:""}`;
 }
 
 /* ===== export ===== */
@@ -1371,15 +1199,11 @@ document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
   const m=b.dataset.mode;
   document.documentElement.setAttribute("data-mode",m);
   document.getElementById("list-view").style.display=m==="list"?"block":"none";
-  document.getElementById("flash").classList.toggle("on",m==="flash");
-  document.getElementById("test").classList.toggle("on",m==="test");
   document.getElementById("pump").classList.toggle("on",m==="pump"); if(m==="pump"&&window.pumpShow)pumpShow();
   document.getElementById("savedbox").classList.toggle("on",m==="saved"); if(m==="saved")savedShow();
   try{localStorage.setItem("vocab_mode",m);}catch(e){}
   
   document.getElementById("export-panel").classList.toggle("on",m==="export");
-  if(m==="flash")newDeck();
-  if(m==="test")renderTest();
 });
 
 document.getElementById("list").addEventListener("click",async e=>{
@@ -1404,7 +1228,6 @@ document.getElementById("q").oninput=e=>{query=e.target.value.trim();renderList(
 document.getElementById("sort-sel").onchange=e=>{
   sortBy=e.target.value;state.sort=sortBy;save(state);
   renderList();
-  if(document.getElementById("test").classList.contains("on"))renderTest();
 };
 document.querySelectorAll(".filters button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".filters button").forEach(x=>x.classList.remove("on"));b.classList.add("on");filter=b.dataset.f;renderList();
@@ -1413,36 +1236,9 @@ function setCat(c){
   cat=c;
   document.querySelectorAll("[data-c]").forEach(b=>b.classList.toggle("on",b.dataset.c===c));
   renderList();
-  if(document.getElementById("flash").classList.contains("on"))newDeck();
-  if(document.getElementById("test").classList.contains("on"))renderTest();
 }
 document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>setCat(b.dataset.c));
 
-// self-test controls
-document.getElementById("test-dir").onclick=()=>{
-  testDir=testDir==="en"?"zh":"en";
-  document.getElementById("test-dir").textContent=testDir==="en"?"👁 看英文 → 想中文":"👁 看中文 → 想英文";
-  allShown=false;document.getElementById("test-all").textContent="全部显示";
-  renderTest();
-};
-document.getElementById("test-all").onclick=()=>{
-  allShown=!allShown;
-  document.getElementById("test-all").textContent=allShown?"全部隐藏":"全部显示";
-  document.querySelectorAll("#test-list .trow").forEach(r=>r.classList.toggle("show",allShown));
-};
-document.getElementById("test-list").onclick=e=>{
-  const sb=e.target.closest(".say");if(sb){e.stopPropagation();speak(sb.dataset.say);return;}
-  const row=e.target.closest(".trow");if(row)row.classList.toggle("show");
-};
-document.getElementById("fc-say").onclick=e=>{e.stopPropagation();speak(document.getElementById("fc-say").dataset.say||"");};
-
-document.getElementById("fc").onclick=()=>document.getElementById("fc").classList.toggle("flip");
-document.getElementById("fc-shuffle").onclick=newDeck;
-document.getElementById("fc-again").onclick=()=>{di++;showCard();};
-document.getElementById("fc-got").onclick=()=>{
-  if(di<deck.length){state.progress[deck[di].id]="known";counts();save(state);}
-  di++;showCard();
-};
 
 /* ===== quick collect (from videos / web pages) ===== */
 async function enrich(entry){
@@ -1749,7 +1545,7 @@ refresh(); // show seed words immediately, no waiting on storage
 </script>
 <script src="watch.js?v=13"></script>
 <script src="channels.js?v=3"></script>
-<script src="pump.js?v=5"></script>
+<script src="pump.js?v=6"></script>
 <script src="saved-web.js?v=2"></script>
 </body>
 </html>

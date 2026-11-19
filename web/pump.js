@@ -6,7 +6,7 @@
   const LG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, LS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const today = () => new Date().toISOString().slice(0, 10);
-  let opt = Object.assign({ quiz: true, num: 20, newPct: 15, types: ["word", "phrase"], sugg: true, tags: [] }, LG("pump:opt", {})); if (!Array.isArray(opt.tags)) opt.tags = [];
+  let opt = Object.assign({ quiz: true, num: 20, newPct: 15, types: ["word", "phrase"], sugg: true, tags: [], recall: true, dir: "en" }, LG("pump:opt", {})); if (!Array.isArray(opt.tags)) opt.tags = [];
   let day = LG("pump:day", { d: "", n: 0 }); if (day.d !== today()) day = { d: today(), n: 0 };
   let cards = [], at = 0, bad = 0, playing = false, root = null;
   // 插件保存时录下的原声和两张截图（存在 Cloudflare：/api/ext 里有索引，/api/media 一条一条取），哪台设备都能用
@@ -57,6 +57,15 @@
   .pp-card{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:18px;min-height:250px;padding:46px 22px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
   .pp-zh .hm{display:inline-block;font-size:10.5px;font-weight:800;border-radius:4px;padding:0 4px;margin-right:6px;background:var(--ui-surface-3);color:var(--ui-muted);vertical-align:1px}
   .pp-sg{margin-top:12px;font-size:13px;color:var(--ui-muted)}.pp-sg button{margin-left:8px;height:30px;border-radius:8px;border:1px solid var(--ui-pur);background:var(--ui-pur-soft);color:var(--ui-pur-text);font:inherit;font-size:13px;padding:0 12px;cursor:pointer}.pp-sg button:disabled{opacity:.6;cursor:default}
+  .pp-rc{cursor:pointer}.pp-rc.back{cursor:default;text-align:left;align-items:stretch}
+  .pp-rc .rc-w{font-size:36px;font-weight:900;color:var(--ui-ink);line-height:1.25;text-align:center}.pp-rc .rc-w.long{font-size:24px}.pp-rc.back .rc-w{font-size:26px;text-align:left}
+  .pp-rc .rc-p{color:var(--ui-muted);margin-top:6px;text-align:center}.pp-rc.back .rc-p{text-align:left;margin-top:2px}
+  .pp-rc .rc-q{margin-top:18px;color:var(--ui-muted);font-size:13px;text-align:center}
+  .pp-rc .rc-zh{margin-top:10px;font-size:18px;color:var(--ui-ink)}.pp-rc .rc-en{margin-top:4px;color:var(--ui-muted);font-size:14px}
+  .pp-rc .rc-fm{margin-top:10px;font-size:13.5px;color:var(--ui-ink-2);display:grid;gap:2px}.pp-rc .rc-fm span{color:var(--ui-muted)}
+  .pp-rc .rc-ex{margin-top:10px;display:grid;gap:8px;font-size:14.5px;color:var(--ui-ink)}.pp-rc .rc-ex span{display:block;color:var(--ui-muted);font-size:13px}.pp-rc .rc-ex .t{color:var(--ui-orange);font-weight:700}
+  .pp-rc .rc-tip{margin-top:10px;font-size:13.5px;color:var(--ui-ink-2)}
+  .pp-rcb{display:flex;gap:10px;margin:12px 0 0}.pp-rcb button{flex:1;height:46px;border-radius:12px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink)}#pp-yes{background:var(--ui-pur);border-color:var(--ui-pur);color:#fff}#pp-no:hover{border-color:var(--ui-red);color:var(--ui-red)}
   .pp-img{display:flex;gap:8px;justify-content:center;width:100%;max-width:640px;margin:0 auto 14px}.pp-img img{flex:1 1 0;min-width:0;max-width:300px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:var(--paper-2)}
   .pp-card .pl{position:absolute;left:12px;top:12px;width:32px;height:32px;border-radius:50%;background:var(--jade);color:#fff;border:0;font-size:13px;cursor:pointer}
   .pp-card .cp{position:absolute;right:12px;top:12px;border:0;background:none;color:var(--muted);font-size:13px;cursor:pointer;padding:6px}
@@ -83,7 +92,9 @@
   .pp-hc,.pp-opt,.pp-card{box-shadow:var(--ui-shadow)}`;
   const srs = () => (state.srs = state.srs || {});
   const emoji = () => { const r = day.n / Math.max(1, opt.num); return r <= 0 ? "😭" : r < 0.25 ? "😢" : r < 0.5 ? "😐" : r < 1 ? "🙂" : "😄"; };
-  const usable = w => w && w.word && opt.types.includes(w.type || "word") && !/[一-鿿]/.test(w.word); // 「规律」类词条标题是中文，不适合听力
+  const hasEn = w => !/[一-鿿]/.test(w.word); // 「规律」类词条标题是中文：没法听，只能用认词卡练
+  const usable = w => w && w.word && opt.types.includes(w.type || "word") && (hasEn(w) || opt.recall);
+  const nCards = w => (w.sg ? 0 : opt.recall || !hasEn(w) ? 1 : 0) + (hasEn(w) ? Math.min(PER, sentences(w).length) : 0);
   function plan() {
     const S = srs(), now = Date.now(), tagOf = w => (EXT && EXT.tags[String(w.word).toLowerCase().trim()]) || "";
     const P = (typeof words !== "undefined" ? words : []).filter(usable).filter(w => !opt.tags.length || opt.tags.includes(tagOf(w))), live = P.filter(w => w.status !== "known");
@@ -114,34 +125,38 @@
   function home() {
     playing = false; const p = plan(), S = srs();
     const lrn = p.P.filter(w => S[w.id] && S[w.id].b < DONE && w.status !== "known").length, done = p.P.filter(w => w.status === "known" || (S[w.id] && S[w.id].b >= DONE)).length;
-    const urgent = p.due.filter(w => Date.now() - S[w.id].due > DAY).length, n = p.list.reduce((a, w) => a + Math.min(PER, sentences(w).length), 0);
+    const urgent = p.due.filter(w => Date.now() - S[w.id].due > DAY).length, n = p.list.reduce((a, w) => a + nCards(w), 0);
     root.innerHTML = '<div class="pp-home"><div class="pp-hc"><h2>🔊 <b>练习</b></h2>' +
       '<div class="pp-today"><span class="emo">' + emoji() + "</span>今天<b>" + day.n + ' 张卡片</b></div><div class="pp-bar"><i style="width:' + Math.min(100, day.n / Math.max(1, opt.num) * 100) + '%"></i></div>' +
       '<div class="pp-st"><div title="到期要复习的词；「紧急」= 过期超过一天"><small>待复习</small><b>' + p.due.length + "</b><em>" + (urgent ? urgent + " 个紧急" : "") + '</em></div><div title="正在练、还没到 35 天这一级的词"><small>学习中</small><b>' + lrn + "</b><em>+" + p.fresh.length + ' 个排队中</em></div><div title="已掌握，或复习间隔到了 35 天"><small>已学习</small><b>' + done + "</b></div></div>" +
       '<div class="pp-go"><button id="pp-start"' + (n ? "" : " disabled") + ">开始练习</button><span>" + (n ? n + " 张卡片" : "现在没有要练的词") + "</span></div>" +
       (p.list.length ? '<div class="pp-next"><b>接下来</b> · 待复习的优先，然后是新词<div class="pp-q">' + p.list.slice(0, 12).map(w => "<span>" + esc(w.word) + "</span>").join("") + "</div></div>" : "") + "</div>" +
       '<div class="pp-opt"><h4>会话</h4>' +
+      '<label class="pp-row"><span>认词卡 <small>先看词回想意思，翻开后自己判断认不认识（原来的「背诵」「自测」）</small></span><input type="checkbox" class="pp-tg" id="pp-recall"' + (opt.recall ? " checked" : "") + "></label>" +
+      (opt.recall ? '<div class="pp-row"><span>认词方向</span><span class="pp-seg" data-k="dir">' + [["en", "看英文想中文"], ["zh", "看中文想英文"]].map(([v, t]) => '<b data-v="' + v + '" class="' + (opt.dir === v ? "on" : "") + '">' + t + "</b>").join("") + "</span></div>" : "") +
       '<label class="pp-row"><span>测验 <small>复习过的词先出一张填空题</small></span><input type="checkbox" class="pp-tg" id="pp-quiz"' + (opt.quiz ? " checked" : "") + "></label>" +
       '<div class="pp-row"><span>练习数量</span><span class="pp-seg" data-k="num">' + NUMS.map(v => '<b data-v="' + v + '" class="' + (v === opt.num ? "on" : "") + '">' + v + "</b>").join("") + "</span></div>" +
       '<div class="pp-row" title="新词最多占的比例；待复习的多时会自动减少"><span>新项目</span><span class="pp-seg" data-k="newPct">' + NEWS.map(v => '<b data-v="' + v + '" class="' + (v === opt.newPct ? "on" : "") + '">' + v + "%</b>").join("") + "</span></div>" +
-      '<div class="pp-row"><span>类型</span><span class="pp-seg" data-k="types">' + [["word", "单词"], ["phrase", "短语"], ["sentence", "句子"]].map(([v, t]) => '<b data-v="' + v + '" class="' + (opt.types.includes(v) ? "on" : "") + '">' + t + "</b>").join("") + "</span></div>" +
+      '<div class="pp-row"><span>类型</span><span class="pp-seg" data-k="types">' + [["word", "单词"], ["phrase", "短语"], ["sentence", "句子"], ["pattern", "规律"]].map(([v, t]) => '<b data-v="' + v + '" class="' + (opt.types.includes(v) ? "on" : "") + '">' + t + "</b>").join("") + "</span></div>" +
       '<label class="pp-row"><span>推荐生词 <small>从看过的视频里挑还没收的词（' + (p.pool ? p.pool.length : 0) + ' 个）</small></span><input type="checkbox" class="pp-tg" id="pp-sugg"' + (opt.sugg ? " checked" : "") + "></label>" +
       (EXT && Object.keys(EXT.tags).length ? '<div class="pp-row"><span>标签</span><span class="pp-seg" data-k="tags">' + [...new Set(Object.values(EXT.tags))].map(t => '<b data-v="' + esc(t) + '" class="' + (opt.tags.includes(t) ? "on" : "") + '">' + esc(t) + "</b>").join("") + "</span></div>" : "") +
-      '<p class="pp-note">插件里的「复习」也打开这里，进度是同一份：在哪台设备练都算。每个词连续练 3 个例句；练到 35 天这一级自动标为「已掌握」。电脑上可以用键盘：A 上一个、S 重听、E 显示、D 下一个。</p></div></div>';
+      '<p class="pp-note">插件里的「复习」也打开这里，进度是同一份：在哪台设备练都算。每个词连续练 3 个例句；练到 35 天这一级自动标为「已掌握」。电脑上可以用键盘：A 上一个、S 重听、E 显示 / 翻开、D 下一个；认词卡翻开后按 1 不认识、2 认识。</p></div></div>';
     root.querySelector("#pp-start").onclick = start;
     root.querySelector("#pp-quiz").onchange = e => { opt.quiz = e.target.checked; LS("pump:opt", opt); };
+    root.querySelector("#pp-recall").onchange = e => { opt.recall = e.target.checked; LS("pump:opt", opt); home(); };
     root.querySelector("#pp-sugg").onchange = e => { opt.sugg = e.target.checked; LS("pump:opt", opt); home(); };
     if (!EXT) medMap().then(() => { if (!playing && root.classList.contains("on")) home(); }); // 插件数据到了：刷新推荐生词、标签
     root.querySelectorAll(".pp-seg").forEach(g => g.onclick = e => { const b = e.target.closest("b"); if (!b) return; const k = g.dataset.k, v = b.dataset.v;
-      if (k === "types") { opt.types = opt.types.includes(v) ? opt.types.filter(x => x !== v) : opt.types.concat(v); if (!opt.types.length) opt.types = ["word"]; } else if (k === "tags") opt.tags = opt.tags.includes(v) ? opt.tags.filter(x => x !== v) : opt.tags.concat(v); else opt[k] = +v;
+      if (k === "types") { opt.types = opt.types.includes(v) ? opt.types.filter(x => x !== v) : opt.types.concat(v); if (!opt.types.length) opt.types = ["word"]; } else if (k === "dir") opt.dir = v; else if (k === "tags") opt.tags = opt.tags.includes(v) ? opt.tags.filter(x => x !== v) : opt.tags.concat(v); else opt[k] = +v;
       LS("pump:opt", opt); home(); });
   }
   function start() {
     const p = plan(); if (!p.list.length) return; const S = srs(); cards = []; at = 0; bad = 0; playing = true;
     medMap().then(() => { prefetch(0); const c = cards[at]; if (c && playing) medFor(c.w).then(() => { if (playing && cards[at] === c && medOf(c)) show(); }); }); // 原声截图在后台取，取到之前先用朗读；取到了重画当前卡片
     p.list.forEach(w => {
-      const L = sentences(w).map(x => ({ en: mark(x.en, w), zh: x.zh })), n = Math.min(PER, L.length), wasNew = !S[w.id];
-      const canQuiz = opt.quiz && !wasNew && !w.sg && w.type !== "sentence" && /\{[^}]+\}/.test(L[0].en);
+      const L = hasEn(w) ? sentences(w).map(x => ({ en: mark(x.en, w), zh: x.zh })) : [], n = Math.min(PER, L.length), wasNew = !S[w.id];
+      if (!w.sg && (opt.recall || !n)) cards.push({ w, s: { en: hasEn(w) ? w.word : "", zh: w.zh || "" }, i: -1, k: "recall", last: !n, wasNew, rev: 0 }); // 认词卡
+      const canQuiz = n && opt.quiz && !wasNew && !w.sg && w.type !== "sentence" && /\{[^}]+\}/.test(L[0].en);
       for (let i = 0; i < n; i++) cards.push({ w, s: L[i], i, k: canQuiz && i === 0 ? "quiz" : "listen", last: i === n - 1, wasNew, rev: 0 });
     });
     show();
@@ -181,9 +196,20 @@
     const c = cards[at], pct = (at + 1) / cards.length * 100; prefetch(at);
     if (MED && MED[String(c.w.word || "").toLowerCase().trim()] && !(MED[String(c.w.word).toLowerCase().trim()] in medRec)) medFor(c.w).then(() => { if (cards[at] === c && medOf(c)) show(); }); // 原声截图到了：重画这张卡片
     const top = '<div class="pp-top"><button id="pp-back">← 返回</button><div class="pp-bar"><i style="width:' + pct + '%"></i></div><span>' + (at + 1) + "/" + cards.length + "</span></div>";
-    const ctl = (k) => '<div class="pp-ctl"><div><button id="pp-a" title="上一个"' + (at ? "" : " disabled") + '>‹</button><kbd>A</kbd></div><div><button id="pp-s" title="重听">↻</button><kbd>S</kbd></div><div><button id="pp-e" title="' + (k === "quiz" ? "看答案（算没答对）" : "显示") + '"' + ((k === "listen" && c.rev >= 2) || (k === "quiz" && c.done) ? " disabled" : "") + '>👁</button><kbd>E</kbd></div><div><button id="pp-d" class="pri" title="下一个">›</button><kbd>D</kbd></div></div>';
+    const ctl = (k) => '<div class="pp-ctl"><div><button id="pp-a" title="上一个"' + (at ? "" : " disabled") + '>‹</button><kbd>A</kbd></div><div><button id="pp-s" title="重听">↻</button><kbd>S</kbd></div><div><button id="pp-e" title="' + (k === "quiz" ? "看答案（算没答对）" : k === "recall" ? "翻开" : "显示") + '"' + ((k === "listen" && c.rev >= 2) || (k === "quiz" && c.done) || (k === "recall" && c.flip) ? " disabled" : "") + '>👁</button><kbd>E</kbd></div><div><button id="pp-d" class="pri" title="下一个">›</button><kbd>D</kbd></div></div>';
     const def = c.w.zh ? '<div class="pp-def' + (c.k === "listen" && c.rev < 2 ? " hid" : "") + '">' + esc(c.w.word) + "：" + esc(c.w.zh) + "</div>" : "";
-    if (c.k === "listen") {
+    if (c.k === "recall") {
+      const w = c.w, zhFirst = opt.dir === "zh" && w.zh, big = t => '<div class="rc-w' + (String(t).length > 24 ? " long" : "") + '">' + t + "</div>";
+      const front = zhFirst ? big(esc(w.zh)) + '<div class="rc-q">想一想英文怎么说</div>' : big(esc(plain(w.word))) + (w.phon ? '<div class="rc-p">' + esc(w.phon) + "</div>" : "") + '<div class="rc-q">想一想是什么意思</div>';
+      const ex = (w.examples || []).filter(x => Array.isArray(x) && x[0]).slice(0, 2), fm = (w.forms || []).slice(0, 6);
+      const back = big(esc(plain(w.word))) + (w.phon ? '<div class="rc-p">' + esc(w.phon) + "</div>" : "") + '<div class="rc-zh">' + esc(w.zh || "") + "</div>" + (w.en ? '<div class="rc-en">' + esc(w.en) + "</div>" : "") +
+        (fm.length ? '<div class="rc-fm">' + fm.map(x => "<div><b>" + esc(x[0]) + "</b> <span>" + esc(x[1] || "") + "</span> " + esc(x[2] || "") + "</div>").join("") + "</div>" : "") +
+        (ex.length ? '<div class="rc-ex">' + ex.map(x => "<div>" + html(String(x[0])) + "<span>" + esc(x[1] || "") + "</span></div>").join("") + "</div>" : "") + (w.tip ? '<div class="rc-tip">🧠 ' + esc(w.tip) + "</div>" : "");
+      root.innerHTML = top + '<div class="pp-hint"><b>🃏 认词</b>' + (c.flip ? (c.done ? (c.ok ? "认识 ✓" : "不认识，10 分钟后再出现") : "认识吗？自己判断，按 D 算认识") : "先回想，再点卡片或按 E 翻开") + '</div><div class="pp-card pp-rc' + (c.flip ? " back" : "") + '" id="pp-rc"><button class="pl" id="pp-pl" title="朗读">▶</button><button class="cp" id="pp-cp">复制</button>' + (c.flip ? back : front) + "</div>" +
+        (c.flip && !c.done ? '<div class="pp-rcb"><button id="pp-no">✗ 不认识</button><button id="pp-yes">✓ 认识</button></div>' : "") + ctl("recall");
+      root.querySelector("#pp-rc").onclick = e => { if (e.target.closest("button")) return; flip(c); };
+      if (c.flip && !c.done) { root.querySelector("#pp-no").onclick = () => { grade(c, false); go(1); }; root.querySelector("#pp-yes").onclick = () => { grade(c, true); go(1); }; }
+    } else if (c.k === "listen") {
       root.innerHTML = top + '<div class="pp-hint"><b>🔊 听力练习</b>在显示文字之前试着听懂。</div><div class="pp-card"><button class="pl" id="pp-pl" title="播放">▶</button><button class="cp" id="pp-cp">复制</button>' + imgs(c) +
         '<div class="pp-en' + (c.rev < 1 ? " hid" : "") + '" id="pp-en">' + html(c.s.en) + '</div><div class="pp-zh' + (c.rev < 2 ? " hid" : "") + '" id="pp-zh">' + zhHtml(c) + "</div>" + def + (c.w.sg ? '<div class="pp-sg">💡 推荐生词：在看过的视频里出现，还没收进生词本 <button id="pp-add"' + (c.w.added ? " disabled" : "") + ">" + (c.w.added ? "已收进生词本" : "＋ 收进生词本") + "</button></div>" : "") + '<span class="pp-chip">' + esc(c.w.word) + "</span></div>" + ctl("listen");
       if (!c.spoken) { c.spoken = true; c.medSaid = !!medOf(c); say(c); } else if (medOf(c) && !c.medSaid) { c.medSaid = true; say(c); } // 原声晚到：用原声再放一遍
@@ -201,23 +227,25 @@
     root.querySelector("#pp-pl").onclick = root.querySelector("#pp-s").onclick = () => say(c);
     root.querySelector("#pp-cp").onclick = () => { const t = plain(c.s.en); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("已复制"), () => toast("复制失败")); };
     root.querySelector("#pp-a").onclick = () => go(-1); root.querySelector("#pp-d").onclick = () => go(1);
-    root.querySelector("#pp-e").onclick = () => (c.k === "listen" ? reveal(c) : c.check(true));
+    root.querySelector("#pp-e").onclick = () => (c.k === "listen" ? reveal(c) : c.k === "recall" ? flip(c) : c.check(true));
   }
+  function flip(c) { if (c.flip) return; c.flip = true; show(); if (c.s.en) say(c); } // 翻开认词卡，顺便念一下
   function reveal(c) { if (c.k !== "listen") return; c.rev = Math.min(2, c.rev + 1); show(); }
   function go(d) {
     const c = cards[at]; if (!c) return;
-    if (d > 0) { if (c.k === "listen") grade(c, true); else if (!c.done) { const inp = root.querySelector("#pp-in"); if (inp && inp.value.trim()) { c.check(false); return; } grade(c, false); } }
+    if (d > 0 && c.k === "recall" && !c.done) { if (!c.flip) { flip(c); return; } grade(c, true); } // 认词卡：没翻开先翻开；翻开了按「下一个」算认识
+    else if (d > 0) { if (c.k === "listen") grade(c, true); else if (!c.done) { const inp = root.querySelector("#pp-in"); if (inp && inp.value.trim()) { c.check(false); return; } grade(c, false); } }
     try { speechSynthesis.cancel(); } catch (e) {} at = Math.max(0, at + d); show();
   }
   function finish() {
     playing = false;
-    root.innerHTML = '<div class="pp-card pp-done"><h3>这一组练完了 ' + emoji() + "</h3><p>今天一共练了 " + day.n + " 张卡片" + (bad ? "，填空题有 " + bad + " 张没答对" : "") + '</p><p style="font-size:13px">没答对的词 10 分钟后再出现；其余按 1、3、7、16、35 天的间隔复习。</p><button id="pp-home">返回</button></div>';
+    root.innerHTML = '<div class="pp-card pp-done"><h3>这一组练完了 ' + emoji() + "</h3><p>今天一共练了 " + day.n + " 张卡片" + (bad ? "，有 " + bad + " 张没答对或不认识" : "") + '</p><p style="font-size:13px">没答对的词 10 分钟后再出现；其余按 1、3、7、16、35 天的间隔复习。</p><button id="pp-home">返回</button></div>';
     root.querySelector("#pp-home").onclick = home;
   }
   document.addEventListener("keydown", e => {
     if (!playing || !root || !root.classList.contains("on") || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     const c = cards[at]; if (!c) return; const k = e.key.toLowerCase();
-    if (k === "d" || k === "arrowright") go(1); else if (k === "a" || k === "arrowleft") { if (at) go(-1); } else if (k === "s" || k === "arrowdown" || k === " ") say(c); else if (k === "e") { if (c.k === "listen") reveal(c); else c.check(true); } else return;
+    if (k === "d" || k === "arrowright") go(1); else if (k === "a" || k === "arrowleft") { if (at) go(-1); } else if (k === "s" || k === "arrowdown" || k === " ") say(c); else if (k === "e") { if (c.k === "listen") reveal(c); else if (c.k === "recall") flip(c); else c.check(true); } else if (c.k === "recall" && c.flip && !c.done && (k === "1" || k === "2")) { grade(c, k === "2"); go(1); } else return;
     e.preventDefault();
   });
   window.pumpShow = () => { if (!playing) home(); };
@@ -228,8 +256,9 @@
     // 生词本的模式：新加的「⭐ 已保存」排最前，第一次打开默认进它；之后记住上次选的模式
     // ?go=pump / ?go=saved：插件里的「复习」「已保存」按钮直接打开这里
     let m = "saved"; try { m = localStorage.getItem("vocab_mode") || "saved"; } catch (e) {}
+    if (m === "flash" || m === "test") m = "pump"; // 「背诵」「自测」已并进练习的认词卡
     const go = new URLSearchParams(location.search).get("go");
-    if (go && /^(saved|pump|list|flash|test)$/.test(go)) { m = go; try { history.replaceState(null, "", location.pathname); localStorage.setItem("wt:tab", "0"); } catch (e) {} const l1 = document.getElementById("l1-en"), nb = document.getElementById("tab-notebook"); if (l1) l1.click(); if (nb) nb.click(); }
+    if (go && /^(saved|pump|list)$/.test(go)) { m = go; try { history.replaceState(null, "", location.pathname); localStorage.setItem("wt:tab", "0"); } catch (e) {} const l1 = document.getElementById("l1-en"), nb = document.getElementById("tab-notebook"); if (l1) l1.click(); if (nb) nb.click(); }
     const b = document.querySelector('.modes button[data-mode="' + m + '"]') || document.querySelector('.modes button[data-mode="saved"]');
     if (b && !document.documentElement.classList.contains("collect-mode")) b.click();
   }
