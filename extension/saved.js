@@ -350,3 +350,5 @@ document.addEventListener("click", async e => {
     chrome.storage.local.set({ [k]: st }); $$("[data-im]").filter(el => el.dataset.im === w).forEach(async el => { el.innerHTML = imgsHtml(w, await imgsFor(w), el.classList.contains("dimg")); }); return; }
   const im = e.target.closest("[data-im] img"); if (im) { e.stopPropagation(); const v = document.createElement("div"); v.className = "imgview"; const big = document.createElement("img"); big.src = im.src; v.append(big); v.onclick = () => v.replaceWith(); document.body.append(v); }
 }, true);
+// 打开页面时先和云端同步一次（换设备后能马上看到录音、截图和已保存的内容；同步回来的变化会自动刷新页面）
+chrome.runtime.sendMessage({ type: "extSync" }, () => void chrome.runtime.lastError);

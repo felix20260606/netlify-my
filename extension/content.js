@@ -50,6 +50,17 @@
     if (S.srcLang !== old.srcLang) { key = ""; loadedLang = ""; askTracks(); }
     else if (raw.length && (S.engine !== old.engine || S.target !== old.target || S.merge !== old.merge || S.showHuman !== old.showHuman)) buildCues();
   });
+  // 别的页面或云端同步改了已保存的词、标记、句子：这里的内存副本跟着换，免得下次保存时用旧的把新的盖掉
+  let syncRT = 0;
+  chrome.storage.onChanged.addListener((c, a) => {
+    if (a !== "local" || !(c.saved || c.savedSents || c.marks || c.savedCtx || c.tags)) return;
+    if (c.saved) { savedSet = new Set((c.saved.newValue || []).map(w => String(w).toLowerCase())); VS_SAVED = savedSet; }
+    if (c.marks) VS_MARKS = c.marks.newValue || {};
+    if (c.savedSents) savedSents = c.savedSents.newValue || [];
+    if (c.savedCtx) savedCtx = c.savedCtx.newValue || {};
+    if (c.tags) wtags = c.tags.newValue || {};
+    clearTimeout(syncRT); syncRT = setTimeout(refreshMarks, 300);
+  });
   chrome.storage.onChanged.addListener((c, a) => { if (a === "local" && c.audioPick && c.audioPick.newValue) window.postMessage({ src: "VS-C", type: "set-audio", index: c.audioPick.newValue.i }, "*"); });
   // 一次性迁移：旧版本的 ✕ 会把侧栏彻底关掉，新版本改为收起，所以把被关掉的侧栏恢复出来
   chrome.storage.local.get({ pm1: false }, v => { if (!v.pm1) { chrome.storage.local.set({ pm1: true }); chrome.storage.sync.set({ panelOpen: true }); } });

@@ -15,7 +15,17 @@
 //   POST {patch:{srs,progress,deleted}} → 只改复习进度、掌握状态、删除词条（插件用，返回 { ok, changed }）
 //   POST {replace:{…}} → 整份覆盖（还原用：内容取自存档或仓库里的 data/vocab.json）
 // 不设口令：谁都能写，被乱改时用存档或仓库备份还原（GitHub Actions 每 6 小时把生词本存进仓库 data/vocab.json）
-const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab";
+//
+// 三、插件数据 /api/ext（整份存在 KV 的 "ext" 这一条里）：已保存的词和句子、颜色标记、标签、配图选择、插件设置，以及录音截图的索引
+//   每一项是 "种类|名字" → { v 内容, at 改动时间 } 或 { del:1, at }（删除记号，保留 120 天）；同一项以 at 新的为准，多台设备各改各的也能合并
+//   GET              → { ok, ver, items }（只返回没删的）
+//   GET  ?history=1 / ?at=日期 → 和生词本一样的每日存档（30 天）
+//   POST {changes:{项:{v,at}|{del:1,at}}} → 合并后返回 { ok, ver, items }；"med|…" 项被删除时，对应的录音截图也一起删
+//
+// 四、录音和截图 /api/media（每条一个 KV 记录 "m:" + 插件里的键，如 m:med:w:apple；内容 { aud, img, img2, t, tr, v, s, at… }）
+//   GET  ?k=med:w:apple → { ok, rec }
+//   POST {k, rec}       → 保存一条（单条最大 8MB）
+const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab", EXT_PATH = "/api/ext", EXT_KEY = "ext", MEDIA_PATH = "/api/media";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
 const okId = v => /^[\w-]{11}$/.test(v || "");
 // 列表信息放在每条记录的 metadata 里（上限 1024 字节，所以这里把标题、作者截短；完整标题在记录正文里）
@@ -127,11 +137,75 @@ async function vocab(req, env) {
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
 
+// ---------- 插件数据 ----------
+const bjDay = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // 北京时间的日期
+const live = items => { const o = {}; for (const k in items) if (isObj(items[k]) && !items[k].del) o[k] = items[k]; return o; };
+async function ext(req, env) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  const kv = env.CAPTIONS;
+  if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
+  try {
+    const raw0 = await kv.get(EXT_KEY), doc = (raw0 && JSON.parse(raw0)) || { ver: 0, items: {} };
+    if (!isObj(doc.items)) doc.items = {};
+    if (req.method === "GET") {
+      const q = new URL(req.url).searchParams;
+      if (q.get("history")) { const l = await kv.list({ prefix: EXT_KEY + "@" }); return json({ ok: true, days: l.keys.map(k => k.name.slice(EXT_KEY.length + 1)).sort().reverse() }); }
+      const at = q.get("at");
+      if (at) { if (!/^\d{4}-\d{2}-\d{2}$/.test(at)) return json({ ok: false, error: "bad date" }, 400); const d = await kv.get(EXT_KEY + "@" + at, "json"); return d ? json({ ok: true, at, ver: d.ver, items: live(d.items || {}) }) : json({ ok: false, error: "not found" }, 404); }
+      return json({ ok: true, ver: doc.ver, items: live(doc.items) });
+    }
+    if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
+    const raw = await req.text(); if (raw.length > 20000000) return json({ ok: false, error: "too large" }, 413);
+    const b = JSON.parse(raw || "{}");
+    if (b.replace && isObj(b.replace.items)) { // 整份还原（内容取自存档或仓库里的 data/ext.json）
+      const day = EXT_KEY + "@" + bjDay(); if (raw0 && !(await kv.get(day))) await kv.put(day, raw0, { expirationTtl: 30 * 86400 });
+      const now = Date.now(), items = {}; for (const k in b.replace.items) { const x = b.replace.items[k]; if (isObj(x)) items[k] = { v: x.v, at: now }; }
+      for (const k in doc.items) if (!items[k]) items[k] = { del: 1, at: now };
+      const next = { ver: now, items }; await kv.put(EXT_KEY, JSON.stringify(next)); return json({ ok: true, ver: next.ver, items: live(items) });
+    }
+    if (!isObj(b.changes)) return json({ ok: false, error: "bad body" }, 400);
+    let changed = false; const gone = [];
+    for (const k in b.changes) {
+      const x = b.changes[k]; if (!isObj(x) || typeof k !== "string" || k.length > 600 || !k.includes("|")) continue;
+      const at = +x.at || 0, old = doc.items[k];
+      if (old && (+old.at || 0) > at) continue;
+      if (x.del) { if (old && !old.del) { doc.items[k] = { del: 1, at }; changed = true; if (k.startsWith("med|")) gone.push(k.slice(4)); } else if (!old) { doc.items[k] = { del: 1, at }; changed = true; } }
+      else if (!old || old.del || JSON.stringify(old.v) !== JSON.stringify(x.v)) { doc.items[k] = { v: x.v, at }; changed = true; }
+    }
+    if (changed) {
+      const cut = Date.now() - 120 * 86400e3; for (const k in doc.items) if (doc.items[k].del && doc.items[k].at < cut) delete doc.items[k];
+      const day = EXT_KEY + "@" + bjDay(); if (raw0 && !(await kv.get(day))) await kv.put(day, raw0, { expirationTtl: 30 * 86400 });
+      doc.ver = Date.now(); await kv.put(EXT_KEY, JSON.stringify(doc));
+      for (const m of gone) if (m.startsWith("med:")) await kv.delete("m:" + m);
+    }
+    return json({ ok: true, changed, ver: doc.ver, items: live(doc.items) });
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
+async function media(req, env) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  const kv = env.CAPTIONS;
+  if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
+  try {
+    const okK = k => typeof k === "string" && k.startsWith("med:") && k.length < 480;
+    if (req.method === "GET") {
+      const k = new URL(req.url).searchParams.get("k"); if (!okK(k)) return json({ ok: false, error: "bad key" }, 400);
+      const rec = await kv.get("m:" + k, "json"); return rec ? json({ ok: true, k, rec }) : json({ ok: false, error: "not found" }, 404);
+    }
+    if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
+    const raw = await req.text(); if (raw.length > 8000000) return json({ ok: false, error: "too large" }, 413);
+    const b = JSON.parse(raw || "{}"); if (!okK(b.k) || !isObj(b.rec)) return json({ ok: false, error: "bad body" }, 400);
+    await kv.put("m:" + b.k, JSON.stringify(b.rec));
+    return json({ ok: true });
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
+
 export default {
   async fetch(req, env) {
     const u = new URL(req.url);
     if (API_PATHS.includes(u.pathname)) return cap(req, env, u);
     if (u.pathname === VOCAB_PATH) return vocab(req, env);
+    if (u.pathname === EXT_PATH) return ext(req, env);
+    if (u.pathname === MEDIA_PATH) return media(req, env);
     return env.ASSETS.fetch(req);
   }
 };

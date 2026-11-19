@@ -279,3 +279,7 @@ document.addEventListener("keydown", e => {
 $("back").innerHTML = I("back"); $("back").onclick = () => { stopAll(); load(home); };
 $("start").onclick = start;
 load(() => { showRate(); home(); });
+// 云端同步或别的页面改了标记：跟着换，免得用旧的盖掉
+chrome.storage.onChanged.addListener((c, a) => { if (a === "local" && c.marks) { marks = c.marks.newValue || {}; VS_MARKS = marks; } });
+// 打开页面时先和云端同步一次（换设备后能马上看到录音、截图和已保存的内容；同步回来的变化会自动刷新页面）
+chrome.runtime.sendMessage({ type: "extSync" }, r => { void chrome.runtime.lastError; if (r && (r.got || r.wrote) && !sess.ok && !sess.bad) location.reload(); }); // 还没开始复习就拿到了新内容：重新载入一次

@@ -238,6 +238,139 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "vocab") vocabGet().then(d => { chrome.storage.local.set({ vocabCache: d }); flushSrs(); send(d); }).catch(() => chrome.storage.local.get({ vocabCache: null }, v => send(Object.assign({ offline: true }, v.vocabCache || {}))));
   else if (m.type === "vocabPatch") vocabPatch(m.patch).then(send);
   else if (m.type === "vocabMark") vocabMark(m.word, m.st).then(send);
+  else if (m.type === "extSync") extSync(true).then(send);
   else return false;
   return true;
 });
+
+// ---------- 插件本机数据 ⇄ Cloudflare（换电脑、重装插件后自动拿回来） ----------
+// 同步的内容：已保存的词和句子 / 短语、出处、颜色标记、标签、配图选择、复习页设置、插件设置，以及每个词 / 句子的录音和截图
+// 做法：每一项拆成「种类|名字」，和上次同步后的样子比，改了的发上去（带改动时间），云端按时间新的为准合并，再把合并结果写回本机
+// 录音截图很大，每条单独存（/api/media），整份数据里只放它的索引；本机没有的从云端下载
+const EXT = SITE + "/api/ext", MEDIA = SITE + "/api/media";
+const SY_ARR = { saved: w => String(w || "").toLowerCase(), savedSents: x => x && x.k }; // 列表：按小写词 / 句子的 k 区分
+const SY_MAP = ["savedCtx", "marks", "tags"];                                           // 对象：按里面的键区分
+const SY_ONE = ["reviewOpt", "reviewRate", "dictHist", "showCtx", "wtipOff"];             // 整个值一起
+const syHash = x => { const s = JSON.stringify(x); let h = 5381; for (let i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0; return s.length + ":" + (h >>> 0).toString(36); };
+const medSig = r => r ? [r.at || 0, (r.aud || "").length, (r.img || "").length, (r.img2 || "").length].join(":") : "";
+const isSyKey = k => k in SY_ARR || SY_MAP.includes(k) || SY_ONE.includes(k) || k.startsWith("wimg:") || k.startsWith("med:");
+
+// 录音截图的索引 medIdx = { "med:w:apple": 签名 }：本机每次存录音截图时更新，同步时不用把所有录音都读出来
+let medChain = Promise.resolve();
+function medIdxUpdate(ch) { medChain = medChain.then(async () => { const idx = (await chrome.storage.local.get({ medIdx: null })).medIdx; if (!idx) return; for (const k in ch) { if (ch[k].newValue) idx[k] = medSig(ch[k].newValue); else delete idx[k]; } await chrome.storage.local.set({ medIdx: idx }); }).catch(() => {}); return medChain; }
+async function medIdxGet(keys) {
+  await medChain; let idx = (await chrome.storage.local.get({ medIdx: null })).medIdx;
+  const n = keys ? keys.filter(k => k.startsWith("med:")).length : -1;
+  if (!idx || (n >= 0 && n !== Object.keys(idx).length)) { // 第一次或对不上：全部读一遍重建
+    const all = await chrome.storage.local.get(null); idx = {};
+    for (const k in all) if (k.startsWith("med:") && all[k]) idx[k] = medSig(all[k]);
+    await chrome.storage.local.set({ medIdx: idx });
+  }
+  return idx;
+}
+async function syRead() {
+  let keys = null; try { keys = await chrome.storage.local.getKeys(); } catch (e) {}
+  const v = keys ? await chrome.storage.local.get(keys.filter(k => !k.startsWith("med:"))) : await chrome.storage.local.get(null);
+  if (!keys) for (const k in v) if (k.startsWith("med:")) delete v[k];
+  const sv = await chrome.storage.sync.get(null), med = await medIdxGet(keys);
+  const f = {};
+  for (const n in SY_ARR) (Array.isArray(v[n]) ? v[n] : []).forEach(x => { const id = SY_ARR[n](x); if (id) f[n + "|" + id] = x; });
+  SY_MAP.forEach(n => { const o = v[n]; if (o && typeof o === "object") for (const k in o) f[n + "|" + k] = o[k]; });
+  SY_ONE.forEach(n => { if (v[n] !== undefined) f["one|" + n] = v[n]; });
+  for (const k in v) if (k.startsWith("wimg:")) f["wimg|" + k.slice(5)] = v[k];
+  for (const k in sv) f["set|" + k] = sv[k];
+  for (const k in med) f["med|" + k] = med[k];
+  return { v, f, med };
+}
+// 把云端合并结果写回本机：只写有变化的；列表保留本机原来的顺序，新来的按时间接在后面
+async function syApply(items, L) {
+  const want = { saved: [], savedSents: [] }, maps = {}, ones = {}, wimg = {}, sets = {}, meds = {};
+  SY_MAP.forEach(n => (maps[n] = {}));
+  for (const k in items) {
+    const i = k.indexOf("|"), n = k.slice(0, i), id = k.slice(i + 1), x = items[k].v;
+    if (n in SY_ARR) want[n].push([id, x, items[k].at]); else if (n in maps) maps[n][id] = x; else if (n === "one") { if (SY_ONE.includes(id)) ones[id] = x; }
+    else if (n === "wimg") wimg["wimg:" + id] = x; else if (n === "set") sets[id] = x; else if (n === "med") meds[id] = x;
+  }
+  const put = {}, del = [], same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  for (const n in SY_ARR) {
+    const old = Array.isArray(L.v[n]) ? L.v[n] : [], byId = new Map(want[n].map(([id, x]) => [id, x])), out = [];
+    old.forEach(x => { const id = SY_ARR[n](x); if (byId.has(id)) { out.push(byId.get(id)); byId.delete(id); } });
+    want[n].filter(([id]) => byId.has(id)).sort((a, b) => ((a[1] && a[1].at) || a[2]) - ((b[1] && b[1].at) || b[2])).forEach(([, x]) => out.push(x));
+    if (!same(out, old)) put[n] = out;
+  }
+  SY_MAP.forEach(n => { if (!same(maps[n], L.v[n] || {})) put[n] = maps[n]; });
+  SY_ONE.forEach(n => { if (n in ones) { if (!same(ones[n], L.v[n])) put[n] = ones[n]; } else if (L.v[n] !== undefined) del.push(n); });
+  for (const k in wimg) if (!same(wimg[k], L.v[k])) put[k] = wimg[k];
+  for (const k in L.v) if (k.startsWith("wimg:") && !(k in wimg)) del.push(k);
+  for (const k in L.med) if (!(k in meds)) del.push(k); // 别的设备删掉的录音截图
+  if (Object.keys(put).length) await chrome.storage.local.set(put);
+  if (del.length) await chrome.storage.local.remove(del);
+  const sv = await chrome.storage.sync.get(null), sput = {}, sdel = [];
+  for (const k in sets) if (!same(sets[k], sv[k])) sput[k] = sets[k];
+  for (const k in sv) if (!(k in sets)) sdel.push(k);
+  if (Object.keys(sput).length) await chrome.storage.sync.set(sput);
+  if (sdel.length) await chrome.storage.sync.remove(sdel);
+  // 本机没有（或比云端旧）的录音截图：从云端下载
+  let got = 0;
+  for (const k in meds) {
+    if (L.med[k] === meds[k]) continue;
+    try { const r = await fetch(MEDIA + "?k=" + encodeURIComponent(k)); if (!r.ok) continue; const j = await r.json(); if (j && j.rec) { await chrome.storage.local.set({ [k]: j.rec }); await medIdxUpdate({ [k]: { newValue: j.rec } }); got++; } } catch (e) {}
+  }
+  return { got, wrote: Object.keys(put).length + del.length };
+}
+let syBusy = null, syAgain = false, syLast = 0, syT = 0;
+function extSyncSoon(ms) { clearTimeout(syT); syT = setTimeout(() => extSync(), ms == null ? 4000 : ms); }
+function extSync(force) {
+  if (syBusy) { syAgain = true; return syBusy; }
+  syBusy = extSyncOnce(force).catch(e => ({ ok: false, error: String(e && e.message || e) })).then(async r => { syBusy = null; if (syAgain) { syAgain = false; await extSync(true); } return r; });
+  return syBusy;
+}
+async function extSyncOnce(force) {
+  const L = await syRead(), base = (await chrome.storage.local.get({ extBase: null })).extBase, bs = (base && base.sig) || {}, now = Date.now();
+  const changes = {}, medUp = [];
+  let cloud = null;
+  if (!base) { // 这台设备第一次同步：先看云端，云端已有的项以云端为准，云端删掉的本机也删
+    const r = await fetch(EXT); if (!r.ok) return { ok: false }; cloud = await r.json();
+    const all = cloud.items || {};
+    for (const k in L.f) if (!(k in all)) { if (k.startsWith("med|")) medUp.push(k.slice(4)); else changes[k] = { v: L.f[k], at: now }; }
+  } else {
+    for (const k in L.f) if (bs[k] !== (k.startsWith("med|") ? L.f[k] : syHash(L.f[k]))) { if (k.startsWith("med|")) medUp.push(k.slice(4)); else changes[k] = { v: L.f[k], at: now }; }
+    for (const k in bs) if (!(k in L.f)) changes[k] = { del: 1, at: now };
+  }
+  // 先传录音截图，传成功了再登记到索引里（一次最多传 60 条，传不上去的下次再试）
+  let up = 0;
+  for (const k of medUp.slice(0, 60)) {
+    const rec = (await chrome.storage.local.get(k))[k]; if (!rec) continue;
+    const ok = await fetch(MEDIA, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ k, rec }) }).then(r => r.ok).catch(() => false);
+    if (!ok) break; changes["med|" + k] = { v: medSig(rec), at: now }; up++;
+  }
+  if (medUp.length > up) extSyncSoon(30000);
+  let doc;
+  if (Object.keys(changes).length) {
+    const r = await fetch(EXT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ changes }) });
+    if (!r.ok) return { ok: false }; doc = await r.json();
+  } else {
+    if (!force && base && now - syLast < 60000) return { ok: true, idle: true };
+    doc = cloud || await fetch(EXT).then(r => r.ok ? r.json() : null); if (!doc) return { ok: false };
+  }
+  syLast = Date.now();
+  if (!doc.ok) return { ok: false };
+  const items = doc.items || {};
+  const ap = (base && base.ver === doc.ver && !Object.keys(changes).length) ? { got: 0, wrote: 0 } : await syApply(items, L);
+  // 记下这次同步后的样子（下载失败的录音截图不记，下次再下）
+  const L2 = await syRead(), sig = {};
+  for (const k in items) { if (!(k in L2.f)) continue; sig[k] = k.startsWith("med|") ? L2.f[k] : syHash(L2.f[k]); }
+  await chrome.storage.local.set({ extBase: { ver: doc.ver, sig, at: Date.now() } });
+  return { ok: true, sent: Object.keys(changes).length, up, got: ap.got, wrote: ap.wrote, total: Object.keys(items).length, pendingUp: medUp.length - up };
+}
+chrome.storage.onChanged.addListener((c, area) => {
+  if (area === "sync") return extSyncSoon();
+  if (area !== "local") return;
+  const med = {}; let hit = false;
+  for (const k in c) { if (k.startsWith("med:")) med[k] = c[k]; if (isSyKey(k)) hit = true; }
+  if (Object.keys(med).length) medIdxUpdate(med);
+  if (hit) extSyncSoon();
+});
+chrome.runtime.onStartup.addListener(() => extSyncSoon(3000));
+chrome.runtime.onInstalled.addListener(() => { chrome.alarms.create("extSync", { periodInMinutes: 15 }); extSyncSoon(3000); });
+chrome.alarms.onAlarm.addListener(a => { if (a.name === "extSync") extSync(true); });

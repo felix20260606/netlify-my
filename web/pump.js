@@ -9,6 +9,24 @@
   let opt = Object.assign({ quiz: true, num: 20, newPct: 15, types: ["word", "phrase"] }, LG("pump:opt", {}));
   let day = LG("pump:day", { d: "", n: 0 }); if (day.d !== today()) day = { d: today(), n: 0 };
   let cards = [], at = 0, bad = 0, playing = false, root = null;
+  // 插件保存时录下的原声和两张截图（存在 Cloudflare：/api/ext 里有索引，/api/media 一条一条取），哪台设备都能用
+  let MED = null, medP = null, player = null; const medRec = {}, medPr = {};
+  const nrm = s => String(s || "").toLowerCase().replace(/[{}]/g, "").replace(/[^a-z0-9']+/g, " ").trim();
+  function medMap() {
+    if (medP) return medP;
+    medP = fetch("/api/ext").then(r => r.json()).then(j => { const it = (j && j.items) || {}, m = {};
+      for (const k in it) if (k.startsWith("med|med:w:")) m[k.slice(10)] = k.slice(4);
+      for (const k in it) if (k.startsWith("savedSents|")) { const x = it[k].v, mk = "med:s:" + (x && x.k); if (x && x.t && it["med|" + mk]) { const t = String(x.t).toLowerCase().trim(); if (!m[t]) m[t] = mk; } }
+      return (MED = m); }).catch(() => (MED = {}));
+    return medP;
+  }
+  function medFor(w) {
+    const k = MED && MED[String(w.word || "").toLowerCase().trim()]; if (!k) return Promise.resolve(null);
+    return medPr[k] || (medPr[k] = fetch("/api/media?k=" + encodeURIComponent(k)).then(r => r.ok ? r.json() : null).then(j => (medRec[k] = (j && j.rec) || null)).catch(() => (medRec[k] = null)));
+  }
+  // 这张卡片的句子就是保存时的那一句：用原声和截图
+  const medOf = c => { const k = MED && MED[String(c.w.word || "").toLowerCase().trim()], r = k && medRec[k]; if (!r) return null; return (r.t ? nrm(r.t) === nrm(c.s.en) : c.i === 0) ? r : null; };
+  const prefetch = from => { for (let i = from; i < Math.min(cards.length, from + 4); i++) medFor(cards[i].w); };
   const CSS = `
   #pump{display:none;max-width:860px;margin:0 auto;padding:6px 0 30px}#pump.on{display:block}
   @media(min-width:1024px){#pump{max-width:1200px}.pp-home{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.pp-card{min-height:320px}.pp-en{font-size:24px;max-width:860px}.pp-zh{font-size:17px;max-width:860px}}
@@ -34,6 +52,7 @@
   .pp-top .pp-bar{flex:1}.pp-top span{font-size:13px;color:var(--muted);min-width:44px;text-align:right}
   .pp-hint{text-align:center;color:var(--muted);font-size:13px;margin:6px 0 10px}.pp-hint b{color:var(--ink);margin-right:6px}
   .pp-card{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:18px;min-height:250px;padding:46px 22px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .pp-img{display:flex;gap:8px;justify-content:center;width:100%;max-width:640px;margin:0 auto 14px}.pp-img img{flex:1 1 0;min-width:0;max-width:300px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:var(--paper-2)}
   .pp-card .pl{position:absolute;left:12px;top:12px;width:32px;height:32px;border-radius:50%;background:var(--jade);color:#fff;border:0;font-size:13px;cursor:pointer}
   .pp-card .cp{position:absolute;right:12px;top:12px;border:0;background:none;color:var(--muted);font-size:13px;cursor:pointer;padding:6px}
   .pp-en{font-size:21px;font-weight:700;line-height:1.55;max-width:640px}.pp-en .t{color:#b5651d;box-shadow:inset 0 -2px 0 #ecd2a0;border-radius:2px}
@@ -103,10 +122,11 @@
   }
   function start() {
     const p = plan(); if (!p.list.length) return; const S = srs(); cards = []; at = 0; bad = 0; playing = true;
+    medMap().then(() => { prefetch(0); }); // 原声截图在后台取，取到之前先用朗读
     p.list.forEach(w => {
       const L = sentences(w).map(x => ({ en: mark(x.en, w), zh: x.zh })), n = Math.min(PER, L.length), wasNew = !S[w.id];
       const canQuiz = opt.quiz && !wasNew && w.type !== "sentence" && /\{[^}]+\}/.test(L[0].en);
-      for (let i = 0; i < n; i++) cards.push({ w, s: L[i], k: canQuiz && i === 0 ? "quiz" : "listen", last: i === n - 1, wasNew, rev: 0 });
+      for (let i = 0; i < n; i++) cards.push({ w, s: L[i], i, k: canQuiz && i === 0 ? "quiz" : "listen", last: i === n - 1, wasNew, rev: 0 });
     });
     show();
   }
@@ -118,27 +138,29 @@
     else if (!r.due) r.due = Date.now() + GAP[0];
     S[id] = r; save(state);
   }
-  const say = c => { try { speak(plain(c.s.en)); } catch (e) {} };
+  const say = c => { try { if (player) { player.pause(); player = null; } const m = medOf(c); if (m && m.aud) { try { speechSynthesis.cancel(); } catch (e) {} player = new Audio(m.aud); player.play().catch(() => speak(plain(c.s.en))); return; } speak(plain(c.s.en)); } catch (e) {} };
+  const imgs = c => { const m = medOf(c), L = m ? [m.img, m.img2].filter(Boolean) : []; return L.length ? '<div class="pp-img">' + L.map(u => '<img src="' + esc(u) + '" alt="">').join("") + "</div>" : ""; };
   function show() {
     if (at >= cards.length) return finish();
-    const c = cards[at], pct = (at + 1) / cards.length * 100;
+    const c = cards[at], pct = (at + 1) / cards.length * 100; prefetch(at);
+    if (MED && MED[String(c.w.word || "").toLowerCase().trim()] && !(MED[String(c.w.word).toLowerCase().trim()] in medRec)) medFor(c.w).then(() => { if (cards[at] === c && medOf(c)) show(); }); // 原声截图到了：重画这张卡片
     const top = '<div class="pp-top"><button id="pp-back">← 返回</button><div class="pp-bar"><i style="width:' + pct + '%"></i></div><span>' + (at + 1) + "/" + cards.length + "</span></div>";
     const ctl = (k) => '<div class="pp-ctl"><div><button id="pp-a" title="上一个"' + (at ? "" : " disabled") + '>‹</button><kbd>A</kbd></div><div><button id="pp-s" title="重听">↻</button><kbd>S</kbd></div><div><button id="pp-e" title="' + (k === "quiz" ? "看答案（算没答对）" : "显示") + '"' + ((k === "listen" && c.rev >= 2) || (k === "quiz" && c.done) ? " disabled" : "") + '>👁</button><kbd>E</kbd></div><div><button id="pp-d" class="pri" title="下一个">›</button><kbd>D</kbd></div></div>';
     const def = c.w.zh ? '<div class="pp-def' + (c.k === "listen" && c.rev < 2 ? " hid" : "") + '">' + esc(c.w.word) + "：" + esc(c.w.zh) + "</div>" : "";
     if (c.k === "listen") {
-      root.innerHTML = top + '<div class="pp-hint"><b>🔊 听力练习</b>在显示文字之前试着听懂。</div><div class="pp-card"><button class="pl" id="pp-pl" title="播放">▶</button><button class="cp" id="pp-cp">复制</button>' +
+      root.innerHTML = top + '<div class="pp-hint"><b>🔊 听力练习</b>在显示文字之前试着听懂。</div><div class="pp-card"><button class="pl" id="pp-pl" title="播放">▶</button><button class="cp" id="pp-cp">复制</button>' + imgs(c) +
         '<div class="pp-en' + (c.rev < 1 ? " hid" : "") + '" id="pp-en">' + html(c.s.en) + '</div><div class="pp-zh' + (c.rev < 2 ? " hid" : "") + '" id="pp-zh">' + esc(c.s.zh) + "</div>" + def + '<span class="pp-chip">' + esc(c.w.word) + "</span></div>" + ctl("listen");
-      if (!c.spoken) { c.spoken = true; say(c); }
+      if (!c.spoken) { c.spoken = true; c.medSaid = !!medOf(c); say(c); } else if (medOf(c) && !c.medSaid) { c.medSaid = true; say(c); } // 原声晚到：用原声再放一遍
       root.querySelector("#pp-en").onclick = root.querySelector("#pp-zh").onclick = () => reveal(c);
     } else {
       const m = c.s.en.match(/\{([^}]+)\}/), ans = m ? m[1] : "", parts = c.s.en.split(/\{[^}]+\}/);
-      root.innerHTML = top + '<div class="pp-hint"><b>✏️ 测验</b>填空：输入句子里缺少的词，按回车检查。</div><div class="pp-card"><button class="pl" id="pp-pl" title="播放（会念出答案）">▶</button><button class="cp" id="pp-cp">复制</button>' +
+      root.innerHTML = top + '<div class="pp-hint"><b>✏️ 测验</b>填空：输入句子里缺少的词，按回车检查。</div><div class="pp-card"><button class="pl" id="pp-pl" title="播放（会念出答案）">▶</button><button class="cp" id="pp-cp">复制</button>' + imgs(c) +
         '<div class="pp-en">' + esc(parts[0]) + '<input id="pp-in" autocomplete="off" autocapitalize="off" spellcheck="false" size="' + Math.max(4, ans.length + 1) + '"' + (c.done ? ' disabled value="' + esc(c.typed || "") + '" class="' + (c.ok ? "ok" : "no") + '"' : "") + ">" + esc(parts.slice(1).join("")) + '</div><div class="pp-zh">' + esc(c.s.zh) + '</div><div class="pp-ans' + (c.done && !c.ok ? " no" : "") + '">' + (c.done ? (c.ok ? "正确" : "答案：" + esc(ans)) : "") + "</div>" + (c.done ? def + '<span class="pp-chip">' + esc(c.w.word) + "</span>" : "") + "</div>" + ctl("quiz");
       const inp = root.querySelector("#pp-in"); if (!c.done) setTimeout(() => inp.focus(), 30);
       c.check = give => { if (c.done) return; c.typed = inp.value.trim(); const ok = !give && c.typed.toLowerCase().replace(/’/g, "'") === ans.toLowerCase().replace(/’/g, "'"); grade(c, ok); show(); say(c); };
       inp.onkeydown = e => { e.stopPropagation(); if (e.key === "Enter") { e.preventDefault(); if (c.done) go(1); else if (inp.value.trim()) c.check(false); } };
     }
-    root.querySelector("#pp-back").onclick = () => { try { speechSynthesis.cancel(); } catch (e) {} home(); };
+    root.querySelector("#pp-back").onclick = () => { try { speechSynthesis.cancel(); if (player) player.pause(); } catch (e) {} home(); };
     root.querySelector("#pp-pl").onclick = root.querySelector("#pp-s").onclick = () => say(c);
     root.querySelector("#pp-cp").onclick = () => { const t = plain(c.s.en); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("已复制"), () => toast("复制失败")); };
     root.querySelector("#pp-a").onclick = () => go(-1); root.querySelector("#pp-d").onclick = () => go(1);
