@@ -10,8 +10,9 @@
   const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const today = () => new Date().toISOString().slice(0, 10);
   // 默认值同 PhrasePump：测验、建议、练习都开，练习数量 60，新项目 15 %（和默认不一样时「会话」旁出现「重置」）；后面几项是我们加的
-  const DEF = { quiz: true, sugg: true, listen: true, num: 60, newPct: 15, tags: [], recall: true, dir: "en", types: ["word", "phrase"] };
+  const DEF = { quiz: true, sugg: true, listen: true, num: 60, newPct: 15, tags: [], recall: false, dir: "en", types: ["word", "phrase", "sentence"], speed: 1 }; // 认词卡是我们加的，默认关（RL 没有）
   let opt = Object.assign(JSON.parse(JSON.stringify(DEF)), LG("pump:opt", {})); if (!Array.isArray(opt.tags)) opt.tags = [];
+  if (!LG("pump:rl1", false)) { opt.recall = false; if (!opt.types.includes("sentence")) opt.types.push("sentence"); LS("pump:rl1", true); LS("pump:opt", opt); } // 2026-11-20 对齐 RL：认词卡默认关、句子也练
   if (!LG("pump:def60", false)) { if (opt.num === 20) opt.num = 60; LS("pump:def60", true); LS("pump:opt", opt); } // 以前默认 20：没改过的换成 PhrasePump 的默认 60
   // ---------- 排程：Ebisu（同 Language Reactor 默认的 EBISU 排程；公式照 Ebisu 2.1 官方库 github.com/fasiha/ebisu） ----------
   // 每个词一个模型 [α, β, t]：过了 t 天，记得的概率服从 Beta(α, β)。更新后自动把 t 调到「半衰期」（记得的概率降到 50% 的时间）
@@ -48,7 +49,7 @@
   const pcent = x => Math.round(x * 100);
   const mbar = (x, known) => '<span class="pp-mb' + (known ? " known" : "") + '"><i style="width:' + pcent(x) + '%"></i></span>';
   const levelOf = s => { let b = 0; LEVELS.forEach((x, i) => { if (s >= x) b = i + 1; }); return b; };
-  const seen = r => (r ? (r.x != null ? r.x : Math.round((r.n || 0) / PER)) : 0); // 练过几轮（被动听也算）
+  const seen = r => (r ? (r.x != null ? r.x : r.n || 0) : 0); // 被动听过几次（同 RL：每张听力卡算一次）
   // ---------- 例句：词条自带的 + Tatoeba 例句库（/api/sent，后台缓存）；听力每次换着听，最近听过的往后排 ----------
   const SENT = {}, heard = LG("pump:heard", {});
   const sentFor = w => { const k = String(w.word || "").toLowerCase().trim(); if (!hasEn(w) || w.type === "sentence" || /\s.*\s.*\s/.test(k) || k in SENT) return Promise.resolve(); SENT[k] = null;
@@ -61,8 +62,8 @@
   function medMap() {
     if (medP) return medP;
     medP = fetch("/api/ext").then(r => r.json()).then(j => { const it = (j && j.items) || {}, m = {};
-      const X = { tags: {}, sugg: {}, marks: {}, saved: new Set() }; // 和插件复习页一样的几样：颜色标签、从看过的视频里推荐的生词、标记、已保存
-      for (const k in it) { const i = k.indexOf("|"), n = k.slice(0, i), id = k.slice(i + 1), v = it[k].v; if (n === "tags" && v) X.tags[id] = v; else if (n === "sugg" && v && v.t) X.sugg[id] = v; else if (n === "marks") X.marks[id] = v; else if (n === "saved") X.saved.add(id); }
+      const X = { tags: {}, sugg: {}, marks: {}, saved: new Set(), sents: new Map() }; // sents：收藏的句子（小写原文 → k），和插件的 ☆ 同一份 // 和插件复习页一样的几样：颜色标签、从看过的视频里推荐的生词、标记、已保存
+      for (const k in it) { const i = k.indexOf("|"), n = k.slice(0, i), id = k.slice(i + 1), v = it[k].v; if (n === "tags" && v) X.tags[id] = v; else if (n === "sugg" && v && v.t) X.sugg[id] = v; else if (n === "marks") X.marks[id] = v; else if (n === "saved") X.saved.add(id); else if (n === "savedSents" && v && v.t && !v.ph) X.sents.set(String(v.t).replace(/\s+/g, " ").trim().toLowerCase(), v.k); }
       EXT = X;
       for (const k in it) if (k.startsWith("med|med:w:")) m[k.slice(10)] = k.slice(4);
       for (const k in it) if (k.startsWith("savedSents|")) { const x = it[k].v, mk = "med:s:" + (x && x.k); if (x && x.t && it["med|" + mk]) { const t = String(x.t).toLowerCase().trim(); if (!m[t]) m[t] = mk; } }
@@ -124,6 +125,9 @@
   .pp-dots{display:flex;justify-content:center;gap:7px;margin-top:12px}.pp-dots i{width:7px;height:7px;border-radius:50%;background:var(--ui-surface-3);cursor:pointer}.pp-dots i.on{background:#70db94}
   .pp-rate button.pressed,.pp-rcb button.pressed{outline:2px solid #fff;box-shadow:0 0 0 3px rgba(250,219,255,.27)}.pp-rate button:disabled{opacity:.45;cursor:default}
   .pp-done{position:relative;margin-bottom:16px}.pp-done .x{position:absolute;right:12px;top:10px;border:0;background:none;color:var(--ui-muted);font-size:16px;cursor:pointer}
+  .pp-card .st{position:absolute;right:58px;top:10px;border:0;background:none;color:var(--ui-muted);font-size:18px;cursor:pointer;line-height:1}.pp-card .st.on{color:#E8A23C}
+  .pp-top .tb{border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink-2);border-radius:999px;height:26px;min-width:34px;padding:0 8px;font:inherit;font-size:12px;cursor:pointer;margin-left:6px}
+  .pp-keyhelp{margin:6px auto 10px;max-width:420px;background:var(--ui-surface);border:1px solid var(--ui-line-2);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--ui-ink-2);cursor:pointer}.pp-keyhelp b{display:block;margin-bottom:6px;color:var(--ui-ink)}.pp-keyhelp kbd{display:inline-block;min-width:110px;font:12px monospace;color:var(--ui-pur-text)}
   .pp-first{position:absolute;right:12px;bottom:34px;font-size:15px;opacity:.75}
   .pp-mb{display:inline-block;vertical-align:middle;width:64px;height:6px;border-radius:3px;background:var(--ui-surface-3);overflow:hidden}.pp-mb i{display:block;height:100%;background:var(--ui-pur);border-radius:3px}.pp-mb.known i{background:linear-gradient(90deg,#f6c453,#ffdf80)}
   .pp-master{margin:14px 0 4px;padding:12px 14px;border-radius:12px;background:var(--ui-surface-2)}.pp-master .h{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}.pp-master .h span{color:#f6c453;font-weight:700}.pp-master .h b{font-size:20px;color:#ffdf80}.pp-master .h small{color:var(--ui-muted)}.pp-master>.pp-mb{width:100%;height:8px}
@@ -220,7 +224,7 @@
   }
   function listenSet(w, n) { // 听力：词条例句 + 例句库，最近听过的往后排，挑 n 句
     const k = String(w.word || "").toLowerCase().trim(), own = ownSent(w); // 没有例句时词条会拿单词本身凑数：例句库有句子就不要它
-    const all = own.concat((SENT[k] || []).map(x => ({ en: x.en, zh: x.zh }))).filter((x, i, a) => a.findIndex(y => y.en.toLowerCase() === x.en.toLowerCase()) === i);
+    const all = own.concat((SENT[k] || []).map(x => ({ en: x.en, zh: x.zh, src: "tatoeba" }))).filter((x, i, a) => a.findIndex(y => y.en.toLowerCase() === x.en.toLowerCase()) === i);
     const h = heard[k] || [], score = x => { const i = h.indexOf(x.en); return i < 0 ? 0 : h.length - i; }; // 越近听过分越高，排越后
     const pick = all.map((x, i) => ({ x, r: score(x) * 10 + Math.random() + (x.orig ? -0.5 : 0) })).sort((a, b) => a.r - b.r).slice(0, n || PER).map(o => o.x);
     heard[k] = h.filter(e => !pick.some(p => p.en === e)).concat(pick.map(p => p.en)).slice(-12); LS("pump:heard", heard);
@@ -281,15 +285,15 @@
     medMap().then(() => { prefetch(0); const c = cards[at]; if (c && playing) medFor(c.w).then(() => { if (playing && cards[at] === c && medOf(c)) show(); }); }); // 原声截图在后台取，取到之前先用朗读；取到了重画当前卡片
     p.list.forEach(w => {
       const r = S[w.id], wasNew = !r, x0 = seen(r), sp = spec(w), base = { w, wasNew, x0, m0: mastery(r, w), rev: 0 }; // x0：这一轮开始前练过几轮；m0：开始前的掌握进度
-      if (w.sg) { const exs = [{ en: String((EXT.sugg[w.word] || {}).t || w.word), zh: "" }].concat((SENT[w.word] || []).map(x => ({ en: x.en, zh: x.zh }))).slice(0, sp.listen || 1); exs.forEach((x, i) => cards.push(Object.assign({ s: { en: mark(x.en, w), zh: x.zh }, i, gi: i, gc: exs.length, k: "sugg" }, base))); return; } // 建议：一组「想学这个新词吗？」，每句例句一张
+      if (w.sg) { const exs = [{ en: String((EXT.sugg[w.word] || {}).t || w.word), zh: "" }].concat((SENT[w.word] || []).map(x => ({ en: x.en, zh: x.zh }))).slice(0, sp.listen || 1); exs.forEach((x, i) => cards.push(Object.assign({ s: { en: mark(x.en, w), zh: x.zh, src: i ? "tatoeba" : "video" }, i, gi: i, gc: exs.length, k: "sugg" }, base))); return; } // 建议：一组「想学这个新词吗？」，每句例句一张
       if (sp.quiz) { const o = sentences(w)[0]; cards.push(Object.assign({ s: { en: mark(o.en, w), zh: o.zh, orig: true }, i: 0, k: "quiz" }, base)); return; } // 一道填空，用保存时的原句
       if (sp.recall) cards.push(Object.assign({ s: { en: hasEn(w) ? w.word : "", zh: w.zh || "" }, i: -1, k: "recall" }, base)); // 认词卡
-      (sp.listen ? listenSet(w, sp.listen) : []).forEach((x, i) => cards.push(Object.assign({ s: { en: mark(x.en, w), zh: x.zh, orig: x.orig }, i, k: "listen" }, base)));
+      (sp.listen ? listenSet(w, sp.listen) : []).forEach((x, i) => cards.push(Object.assign({ s: { en: mark(x.en, w), zh: x.zh, orig: x.orig, src: x.src }, i, k: "listen" }, base)));
     });
     const RANK = { quiz: 0, sugg: 1 }; cards = cards.map((c, i) => ({ c, i })).sort((a, b) => (RANK[a.c.k] ?? 2) - (RANK[b.c.k] ?? 2) || a.i - b.i).map(o => o.c); // 顺序同 PhrasePump：测验 → 建议 → 练习
     cards.forEach((c, i) => { c.last = !cards.slice(i + 1).some(x => x.w.id === c.w.id); });
     // 名额还有剩：例句库的额外句子补满（不记进度，同 PhrasePump 的 pump）
-    if (p.pump) fetch("/api/sent?pump=" + p.pump).then(r => r.json()).then(j => { if (!playing) return; (j.items || []).forEach((x, i) => cards.push({ w: { id: "pump_" + i, word: "", zh: "", pump: 1 }, s: { en: x.en, zh: x.zh }, i: 0, k: "listen", last: true, rev: 0 })); if (cards[at]) show(); }).catch(() => {});
+    if (p.pump) fetch("/api/sent?pump=" + p.pump).then(r => r.json()).then(j => { if (!playing) return; (j.items || []).forEach((x, i) => cards.push({ w: { id: "pump_" + i, word: "", zh: "", pump: 1 }, s: { en: x.en, zh: x.zh, src: "tatoeba" }, i: 0, k: "listen", last: true, rev: 0 })); if (cards[at]) show(); }).catch(() => {});
     enter();
   }
   function grade(c, ok) {
@@ -306,8 +310,9 @@
       if (h >= KNOWN_H) { const was = state.progress[id] === "known"; state.progress[id] = "known"; if (!was) { c.w.justKnown = true; toast("🏆 「" + c.w.word + "」已掌握！"); } }
     };
     if (!ok && !lapsed) upd(0);                                  // 忘了：马上按「忘了」更新（半衰期变短）
-    else if (ok && c.last && !lapsed) { upd(1); r.x = (c.x0 || 0) + 1; } // 这一轮都对：按「记得」更新
-    else if (c.last && lapsed) r.x = (c.x0 || 0) + 1;
+    const nL = cards.filter(x => x.w.id === id && x.k === "listen").length; // 这一轮被动听了几张
+    if (ok && c.last && !lapsed) { upd(1); r.x = (c.x0 || 0) + nL; } // 这一轮都对：按「记得」更新
+    else if (c.last && lapsed) r.x = (c.x0 || 0) + nL;
     S[id] = r; save(state);
   }
 
@@ -330,7 +335,8 @@
     try { await fetch("/api/ext", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ changes: { ["saved|" + w]: { v: w, at: Date.now() } } }) }); } catch (e) {}
     if (!silent) toast("已收进生词本：" + w);
   }
-  const say = c => { try { if (player) { player.pause(); player = null; } const m = medOf(c); if (m && m.aud) { try { speechSynthesis.cancel(); } catch (e) {} player = new Audio(m.aud); player.play().catch(() => speak(plain(c.s.en))); return; } speak(plain(c.s.en)); } catch (e) {} };
+  const sayText = t => { try { if (opt.speed === 1 || !("speechSynthesis" in window)) return speak(t); speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); if (typeof chosenVoice !== "undefined" && chosenVoice) { u.voice = chosenVoice; u.lang = chosenVoice.lang; } else u.lang = "en-US"; u.rate = ((state && state.rate) || 0.95) * opt.speed; speechSynthesis.speak(u); } catch (e) {} };
+  const say = c => { try { if (player) { player.pause(); player = null; } const m = medOf(c); if (m && m.aud) { try { speechSynthesis.cancel(); } catch (e) {} player = new Audio(m.aud); player.playbackRate = opt.speed; player.play().catch(() => sayText(plain(c.s.en))); return; } sayText(plain(c.s.en)); } catch (e) {} };
   const imgs = c => { const m = medOf(c), L = m ? [m.img, m.img2].filter(Boolean) : []; return L.length ? '<div class="pp-img">' + L.map(u => '<img src="' + esc(u) + '" alt="">').join("") + "</div>" : ""; };
   function show() {
     if (at >= cards.length) return finish();
@@ -340,7 +346,7 @@
     const prog = mNow == null ? "" : '<div class="pp-prog' + (known ? " known" : "") + '" title="这个词的掌握进度：半衰期到 42 天（6 周）算已掌握">' + (known ? "🏆 已掌握" : "掌握进度") + mbar(mNow, known) + "<b>" + pcent(mNow) + "%</b>" + (c.done && mNow > (c.m0 || 0) + 0.005 ? '<em>+' + (pcent(mNow) - pcent(c.m0 || 0)) + "%</em>" : "") + "</div>";
     const typ = x => (x.k === "quiz" ? "t" : x.k === "sugg" ? "p" : "e"), segs = ["t", "p", "e"].map(k => ({ k, n: cards.filter(x => typ(x) === k).length, d: cards.filter((x, i) => typ(x) === k && (i < at || x.done)).length })).filter(g => g.n);
     const bar = '<div class="pp-segbar" title="测验 / 建议 / 练习">' + segs.map(g => '<span class="sg-' + g.k + '" style="flex:' + g.n + '"><i style="width:' + (g.d / g.n * 100) + '%"></i></span>').join("") + "</div>";
-    const top = '<div class="pp-top"><button id="pp-back">← 返回</button>' + bar + "<span>" + (at + 1) + "/" + cards.length + "</span></div>" + prog;
+    const top = '<div class="pp-top"><button id="pp-back">← 返回</button>' + bar + "<span>" + (at + 1) + "/" + cards.length + '</span><button class="tb" id="pp-keys" title="快捷键">⌨</button><button class="tb" id="pp-speed" title="播放速度">' + (opt.speed === 1 ? "1x" : opt.speed + "x") + "</button></div>" + prog;
     root.classList.toggle("pp-known", !!known); // 已掌握的词：卡片换成金色
     const ctl = (k) => '<div class="pp-ctl"><div><button id="pp-a" title="上一个"' + (at ? "" : " disabled") + '>‹</button><kbd>A</kbd></div><div><button id="pp-s" title="重听">↻</button><kbd>S</kbd></div><div><button id="pp-e" title="' + (k === "quiz" ? "看答案" : k === "recall" ? "翻开" : "显示") + '"' + ((k === "listen" && c.rev >= 2) || (k === "quiz" && (c.done || c.rev >= 1)) || (k === "recall" && c.flip) || k === "sugg" ? " disabled" : "") + '>👁</button><kbd>E</kbd></div><div><button id="pp-d" class="pri' + ((k === "quiz" || (k === "recall" && c.flip)) && !c.done ? " wait" : "") + '" title="下一个">›</button><kbd>D</kbd></div></div>';
     const first = c.wasNew && !c.w.sg && !c.w.pump ? '<span class="pp-first" title="第一次练这个词">🌱</span>' : "";
@@ -352,12 +358,12 @@
       const back = big(esc(plain(w.word))) + (w.phon ? '<div class="rc-p">' + esc(w.phon) + "</div>" : "") + '<div class="rc-zh">' + esc(w.zh || "") + "</div>" + (w.en ? '<div class="rc-en">' + esc(w.en) + "</div>" : "") +
         (fm.length ? '<div class="rc-fm">' + fm.map(x => "<div><b>" + esc(x[0]) + "</b> <span>" + esc(x[1] || "") + "</span> " + esc(x[2] || "") + "</div>").join("") + "</div>" : "") +
         (ex.length ? '<div class="rc-ex">' + ex.map(x => "<div>" + html(String(x[0])) + "<span>" + esc(x[1] || "") + "</span></div>").join("") + "</div>" : "") + (w.tip ? '<div class="rc-tip">🧠 ' + esc(w.tip) + "</div>" : "");
-      root.innerHTML = top + '<div class="pp-hint"><b>🃏 认词</b>' + (c.flip ? (c.done ? (c.ok ? "认识 ✓" : "忘了：半衰期变短，很快会再练") : "记得吗？自己判断：忘了按 Z，记得按 C") : "先回想，再点卡片或按 E 翻开") + '</div><div class="pp-card pp-rc' + (c.flip ? " back" : "") + '" id="pp-rc"><button class="pl" id="pp-pl" title="朗读">▶</button><button class="cp" id="pp-cp">复制</button>' + (c.flip ? back : front) + "</div>" +
+      root.innerHTML = top + '<div class="pp-hint"><b>🃏 认词</b>' + (c.flip ? (c.done ? (c.ok ? "认识 ✓" : "忘了：半衰期变短，很快会再练") : "记得吗？自己判断：忘了按 Z，记得按 C") : "先回想，再点卡片或按 E 翻开") + '</div><div class="pp-card pp-rc' + (c.flip ? " back" : "") + '" id="pp-rc"><button class="pl" id="pp-pl" title="朗读">▶</button><button class="cp" id="pp-cp">复制</button><button class="st" id="pp-star" title="收藏这句（R）">☆</button>' + (c.flip ? back : front) + "</div>" +
         (c.flip && !c.done ? '<div class="pp-rate"><button id="pp-no"><kbd>Z</kbd>忘了</button><button id="pp-yes"><kbd>C</kbd>记得</button></div>' : "") + ctl("recall");
       root.querySelector("#pp-rc").onclick = e => { if (e.target.closest("button")) return; flip(c); };
       if (c.flip && !c.done) { root.querySelector("#pp-no").onclick = () => rate(c, false); root.querySelector("#pp-yes").onclick = () => rate(c, true); }
     } else if (c.k === "listen") {
-      root.innerHTML = top + '<div class="pp-hint"><b>🔊 听力练习</b>在展示文本之前试着理解。</div><div class="pp-card"><button class="pl" id="pp-pl" title="播放">▶</button><button class="cp" id="pp-cp">复制</button>' + imgs(c) +
+      root.innerHTML = top + '<div class="pp-hint"><b>🔊 听力练习</b>在展示文本之前试着理解。</div><div class="pp-card"><button class="pl" id="pp-pl" title="播放">▶</button><button class="cp" id="pp-cp">复制</button><button class="st" id="pp-star" title="收藏这句（R）">☆</button>' + imgs(c) +
         '<div class="pp-en' + (c.rev < 1 ? " hid" : "") + '" id="pp-en">' + html(c.s.en) + '</div><div class="pp-zh' + (c.rev < 2 ? " hid" : "") + '" id="pp-zh">' + zhHtml(c) + "</div>" + def + "" + first + '<span class="pp-chip">' + (c.w.pump ? "额外练习" : esc(c.w.word)) + "</span></div>" + ctl("listen");
       if (!c.done && !c.w.pump) grade(c, true); // 一显示就记一次「听过」（同 PhrasePump）
       if (!c.spoken) { c.spoken = true; c.medSaid = !!medOf(c); say(c); } else if (medOf(c) && !c.medSaid) { c.medSaid = true; say(c); } // 原声晚到：用原声再放一遍
@@ -371,14 +377,14 @@
       const lab = { known: "已知", learn: "学习", skip: "跳过" };
       if (!w.stage) { w.stage = "learn"; addSugg(c, true); } // 一显示就自动标成「学习」（同 PhrasePump）；要不学就点已知 / 跳过改掉
       root.innerHTML = top + '<div class="pp-hint"><b>🌱 建议的单词</b>你想学习这个新词吗？</div><div class="pp-sgw"><b>' + esc(w.word) + "</b>" + (rk ? "<small>词频 #" + rk + "</small>" : "") + (SUGZH[w.word] ? '<div class="z">' + esc(SUGZH[w.word]) + "</div>" : "") + "</div>" +
-        '<div class="pp-card"><button class="pl" id="pp-pl" title="播放">▶</button><button class="cp" id="pp-cp">复制</button><div class="pp-en" id="pp-en">' + html(c.s.en) + "</div>" + (c.s.zh ? '<div class="pp-zh">' + esc(c.s.zh) + "</div>" : "") + (c.gc > 1 ? '<div class="pp-dots">' + Array.from({ length: c.gc }, (x, i) => '<i class="' + (i === c.gi ? "on" : "") + '"></i>').join("") + "</div>" : "") + '<span class="pp-chip">建议</span></div>' +
+        '<div class="pp-card"><button class="pl" id="pp-pl" title="播放">▶</button><button class="cp" id="pp-cp">复制</button><button class="st" id="pp-star" title="收藏这句（R）">☆</button><div class="pp-en" id="pp-en">' + html(c.s.en) + "</div>" + (c.s.zh ? '<div class="pp-zh">' + esc(c.s.zh) + "</div>" : "") + (c.gc > 1 ? '<div class="pp-dots">' + Array.from({ length: c.gc }, (x, i) => '<i class="' + (i === c.gi ? "on" : "") + '"></i>').join("") + "</div>" : "") + '<span class="pp-chip">建议</span></div>' +
         '<div class="pp-stage">' + ["known", "learn", "skip"].map((k, i) => '<button data-st="' + k + '" class="' + k + (w.stage === k ? " on" : "") + '"><kbd>' + "ZXC"[i] + "</kbd>" + lab[k] + "</button>").join("") + "</div>" + ctl("sugg");
       if (!c.spoken) { c.spoken = true; say(c); }
       colorEn(c);
       root.querySelectorAll(".pp-stage button").forEach(b => (b.onclick = () => chooseSugg(c, b.dataset.st)));
     } else { // ❔ 测验：填空。看翻译找提示。目标词先遮住，按 E 看答案，再点「忘了 / 记得」（同 PhrasePump，不用打字）
       const m = c.s.en.match(/\{([^}]+)\}/), ans = m ? m[1] : "", parts = c.s.en.split(/\{[^}]+\}/), shown = c.rev >= 1;
-      root.innerHTML = top + '<div class="pp-hint"><b>❔ 测验</b>填空。看翻译找提示。</div><div class="pp-card"><button class="pl" id="pp-pl" title="播放（会念出答案）">▶</button><button class="cp" id="pp-cp">复制</button>' + imgs(c) +
+      root.innerHTML = top + '<div class="pp-hint"><b>❔ 测验</b>填空。看翻译找提示。</div><div class="pp-card"><button class="pl" id="pp-pl" title="播放（会念出答案）">▶</button><button class="cp" id="pp-cp">复制</button><button class="st" id="pp-star" title="收藏这句（R）">☆</button>' + imgs(c) +
         '<div class="pp-en">' + esc(parts[0]) + '<span class="pp-gap' + (shown ? " on" : "") + '" id="pp-gap" title="' + (shown ? "" : "点一下看答案") + '">' + esc(ans) + "</span>" + esc(parts.slice(1).join("")) + '</div><div class="pp-zh">' + zhHtml(c) + "</div>" +
         (shown ? def : "") + first + '<span class="pp-chip">' + (shown ? esc(c.w.word) : "？") + "</span></div>" +
         '<div class="pp-rate forgot-okay-buttons"><button id="pp-fail"' + (c.done ? " disabled" : "") + (c.done && !c.ok ? ' class="pressed"' : "") + '><kbd>Z</kbd>忘了</button><button id="pp-ok"' + (c.done ? " disabled" : "") + (c.done && c.ok ? ' class="pressed"' : "") + '><kbd>C</kbd>记得</button></div>' + ctl("quiz");
@@ -386,10 +392,32 @@
       if (!c.done) { root.querySelector("#pp-fail").onclick = () => rate(c, false); root.querySelector("#pp-ok").onclick = () => rate(c, true); }
     }
     root.querySelector("#pp-back").onclick = () => { stopAudio(); home(); };
+    root.querySelector("#pp-speed").onclick = () => { opt.speed = opt.speed === 1 ? 0.75 : opt.speed === 0.75 ? 0.5 : 1; LS("pump:opt", opt); show(); say(c); }; // 同 RL：1x → 0.75x → 0.5x
+    root.querySelector("#pp-keys").onclick = () => { const k = root.querySelector(".pp-keyhelp"); if (k) return k.remove(); const d = document.createElement("div"); d.className = "pp-keyhelp"; d.innerHTML = "<b>快捷键</b>" + [["A / ←", "上一个"], ["S / ↓ / 空格", "播放"], ["E", "显示（听力：先原文、再翻译）/ 看答案（测验）"], ["D / →", "下一个"], ["Z / C", "测验：忘了 / 记得"], ["Z / X / C", "建议：已知 / 学习 / 跳过"], ["R", "收藏这句（☆）"]].map(x => "<div><kbd>" + x[0] + "</kbd>" + x[1] + "</div>").join(""); d.onclick = () => d.remove(); root.querySelector(".pp-top").after(d); };
     root.querySelector("#pp-pl").onclick = root.querySelector("#pp-s").onclick = () => say(c);
     root.querySelector("#pp-cp").onclick = () => { const t = plain(c.s.en); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("已复制"), () => toast("复制失败")); };
     root.querySelector("#pp-a").onclick = () => go(-1); root.querySelector("#pp-d").onclick = () => go(1);
+    const st0 = root.querySelector("#pp-star"); if (st0) { const on = starred(c); st0.textContent = on ? "★" : "☆"; st0.classList.toggle("on", on); st0.onclick = e => { e.stopPropagation(); toggleStar(c); }; }
+    const chip = root.querySelector(".pp-chip"); if (chip) chip.title = srcOf(c); // 鼠标停在右下角：例句出处（同 RL）
     root.querySelector("#pp-e").onclick = () => (c.k === "listen" ? reveal(c) : c.k === "recall" ? flip(c) : c.k === "quiz" ? revealQuiz(c) : null);
+  }
+  // ☆ 收藏这句（同 RL 的星标 / R 键）：存进插件的「收藏的句子」（插件、网站同一份），并在生词本里加一条句子词条
+  const sentText = c => plain(c.s.en).replace(/\s+/g, " ").trim();
+  const starred = c => !!(EXT && c.s && c.s.en && EXT.sents.has(sentText(c).toLowerCase()));
+  async function toggleStar(c) {
+    if (!EXT || !c.s || !c.s.en) return; const t = sentText(c), lt = t.toLowerCase(), k0 = EXT.sents.get(lt), now = Date.now();
+    const id = "v_" + lt.replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 70), post = ch => fetch("/api/ext", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ changes: ch }) }).catch(() => {});
+    state.custom = state.custom || [];
+    if (k0) { EXT.sents.delete(lt); post({ ["savedSents|" + k0]: { del: 1, at: now } }); const e = state.custom.find(x => x && x.id === id && x.type === "sentence"); if (e) { state.custom = state.custom.filter(x => x !== e); state.deleted = (state.deleted || []).concat(id); } toast("已取消收藏这句"); }
+    else { const k = "web|" + lt.replace(/[^a-z0-9]+/g, " ").trim().slice(0, 90); EXT.sents.set(lt, k); post({ ["savedSents|" + k]: { v: { k, t, tr: c.s.zh || "", at: now, v: "", s: 0 }, at: now } }); if (!state.custom.some(x => x && (x.id === id || String(x.word || "").toLowerCase() === lt))) state.custom.push({ id, type: "sentence", word: t, phon: "", en: "", zh: c.s.zh || "(未查到，可手动补)", tag: "练习", date: new Date().toISOString().slice(0, 10), forms: [], examples: [], tip: "" }); toast("已收藏这句"); }
+    if (typeof refresh === "function") refresh(); save(state); show();
+  }
+  function srcOf(c) { // 例句出处（同 RL 卡片右下角的提示）
+    const m = medOf(c); if (m) return "保存于 YouTube：" + (m.title || "") + (m.ch ? "（" + m.ch + "）" : "");
+    if (c.w.pump) return "额外练习句子 · 例句来源：Tatoeba CC-BY";
+    if (c.s && c.s.src === "tatoeba") return "例句来源：Tatoeba CC-BY";
+    if (c.s && c.s.src === "video") return "看过的视频里的句子";
+    return "生词本里的例句";
   }
   function revealQuiz(c) { if (c.k !== "quiz" || c.rev >= 1) return; c.rev = 1; show(); say(c); } // 看答案：念出整句
   function rate(c, ok) { // 忘了 / 记得：按钮亮一下，记下来，马上翻下一张（同 PhrasePump）；刚练成已掌握时金色停 1 秒
@@ -446,7 +474,7 @@
   document.addEventListener("keydown", e => {
     if (!playing || !root || !root.classList.contains("on") || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     const c = cards[at]; if (!c) return; const k = e.key.toLowerCase();
-    if (k === "d" || k === "arrowright") go(1); else if (k === "a" || k === "arrowleft") { if (at) go(-1); } else if (k === "s" || k === "arrowdown" || k === " ") say(c); else if (k === "e") { if (c.k === "listen") reveal(c); else if (c.k === "recall") flip(c); else if (c.k === "quiz") revealQuiz(c); } else if (c.k === "quiz" && !c.done && (k === "z" || k === "c")) rate(c, k === "c"); else if (c.k === "sugg" && /^[zxc]$/.test(k)) chooseSugg(c, { z: "known", x: "learn", c: "skip" }[k]); else if (c.k === "recall" && c.flip && !c.done && (k === "z" || k === "c")) rate(c, k === "c"); else return;
+    if (k === "d" || k === "arrowright") go(1); else if (k === "a" || k === "arrowleft") { if (at) go(-1); } else if (k === "s" || k === "arrowdown" || k === " ") say(c); else if (k === "r") toggleStar(c); else if (k === "e") { if (c.k === "listen") reveal(c); else if (c.k === "recall") flip(c); else if (c.k === "quiz") revealQuiz(c); } else if (c.k === "quiz" && !c.done && (k === "z" || k === "c")) rate(c, k === "c"); else if (c.k === "sugg" && /^[zxc]$/.test(k)) chooseSugg(c, { z: "known", x: "learn", c: "skip" }[k]); else if (c.k === "recall" && c.flip && !c.done && (k === "z" || k === "c")) rate(c, k === "c"); else return;
     e.preventDefault();
   });
   window.pumpShow = () => { if (!playing) home(); };
