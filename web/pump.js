@@ -2,7 +2,7 @@
    一个词这一轮要么听 3 句例句（词条自带的 + Tatoeba 例句库，每次换着听），要么做 1 道填空（用保存时的原句）；被动听过 2 次之后才出填空（同 PhrasePump）。
    排程按遗忘曲线（FSRS-4.5 的公式和默认参数）：每个词记着「稳定度」S（天）——过了 S 天还有 90% 的把握记得；
    记得的概率 R = (1 + 19/81 · t/S)^-0.5，降到 90% 时安排复习；越接近遗忘时复习，S 涨得越多，答错 S 变短、10 分钟后重来。
-   S 到 60 天（两个月后还有九成把握）自动标为「已掌握」。没有到期的词时，挑现在最可能忘的做「额外练习」。
+   S 到 42 天（同 Language Reactor：至少 6 周都很可能记得）自动标为「已掌握」。没有到期的词时，挑现在最可能忘的做「额外练习」。
    依赖 index.html 的全局：state / words / save / speak / toast */
 (function () {
   const DAY = 864e5, RELEARN = 10 * 6e4, PER = 3, NUMS = [20, 40, 60, 80, 100], NEWS = [0, 5, 10, 15, 20, 25];
@@ -15,7 +15,7 @@
   if (!LG("pump:def60", false)) { if (opt.num === 20) opt.num = 60; LS("pump:def60", true); LS("pump:opt", opt); } // 以前默认 20：没改过的换成 PhrasePump 的默认 60
   // ---------- 遗忘曲线（FSRS-4.5：公式和官方默认参数，github.com/open-spaced-repetition） ----------
   const W = [0.4872, 1.4003, 3.7145, 13.8206, 5.1618, 1.2298, 0.8975, 0.031, 1.6474, 0.1367, 1.0461, 2.1072, 0.0793, 0.3246, 1.587, 0.2272, 2.8755];
-  const RET = 0.9, DECAY = -0.5, FACTOR = 19 / 81, KNOWN_S = 60, LEVELS = [1, 3, 7, 16, 35, 90]; // LEVELS：换算成原来的「级别」，给插件等旧显示用
+  const RET = 0.9, DECAY = -0.5, FACTOR = 19 / 81, KNOWN_S = 42, LEVELS = [1, 3, 7, 16, 35, 90]; // LEVELS：换算成原来的「级别」，给插件等旧显示用
   const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
   const recall = (S, tDays) => Math.pow(1 + FACTOR * Math.max(0, tDays) / S, DECAY);       // 过了 t 天还记得的概率
   const interval = S => S / FACTOR * (Math.pow(RET, 1 / DECAY) - 1);                        // 记得的概率降到 90% 要多少天（= S）
@@ -30,7 +30,7 @@
       : m.s * (1 + Math.exp(W[8]) * (11 - m.d) * Math.pow(m.s, -W[9]) * (Math.exp(W[10] * (1 - R)) - 1));
     return { s: Math.max(0.1, s), d };
   }
-  // 掌握进度：稳定度到 60 天（两个月后还有九成把握）= 100 % 已掌握；中间按对数换算，前期的进步也看得出来（4 天 ≈ 38 %，14 天 ≈ 66 %，47 天 ≈ 94 %）
+  // 掌握进度：稳定度到 42 天（6 周，同 Language Reactor）= 100 % 已掌握；中间按对数换算，前期的进步也看得出来（4 天 ≈ 43 %，14 天 ≈ 72 %，30 天 ≈ 91 %）
   const mastery = (r, w) => (w && w.status === "known" ? 1 : !r || !(r.s || r.b) ? 0 : Math.min(1, Math.log(1 + memOf(r).s) / Math.log(1 + KNOWN_S)));
   const pcent = x => Math.round(x * 100);
   const mbar = (x, known) => '<span class="pp-mb' + (known ? " known" : "") + '"><i style="width:' + pcent(x) + '%"></i></span>';
@@ -226,9 +226,9 @@
       '<div class="pp-today"><span class="emo">' + emoji() + "</span>今天<b>" + day.n + ' 张卡片</b></div><div class="pp-bar"><i style="width:' + Math.min(100, day.n / Math.max(1, opt.num) * 100) + '%"></i></div>' +
       '<div class="pp-st"><div title="记得的概率已经降到 90% 以下、该复习的；「紧急」= 过期超过一天"><small>待复习</small><b>' + p.due.length + "</b><em>" + (urgent ? urgent + " 个紧急" : "") + '</em></div>' +
       '<div title="' + (rs.length ? "按遗忘曲线算，现在平均记得 " + avgR + "%" : "正在练的词") + '"><small>学习中</small><b>' + lrn + "</b><em>+" + p.fresh.length + ' 个排队中</em></div>' +
-      '<div title="稳定度到了 60 天（两个月后还有九成把握记得），自动算已掌握"><small>已学习</small><b>' + done + "</b></div></div>" +
+      '<div title="稳定度到了 42 天（至少 6 周都很可能记得），自动算已掌握"><small>已学习</small><b>' + done + "</b></div></div>" +
       (() => { const all = p.P.filter(w => !w.sg), kn = all.filter(w => w.status === "known").length, lr = all.filter(w => w.status !== "known" && S[w.id]), avg = lr.length ? lr.reduce((a, w) => a + mastery(S[w.id], w), 0) / lr.length : 0, tot = all.length ? kn / all.length : 0;
-        return '<div class="pp-master" title="稳定度到 60 天（两个月后还有九成把握记得）算已掌握"><div class="h"><span>🏆 已掌握</span><b>' + pcent(tot) + "%</b><small>" + kn + " / " + all.length + " 个</small></div>" + mbar(tot, true) + (lr.length ? '<div class="h2">学习中的 ' + lr.length + " 个词平均掌握进度 <b>" + pcent(avg) + "%</b></div>" + mbar(avg) : "") + "</div>"; })() +
+        return '<div class="pp-master" title="稳定度到 42 天（至少 6 周都很可能记得）算已掌握"><div class="h"><span>🏆 已掌握</span><b>' + pcent(tot) + "%</b><small>" + kn + " / " + all.length + " 个</small></div>" + mbar(tot, true) + (lr.length ? '<div class="h2">学习中的 ' + lr.length + " 个词平均掌握进度 <b>" + pcent(avg) + "%</b></div>" + mbar(avg) : "") + "</div>"; })() +
       '<div class="pp-go"><button id="pp-start"' + (n ? "" : " disabled") + ">开始练习</button><span>" + (n ? n + " 张卡片" : p.mode === "none" ? (opt.sugg ? "测验、练习都关了：只练建议，现在没有建议" : "测验、练习、建议都关了，没有可练的") : "现在没有要练的") + "</span></div>" +
       (p.queue.length ? '<div class="pp-next"><b>接下来</b> · 你的队列，然后是推荐' + '<div class="pp-q">' + p.queue.slice(0, 12).map(q => { const r = S[q.w.id]; const m = mastery(r, q.w); return "<span" + (q.kind === "sugg" ? ' class="sg" title="推荐：从看过的视频里来的新词"' : ' title="掌握进度 ' + pcent(m) + "%" + (r && r.at ? " · 现在记得 " + pcent(rNow(r)) + "%" : " · 新词") + '"') + ">" + esc(q.w.word) + (q.kind === "sugg" ? "" : " <i>" + pcent(m) + "%</i>" + mbar(m)) + "</span>"; }).join("") + "</div></div>" : "") + "</div>" +
       '<div class="pp-opt"><h4>会话' + (JSON.stringify(Object.keys(DEF).map(k => opt[k])) !== JSON.stringify(Object.keys(DEF).map(k => DEF[k])) ? '<a id="pp-reset" href="javascript:void 0">重置</a>' : "") + "</h4>" +
@@ -242,7 +242,7 @@
       tg("pp-recall", opt.recall, "认词卡", "先看词回想意思，翻开后自己判断认不认识（原来的「背诵」「自测」）") +
       (opt.recall ? seg("dir", { name: "认词方向", items: [["en", "看英文想中文"], ["zh", "看中文想英文"]] }, v => opt.dir === v) : "") +
       seg("types", { name: "类型", items: [["word", "单词"], ["phrase", "短语"], ["sentence", "句子"], ["pattern", "规律"]] }, v => opt.types.includes(v)) +
-      '<p class="pp-note">插件里的「复习」也打开这里，进度是同一份：在哪台设备练都算。「练习数量」是这一组的卡片张数；「新项目」是其中新词最多占的比例。每个词这一轮要么听 3 句例句（每次换着听），要么做 1 道填空。按遗忘曲线排复习：记得的概率降到 90% 时再练，越接近遗忘时练记得越久；两个月后还有九成把握记得，自动算「已掌握」。电脑上可以用键盘：A 上一个、S 重听、E 显示 / 翻开 / 看答案、D 下一个；测验 Z 忘了、C 记得；建议 1 已知、2 学习、3 跳过；认词卡翻开后 1 不认识、2 认识。</p></div></div>';
+      '<p class="pp-note">插件里的「复习」也打开这里，进度是同一份：在哪台设备练都算。「练习数量」是这一组的卡片张数；「新项目」是其中新词最多占的比例。每个词这一轮要么听 3 句例句（每次换着听），要么做 1 道填空。按遗忘曲线排复习：记得的概率降到 90% 时再练，越接近遗忘时练记得越久；至少 6 周都很可能记得（稳定度 42 天），自动算「已掌握」。电脑上可以用键盘：A 上一个、S 重听、E 显示 / 翻开 / 看答案、D 下一个；测验 Z 忘了、C 记得；建议 1 已知、2 学习、3 跳过；认词卡翻开后 1 不认识、2 认识。</p></div></div>';
     root.querySelector("#pp-start").onclick = start;
     root.querySelector("#pp-quiz").onchange = e => { opt.quiz = e.target.checked; LS("pump:opt", opt); home(); }; // 关了「测验」：只听不考
     const rs0 = root.querySelector("#pp-reset"); if (rs0) rs0.onclick = () => { opt = JSON.parse(JSON.stringify(DEF)); LS("pump:opt", opt); home(); };
@@ -308,7 +308,7 @@
     const c = cards[at], pct = (at + 1) / cards.length * 100; prefetch(at);
     if (MED && MED[String(c.w.word || "").toLowerCase().trim()] && !(MED[String(c.w.word).toLowerCase().trim()] in medRec)) medFor(c.w).then(() => { if (cards[at] === c && medOf(c)) show(); }); // 原声截图到了：重画这张卡片
     const mNow = c.w.sg || c.w.pump ? null : mastery(srs()[c.w.id], c.w), known = c.w.justKnown || (mNow != null && mNow >= 1);
-    const prog = mNow == null ? "" : '<div class="pp-prog' + (known ? " known" : "") + '" title="这个词的掌握进度：稳定度到 60 天算已掌握">' + (known ? "🏆 已掌握" : "掌握进度") + mbar(mNow, known) + "<b>" + pcent(mNow) + "%</b>" + (c.done && mNow > (c.m0 || 0) + 0.005 ? '<em>+' + (pcent(mNow) - pcent(c.m0 || 0)) + "%</em>" : "") + "</div>";
+    const prog = mNow == null ? "" : '<div class="pp-prog' + (known ? " known" : "") + '" title="这个词的掌握进度：稳定度到 42 天（6 周）算已掌握">' + (known ? "🏆 已掌握" : "掌握进度") + mbar(mNow, known) + "<b>" + pcent(mNow) + "%</b>" + (c.done && mNow > (c.m0 || 0) + 0.005 ? '<em>+' + (pcent(mNow) - pcent(c.m0 || 0)) + "%</em>" : "") + "</div>";
     const typ = x => (x.k === "quiz" ? "t" : x.k === "sugg" ? "p" : "e"), segs = ["t", "p", "e"].map(k => ({ k, n: cards.filter(x => typ(x) === k).length, d: cards.filter((x, i) => typ(x) === k && (i < at || x.done)).length })).filter(g => g.n);
     const bar = '<div class="pp-segbar" title="测验 / 建议 / 练习">' + segs.map(g => '<span class="sg-' + g.k + '" style="flex:' + g.n + '"><i style="width:' + (g.d / g.n * 100) + '%"></i></span>').join("") + "</div>";
     const top = '<div class="pp-top"><button id="pp-back">← 返回</button>' + bar + "<span>" + (at + 1) + "/" + cards.length + "</span></div>" + prog;
