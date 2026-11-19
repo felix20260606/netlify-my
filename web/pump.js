@@ -145,7 +145,7 @@
     return L.length ? L : [{ en: w.word, zh: w.zh || "" }];
   }
   function listenSet(w) { // 听力：词条例句 + 例句库，最近听过的往后排，挑 3 句
-    const k = String(w.word || "").toLowerCase().trim(), own = sentences(w).map((x, i) => Object.assign({ orig: i === 0 }, x));
+    const k = String(w.word || "").toLowerCase().trim(), own = sentences(w).map((x, i) => Object.assign({ orig: i === 0 }, x)).filter(x => nrm(x.en) !== nrm(w.word) || !(SENT[k] || []).length); // 没有例句时词条会拿单词本身凑数：例句库有句子就不要它
     const all = own.concat((SENT[k] || []).map(x => ({ en: x.en, zh: x.zh }))).filter((x, i, a) => a.findIndex(y => y.en.toLowerCase() === x.en.toLowerCase()) === i);
     const h = heard[k] || [], score = x => { const i = h.indexOf(x.en); return i < 0 ? 0 : h.length - i; }; // 越近听过分越高，排越后
     const pick = all.map((x, i) => ({ x, r: score(x) * 10 + Math.random() + (x.orig ? -0.5 : 0) })).sort((a, b) => a.r - b.r).slice(0, PER).map(o => o.x);
@@ -193,11 +193,11 @@
     const p = plan(); if (!p.list.length) return; const S = srs(); cards = []; at = 0; bad = 0; playing = true;
     medMap().then(() => { prefetch(0); const c = cards[at]; if (c && playing) medFor(c.w).then(() => { if (playing && cards[at] === c && medOf(c)) show(); }); }); // 原声截图在后台取，取到之前先用朗读；取到了重画当前卡片
     p.list.forEach(w => {
-      const r = S[w.id], wasNew = !r;
-      if (quizNow(w, r)) { const o = sentences(w)[0]; cards.push({ w, s: { en: mark(o.en, w), zh: o.zh, orig: true }, i: 0, k: "quiz", last: true, wasNew, rev: 0 }); return; } // 复习过的词：一道填空，用保存时的原句
+      const r = S[w.id], wasNew = !r, x0 = seen(r); // x0：这一轮开始前练过几轮
+      if (quizNow(w, r)) { const o = sentences(w)[0]; cards.push({ w, s: { en: mark(o.en, w), zh: o.zh, orig: true }, i: 0, k: "quiz", last: true, wasNew, x0, rev: 0 }); return; } // 复习过的词：一道填空，用保存时的原句
       const L = hasEn(w) ? listenSet(w).map(x => ({ en: mark(x.en, w), zh: x.zh, orig: x.orig })) : [], n = L.length;
-      if (!w.sg && (opt.recall || !n)) cards.push({ w, s: { en: hasEn(w) ? w.word : "", zh: w.zh || "" }, i: -1, k: "recall", last: !n, wasNew, rev: 0 }); // 认词卡
-      for (let i = 0; i < n; i++) cards.push({ w, s: L[i], i, k: "listen", last: i === n - 1, wasNew, rev: 0 });
+      if (!w.sg && (opt.recall || !n)) cards.push({ w, s: { en: hasEn(w) ? w.word : "", zh: w.zh || "" }, i: -1, k: "recall", last: !n, wasNew, x0, rev: 0 }); // 认词卡
+      for (let i = 0; i < n; i++) cards.push({ w, s: L[i], i, k: "listen", last: i === n - 1, wasNew, x0, rev: 0 });
     });
     show();
   }
@@ -208,8 +208,8 @@
     const lapsed = cards.some(x => x !== c && x.w.id === id && x.done && !x.ok); // 这一轮前面已经错过一张（已经按「忘了」算过）
     r.n++;
     if (!ok && !lapsed) { const m = review(S[id], 1); Object.assign(r, m, { at: now, due: now + RELEARN, b: 0 }); } // 忘了：稳定度变短，10 分钟后再来
-    else if (ok && c.last && !lapsed) { const m = review(S[id], 3); Object.assign(r, m, { at: now, due: now + Math.max(1, interval(m.s)) * DAY, b: levelOf(m.s) }); r.x = seen(S[id]) + 1; if (m.s >= KNOWN_S) state.progress[id] = "known"; } // 这一轮都对：按遗忘曲线排下次
-    else if (c.last && lapsed) r.x = seen(S[id]) + 1;
+    else if (ok && c.last && !lapsed) { const m = review(S[id], 3); Object.assign(r, m, { at: now, due: now + Math.max(1, interval(m.s)) * DAY, b: levelOf(m.s) }); r.x = (c.x0 || 0) + 1; if (m.s >= KNOWN_S) state.progress[id] = "known"; } // 这一轮都对：按遗忘曲线排下次
+    else if (c.last && lapsed) r.x = (c.x0 || 0) + 1;
     S[id] = r; save(state);
   }
 
