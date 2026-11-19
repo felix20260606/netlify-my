@@ -72,7 +72,7 @@ function srcCell(m, c) {
   return '<a href="' + url + '" target="_blank" rel="noopener" title="' + esc(title + (m && m.ch ? " · " + m.ch : "") + " · " + tm(o.s || 0)) + '">' + (m && m.img ? '<img src="' + m.img + '" alt="">' : '<span class="yt">' + I("play") + "</span>") + '<span class="ti">' + esc(title) + "</span></a>";
 }
 function stage(w) { return '<span class="stg" title="复习阶段和下次复习时间">' + I("book") + stage0(w) + "</span>"; }
-function stage0(w) { const r = srs[w]; if (!r) return "未开始"; if (r.b >= DONE) return "已学会"; const d = r.due - Date.now(); return "第 " + (r.b + 1) + " 级 · " + (d <= 0 ? "到期" : d < DAY ? Math.ceil(d / 36e5) + " 小时后" : Math.ceil(d / DAY) + " 天后"); }
+function stage0(w) { const r = srs[w]; if (!r) return "未开始"; if (r.s ? r.s >= 60 : r.b >= DONE) return "已学会"; const d = r.due - Date.now(); return (r.s ? "能记 " + Math.round(r.s) + " 天" : "第 " + (r.b + 1) + " 级") + " · " + (d <= 0 ? "到期" : d < DAY ? Math.ceil(d / 36e5) + " 小时后" : Math.ceil(d / DAY) + " 天后"); } // 和网站「🔊 练习」一样按遗忘曲线：稳定度到 60 天算已学会
 function ctxHtml(t, w) { const L = lem(w); return vsMark(esc(t), S).replace(/<span class="vs-w ([^"]*)" data-w="([^"]+)">/g, (a, cl, x) => (x.toLowerCase() === w || lem(x) === L || lem(x) === w ? '<span class="vs-w wb" data-w="' + x + '">' : a)); }
 function head() {
   $$(".tabs b").forEach(b => { const t = b.dataset.t; b.innerHTML = I(t === "words" ? "mark" : t === "sents" ? "star" : "list") + (t === "words" ? "保存的单词" : t === "sents" ? "保存的短语" : "所有单词"); b.classList.toggle("on", t === tab); });

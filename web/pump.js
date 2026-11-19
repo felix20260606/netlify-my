@@ -1,12 +1,38 @@
-/* 生词本「🔊 练习」：照 Language Reactor 的 PhrasePump 做的练法，和电脑插件的复习页共用一份复习进度（state.srs，存在网站后台）
-   每个词连续练 3 个例句（用词条自带的例句）；先听，按 E / 点模糊处先显示原文、再显示翻译；复习过的词先出一张填空题。
-   间隔：1 天、3 天、7 天、16 天、35 天、90 天；到 35 天这一级自动标为「已掌握」。依赖 index.html 的全局：state / words / save / speak / toast */
+/* 生词本「🔊 练习」：照 Language Reactor 的 PhrasePump 做的练法，复习进度存在生词本里（state.srs，网站后台），哪台设备练都算
+   一个词这一轮要么听 3 句例句（词条自带的 + Tatoeba 例句库，每次换着听），要么做 1 道填空（用保存时的原句）；被动听过 2 次之后才出填空（同 PhrasePump）。
+   排程按遗忘曲线（FSRS-4.5 的公式和默认参数）：每个词记着「稳定度」S（天）——过了 S 天还有 90% 的把握记得；
+   记得的概率 R = (1 + 19/81 · t/S)^-0.5，降到 90% 时安排复习；越接近遗忘时复习，S 涨得越多，答错 S 变短、10 分钟后重来。
+   S 到 60 天（两个月后还有九成把握）自动标为「已掌握」。没有到期的词时，挑现在最可能忘的做「额外练习」。
+   依赖 index.html 的全局：state / words / save / speak / toast */
 (function () {
-  const DAY = 864e5, GAP = [10 * 6e4, DAY, 3 * DAY, 7 * DAY, 16 * DAY, 35 * DAY, 90 * DAY], DONE = 5, PER = 3, NUMS = [20, 40, 60, 80, 100], NEWS = [0, 5, 10, 15, 20, 25];
+  const DAY = 864e5, RELEARN = 10 * 6e4, PER = 3, NUMS = [20, 40, 60, 80, 100], NEWS = [0, 5, 10, 15, 20, 25];
   const LG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, LS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const today = () => new Date().toISOString().slice(0, 10);
   let opt = Object.assign({ quiz: true, num: 20, newPct: 15, types: ["word", "phrase"], sugg: true, tags: [], recall: true, dir: "en" }, LG("pump:opt", {})); if (!Array.isArray(opt.tags)) opt.tags = [];
+  // ---------- 遗忘曲线（FSRS-4.5：公式和官方默认参数，github.com/open-spaced-repetition） ----------
+  const W = [0.4872, 1.4003, 3.7145, 13.8206, 5.1618, 1.2298, 0.8975, 0.031, 1.6474, 0.1367, 1.0461, 2.1072, 0.0793, 0.3246, 1.587, 0.2272, 2.8755];
+  const RET = 0.9, DECAY = -0.5, FACTOR = 19 / 81, KNOWN_S = 60, LEVELS = [1, 3, 7, 16, 35, 90]; // LEVELS：换算成原来的「级别」，给插件等旧显示用
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const recall = (S, tDays) => Math.pow(1 + FACTOR * Math.max(0, tDays) / S, DECAY);       // 过了 t 天还记得的概率
+  const interval = S => S / FACTOR * (Math.pow(RET, 1 / DECAY) - 1);                        // 记得的概率降到 90% 要多少天（= S）
+  const initD = g => clamp(W[4] - (g - 3) * W[5], 1, 10);
+  const memOf = r => (r && r.s ? { s: r.s, d: r.d || 5 } : { s: [0.4, 1, 3, 7, 16, 35, 90][(r && r.b) || 0] || 0.4, d: 5 }); // 旧进度（只有级别）换算成稳定度
+  const rNow = r => { if (!r || !r.at) return 0; return recall(memOf(r).s, (Date.now() - r.at) / DAY); };
+  function review(r, g) { // g：1 忘了，3 记得；返回新的 { s 稳定度, d 难度 }
+    if (!r || !(r.s || r.b || r.n)) return { s: W[g - 1], d: initD(g) };
+    const m = memOf(r), R = recall(m.s, (Date.now() - (r.at || Date.now())) / DAY);
+    const d = clamp(W[7] * initD(4) + (1 - W[7]) * (m.d - W[6] * (g - 3)), 1, 10);
+    const s = g === 1 ? Math.min(m.s, W[11] * Math.pow(m.d, -W[12]) * (Math.pow(m.s + 1, W[13]) - 1) * Math.exp(W[14] * (1 - R)))
+      : m.s * (1 + Math.exp(W[8]) * (11 - m.d) * Math.pow(m.s, -W[9]) * (Math.exp(W[10] * (1 - R)) - 1));
+    return { s: Math.max(0.1, s), d };
+  }
+  const levelOf = s => { let b = 0; LEVELS.forEach((x, i) => { if (s >= x) b = i + 1; }); return b; };
+  const seen = r => (r ? (r.x != null ? r.x : Math.round((r.n || 0) / PER)) : 0); // 练过几轮（被动听也算）
+  // ---------- 例句：词条自带的 + Tatoeba 例句库（/api/sent，后台缓存）；听力每次换着听，最近听过的往后排 ----------
+  const SENT = {}, heard = LG("pump:heard", {});
+  const sentFor = w => { const k = String(w.word || "").toLowerCase().trim(); if (!hasEn(w) || w.type === "sentence" || /\s.*\s.*\s/.test(k) || k in SENT) return Promise.resolve(); SENT[k] = null;
+    return fetch("/api/sent?w=" + encodeURIComponent(k)).then(r => r.json()).then(j => { SENT[k] = (j && j.items) || []; }).catch(() => { delete SENT[k]; }); };
   let day = LG("pump:day", { d: "", n: 0 }); if (day.d !== today()) day = { d: today(), n: 0 };
   let cards = [], at = 0, bad = 0, playing = false, root = null;
   // 插件保存时录下的原声和两张截图（存在 Cloudflare：/api/ext 里有索引，/api/media 一条一条取），哪台设备都能用
@@ -28,7 +54,7 @@
     return medPr[k] || (medPr[k] = fetch("/api/media?k=" + encodeURIComponent(k)).then(r => r.ok ? r.json() : null).then(j => (medRec[k] = (j && j.rec) || null)).catch(() => (medRec[k] = null)));
   }
   // 这张卡片的句子就是保存时的那一句：用原声和截图
-  const medOf = c => { const k = MED && MED[String(c.w.word || "").toLowerCase().trim()], r = k && medRec[k]; if (!r) return null; return (r.t ? nrm(r.t) === nrm(c.s.en) : c.i === 0) ? r : null; };
+  const medOf = c => { const k = MED && MED[String(c.w.word || "").toLowerCase().trim()], r = k && medRec[k]; if (!r) return null; return (r.t ? nrm(r.t) === nrm(c.s.en) : !!c.s.orig) ? r : null; };
   const prefetch = from => { for (let i = from; i < Math.min(cards.length, from + 4); i++) medFor(cards[i].w); };
   const CSS = `
   #pump{display:none;max-width:860px;margin:0 auto;padding:6px 0 30px}#pump.on{display:block}
@@ -66,6 +92,7 @@
   .pp-rc .rc-ex{margin-top:10px;display:grid;gap:8px;font-size:14.5px;color:var(--ui-ink)}.pp-rc .rc-ex span{display:block;color:var(--ui-muted);font-size:13px}.pp-rc .rc-ex .t{color:var(--ui-orange);font-weight:700}
   .pp-rc .rc-tip{margin-top:10px;font-size:13.5px;color:var(--ui-ink-2)}
   .pp-rcb{display:flex;gap:10px;margin:12px 0 0}.pp-rcb button{flex:1;height:46px;border-radius:12px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink)}#pp-yes{background:var(--ui-pur);border-color:var(--ui-pur);color:#fff}#pp-no:hover{border-color:var(--ui-red);color:var(--ui-red)}
+  .pp-q span i{font-style:normal;font-size:11px;opacity:.7}
   .pp-img{display:flex;gap:8px;justify-content:center;width:100%;max-width:640px;margin:0 auto 14px}.pp-img img{flex:1 1 0;min-width:0;max-width:300px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:var(--paper-2)}
   .pp-card .pl{position:absolute;left:12px;top:12px;width:32px;height:32px;border-radius:50%;background:var(--jade);color:#fff;border:0;font-size:13px;cursor:pointer}
   .pp-card .cp{position:absolute;right:12px;top:12px;border:0;background:none;color:var(--muted);font-size:13px;cursor:pointer;padding:6px}
@@ -94,26 +121,36 @@
   const emoji = () => { const r = day.n / Math.max(1, opt.num); return r <= 0 ? "😭" : r < 0.25 ? "😢" : r < 0.5 ? "😐" : r < 1 ? "🙂" : "😄"; };
   const hasEn = w => !/[一-鿿]/.test(w.word); // 「规律」类词条标题是中文：没法听，只能用认词卡练
   const usable = w => w && w.word && opt.types.includes(w.type || "word") && (hasEn(w) || opt.recall);
-  const nCards = w => (w.sg ? 0 : opt.recall || !hasEn(w) ? 1 : 0) + (hasEn(w) ? Math.min(PER, sentences(w).length) : 0);
+  const quizNow = (w, r) => opt.quiz && !w.sg && hasEn(w) && w.type !== "sentence" && seen(r) >= 2 && /\{[^}]+\}/.test(mark(sentences(w)[0].en, w)); // 被动听过 2 轮之后才出填空（同 PhrasePump）
+  const nCards = w => { const r = srs()[w.id]; if (quizNow(w, r)) return 1; return (w.sg ? 0 : opt.recall || !hasEn(w) ? 1 : 0) + (hasEn(w) ? Math.min(PER, Math.max(sentences(w).length, (SENT[String(w.word).toLowerCase().trim()] || []).length + sentences(w).length)) : 0); };
   function plan() {
     const S = srs(), now = Date.now(), tagOf = w => (EXT && EXT.tags[String(w.word).toLowerCase().trim()]) || "";
     const P = (typeof words !== "undefined" ? words : []).filter(usable).filter(w => !opt.tags.length || opt.tags.includes(tagOf(w))), live = P.filter(w => w.status !== "known");
-    const due = live.filter(w => S[w.id] && S[w.id].due <= now).sort((a, b) => S[a.id].due - S[b.id].due);
+    const due = live.filter(w => S[w.id] && S[w.id].due <= now).sort((a, b) => rNow(S[a.id]) - rNow(S[b.id])); // 最可能忘的先练
     const fresh = live.filter(w => !S[w.id]).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
     const nW = Math.max(1, Math.round(opt.num / PER)); let nNew = Math.min(fresh.length, Math.round(nW * opt.newPct / 100)); if (!due.length) nNew = Math.min(fresh.length, nW);
-    let list = due.slice(0, nW - nNew).concat(fresh.slice(0, nNew));
+    let list = due.slice(0, nW - nNew).concat(fresh.slice(0, nNew)), extra = false;
+    if (!list.length) { list = live.filter(w => S[w.id] && S[w.id].at).sort((a, b) => rNow(S[a.id]) - rNow(S[b.id])).slice(0, nW); extra = list.length > 0; } // 额外练习：没有到期的，挑现在最可能忘的
     // 推荐生词（同插件复习页）：从看过的视频里挑还没收、没标记过的词，补进这一组，最多占「新项目」的份额；练了不记进度，想学就点「＋ 收进生词本」
     const have = new Set((typeof words !== "undefined" ? words : []).map(w => String(w.word || "").toLowerCase().trim()));
     const pool = opt.sugg && EXT && !opt.tags.length ? Object.keys(EXT.sugg).filter(w => !have.has(w) && !EXT.marks[w] && !EXT.saved.has(w)).sort((a, b) => (EXT.sugg[b].n || 1) - (EXT.sugg[a].n || 1) || (EXT.sugg[b].at || 0) - (EXT.sugg[a].at || 0)) : [];
     const nSug = opt.newPct ? Math.min(pool.length, Math.max(0, Math.min(nW - list.length, Math.max(1, Math.round(nW * opt.newPct / 100))))) : 0;
     list = list.concat(pool.slice(0, nSug).map(w => ({ id: "sg_" + w, word: w, zh: "", type: "word", sg: 1, examples: [[EXT.sugg[w].t, ""]] })));
-    return { P, live, due, fresh, list, pool };
+    return { P, live, due, fresh, list, pool, extra };
   }
   // 一个词条的例句：词条自带的 examples（{目标词} 标出位置）；没有就用词条本身
-  function sentences(w) {
+  function sentences(w) { // 词条自带的例句（第一句通常是保存时的原句）
     const L = (w.examples || []).filter(x => Array.isArray(x) && x[0]).map(x => ({ en: String(x[0]), zh: String(x[1] || "") }));
     if (w.type === "sentence") L.unshift({ en: w.word, zh: w.zh || "" });
     return L.length ? L : [{ en: w.word, zh: w.zh || "" }];
+  }
+  function listenSet(w) { // 听力：词条例句 + 例句库，最近听过的往后排，挑 3 句
+    const k = String(w.word || "").toLowerCase().trim(), own = sentences(w).map((x, i) => Object.assign({ orig: i === 0 }, x));
+    const all = own.concat((SENT[k] || []).map(x => ({ en: x.en, zh: x.zh }))).filter((x, i, a) => a.findIndex(y => y.en.toLowerCase() === x.en.toLowerCase()) === i);
+    const h = heard[k] || [], score = x => { const i = h.indexOf(x.en); return i < 0 ? 0 : h.length - i; }; // 越近听过分越高，排越后
+    const pick = all.map((x, i) => ({ x, r: score(x) * 10 + Math.random() + (x.orig ? -0.5 : 0) })).sort((a, b) => a.r - b.r).slice(0, PER).map(o => o.x);
+    heard[k] = h.filter(e => !pick.some(p => p.en === e)).concat(pick.map(p => p.en)).slice(-12); LS("pump:heard", heard);
+    return pick;
   }
   const plain = en => en.replace(/[{}]/g, "");
   function mark(en, w) { // 目标词位置：优先用 {} 标记；没有就在句子里找这个词
@@ -124,23 +161,25 @@
   const html = en => esc(en).replace(/\{([^}]+)\}/g, '<span class="t">$1</span>');
   function home() {
     playing = false; const p = plan(), S = srs();
-    const lrn = p.P.filter(w => S[w.id] && S[w.id].b < DONE && w.status !== "known").length, done = p.P.filter(w => w.status === "known" || (S[w.id] && S[w.id].b >= DONE)).length;
+    const lrn = p.P.filter(w => S[w.id] && w.status !== "known").length, done = p.P.filter(w => w.status === "known").length;
+    const rs = p.live.filter(w => S[w.id] && S[w.id].at).map(w => rNow(S[w.id])), avgR = rs.length ? Math.round(rs.reduce((a, x) => a + x, 0) / rs.length * 100) : 0;
+    p.list.slice(0, 12).forEach(w => sentFor(w)); // 先把例句取回来
     const urgent = p.due.filter(w => Date.now() - S[w.id].due > DAY).length, n = p.list.reduce((a, w) => a + nCards(w), 0);
     root.innerHTML = '<div class="pp-home"><div class="pp-hc"><h2>🔊 <b>练习</b></h2>' +
       '<div class="pp-today"><span class="emo">' + emoji() + "</span>今天<b>" + day.n + ' 张卡片</b></div><div class="pp-bar"><i style="width:' + Math.min(100, day.n / Math.max(1, opt.num) * 100) + '%"></i></div>' +
-      '<div class="pp-st"><div title="到期要复习的词；「紧急」= 过期超过一天"><small>待复习</small><b>' + p.due.length + "</b><em>" + (urgent ? urgent + " 个紧急" : "") + '</em></div><div title="正在练、还没到 35 天这一级的词"><small>学习中</small><b>' + lrn + "</b><em>+" + p.fresh.length + ' 个排队中</em></div><div title="已掌握，或复习间隔到了 35 天"><small>已学习</small><b>' + done + "</b></div></div>" +
-      '<div class="pp-go"><button id="pp-start"' + (n ? "" : " disabled") + ">开始练习</button><span>" + (n ? n + " 张卡片" : "现在没有要练的词") + "</span></div>" +
-      (p.list.length ? '<div class="pp-next"><b>接下来</b> · 待复习的优先，然后是新词<div class="pp-q">' + p.list.slice(0, 12).map(w => "<span>" + esc(w.word) + "</span>").join("") + "</div></div>" : "") + "</div>" +
+      '<div class="pp-st"><div title="记得的概率已经降到 90% 以下、该复习的词；「紧急」= 过期超过一天"><small>待复习</small><b>' + p.due.length + "</b><em>" + (urgent ? urgent + " 个紧急" : "") + '</em></div><div title="正在练的词；下面是按遗忘曲线算出的平均记得的概率"><small>学习中</small><b>' + lrn + "</b><em>" + (rs.length ? "平均记得 " + avgR + "%" : "+" + p.fresh.length + " 个排队中") + '</em></div><div title="稳定度到了 60 天（两个月后还有九成把握记得），自动算已掌握"><small>已掌握</small><b>' + done + "</b></div></div>" +
+      '<div class="pp-go"><button id="pp-start"' + (n ? "" : " disabled") + ">开始练习</button><span>" + (n ? n + " 张卡片" + (p.extra ? "（额外练习）" : "") : "现在没有要练的词") + "</span></div>" +
+      (p.list.length ? '<div class="pp-next"><b>接下来</b> · ' + (p.extra ? "没有到期的词，先练现在最可能忘的" : "最可能忘的先练，然后是新词") + '<div class="pp-q">' + p.list.slice(0, 12).map(w => { const r = S[w.id]; return "<span" + (r && r.at ? ' title="现在记得的概率"' : "") + ">" + esc(w.word) + (r && r.at ? " <i>" + Math.round(rNow(r) * 100) + "%</i>" : "") + "</span>"; }).join("") + "</div></div>" : "") + "</div>" +
       '<div class="pp-opt"><h4>会话</h4>' +
       '<label class="pp-row"><span>认词卡 <small>先看词回想意思，翻开后自己判断认不认识（原来的「背诵」「自测」）</small></span><input type="checkbox" class="pp-tg" id="pp-recall"' + (opt.recall ? " checked" : "") + "></label>" +
       (opt.recall ? '<div class="pp-row"><span>认词方向</span><span class="pp-seg" data-k="dir">' + [["en", "看英文想中文"], ["zh", "看中文想英文"]].map(([v, t]) => '<b data-v="' + v + '" class="' + (opt.dir === v ? "on" : "") + '">' + t + "</b>").join("") + "</span></div>" : "") +
-      '<label class="pp-row"><span>测验 <small>复习过的词先出一张填空题</small></span><input type="checkbox" class="pp-tg" id="pp-quiz"' + (opt.quiz ? " checked" : "") + "></label>" +
+      '<label class="pp-row"><span>测验 <small>被动听过 2 轮之后，改成一道填空（用保存时的原句）</small></span><input type="checkbox" class="pp-tg" id="pp-quiz"' + (opt.quiz ? " checked" : "") + "></label>" +
       '<div class="pp-row"><span>练习数量</span><span class="pp-seg" data-k="num">' + NUMS.map(v => '<b data-v="' + v + '" class="' + (v === opt.num ? "on" : "") + '">' + v + "</b>").join("") + "</span></div>" +
       '<div class="pp-row" title="新词最多占的比例；待复习的多时会自动减少"><span>新项目</span><span class="pp-seg" data-k="newPct">' + NEWS.map(v => '<b data-v="' + v + '" class="' + (v === opt.newPct ? "on" : "") + '">' + v + "%</b>").join("") + "</span></div>" +
       '<div class="pp-row"><span>类型</span><span class="pp-seg" data-k="types">' + [["word", "单词"], ["phrase", "短语"], ["sentence", "句子"], ["pattern", "规律"]].map(([v, t]) => '<b data-v="' + v + '" class="' + (opt.types.includes(v) ? "on" : "") + '">' + t + "</b>").join("") + "</span></div>" +
       '<label class="pp-row"><span>推荐生词 <small>从看过的视频里挑还没收的词（' + (p.pool ? p.pool.length : 0) + ' 个）</small></span><input type="checkbox" class="pp-tg" id="pp-sugg"' + (opt.sugg ? " checked" : "") + "></label>" +
       (EXT && Object.keys(EXT.tags).length ? '<div class="pp-row"><span>标签</span><span class="pp-seg" data-k="tags">' + [...new Set(Object.values(EXT.tags))].map(t => '<b data-v="' + esc(t) + '" class="' + (opt.tags.includes(t) ? "on" : "") + '">' + esc(t) + "</b>").join("") + "</span></div>" : "") +
-      '<p class="pp-note">插件里的「复习」也打开这里，进度是同一份：在哪台设备练都算。每个词连续练 3 个例句；练到 35 天这一级自动标为「已掌握」。电脑上可以用键盘：A 上一个、S 重听、E 显示 / 翻开、D 下一个；认词卡翻开后按 1 不认识、2 认识。</p></div></div>';
+      '<p class="pp-note">插件里的「复习」也打开这里，进度是同一份：在哪台设备练都算。每个词这一轮要么听 3 句例句（每次换着听），要么做 1 道填空。按遗忘曲线排复习：记得的概率降到 90% 时再练，越接近遗忘时练记得越久；两个月后还有九成把握记得，自动算「已掌握」。电脑上可以用键盘：A 上一个、S 重听、E 显示 / 翻开、D 下一个；认词卡翻开后按 1 不认识、2 认识。</p></div></div>';
     root.querySelector("#pp-start").onclick = start;
     root.querySelector("#pp-quiz").onchange = e => { opt.quiz = e.target.checked; LS("pump:opt", opt); };
     root.querySelector("#pp-recall").onchange = e => { opt.recall = e.target.checked; LS("pump:opt", opt); home(); };
@@ -154,22 +193,26 @@
     const p = plan(); if (!p.list.length) return; const S = srs(); cards = []; at = 0; bad = 0; playing = true;
     medMap().then(() => { prefetch(0); const c = cards[at]; if (c && playing) medFor(c.w).then(() => { if (playing && cards[at] === c && medOf(c)) show(); }); }); // 原声截图在后台取，取到之前先用朗读；取到了重画当前卡片
     p.list.forEach(w => {
-      const L = hasEn(w) ? sentences(w).map(x => ({ en: mark(x.en, w), zh: x.zh })) : [], n = Math.min(PER, L.length), wasNew = !S[w.id];
+      const r = S[w.id], wasNew = !r;
+      if (quizNow(w, r)) { const o = sentences(w)[0]; cards.push({ w, s: { en: mark(o.en, w), zh: o.zh, orig: true }, i: 0, k: "quiz", last: true, wasNew, rev: 0 }); return; } // 复习过的词：一道填空，用保存时的原句
+      const L = hasEn(w) ? listenSet(w).map(x => ({ en: mark(x.en, w), zh: x.zh, orig: x.orig })) : [], n = L.length;
       if (!w.sg && (opt.recall || !n)) cards.push({ w, s: { en: hasEn(w) ? w.word : "", zh: w.zh || "" }, i: -1, k: "recall", last: !n, wasNew, rev: 0 }); // 认词卡
-      const canQuiz = n && opt.quiz && !wasNew && !w.sg && w.type !== "sentence" && /\{[^}]+\}/.test(L[0].en);
-      for (let i = 0; i < n; i++) cards.push({ w, s: L[i], i, k: canQuiz && i === 0 ? "quiz" : "listen", last: i === n - 1, wasNew, rev: 0 });
+      for (let i = 0; i < n; i++) cards.push({ w, s: L[i], i, k: "listen", last: i === n - 1, wasNew, rev: 0 });
     });
     show();
   }
   function grade(c, ok) {
     if (c.done) return; c.done = true; c.ok = ok; day.n++; LS("pump:day", day); if (!ok) bad++;
     if (c.w.sg) return; // 推荐生词：还没收进生词本，不记进度
-    const S = srs(), id = c.w.id, r = Object.assign({ b: 0, n: 0 }, S[id]); r.n++; r.at = Date.now();
-    if (!ok) { r.b = 0; r.due = Date.now() + GAP[0]; }
-    else if (c.last) { const failed = cards.some(x => x !== c && x.w.id === id && x.done && !x.ok); r.b = failed ? 0 : c.wasNew ? 1 : Math.min(GAP.length - 1, r.b + 1); r.due = Date.now() + GAP[r.b]; if (r.b >= DONE) state.progress[id] = "known"; }
-    else if (!r.due) r.due = Date.now() + GAP[0];
+    const S = srs(), id = c.w.id, r = Object.assign({ n: 0 }, S[id]), now = Date.now();
+    const lapsed = cards.some(x => x !== c && x.w.id === id && x.done && !x.ok); // 这一轮前面已经错过一张（已经按「忘了」算过）
+    r.n++;
+    if (!ok && !lapsed) { const m = review(S[id], 1); Object.assign(r, m, { at: now, due: now + RELEARN, b: 0 }); } // 忘了：稳定度变短，10 分钟后再来
+    else if (ok && c.last && !lapsed) { const m = review(S[id], 3); Object.assign(r, m, { at: now, due: now + Math.max(1, interval(m.s)) * DAY, b: levelOf(m.s) }); r.x = seen(S[id]) + 1; if (m.s >= KNOWN_S) state.progress[id] = "known"; } // 这一轮都对：按遗忘曲线排下次
+    else if (c.last && lapsed) r.x = seen(S[id]) + 1;
     S[id] = r; save(state);
   }
+
   // 人工翻译（视频自带）和机器翻译不一样时两行都给（同插件复习页的 H / M）
   const zhHtml = c => { const m = medOf(c), hu = m && m.hu ? String(m.hu).trim() : "", zh = String(c.s.zh || (m && m.tr) || "").trim(); return hu && zh && hu !== zh ? '<span class="hm">H</span>' + esc(hu) + '<br><span class="hm">M</span>' + esc(zh) : esc(hu || zh); };
   // 句子按词汇水平上色（和视频字幕、插件一样），目标词照旧带框
@@ -239,7 +282,7 @@
   }
   function finish() {
     playing = false;
-    root.innerHTML = '<div class="pp-card pp-done"><h3>这一组练完了 ' + emoji() + "</h3><p>今天一共练了 " + day.n + " 张卡片" + (bad ? "，有 " + bad + " 张没答对或不认识" : "") + '</p><p style="font-size:13px">没答对的词 10 分钟后再出现；其余按 1、3、7、16、35 天的间隔复习。</p><button id="pp-home">返回</button></div>';
+    root.innerHTML = '<div class="pp-card pp-done"><h3>这一组练完了 ' + emoji() + "</h3><p>今天一共练了 " + day.n + " 张卡片" + (bad ? "，有 " + bad + " 张没答对或不认识" : "") + '</p><p style="font-size:13px">没答对的词 10 分钟后再出现；其余按遗忘曲线算：记得的概率降到 90% 时再来，记得越牢，间隔越长。</p><button id="pp-home">返回</button></div>';
     root.querySelector("#pp-home").onclick = home;
   }
   document.addEventListener("keydown", e => {

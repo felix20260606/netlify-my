@@ -25,7 +25,10 @@
 // 四、录音和截图 /api/media（每条一个 KV 记录 "m:" + 插件里的键，如 m:med:w:apple；内容 { aud, img, img2, t, tr, v, s, at… }）
 //   GET  ?k=med:w:apple → { ok, rec }
 //   POST {k, rec}       → 保存一条（单条最大 8MB）
-const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab", EXT_PATH = "/api/ext", EXT_KEY = "ext", MEDIA_PATH = "/api/media";
+//
+// 五、例句 /api/sent?w=单词（网站「🔊 练习」用：像 PhrasePump 一样每次换几句例句听）
+//   → { ok, w, items:[{en, zh}] }，来自 Tatoeba 例句库（只要 14 个词以内、带中文翻译、确实包含这个词的），在 KV 里缓存 30 天（"s/单词"）
+const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab", EXT_PATH = "/api/ext", EXT_KEY = "ext", MEDIA_PATH = "/api/media", SENT_PATH = "/api/sent";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
 const okId = v => /^[\w-]{11}$/.test(v || "");
 // 列表信息放在每条记录的 metadata 里（上限 1024 字节，所以这里把标题、作者截短；完整标题在记录正文里）
@@ -199,6 +202,25 @@ async function media(req, env) {
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
 
+// ---------- 例句（Tatoeba） ----------
+async function sent(req, env, u) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  const w = String(u.searchParams.get("w") || "").toLowerCase().trim();
+  if (!/^[a-z][a-z' -]{0,40}$/.test(w)) return json({ ok: false, error: "bad word" }, 400);
+  const kv = env.CAPTIONS, key = "s/" + w;
+  try {
+    const hit = kv && (await kv.get(key, "json")); if (hit) return json({ ok: true, w, items: hit, cached: true });
+    const r = await fetch("https://tatoeba.org/en/api_v0/search?from=eng&query=" + encodeURIComponent(w.includes(" ") ? '"' + w + '"' : w) + "&sort=relevance&word_count_max=14&to=cmn&trans_filter=limit&trans_to=cmn", { headers: { "User-Agent": "ruilearning-my (personal study site)" }, cf: { cacheTtl: 86400 } });
+    if (!r.ok) return json({ ok: false, error: "tatoeba " + r.status }, 502);
+    const j = await r.json(), stem = w.length > 4 ? w.replace(/(e|s|es|ed|ing|y)$/, "") : w;
+    const re = new RegExp("\\b" + stem.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/ /g, "\\s+"), "i");
+    const items = (j.results || []).map(x => { const ts = (x.translations || []).flat().filter(t => t && t.lang === "cmn"), t = ts.find(t => t.script === "Hans") || ts[0]; return { en: String(x.text || ""), zh: t ? String(t.text || "") : "" }; })
+      .filter(x => x.en && x.zh && x.en.length <= 100 && re.test(x.en)).slice(0, 12);
+    if (kv) await kv.put(key, JSON.stringify(items), { expirationTtl: 30 * 86400 });
+    return json({ ok: true, w, items });
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
+
 export default {
   async fetch(req, env) {
     const u = new URL(req.url);
@@ -206,6 +228,7 @@ export default {
     if (u.pathname === VOCAB_PATH) return vocab(req, env);
     if (u.pathname === EXT_PATH) return ext(req, env);
     if (u.pathname === MEDIA_PATH) return media(req, env);
+    if (u.pathname === SENT_PATH) return sent(req, env, u);
     return env.ASSETS.fetch(req);
   }
 };
