@@ -35,7 +35,7 @@
   const css = `
   #view-video{display:none;padding-top:calc(56px + env(safe-area-inset-top,0px))}
   html.show-video #view-video{display:block}
-  html.show-video #view-en,html.show-video #view-fat,html.show-video #view-trip,html.show-video #view-ielts,html.show-video #subtabs{display:none!important}
+  html.show-video #view-en,html.show-video #view-fat,html.show-video #view-trip,html.show-video #view-ielts,html.show-video #view-ext,html.show-video #subtabs{display:none!important}
   html.show-video body{padding-bottom:0}
   #apptabs .seg-wrap.three{max-width:460px}
   #view-video .wrap{max-width:620px;margin:0 auto;padding:0 14px}
