@@ -169,15 +169,15 @@ async function ext(req, env) {
       const x = b.changes[k]; if (!isObj(x) || typeof k !== "string" || k.length > 600 || !k.includes("|")) continue;
       const at = +x.at || 0, old = doc.items[k];
       if (old && (+old.at || 0) > at) continue;
-      if (x.del) { if (old && !old.del) { doc.items[k] = { del: 1, at }; changed = true; if (k.startsWith("med|")) gone.push(k.slice(4)); } else if (!old) { doc.items[k] = { del: 1, at }; changed = true; } }
+      if (x.del) { if (!old || !old.del) { doc.items[k] = { del: 1, at }; changed = true; } if (k.startsWith("med|")) gone.push(k.slice(4)); }
       else if (!old || old.del || JSON.stringify(old.v) !== JSON.stringify(x.v)) { doc.items[k] = { v: x.v, at }; changed = true; }
     }
     if (changed) {
       const cut = Date.now() - 120 * 86400e3; for (const k in doc.items) if (doc.items[k].del && doc.items[k].at < cut) delete doc.items[k];
       const day = EXT_KEY + "@" + bjDay(); if (raw0 && !(await kv.get(day))) await kv.put(day, raw0, { expirationTtl: 30 * 86400 });
       doc.ver = Date.now(); await kv.put(EXT_KEY, JSON.stringify(doc));
-      for (const m of gone) if (m.startsWith("med:")) await kv.delete("m:" + m);
     }
+    for (const m of gone) if (m.startsWith("med:")) await kv.delete("m:" + m);
     return json({ ok: true, changed, ver: doc.ver, items: live(doc.items) });
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
