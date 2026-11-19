@@ -75,6 +75,14 @@ const isObj = x => x && typeof x === "object" && !Array.isArray(x);
 const vnorm = s => ({ custom: Array.isArray(s && s.custom) ? s.custom : [], progress: isObj(s && s.progress) ? s.progress : {}, deleted: Array.isArray(s && s.deleted) ? s.deleted : [], pending: Array.isArray(s && s.pending) ? s.pending : [], srs: isObj(s && s.srs) ? s.srs : {} });
 // 复习进度（网站「🔊 练习」和插件复习页共用）：{ 词条id: { b 级别, n 次数, due 下次复习时间, at 最近练习时间 } }；同一个词以 at 新的为准
 function srsMerge(a, b) { const o = Object.assign({}, a); for (const k in b) { const x = b[k]; if (!isObj(x)) continue; if (!o[k] || (+x.at || 0) >= (+o[k].at || 0)) o[k] = x; } return o; }
+// 2026-11-20 在线上测试「🔊 练习」时误写进生词本的 3 条复习记录（按精确的 at 认）：任何设备再推上来都不收，possessions 跟着带上来的「已掌握」也不收
+const POISON = { v_possessions: 1795107503971, v_motion: 1795106191839, v_guys: 1795104545153 };
+function unpoison(st) {
+  if (!isObj(st)) return st; let hit = false;
+  if (isObj(st.srs)) for (const k in POISON) if (st.srs[k] && +st.srs[k].at === POISON[k]) { delete st.srs[k]; hit = true; }
+  if (hit && isObj(st.progress) && st.progress.v_possessions === "known") delete st.progress.v_possessions;
+  return st;
+}
 // 和网页里的 mergeState 一样：两份取并集；同一个 id 以 b 为准；删除会传播
 function vmerge(a, b) {
   a = vnorm(a); b = vnorm(b);
@@ -122,10 +130,12 @@ async function vocab(req, env) {
     else if (b.state && typeof b.state === "object") {
       // 旧版网页（词条写死在页面里）会把搬进来的词当成重复草稿删掉，所以只接受新版网页（v:2）的整份同步
       if (b.v !== 2) return json({ ok: false, error: "page outdated, please reload" }, 409);
-      next = vmerge(stored, b.state);
+      next = vmerge(stored, unpoison(b.state));
     }
     else if (b.replace && typeof b.replace === "object") next = vnorm(b.replace);
     else if (isObj(b.patch)) { // 只改复习进度 / 掌握状态（插件每练一张卡发一次，不用传整本生词本）
+      unpoison(b.patch);
+      if (isObj(b.patch.progress) && b.patch.progress.v_possessions === "known" && Date.now() < Date.UTC(2026, 11, 1) && !(stored.srs.v_possessions && stored.srs.v_possessions.s >= 60)) delete b.patch.progress.v_possessions; // 插件里测试时误标的「已知」写回来的：12 月前不收（真练到已掌握会带着稳定度 ≥ 60）
       next = vnorm(JSON.parse(before)); next.srs = srsMerge(next.srs, isObj(b.patch.srs) ? b.patch.srs : {});
       if (isObj(b.patch.progress)) for (const k in b.patch.progress) { const v = b.patch.progress[k]; if (v === "known" || v === "learning") next.progress[k] = v; }
       if (Array.isArray(b.patch.deleted) && b.patch.deleted.length) { const del = new Set(next.deleted.concat(b.patch.deleted.filter(x => typeof x === "string").slice(0, 500))); next.deleted = [...del]; next.custom = next.custom.filter(e => !del.has(e.id)); } // 插件「已保存」页里删除生词本词条

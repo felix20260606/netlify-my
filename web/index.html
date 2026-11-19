@@ -916,8 +916,11 @@ const SYNC_API="/api/vocab";
 const SYNC_ON=true;
 try{localStorage.removeItem("vocab_sync_key");}catch(e){}
 let syncing=false, pushTimer=null, syncAgain=false;
+// 2026-11-20 线上测试误写进来的 3 条复习记录（按精确时间认）：本机缓存里有就清掉，免得再推上去
+const POISON={v_possessions:1795107503971,v_motion:1795106191839,v_guys:1795104545153};
+function unpoison(st){ if(!st||!st.srs)return st; let hit=false; for(const k in POISON){ if(st.srs[k]&&+st.srs[k].at===POISON[k]){delete st.srs[k];hit=true;} } if(hit&&st.progress&&st.progress.v_possessions==="known")delete st.progress.v_possessions; return st; }
 function mergeState(a,b){ // union of two states; on same id, b wins. deletions propagate.
-  a=a||def(); b=b||def();
+  a=unpoison(a||def()); b=unpoison(b||def());
   const byId={};
   (a.custom||[]).forEach(e=>{if(e&&e.id)byId[e.id]=e;});
   (b.custom||[]).forEach(e=>{if(e&&e.id)byId[e.id]=e;});

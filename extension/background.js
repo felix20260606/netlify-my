@@ -350,7 +350,14 @@ async function nbApply() {
   return { ok: true, changed: ch };
 }
 let fullAt = 0;
-const fullSync = () => { fullAt = Date.now(); return nbApply().catch(() => {}).then(() => extSync(true)); };
+// 一次性修复：2026-11-20 线上测试时 possessions 被误标成「已知」（生词本那边已恢复），插件本机的这个标记也去掉，免得再写回生词本
+async function repair1120() {
+  const v = await chrome.storage.local.get({ repair1120: false, marks: {}, saved: [] }); if (v.repair1120) return;
+  const marks = v.marks || {}, saved = v.saved || [];
+  if (marks.possessions === "known") { delete marks.possessions; if (!saved.some(x => String(x).toLowerCase() === "possessions")) saved.push("possessions"); await chrome.storage.local.set({ marks, saved }); }
+  await chrome.storage.local.set({ repair1120: true });
+}
+const fullSync = () => { fullAt = Date.now(); return repair1120().catch(() => {}).then(() => nbApply()).catch(() => {}).then(() => extSync(true)); };
 let syBusy = null, syAgain = false, syLast = 0, syT = 0;
 function extSyncSoon(ms) { clearTimeout(syT); syT = setTimeout(() => extSync(), ms == null ? 4000 : ms); }
 function extSync(force) {
