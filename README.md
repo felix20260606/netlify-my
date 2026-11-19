@@ -10,6 +10,8 @@
 |---|---|
 | `web/` | 网站，部署到 <https://ruilearning-my.pages.dev>（生词本、🎬 视频、减脂、旅游等；后台接口 `_worker.js`）。本地说明见 `web/README.txt`。全站界面统一用 `web/theme.css`（深色 + 紫色，和插件同一套配色） |
 | `extension/` | 浏览器插件「双语字幕 · 生词收集」（图标为 BAN）（Manifest V3，Chrome / Brave / Edge） |
+| `web/vs/` | 插件和网站共用的上色、语法、句型、注释模块（`bash tools/sync-shared.sh` 从 `extension/` 复制，别直接改） |
+| `tools/` | 小工具：`sync-shared.sh`（同步共用模块）、`update-channels.py`（更新频道地图） |
 | `site/` | 书签小工具的源码 `bookmarklet.src.js` 和安装页 `install-bookmarklet.html` |
 | `tests/` | Playwright 回归测试脚本（加载插件 + 模拟的 YouTube 页面） |
 | `data/` | 自动备份：`vocab.json`（生词本）、`captions/`（视频字幕），由 `.github/workflows/backup-vocab.yml` 每 6 小时更新 |
