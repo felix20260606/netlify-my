@@ -16435,6 +16435,258 @@
       "forms": [],
       "examples": [],
       "tip": ""
+    },
+    {
+      "id": "v_athletic",
+      "type": "word",
+      "word": "athletic",
+      "phon": "/æθlˈɛtɪk/",
+      "en": "Having to do with athletes.",
+      "zh": "运动的；田径的",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "started to see that I had some {athletic} genes, I maybe picked up some",
+          "开始意识到自己有一些运动天赋（音乐方面）时，我可能在射击方面养成了一些"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_genes",
+      "type": "word",
+      "word": "genes",
+      "phon": "/dʒˈinz/",
+      "en": "plural of gene",
+      "zh": "基因",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "started to see that I had some athletic {genes}, I maybe picked up some",
+          "开始意识到自己有一些运动天赋（音乐方面）时，我可能在射击方面养成了一些"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_laces",
+      "type": "word",
+      "word": "laces",
+      "phon": "/lˈeɪsəz/",
+      "en": "plural of lace",
+      "zh": "鞋带；花边；缎带；系带",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "I can feel the {laces} not fixed. I'll turn that into a pump fake.",
+          "我感觉鞋带没系好。我会把它变成一个假动作。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_pump_fake",
+      "type": "phrase",
+      "word": "pump fake",
+      "phon": "",
+      "en": "",
+      "zh": "泵假",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "I can feel the laces not fixed. I'll turn that into a {pump fake}.",
+          "我感觉鞋带没系好。我会把它变成一个假动作。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_pump",
+      "type": "word",
+      "word": "pump",
+      "phon": "/pˈʌmp/",
+      "en": "A device for moving or compressing a liquid or gas.",
+      "zh": "泵；抽；抽水；唧筒",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "I can feel the laces not fixed. I'll turn that into a {pump} fake.",
+          "我感觉鞋带没系好。我会把它变成一个假动作。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_flick",
+      "type": "word",
+      "word": "flick",
+      "phon": "/flˈɪk/",
+      "en": "A short, quick movement, especially a brush, sweep, or flip.",
+      "zh": "轻弹；拂去；弹；抽动",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "Great {flick} flick of the wrist. great flick of the wrist.",
+          "手腕一抖，动作漂亮。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_wrist",
+      "type": "word",
+      "word": "wrist",
+      "phon": "/ɹˈɪst/",
+      "en": "The complex joint between forearm bones, carpus, and metacarpals where the hand is attached to the arm; the carpus in a narrow sense.",
+      "zh": "手腕；腕；臂腕；胳膊腕子",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "Great flick flick of the {wrist}. great flick of the wrist.",
+          "手腕一抖，动作漂亮。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_cuz",
+      "type": "word",
+      "word": "cuz",
+      "phon": "/kuz/",
+      "en": "Informal spelling of 'cause (“because”).",
+      "zh": "因为",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "Yeah, Reggie's was different {cuz} they they almost tell you like, you know,",
+          "是的，雷吉的情况不一样，因为他们几乎是直接告诉你，你知道，"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_fake",
+      "type": "word",
+      "word": "fake",
+      "phon": "/fˈeɪk/",
+      "en": "Not real; false, fraudulent.",
+      "zh": "伪造的；假；伪造；伪",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "I can feel the laces not fixed. I'll turn that into a pump {fake}.",
+          "我感觉鞋带没系好。我会把它变成一个假动作。"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_dedicated",
+      "type": "word",
+      "word": "dedicated",
+      "phon": "/dˈɛdəkeɪtəd/",
+      "en": "Devoted; loyal; conscientious.",
+      "zh": "投入的；专用；耿耿；耿",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "All right. Well, we've {dedicated} this episode to the art of shooting the",
+          "好的。好了，我们这期节目专门讲解"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_knack",
+      "type": "word",
+      "word": "knack",
+      "phon": "/nˈæk/",
+      "en": "A readiness in performance; aptness at doing something.",
+      "zh": "诀窍；窍门；诀；熟练",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "as fascinating as someone that just has a {knack} for shooting. I had a knack for",
+          "有些人天生擅长射击一样令人着迷。我很擅长"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_obsessed",
+      "type": "word",
+      "word": "obsessed",
+      "phon": "/əbsˈɛst/",
+      "en": "simple past and past participle of obsess",
+      "zh": "痴迷",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "shooting. I was {obsessed}. I shot I shot every day, but when I started playing",
+          "射击。我当时非常着迷。我每天都练习投篮，但我13岁开始打球的时候"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_backspin",
+      "type": "word",
+      "word": "backspin",
+      "phon": "/bˈækspɪn/",
+      "en": "Spin applied to a ball in order to slow it, change its flight, or stop it when it lands.",
+      "zh": "后旋",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "I don't know. It just made sense. The {backspin}, the flick of the wrist, all",
+          "我不知道。这完全合乎逻辑。反手旋转，手腕的轻弹，还有"
+        ]
+      ],
+      "tip": ""
+    },
+    {
+      "id": "v_sorts_of",
+      "type": "phrase",
+      "word": "sorts of",
+      "phon": "",
+      "en": "",
+      "zh": "有点",
+      "tag": "视频",
+      "date": "2026-11-19",
+      "forms": [],
+      "examples": [
+        [
+          "your career was 36 and volume, all {sorts of} different ones. Um which is",
+          "你的职业生涯有 36 个不同的时期。嗯，这是"
+        ]
+      ],
+      "tip": ""
     }
   ],
   "progress": {
@@ -16456,7 +16708,9 @@
     "tissue": "learning",
     "v_squint": "known",
     "v_bone": "known",
-    "v_happen": "known"
+    "v_happen": "known",
+    "v_pump": "known",
+    "v_cuz": "learning"
   },
   "deleted": [
     "u_1782668109496_exc6",
