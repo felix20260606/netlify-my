@@ -142,10 +142,12 @@
     const pool = opt.sugg && EXT && !opt.tags.length ? Object.keys(EXT.sugg).filter(w => !have.has(w) && !EXT.marks[w] && !EXT.saved.has(w)).sort((a, b) => (EXT.sugg[b].n || 1) - (EXT.sugg[a].n || 1) || (EXT.sugg[b].at || 0) - (EXT.sugg[a].at || 0)) : [];
     const sugg = pool.map(w => ({ id: "sg_" + w, word: w, zh: "", type: "word", sg: 1, examples: [[EXT.sugg[w].t, ""]] }));
     const extraL = live.filter(w => S[w.id] && S[w.id].at && !(S[w.id].due <= now)).sort((a, b) => rNow(S[a.id]) - rNow(S[b.id])); // 额外练习：还没到期、但现在最可能忘的
-    // 按卡片张数凑满「练习数量」：到期的 → 新词（不超过「新项目」的比例）→ 建议 → 额外练习 → 还不够再补新词
+    // 按卡片张数凑「练习数量」：到期的 → 新词和建议（合起来不超过「新项目」的比例，这是上限）→ 额外练习（还没到期、最可能忘的）；
+    // 都没有时（比如刚开始用、还没练过任何词）才不管比例，拿新词来练
     const N = opt.num, maxNew = Math.round(N * opt.newPct / 100), queue = [], used = new Set(); let total = 0, newC = 0;
     const take = (L, kind, capNew) => { for (const w of L) { if (total >= N) return; if (used.has(w.id)) continue; if (capNew && newC >= maxNew) return; const c = nCards(w); if (!c) continue; used.add(w.id); queue.push({ w, kind }); total += c; if (capNew) newC += c; } };
-    take(due, "due"); take(fresh, "new", true); take(sugg, "sugg", true); take(extraL, "extra"); take(fresh, "new"); take(sugg, "sugg");
+    take(due, "due"); take(fresh, "new", true); take(sugg, "sugg", true); take(extraL, "extra");
+    if (!total) { take(fresh, "new"); take(sugg, "sugg"); }
     return { P, live, due, fresh, pool, queue, list: queue.map(q => q.w), n: Math.min(N, total), extra: queue.some(q => q.kind === "extra") };
   }
   // 一个词条的例句：词条自带的 examples（{目标词} 标出位置）；没有就用词条本身
