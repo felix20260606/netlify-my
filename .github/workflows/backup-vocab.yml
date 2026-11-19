@@ -1,5 +1,5 @@
 # 每 6 小时把线上生词本存进仓库 data/vocab.json、插件数据存进 data/ext.json、视频字幕存进 data/captions/（有变化才提交）。
-# 插件的录音和截图只存在 Cloudflare（仓库是公开的，不放进来）。
+# 原声和截图存成普通文件放进 data/media/（.webm / .jpg，只下载新增或改过的），在 GitHub 上能直接看、直接听。
 # 生词本不设口令，被乱改时从这里的历史版本还原；data/ 不在 web/ 里，不会触发网站重新部署。
 name: 备份生词本和字幕
 on:
@@ -25,6 +25,8 @@ jobs:
           curl -fsS --retry 3 https://ruilearning-my.pages.dev/api/ext -o /tmp/ext.json
           jq -e '.ok == true and (.items | type == "object")' /tmp/ext.json > /dev/null
           jq '{ver, items}' /tmp/ext.json > data/ext.json
+      - name: 下载原声和截图（只下新增或有变化的）
+        run: python3 tools/backup-media.py
       - name: 下载视频字幕（只下新增或有变化的）
         run: |
           mkdir -p data/captions
@@ -42,7 +44,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/vocab.json data/ext.json data/captions
+          git add data/vocab.json data/ext.json data/media data/captions
           if git diff --cached --quiet; then echo "没有变化"; exit 0; fi
-          git commit -m "备份生词本、插件数据和字幕 $(TZ=Asia/Shanghai date '+%F %H:%M')"
+          git commit -m "备份生词本、插件数据、原声截图和字幕 $(TZ=Asia/Shanghai date '+%F %H:%M')"
           git push
