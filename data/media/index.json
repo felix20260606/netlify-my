@@ -184,6 +184,11 @@
   "name": "stereotypes",
   "sig": "1795090110156:42751:23675:0"
  },
+ "med:w:substance": {
+  "dir": "w",
+  "name": "substance",
+  "sig": "1795102117483:42415:25411:21487"
+ },
  "med:w:thesis": {
   "dir": "w",
   "name": "thesis",
