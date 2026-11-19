@@ -564,7 +564,7 @@
   </div>
 </div>
 </div><!-- /view-en -->
-<div id="view-ext"><div class="ext-bar"><span id="ext-name"></span><span>插件页面，数据和网站生词本同步</span><a id="ext-open" target="_blank" rel="noopener">在新标签页打开 ↗</a></div><iframe id="extframe" title="插件页面" allow="clipboard-write; autoplay"></iframe><div id="ext-none" class="ui-card"><div class="en-t">这台设备上没检测到「双语字幕」插件</div><p>「⭐ 已保存」和「🔁 复习」是插件里的页面，要在装了插件的电脑浏览器（Brave / Chrome）上打开。电脑上装了插件还看到这句：刷新一下页面（插件刚更新或重新加载过时会这样）。</p><p>生词本是同一份，手机或别的浏览器上可以用网站自己的：</p><div class="en-b"><button type="button" class="ui-btn" data-go="reload">↻ 刷新页面</button><button type="button" class="ui-btn" data-go="list">📖 生词列表</button><button type="button" class="ui-btn" data-go="pump">🔊 练习（复习进度通用）</button></div></div></div>
+<div id="view-ext"><div class="ext-bar"><span id="ext-name"></span><span>插件页面，数据和网站生词本同步</span><a id="ext-open" target="_blank" rel="noopener">在新标签页打开 ↗</a></div><iframe id="extframe" title="插件页面" allow="clipboard-write; autoplay"></iframe><div id="ext-web"></div><div id="ext-none" class="ui-card"><div class="en-t">这台设备上没检测到「双语字幕」插件</div><p>「⭐ 已保存」和「🔁 复习」是插件里的页面，要在装了插件的电脑浏览器（Brave / Chrome）上打开。电脑上装了插件还看到这句：刷新一下页面（插件刚更新或重新加载过时会这样）。</p><p>生词本是同一份，手机或别的浏览器上可以用网站自己的：</p><div class="en-b"><button type="button" class="ui-btn" data-go="reload">↻ 刷新页面</button><button type="button" class="ui-btn" data-go="list">📖 生词列表</button><button type="button" class="ui-btn" data-go="pump">🔊 练习（复习进度通用）</button></div></div></div>
 <div id="view-fat">
   <div id="fat-region">
     <div class="seg-wrap">
@@ -1695,7 +1695,8 @@ refresh(); // show seed words immediately, no waiting on storage
       root.classList.add('show-ielts');
     }else if(which==='xsaved'||which==='xreview'){
       root.classList.add('show-ext');
-      var ve=document.getElementById('view-ext'); if(ve)ve.classList.toggle('none',!extId());
+      var ve=document.getElementById('view-ext'), web=!extId()&&which==='xsaved'&&window.savedWeb; if(ve){ve.classList.toggle('none',!extId()&&!web);ve.classList.toggle('web',!!web);}
+      if(web)window.savedWeb.render(document.getElementById('ext-web')); // 没装插件：显示网站版（只读，数据和插件同一份）
       if(!extId()){try{localStorage.setItem('vocab_tab',which);}catch(e){} return;}
       var u='chrome-extension://'+extId()+'/'+(which==='xsaved'?'saved.html':'review.html');
       if(xf&&xf.getAttribute('src')!==u)xf.setAttribute('src',u);
@@ -1762,5 +1763,6 @@ refresh(); // show seed words immediately, no waiting on storage
 <script src="watch.js?v=11"></script>
 <script src="channels.js?v=3"></script>
 <script src="pump.js?v=4"></script>
+<script src="saved-web.js?v=1"></script>
 </body>
 </html>

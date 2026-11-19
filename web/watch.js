@@ -746,6 +746,6 @@
     }
   }
 
-  function init() { if (!build()) return; { const q = new URLSearchParams(location.search).get("v"); if (q && /^[\w-]{11}$/.test(q)) { try { history.replaceState(null, "", location.pathname); } catch (e) {} enter(); open(q); window.__wt = { open, state: () => ({ cur, n: cues.length, lock, follow, set }) }; return; } } if (LS.get("wt:tab", 0) && !document.documentElement.classList.contains("collect-mode")) enter(); window.__wt = { open, state: () => ({ cur, n: cues.length, lock, follow, set }) }; }
+  function init() { if (!build()) return; { const q = new URLSearchParams(location.search).get("v"); if (q && /^[\w-]{11}$/.test(q)) { try { history.replaceState(null, "", location.pathname); } catch (e) {} enter(); open(q); window.__wt = { open, enter: () => enter(), state: () => ({ cur, n: cues.length, lock, follow, set }) }; return; } } if (LS.get("wt:tab", 0) && !document.documentElement.classList.contains("collect-mode")) enter(); window.__wt = { open, enter: () => enter(), state: () => ({ cur, n: cues.length, lock, follow, set }) }; }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
