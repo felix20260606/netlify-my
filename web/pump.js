@@ -334,6 +334,7 @@
     e.preventDefault();
   });
   window.pumpShow = () => { if (!playing) home(); };
+  window.pumpCards = () => cards.map(c => (c.w.pump ? "额外句子" : c.w.sg ? "建议" : { quiz: "填空", listen: "听力", recall: "认词" }[c.k])); // 检查用：这一组每张卡是什么
   window.pumpRefresh = () => { if (root && root.classList.contains("on") && !playing) home(); };
   function init() {
     root = document.getElementById("pump"); if (!root) return;
