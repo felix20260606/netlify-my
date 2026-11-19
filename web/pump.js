@@ -339,6 +339,7 @@
     const c = cards[at]; if (!c) return;
     if (d > 0 && c.k === "recall" && !c.done) { if (!c.flip) { flip(c); return; } grade(c, true); } // 认词卡：没翻开先翻开；翻开了按「下一个」算认识
     else if (d > 0) { if (c.k === "listen") grade(c, true); else if (!c.done) { const inp = root.querySelector("#pp-in"); if (inp && inp.value.trim()) { c.check(false); return; } grade(c, false); } }
+    if (d > 0 && c.w.justKnown && !c.celebrated) { c.celebrated = true; show(); const me = c; setTimeout(() => { if (cards[at] === me && playing) { at++; show(); } }, 1100); return; } // 刚练成已掌握：金色停 1 秒再翻
     try { speechSynthesis.cancel(); } catch (e) {} at = Math.max(0, at + d); show();
   }
   function finish() {
