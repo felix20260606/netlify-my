@@ -436,6 +436,8 @@ web/
   pump.js              生词本「🔊 练习」：PhrasePump 式练法、Ebisu 排程、掌握进度
   grammar.js           生词本「📐 语法」：规律词条按 tag 分栏 + 插件句型，可搜索
   reader.js            句子、规律、语法点的全屏查看页（#read/编号 直达）
+  speak.js             英语「🗣 口语」：情景对话（角色扮演）、常用表达、发音（最小对立词小测）、跟读、话题卡（计时录音）
+  speak-data.js        口语的全部内容（window.SPEAK_DATA），第一次打开口语页才加载
   export.js            导出：Anki、CSV、离线网页、JSON 备份、文字
   _worker.js           后台接口：视频字幕 /api/cap、生词本 /api/vocab（Cloudflare KV，绑定名 CAPTIONS）
   _routes.json         只让接口请求（/api/*）经过 _worker.js
