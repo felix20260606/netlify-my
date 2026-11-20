@@ -491,7 +491,7 @@
     let m = "saved"; try { m = localStorage.getItem("vocab_mode") || "saved"; } catch (e) {}
     if (m === "flash" || m === "test" || m === "export") m = "pump"; // 「背诵」「自测」已并进练习的认词卡；「⚙ 设置」挪到练习右上角的齿轮
     const go = new URLSearchParams(location.search).get("go");
-    if (go && /^(saved|pump|list)$/.test(go)) { m = go; try { history.replaceState(null, "", location.pathname); localStorage.setItem("wt:tab", "0"); } catch (e) {} const l1 = document.getElementById("l1-en"), nb = document.getElementById("tab-notebook"); if (l1) l1.click(); if (nb) nb.click(); }
+    if (go && /^(saved|pump|list|grammar)$/.test(go)) { m = go; try { history.replaceState(null, "", location.pathname); localStorage.setItem("wt:tab", "0"); } catch (e) {} const l1 = document.getElementById("l1-en"), nb = document.getElementById("tab-notebook"); if (l1) l1.click(); if (nb) nb.click(); }
     const b = document.querySelector('.modes button[data-mode="' + m + '"]') || document.querySelector('.modes button[data-mode="saved"]');
     if (b && !document.documentElement.classList.contains("collect-mode")) b.click();
   }

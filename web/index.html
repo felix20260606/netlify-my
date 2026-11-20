@@ -399,6 +399,7 @@
       <button data-mode="saved">⭐ 已保存</button>
       <button data-mode="pump">🔊 练习</button>
       <button data-mode="list" class="on">📖 列表</button>
+      <button data-mode="grammar">📐 语法</button>
     </div>
   </div>
 </header>
@@ -443,6 +444,9 @@
 
   <!-- 🔊 练习（PhrasePump 式，和插件复习共用进度，见 pump.js；插件里的「复习」也打开这里） -->
   <div id="pump"></div>
+
+  <!-- 📐 语法：常用语法、句型、拼写构词、发音等速查（见 grammar.js） -->
+  <div id="grammar"></div>
 
 
   <!-- ADD -->
@@ -1157,7 +1161,7 @@ function download(name,text,type){
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),1800);}
 
 /* ===== events ===== */
-function refresh(){build();prunePending();counts();renderList();renderPending();if(window.pumpRefresh)pumpRefresh();}
+function refresh(){build();prunePending();counts();renderList();renderPending();if(window.pumpRefresh)pumpRefresh();if(window.grammarRefresh)grammarRefresh();}
 
 // ⭐ 已保存：装了插件嵌插件页面（能编辑），没装显示网站只读版；插件晚一点连上会自动换过来
 function savedShow(){
@@ -1178,6 +1182,7 @@ document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
   document.getElementById("list-view").style.display=m==="list"?"block":"none";
   document.getElementById("pump").classList.toggle("on",m==="pump"); if(m==="pump"&&window.pumpShow)pumpShow();
   document.getElementById("savedbox").classList.toggle("on",m==="saved"); if(m==="saved")savedShow();
+  document.getElementById("grammar").classList.toggle("on",m==="grammar"); if(m==="grammar"&&window.grammarShow)grammarShow();
   try{localStorage.setItem("vocab_mode",m);}catch(e){}
   
   document.getElementById("export-panel").classList.toggle("on",m==="export");
@@ -1506,8 +1511,9 @@ refresh(); // show seed words immediately, no waiting on storage
 </script>
 <script src="watch.js?v=13"></script>
 <script src="channels.js?v=3"></script>
-<script src="pump.js?v=22"></script>
+<script src="pump.js?v=23"></script>
 <script src="export.js?v=1"></script>
 <script src="saved-web.js?v=5"></script>
+<script src="grammar.js?v=1"></script>
 </body>
 </html>

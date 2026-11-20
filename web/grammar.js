@@ -1,0 +1,100 @@
+/* 生词本「📐 语法」：常用语法、句型、拼写构词、发音等速查，按类别分好，可搜索，点开看对照表和例句。
+   内容来源：
+   ① 生词本里的「规律」词条（type=pattern），按 tag 分到各栏；主题词汇 / 场景表达不算语法，留在「📖 列表」的规律分类里
+   ② 插件的句型提示数据 web/vs/pattern.js（VS_PAT_LIST：看视频时字幕下面的句型标签，和插件同一份）
+   ③ 插件的语法下划线（web/vs/gram.js 的 VS_GRAM_NAME，颜色同插件 content.css）
+   依赖 index.html 的全局：words / speak / toast */
+(function () {
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const LG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, LS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const SECTIONS = [
+    { k: "grammar", t: "📐 语法速查", tags: ["语法规律"] },
+    { k: "pattern", t: "🧩 常用句型", src: "pat" },
+    { k: "spell", t: "✏️ 拼写和词形", tags: ["拼写规律"] },
+    { k: "word", t: "🧱 构词和词根", tags: ["构词规律", "词根"] },
+    { k: "sound", t: "🔊 发音", tags: ["发音规律"] },
+    { k: "spoken", t: "💬 口语表达", tags: ["口语规律"] },
+    { k: "number", t: "🔢 数字和日期", tags: ["数字规律", "日期规律"] },
+    { k: "usuk", t: "🇺🇸🇬🇧 美英差异", tags: ["美英差异"] },
+    { k: "marks", t: "〰 字幕下划线图例", src: "marks" },
+  ];
+  // 插件字幕里的语法下划线（颜色、线型同插件 content.css）
+  const MARKS = [["pa", "solid #5BB0FF 2px", "I {worked} late."], ["pf", "double #35D0BA 2px", "I {have finished}."], ["pg", "wavy #8EE05A 2px", "She {is reading}."], ["md", "dashed #FF8FC7 2px", "You {should} go."], ["pv", "solid #FF7A59 3.5px", "It {was built} in 1990."], ["s3", "dotted #5BB0FF 2.5px", "He {works} here."], ["pl", "dotted #B0B7C0 2.5px", "two {books}"], ["art", "dotted #E8D36B 2.5px", "{a} cat, {the} sun"], ["cmp", "dashed #C9A0FF 2px", "{bigger}, {the best}"], ["neg", "", "I {don't} know."]];
+  let root = null, sec = LG("grammar:sec", "all"), q = "", open = new Set(), loaded = false;
+  const CSS = `
+  #grammar{display:none;max-width:1200px;margin:0 auto;padding:6px 0 40px}#grammar.on{display:block}
+  .gr-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+  .gr-top input{flex:1 1 220px;min-width:0;height:40px;border-radius:12px;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);padding:0 14px;font:inherit;font-size:15px}
+  .gr-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .gr-chips button{border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink-2);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+  .gr-chips button b{margin-left:5px;font-weight:600;color:var(--ui-muted)}.gr-chips button.on{background:var(--ui-pur);border-color:var(--ui-pur);color:#fff}.gr-chips button.on b{color:#fff}
+  .gr-sec{margin:18px 0 8px;font-size:16px;font-weight:800;color:var(--ui-ink)}.gr-sec small{margin-left:8px;font-weight:500;color:var(--ui-muted);font-size:12.5px}
+  .gr-list{display:grid;grid-template-columns:1fr;gap:10px}@media(min-width:1024px){.gr-list{grid-template-columns:1fr 1fr}}
+  .gr-it{background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:14px;overflow:hidden}
+  .gr-h{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer}.gr-h:hover{background:var(--ui-surface-2)}
+  .gr-h .t{flex:1 1 auto;min-width:0}.gr-h b{display:block;color:var(--ui-ink);font-size:15px}.gr-h span{display:block;color:var(--ui-muted);font-size:13px;margin-top:2px}
+  .gr-h i{font-style:normal;color:var(--ui-muted);transition:transform .15s}.gr-it.open .gr-h i{transform:rotate(90deg)}
+  .gr-b{display:none;padding:2px 14px 14px;border-top:1px solid var(--ui-line)}.gr-it.open .gr-b{display:block}
+  .gr-tb{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}.gr-tb td{padding:6px 8px;border-bottom:1px solid var(--ui-line);vertical-align:top;color:var(--ui-ink-2)}.gr-tb td:first-child{color:var(--ui-ink);font-weight:600;white-space:nowrap}.gr-tb td.m{color:var(--ui-pur-text);white-space:nowrap;font-size:12.5px}
+  @media(max-width:600px){.gr-tb td:first-child{white-space:normal}}
+  .gr-lab{margin:12px 0 4px;font-size:12px;font-weight:700;color:var(--ui-muted);letter-spacing:.05em}
+  .gr-ex{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14.5px;color:var(--ui-ink)}.gr-ex em{font-style:normal;color:var(--ui-orange);font-weight:700}.gr-ex small{display:block;color:var(--ui-muted);font-size:13px}
+  .gr-say{flex:0 0 auto;border:0;background:var(--ui-surface-2);color:var(--ui-ink-2);border-radius:8px;width:28px;height:28px;cursor:pointer}
+  .gr-tip{margin-top:10px;padding:8px 12px;border-radius:10px;background:var(--ui-pur-soft);color:var(--ui-ink-2);font-size:13.5px}
+  .gr-mk{display:grid;grid-template-columns:1fr;gap:8px}@media(min-width:1024px){.gr-mk{grid-template-columns:1fr 1fr}}
+  .gr-mk div{display:flex;gap:12px;align-items:center;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--ui-ink-2)}.gr-mk b{min-width:96px;color:var(--ui-ink)}.gr-mk u{text-underline-offset:4px;color:var(--ui-ink)}
+  .gr-empty{color:var(--ui-muted);text-align:center;padding:40px 0}`;
+  // 插件的句型数据（和插件同一份）：第一次打开语法页时才加载
+  function loadPat() {
+    if (loaded) return Promise.resolve(); loaded = true;
+    return Promise.all(["vs/pattern.js", "vs/gram.js"].map(src => window.VS_PAT_LIST && /pattern/.test(src) || window.VS_GRAM_NAME && /gram/.test(src) ? null : new Promise(res => { const s = document.createElement("script"); s.src = src + "?v=" + Date.now().toString(36).slice(0, -4); s.onload = s.onerror = res; document.head.append(s); }))).then(() => draw());
+  }
+  const hl = s => esc(String(s)).replace(/\{([^}]+)\}/g, "<em>$1</em>");
+  const enOf = s => String(s).replace(/[{}]/g, "").split(/[一-鿿（(]/)[0].trim(); // 例句里英文部分（句型例句后面带中文）
+  function items() { // 每栏的条目：{ key, title, sub, rows, ex:[[en, zh]], tip, text(搜索用) }
+    const W = (typeof words !== "undefined" ? words : []).filter(w => w.type === "pattern");
+    const out = {};
+    SECTIONS.forEach(s => {
+      if (s.tags) out[s.k] = W.filter(w => s.tags.includes(w.tag)).map(w => ({ key: "w:" + w.id, title: w.word, sub: w.zh, rows: (w.forms || []).map(f => [f[0], f[1], f[2]]), ex: (w.examples || []).filter(x => x && x[0]), tip: w.tip }));
+      else if (s.src === "pat") out[s.k] = (window.VS_PAT_LIST || []).map(p => ({ key: "p:" + p.id, title: p.name, sub: p.zh, rows: [], ex: p.ex ? [[p.ex.replace(/([.?!])\s*([一-鿿])/, "$1\n$2").split("\n")[0], (p.ex.match(/[.?!]\s*([一-鿿].*)$/) || [])[1] || ""]] : [], tip: p.tip }));
+    });
+    Object.values(out).forEach(L => L.forEach(x => (x.text = [x.title, x.sub, x.tip].concat(x.rows.flat(), x.ex.flat()).join(" ").toLowerCase())));
+    return out;
+  }
+  function card(x) {
+    const o = open.has(x.key) || !!q;
+    return '<div class="gr-it' + (o ? " open" : "") + '" data-k="' + esc(x.key) + '"><div class="gr-h"><div class="t"><b>' + esc(x.title) + "</b><span>" + esc(x.sub || "") + '</span></div><i>›</i></div><div class="gr-b">' +
+      (x.rows.length ? '<table class="gr-tb">' + x.rows.map(r => "<tr><td>" + esc(r[0]) + "</td>" + (r[1] && r[1] !== "→" ? '<td class="m">' + esc(r[1]) + "</td>" : "") + "<td" + (r[1] && r[1] !== "→" ? "" : ' colspan="2"') + ">" + esc(r[2] || "") + "</td></tr>").join("") + "</table>" : "") +
+      (x.ex.length ? '<div class="gr-lab">例句</div>' + x.ex.map(e => '<div class="gr-ex"><button class="gr-say" data-say="' + esc(enOf(e[0])) + '" title="朗读">🔊</button><div>' + hl(e[0]) + (e[1] ? "<small>" + esc(e[1]) + "</small>" : "") + "</div></div>").join("") : "") +
+      (x.tip ? '<div class="gr-tip">💡 ' + esc(x.tip) + "</div>" : "") + "</div></div>";
+  }
+  function draw() {
+    if (!root) return;
+    const all = items(), s0 = q.trim().toLowerCase(), match = x => !s0 || x.text.includes(s0);
+    const counts = {}; SECTIONS.forEach(s => (counts[s.k] = s.src === "marks" ? MARKS.length : (all[s.k] || []).filter(match).length));
+    const total = Object.entries(counts).filter(([k]) => k !== "marks").reduce((a, [, n]) => a + n, 0);
+    const show = SECTIONS.filter(s => sec === "all" || sec === s.k);
+    let body = "";
+    show.forEach(s => {
+      if (s.src === "marks") { if (s0) return; body += '<div class="gr-sec">' + s.t + "<small>看视频时字幕里的下划线是什么意思（和插件一样）</small></div>" + '<div class="gr-mk">' + MARKS.map(m => { const nm = window.VS_GRAM_NAME ? window.VS_GRAM_NAME[m[0]] : m[0], st = m[1] ? "text-decoration:underline " + m[1] : "box-shadow:inset 0 2px 0 #FF5C5C"; return "<div><b>" + esc(nm) + "</b><span>" + esc(m[2]).replace(/\{([^}]+)\}/g, '<u style="' + st + '">$1</u>') + "</span></div>"; }).join("") + "</div>"; return; }
+      const L = (all[s.k] || []).filter(match); if (!L.length) return;
+      body += '<div class="gr-sec">' + s.t + "<small>" + L.length + " 条</small></div><div class=\"gr-list\">" + L.map(card).join("") + "</div>";
+    });
+    root.innerHTML = '<div class="gr-top"><input id="gr-q" placeholder="搜索语法、句型、例句（中英文都行）" value="' + esc(q) + '"></div>' +
+      '<div class="gr-chips"><button data-s="all" class="' + (sec === "all" ? "on" : "") + '">全部<b>' + total + "</b></button>" + SECTIONS.map(s => '<button data-s="' + s.k + '" class="' + (sec === s.k ? "on" : "") + '">' + s.t + "<b>" + counts[s.k] + "</b></button>").join("") + "</div>" +
+      (body || '<div class="gr-empty">' + (s0 ? "没有找到「" + esc(q) + "」" : "这一栏还没有内容") + "</div>");
+  }
+  function init() {
+    root = document.getElementById("grammar"); if (!root) return;
+    const st = document.createElement("style"); st.textContent = CSS; document.head.append(st);
+    root.addEventListener("click", e => {
+      const ch = e.target.closest(".gr-chips button"); if (ch) { sec = ch.dataset.s; LS("grammar:sec", sec); draw(); return; }
+      const sy = e.target.closest(".gr-say"); if (sy) { e.stopPropagation(); try { speak(sy.dataset.say); } catch (er) {} return; }
+      const h = e.target.closest(".gr-h"); if (h) { const it = h.parentNode, k = it.dataset.k; if (open.has(k)) open.delete(k); else open.add(k); it.classList.toggle("open"); }
+    });
+    root.addEventListener("input", e => { if (e.target.id !== "gr-q") return; q = e.target.value; const pos = e.target.selectionStart; draw(); const n = root.querySelector("#gr-q"); n.focus(); n.setSelectionRange(pos, pos); });
+  }
+  window.grammarShow = () => { if (!root) return; draw(); loadPat(); };
+  window.grammarRefresh = () => { if (root && root.classList.contains("on")) draw(); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+})();
