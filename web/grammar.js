@@ -85,7 +85,7 @@
       (body || '<div class="gr-empty">' + (s0 ? "没有找到「" + esc(q) + "」" : "这一栏还没有内容") + "</div>");
   }
   function init() {
-    root = document.getElementById("grammar"); if (!root) return;
+    if (root) return; root = document.getElementById("grammar"); if (!root) return;
     const st = document.createElement("style"); st.textContent = CSS; document.head.append(st);
     root.addEventListener("click", e => {
       const ch = e.target.closest(".gr-chips button"); if (ch) { sec = ch.dataset.s; LS("grammar:sec", sec); draw(); return; }
@@ -94,7 +94,7 @@
     });
     root.addEventListener("input", e => { if (e.target.id !== "gr-q") return; q = e.target.value; const pos = e.target.selectionStart; draw(); const n = root.querySelector("#gr-q"); n.focus(); n.setSelectionRange(pos, pos); });
   }
-  window.grammarShow = () => { if (!root) return; draw(); loadPat(); };
-  window.grammarRefresh = () => { if (root && root.classList.contains("on")) draw(); };
+  window.grammarShow = () => { init(); if (!root) return; draw(); loadPat(); }; // 直达链接（?go=grammar）时可能比本文件的初始化先调用：先初始化
+  window.grammarRefresh = () => { if (root && root.classList.contains("on")) { draw(); loadPat(); } };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
