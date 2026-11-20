@@ -913,6 +913,7 @@
   #apptabs button.on{background:var(--ui-pur);box-shadow:0 3px 12px rgba(156,63,208,.35)}
   .subgrp button.on{color:var(--ui-pur-text)}.subgrp button.on::after{background:var(--ui-pur)}
   /* 导航按钮的焦点框：鼠标点不显示浏览器默认的蓝框（会和下划线错开、露出来）；键盘切换时显示紫框，外扩一点把下划线框在里面 */
+  @media (min-width:1024px){#subtabs{background:transparent;border:0}} /* 电脑上二级导航叠在一级那条上：不能有自己的底色，否则挡住下面那条分隔线 */
   #apptabs button:focus,.subgrp button:focus,.modes button:focus{outline:none}
   #apptabs button:focus-visible,.subgrp button:focus-visible,.modes button:focus-visible{outline:2px solid var(--ui-pur);outline-offset:3px;border-radius:8px}
   .ring{box-shadow:0 5px 16px rgba(0,0,0,.3)}

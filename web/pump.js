@@ -90,6 +90,8 @@
   .pp-st small{display:block;color:var(--muted);font-size:12px}.pp-st b{font-size:24px;font-weight:600}.pp-st em{display:block;font-style:normal;color:var(--muted);font-size:12px}
   .pp-go{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
   .pp-go button{background:var(--jade);color:#fff;border:0;font:inherit;font-weight:800;font-size:16px;border-radius:12px;padding:0 22px;min-height:46px;cursor:pointer}.pp-go button:disabled{opacity:.4;cursor:default}.pp-go span{color:var(--muted);font-size:13px}
+  .pp-only{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}.pp-only small{color:var(--muted);font-size:12.5px}
+  .pp-only button{border:1px solid var(--ui-line-2,var(--line));background:var(--ui-surface-2,var(--paper-2));color:var(--ui-ink,var(--ink));font:inherit;font-weight:700;font-size:14px;border-radius:10px;padding:0 14px;min-height:40px;cursor:pointer}.pp-only button:hover{border-color:var(--ui-pur,var(--jade))}.pp-only button:disabled{opacity:.4;cursor:default}
   .pp-next{margin-top:16px;font-size:13px;color:var(--muted)}.pp-next b{color:var(--ink)}
   .pp-q{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.pp-q span{font-size:13px;color:#9a6512;border:1px solid #ecd2a0;background:#FFF8EA;border-radius:5px;padding:0 6px;line-height:1.6}
   .pp-opt{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
@@ -277,6 +279,7 @@
       (() => { const all = p.P.filter(w => !w.sg), kn = all.filter(w => w.status === "known").length, lr = all.filter(w => w.status !== "known" && S[w.id]), avg = lr.length ? lr.reduce((a, w) => a + mastery(S[w.id], w), 0) / lr.length : 0, tot = all.length ? kn / all.length : 0;
         return '<div class="pp-master" title="半衰期到 42 天（至少 6 周都很可能记得）算已掌握"><div class="h"><span>🏆 已掌握</span><b>' + pcent(tot) + "%</b><small>" + kn + " / " + all.length + " 个</small></div>" + mbar(tot, true) + (lr.length ? '<div class="h2">学习中的 ' + lr.length + " 个词平均掌握进度 <b>" + pcent(avg) + "%</b></div>" + mbar(avg) : "") + "</div>"; })() +
       '<div class="pp-go"><button id="pp-start"' + (n ? "" : " disabled") + ">开始练习</button><span>" + (n ? n + " 张卡片" : p.mode === "none" ? (opt.sugg ? "测验、练习都关了：只练建议，现在没有建议" : "测验、练习、建议都关了，没有可练的") : "现在没有要练的") + "</span></div>" +
+      '<div class="pp-only"><small>只练一种：</small><button id="pp-only-shadow"' + (p.queue.length ? "" : " disabled") + ' title="听一句，自己读一遍，录音转文字，标出读对、读漏的词">🎙 跟读</button><button id="pp-only-dict"' + (p.queue.length ? "" : " disabled") + ' title="只放声音，把整句打出来，逐词对错">✍️ 听写</button></div>' +
       (p.queue.length ? '<div class="pp-next"><b>接下来</b> · 你的队列，然后是推荐' + '<div class="pp-q">' + p.queue.slice(0, 12).map(q => { const r = S[q.w.id]; const m = mastery(r, q.w); return "<span" + (q.kind === "sugg" ? ' class="sg" title="推荐：从看过的视频里来的新词"' : ' title="掌握进度 ' + pcent(m) + "%" + (r && r.at ? " · 现在记得 " + pcent(rNow(r)) + "%" : " · 新词") + '"') + ">" + esc(q.w.word) + (q.kind === "sugg" ? "" : " <i>" + pcent(m) + "%</i>" + mbar(m)) + "</span>"; }).join("") + "</div></div>" : "") + "</div>" +
       '<div class="pp-opt"><h4>会话' + (JSON.stringify(Object.keys(DEF).map(k => opt[k])) !== JSON.stringify(Object.keys(DEF).map(k => DEF[k])) ? '<a id="pp-reset" href="javascript:void 0">重置</a>' : "") + "</h4>" +
       tg("pp-quiz", opt.quiz, "测验", "填空题") +
@@ -294,6 +297,8 @@
       seg("types", { name: "类型", items: [["word", "单词"], ["phrase", "短语"], ["sentence", "句子"], ["pattern", "规律"]] }, v => opt.types.includes(v)) +
       '<p class="pp-note">插件里的「复习」也打开这里，进度是同一份：在哪台设备练都算。「练习数量」是这一组的卡片张数；「新项目」是其中新词最多占的比例。每个词这一轮要么听 3 句例句（每次换着听），要么做 1 道填空。按 Ebisu 排复习（同 Language Reactor）：记得的概率降到 50%（过了半衰期）时再练，越接近遗忘时答对，半衰期涨得越多；半衰期到 42 天（至少 6 周都很可能记得），自动算「已掌握」。电脑上可以用键盘（同 Language Reactor）：A 上一个、S 播放、E 显示 / 看答案、D 下一个；测验和认词卡 Z 忘了、C 记得；建议 Z 已知、X 学习、C 跳过。</p></div></div>';
     root.querySelector("#pp-start").onclick = () => { lastSum = ""; start(); };
+    root.querySelector("#pp-only-shadow").onclick = () => { lastSum = ""; start("shadow"); };
+    root.querySelector("#pp-only-dict").onclick = () => { lastSum = ""; start("dict"); };
     root.querySelector("#pp-gear").onclick = () => window.openVocabSettings && window.openVocabSettings();
     const sx = root.querySelector("#pp-sumx"); if (sx) sx.onclick = () => { lastSum = ""; home(); };
     root.querySelector("#pp-quiz").onchange = e => { opt.quiz = e.target.checked; LS("pump:opt", opt); home(); }; // 关了「测验」：只听不考
@@ -309,7 +314,8 @@
       if (k === "types") { opt.types = opt.types.includes(v) ? opt.types.filter(x => x !== v) : opt.types.concat(v); if (!opt.types.length) opt.types = ["word"]; } else if (k === "dir") opt.dir = v; else if (k === "tags") opt.tags = opt.tags.includes(v) ? opt.tags.filter(x => x !== v) : opt.tags.concat(v); else opt[k] = +v;
       LS("pump:opt", opt); home(); });
   }
-  function start() {
+  // only = "shadow" / "dict"：只练跟读 / 只练听写（练习页左边的快捷按钮），这一轮每个词只出这一种卡
+  function start(only) {
     const p = plan(); if (!p.queue.length) return; const S = srs(); cards = []; at = 0; bad = 0; playing = true;
     medMap().then(() => { prefetch(0); const c = cards[at]; if (c && playing) medFor(c.w).then(() => { if (playing && cards[at] === c && medOf(c)) show(); }); }); // 原声截图在后台取，取到之前先用朗读；取到了重画当前卡片
     p.list.forEach(w => {
@@ -318,8 +324,8 @@
       if (sp.gfill) { const L = clozes(w), x = L[Math.floor(Math.random() * L.length)]; cards.push(Object.assign({ s: { en: String(x[0]), zh: String(x[1] || "") }, i: 0, k: "gfill" }, base)); return; } // 语法填空：规律的例句，把 {} 里的部分挖掉，自己打出来
       const extra = () => { // 听写、跟读：各用一句（优先保存时的原句，太长的换短一点的）
         const L = sentences(w).concat((SENT[String(w.word || "").toLowerCase().trim()] || []).map(x => ({ en: x.en, zh: x.zh, src: "tatoeba" }))), pick = L.find(x => plain(x.en).split(/\s+/).length <= 16) || L[0];
-        if (sp.dict && pick) cards.push(Object.assign({ s: { en: mark(pick.en, w), zh: pick.zh, src: pick.src }, i: 0, k: "dict" }, base));
-        if (sp.shadow && pick) cards.push(Object.assign({ s: { en: mark(pick.en, w), zh: pick.zh, src: pick.src }, i: 0, k: "shadow" }, base));
+        if ((sp.dict || only === "dict") && pick) cards.push(Object.assign({ s: { en: mark(pick.en, w), zh: pick.zh, src: pick.src }, i: 0, k: "dict" }, base));
+        if ((sp.shadow || only === "shadow") && pick) cards.push(Object.assign({ s: { en: mark(pick.en, w), zh: pick.zh, src: pick.src }, i: 0, k: "shadow" }, base));
       };
       if (sp.quiz) { const o = sentences(w)[0]; cards.push(Object.assign({ s: { en: mark(o.en, w), zh: o.zh, orig: true }, i: 0, k: "quiz" }, base)); extra(); return; } // 一道填空，用保存时的原句
       if (sp.recall) cards.push(Object.assign({ s: { en: hasEn(w) ? w.word : "", zh: w.zh || "" }, i: -1, k: "recall" }, base)); // 认词卡
@@ -327,7 +333,10 @@
       extra();
     });
     const RANK = { quiz: 0, gfill: 0, sugg: 1, dict: 3, shadow: 4 }; cards = cards.map((c, i) => ({ c, i })).sort((a, b) => (RANK[a.c.k] ?? 2) - (RANK[b.c.k] ?? 2) || a.i - b.i).map(o => o.c); // 顺序同 PhrasePump：测验 → 建议 → 练习；我们加的听写、跟读放在听完之后
+    if (only) cards = cards.filter(c => c.k === only);
+    if (only && !cards.length) { playing = false; toast("现在没有能" + (only === "shadow" ? "跟读" : "听写") + "的句子"); home(); return; }
     cards.forEach((c, i) => { c.last = !cards.slice(i + 1).some(x => x.w.id === c.w.id); });
+    if (only) { enter(); return; } // 只练跟读 / 听写：不补额外句子
     // 名额还有剩：例句库的额外句子补满（不记进度，同 PhrasePump 的 pump）
     if (p.pump) fetch("/api/sent?pump=" + p.pump).then(r => r.json()).then(j => { if (!playing) return; (j.items || []).forEach((x, i) => cards.push({ w: { id: "pump_" + i, word: "", zh: "", pump: 1 }, s: { en: x.en, zh: x.zh, src: "tatoeba" }, i: 0, k: "listen", last: true, rev: 0 })); if (cards[at]) show(); }).catch(() => {});
     enter();
