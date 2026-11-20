@@ -320,8 +320,16 @@ async function sent(req, env, u) {
 // 来源都是免费的：中文 = 谷歌翻译（插件同款接口），音标 / 英文释义 / 发音 = dictionaryapi.dev，例句 = Tatoeba（同 /api/sent）
 const UA = { "User-Agent": "ruilearning-my (personal study site)" };
 async function gtrans(text, tl, bd) {
-  const r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=" + tl + "&dt=t" + (bd ? "&dt=bd" : "") + "&dj=1&q=" + encodeURIComponent(text));
-  if (!r.ok) return null; return r.json();
+  for (const host of ["translate.googleapis.com", "clients5.google.com"]) { // 后台机房的 IP 有时被谷歌拦：换个入口再试
+    try { const r = await fetch("https://" + host + "/translate_a/single?client=" + (host[0] === "c" ? "dict-chrome-ex" : "gtx") + "&sl=en&tl=" + tl + "&dt=t" + (bd ? "&dt=bd" : "") + "&dj=1&q=" + encodeURIComponent(text), { headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36" } });
+      if (r.ok) { const j = await r.json(); if (j && (j.sentences || []).some(x => x.trans)) return j; } } catch (e) {}
+  }
+  try { // 再不行用 MyMemory（免费，每天有额度）
+    const r = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text) + "&langpair=en|" + tl, { headers: UA });
+    const j = r.ok && (await r.json()), t = j && j.responseData && j.responseData.translatedText;
+    if (t && !/MYMEMORY WARNING/i.test(t)) return { sentences: [{ trans: t }], dict: [] };
+  } catch (e) {}
+  return null;
 }
 async function dict(req, env, u) {
   if (req.method === "OPTIONS") return json({ ok: true });
@@ -346,7 +354,7 @@ async function dict(req, env, u) {
     }
     if (ex && ex.ok) out.examples = (ex.items || []).slice(0, 5).map(x => [x.en, x.zh]);
     if (!out.zh && !out.en.length) return json({ ok: false, error: "not found", word: w }, 404);
-    if (kv) await kv.put(key, JSON.stringify(out), { expirationTtl: 30 * 86400 });
+    if (kv && out.zh) await kv.put(key, JSON.stringify(out), { expirationTtl: 30 * 86400 }); // 中文没取到的不缓存，下次再试
     return json(Object.assign({ ok: true }, out));
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
