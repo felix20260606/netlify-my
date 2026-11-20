@@ -1,5 +1,8 @@
 /* 英语「🗣 口语」：拿来就能练的口语课（内容在 speak-data.js 的 window.SPEAK_DATA，第一次打开才加载）
-   五栏：
+   八栏（新加的排前面）：
+   - 📅 每日一练：每天自动排 1 段对话（角色扮演）+ 5 句跟读 + 1 个话题，三样做完算打卡，连续天数；练习次数记进「📊 统计」（本机 speak:log）
+   - 🤖 AI 陪练：选场景或自由聊，你开口说（转文字）→ AI 回一句并朗读，顺手纠正你上一句的错；「结束并总结」给错误、地道说法（后台 /api/ai task=chat / chatsum）
+   - 🎬 原声跟读：插件保存词句时录下的 YouTube 原声（/api/ext 的 med| 索引 + /api/media），听原声 → 跟读打分 → 回放对比
    - 🎭 情景对话：16 个场景，听全文（A、B 两个声音）、每句跟读打分、「角色扮演」你说 B 的台词（先看中文，说完对答案）
    - 💬 常用表达：20 类功能表达（打招呼、澄清、委婉不同意……），每条可听、可跟读、可加进生词本
    - 🔊 发音：12 组最小对立词（听音辨词小测 + 跟读）、30 条连读弱读
@@ -15,7 +18,7 @@
   const LG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
   const LS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const tip = m => (typeof toast === "function" ? toast(m) : alert(m));
-  const SECS = [["dialog", "🎭 情景对话"], ["func", "💬 常用表达"], ["pron", "🔊 发音"], ["shadow", "🎯 跟读"], ["topic", "🗣 话题"]];
+  const SECS = [["daily", "📅 每日一练"], ["chat", "🤖 AI 陪练"], ["clip", "🎬 原声跟读"], ["dialog", "🎭 情景对话"], ["func", "💬 常用表达"], ["pron", "🔊 发音"], ["shadow", "🎯 跟读"], ["topic", "🗣 话题"]];
 
   const CSS = `
   #view-speak{display:none;padding-top:98px;background:var(--ui-bg,var(--bg));color:var(--ui-ink);min-height:100vh}
@@ -85,12 +88,16 @@
   @media(max-width:640px){.sk-hd h1{font-size:22px}.sk-title{font-size:21px}.sk-ln{max-width:100%}.sk-en{font-size:16px}.sk-ib{height:36px}}`;
 
   let root = null, D = null, loading = null;
-  let sec = LG("speak:sec", "dialog"); if (!SECS.some(s => s[0] === sec)) sec = "dialog";
+  let sec = LG("speak:sec", "daily"); if (!SECS.some(s => s[0] === sec)) sec = "daily";
   let opt = Object.assign({ rate: 1, zh: true }, LG("speak:opt", {}));
   let done = LG("speak:done", {});
   let view = null; // 打开的条目：{t:"dialog"|"func"|"pair"|"conn"|"topic"|"sgrp", id}
   let shadowGroup = 0;
-  const markDone = k => { if (done[k]) return; done[k] = Date.now(); LS("speak:done", done); };
+  const today = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // 吉隆坡 / 北京时间的日期
+  const dayStart = () => Date.parse(today() + "T00:00:00+08:00");
+  // 练过：记时间（每日一练按「今天练过」算）；每次练习也记进 speak:log（📊 统计的热力日历、连续天数用）
+  const markDone = k => { const now = Date.now(), again = done[k] && done[k] >= dayStart(); done[k] = now; LS("speak:done", done); if (!again) { const L = LG("speak:log", {}); L[today()] = (L[today()] || 0) + 1; LS("speak:log", L); } };
+  const doneToday = k => (done[k] || 0) >= dayStart();
   const isDone = k => !!done[k];
 
   function loadData() {
@@ -186,7 +193,7 @@
   /* ---------- 页面 ---------- */
   function counts() {
     if (!D) return {};
-    return { dialog: (D.dialogs || []).length, func: (D.functions || []).length, pron: ((D.pron && D.pron.pairs) || []).length + 1, shadow: ((D.pron && D.pron.shadow) || []).reduce((a, g) => a + g.items.length, 0), topic: (D.topics || []).length };
+    return { daily: 3, chat: (D.dialogs || []).length + 1, clip: CLIPS ? CLIPS.length : "…", dialog: (D.dialogs || []).length, func: (D.functions || []).length, pron: ((D.pron && D.pron.pairs) || []).length + 1, shadow: ((D.pron && D.pron.shadow) || []).reduce((a, g) => a + g.items.length, 0), topic: (D.topics || []).length };
   }
   function doneCount(prefix) { return Object.keys(done).filter(k => k.indexOf(prefix) === 0).length; }
   function head() {
@@ -201,7 +208,7 @@
     if (!D) { root.innerHTML = head() + '<div class="sk-empty">' + (loading ? "正在加载口语内容…" : "口语内容没加载出来，刷新一下") + "</div>"; return; }
     let body = "";
     if (view) body = ({ dialog: dialogView, func: funcView, pair: pairView, conn: connView, topic: topicView })[view.t]();
-    else body = ({ dialog: dialogList, func: funcList, pron: pronList, shadow: shadowList, topic: topicList })[sec]();
+    else body = ({ daily: dailyView, chat: chatView, clip: clipList, dialog: dialogList, func: funcList, pron: pronList, shadow: shadowList, topic: topicList })[sec]();
     root.innerHTML = head() + '<div class="' + (opt.zh ? "" : "sk-hide") + '">' + body + "</div>";
     if (view && view.t === "pair") quizPaint();
     if (view && view.t === "topic") timerPaint();
@@ -347,10 +354,149 @@
     return '<div class="sk-bar">' + back + "</div>" +
       '<div class="sk-box" style="margin-top:0"><div class="sk-big">' + esc(t.q) + ' <button class="sk-ib" data-say="' + esc(t.q) + '">🔊</button></div><div class="sk-zh" style="font-size:14.5px">' + esc(t.qzh) + "</div>" +
       '<div style="margin-top:10px;font-size:14.5px;color:var(--ui-ink-2);line-height:1.7">' + (t.points || []).map(p => "• " + esc(p)).join("<br>") + "</div></div>" +
-      '<div class="sk-box"><div id="sk-timer"></div><div data-res="' + esc(key) + '">' + resHtml(key) + "</div>" + (words ? '<div class="sk-note">这次说了 ' + words + " 个词" + (words < 60 ? "，试着再多说几句：举个例子、讲个经历、说说原因" : "，不错！") + "</div>" : "") + "</div>" +
+      '<div class="sk-box"><div id="sk-timer"></div><div data-res="' + esc(key) + '">' + resHtml(key) + "</div>" + (words ? '<div class="sk-note">这次说了 ' + words + " 个词" + (words < 60 ? "，试着再多说几句：举个例子、讲个经历、说说原因" : "，不错！") + "</div>" : "") + aiRateHtml(key) + "</div>" +
       '<div class="sk-box"><h3>🧰 好用的表达</h3>' + (t.phrases || []).map(p => '<div class="sk-ph"><div class="t"><div class="e">' + esc(p[0]) + '</div><div class="z">' + esc(p[1]) + '</div></div><button class="sk-ib" data-say="' + esc(p[0]) + '">🔊</button><button class="sk-ib" data-add="' + esc(p[0]) + '" title="加进生词本">＋</button></div>').join("") + "</div>" +
       '<details class="sk-box"><summary style="cursor:pointer;font-weight:800;color:var(--ui-ink)">📝 看样例回答（自己先说完再看）</summary><div class="sk-ops" style="margin-top:10px"><button class="sk-ib" data-say="' + esc(t.sample) + '">🔊 听样例</button><button class="sk-ib" data-say="' + esc(t.sample) + '" data-slow="1">🐢 慢速</button></div><div class="sk-sample">' + esc(t.sample) + '</div><div class="sk-zh" style="margin-top:8px;font-size:14px;line-height:1.7">' + esc(t.samplezh) + "</div></details>" +
       '<div class="sk-center" style="margin-top:16px">' + (isDone(key) ? '<span class="sk-note">✓ 这个话题说过了</span>' : '<button class="ui-btn" data-act="mark" data-k="' + esc(key) + '">✓ 标记为说过</button>') + "</div>";
+  }
+
+  // ===== 📅 每日一练 =====
+  const hashOf = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+  function dailyPlan() { // 按日期定：今天固定是这几样；优先挑还没练过的
+    const day = today(), h = hashOf(day), pick = (L, keyOf) => { if (!L.length) return null; const fresh = L.filter(x => !done[keyOf(x)]), P = fresh.length ? fresh : L; return P[h % P.length]; };
+    const d = pick(D.dialogs || [], x => "d:" + x.id), t = pick(D.topics || [], x => "t:" + x.id);
+    const all = []; ((D.pron || {}).shadow || []).forEach((g, gi) => g.items.forEach((x, i) => all.push({ key: "s:" + gi + ":" + i, en: x.en, zh: x.zh })));
+    const fresh = all.filter(x => !done[x.key] || doneToday(x.key)), P = fresh.length >= 5 ? fresh : all, st = h % Math.max(1, P.length - 4);
+    return { d, t, s: P.slice(st, st + 5) };
+  }
+  function streak() {
+    const D0 = LG("speak:days", {}); let n = 0, k = today();
+    if (!D0[k]) k = new Date(Date.parse(k + "T00:00:00+08:00") - 864e5 + 8 * 3600e3).toISOString().slice(0, 10); // 今天还没做完：从昨天往前数
+    while (D0[k]) { n++; k = new Date(Date.parse(k + "T00:00:00+08:00") - 864e5 + 8 * 3600e3).toISOString().slice(0, 10); }
+    return n;
+  }
+  function dailyView() {
+    const p = dailyPlan(), dOk = p.d && doneToday("d:" + p.d.id), sN = p.s.filter(x => doneToday(x.key)).length, tOk = p.t && doneToday("t:" + p.t.id), all = !!(dOk && sN >= 5 && tOk);
+    if (all) { const D0 = LG("speak:days", {}); if (!D0[today()]) { D0[today()] = 1; LS("speak:days", D0); tip("今天的口语练完了 🎉"); } }
+    const n = (dOk ? 1 : 0) + (sN >= 5 ? 1 : 0) + (tOk ? 1 : 0), st = streak();
+    const box = (ok, title, sub, body) => '<div class="sk-box"><h3>' + (ok ? "✅ " : "⬜ ") + title + '<small style="margin-left:8px;font-weight:500;color:var(--ui-muted);font-size:12.5px">' + sub + "</small></h3>" + body + "</div>";
+    return '<div class="sk-intro"><b>🔥 连续 ' + st + " 天</b>　今天完成 <b>" + n + " / 3</b>" + (all ? "　🎉 今天的练完了，想多练就去「🤖 AI 陪练」聊几句" : "　大约 15 分钟：对话 → 跟读 → 话题") + "</div>" +
+      (p.d ? box(dOk, "① 情景对话：" + esc(p.d.title), "先听全文，再角色扮演一遍（演完自动打勾）", '<div class="sk-scene" style="margin:4px 0 10px">📍 ' + esc(p.d.scene) + '</div><button class="ui-btn pri" data-act="dialog" data-id="' + esc(p.d.id) + '">' + (dOk ? "再练一次" : "去练 ▶") + "</button>") : "") +
+      box(sN >= 5, "② 跟读 5 句", "每句点 🎙 读一遍（" + sN + " / 5）", '<div class="sk-lines">' + p.s.map((x, i) => '<div class="sk-ln" style="max-width:100%"><div class="sk-av">' + (doneToday(x.key) ? "✓" : i + 1) + '</div><div class="sk-bub" style="flex:1 1 auto"><div class="sk-en">' + esc(x.en) + '</div><div class="sk-zh">' + esc(x.zh) + "</div>" + ops(x.key, x.en) + "</div></div>").join("") + "</div>") +
+      (p.t ? box(tOk, "③ 话题：" + esc(p.t.q), esc(p.t.qzh), '<button class="ui-btn pri" data-act="topic" data-id="' + esc(p.t.id) + '">' + (tOk ? "再说一次" : "去说 ▶") + '</button><span class="sk-note" style="margin-left:8px">录完可以让 AI 点评</span>') : "") +
+      '<div class="sk-note">每天的内容按日期自动换，优先排还没练过的。三样都做完算打卡；练习次数也会算进「📊 统计」的热力日历和连续天数。</div>';
+  }
+
+  // ===== 🤖 AI 陪练 =====
+  let CH = null; // {scene, title, msgs:[{role, content, fix}], busy, sum, sumBusy}
+  let chatAuto = LG("speak:chatAuto", true);
+  const FREE = { id: "free", title: "自由聊天", scene: "casual small talk between two friends: daily life, work, weekend plans, food, hobbies, living in Kuala Lumpur" };
+  function chatScenes() { return [FREE].concat((D.dialogs || []).map(d => ({ id: d.id, title: d.title, scene: d.en_title + ". " + "You play: " + (d.roles && d.roles.A || "the other person") + ". The learner plays: " + (d.roles && d.roles.B || "themselves") + ". Context (Chinese): " + d.scene }))); }
+  function chatView() {
+    if (!CH) return '<div class="sk-intro"><b>怎么聊：</b>选一个场景，AI 先开口；你点 🎙 用英语回答（说完自动发出去），也可以打字。AI 会接着聊、追问，还会顺手纠正你上一句的错。聊 6 句以上点「结束并总结」，看看哪些地方可以说得更好。</div>' +
+      '<div class="sk-grid three">' + chatScenes().map(c => '<button class="sk-card" data-act="chat-go" data-id="' + esc(c.id) + '"><div class="t"><b>' + (c.id === "free" ? "💬 " : "🎭 ") + esc(c.title) + "</b><span>" + (c.id === "free" ? "想到哪聊到哪" : "AI 演对方，你演自己") + "</span></div><i>›</i></button>").join("") + "</div>";
+    const msgs = CH.msgs.map((m, i) => m.role === "assistant"
+      ? '<div class="sk-ln"><div class="sk-av">AI</div><div class="sk-bub"><div class="sk-en">' + esc(m.content) + '</div><div class="sk-ops"><button class="sk-ib" data-say="' + esc(m.content) + '" data-who="A">🔊</button><button class="sk-ib" data-say="' + esc(m.content) + '" data-who="A" data-slow="1">🐢</button><button class="sk-ib" data-act="chat-zh" data-i="' + i + '">译</button></div>' + (m.zh ? '<div class="sk-zh" style="display:block">' + esc(m.zh) + "</div>" : "") + "</div></div>"
+      : '<div class="sk-ln B"><div class="sk-av">我</div><div class="sk-bub"><div class="sk-en">' + esc(m.content) + "</div>" + (m.fix ? '<div class="sk-res"><span class="no">' + esc(m.fix.bad) + '</span> → <span class="ok">' + esc(m.fix.good) + '</span> <button class="sk-ib" data-say="' + esc(m.fix.good) + '" style="height:26px">🔊</button><div class="x">' + esc(m.fix.why_zh || "") + "</div></div>" : "") + "</div></div>").join("");
+    const x = RES.chat || {}, users = CH.msgs.filter(m => m.role === "user").length;
+    let sum = "";
+    if (CH.sumBusy) sum = '<div class="sk-box"><span class="sk-note">AI 正在看你们的对话……</span></div>';
+    else if (CH.sum) { const S = CH.sum; sum = '<div class="sk-box"><h3>📋 这次聊天的小结</h3><div style="font-size:14.5px;line-height:1.7;color:var(--ui-ink-2)">' + esc(S.summary_zh || "") + "</div>" +
+      ((S.good_zh || []).length ? '<div style="margin-top:8px;font-size:14px;color:var(--ui-green,#7CE3B8)">' + S.good_zh.map(g => "👍 " + esc(g)).join("<br>") + "</div>" : "") +
+      ((S.fixes || []).length ? '<h3 style="margin-top:12px">✏️ 可以说得更好</h3>' + S.fixes.map(f => '<div class="sk-ph"><div class="t"><div class="z"><span style="color:var(--ui-red,#ff8080)">' + esc(f.bad) + '</span></div><div class="e">' + esc(f.good) + '</div><div class="z">' + esc(f.why_zh || "") + '</div></div><button class="sk-ib" data-say="' + esc(f.good) + '">🔊</button></div>').join("") : "") +
+      ((S.phrases || []).length ? '<h3 style="margin-top:12px">🧰 下次可以用</h3>' + S.phrases.map(f => '<div class="sk-ph"><div class="t"><div class="e">' + esc(f.en) + '</div><div class="z">' + esc(f.zh || "") + '</div></div><button class="sk-ib" data-say="' + esc(f.en) + '">🔊</button><button class="sk-ib" data-add="' + esc(f.en) + '" title="加进生词本">＋</button></div>').join("") : "") + "</div>"; }
+    return '<div class="sk-bar"><button class="ui-btn" data-act="chat-end">← 换个场景</button><span class="gap"></span><label class="sk-note" style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="sk-auto"' + (chatAuto ? " checked" : "") + '>自动朗读 AI 的话</label>' +
+      '<button class="ui-btn" data-act="chat-sum"' + (users >= 2 && !CH.busy && !CH.sumBusy ? "" : " disabled") + ">结束并总结</button></div>" +
+      '<h2 class="sk-title">' + esc(CH.title) + "<small>AI 演对方，你用英语回答</small></h2>" +
+      '<div class="sk-lines" id="sk-chat">' + msgs + (CH.busy ? '<div class="sk-ln"><div class="sk-av">AI</div><div class="sk-bub"><span class="sk-note">正在想……</span></div></div>' : "") + "</div>" +
+      (CH.err ? '<div class="sk-tip">' + esc(CH.err) + ' <button class="sk-ib" data-act="chat-retry">重试</button></div>' : "") +
+      '<div class="sk-box"><div class="sk-ops" style="margin-top:0">' + '<button class="ui-btn ' + (x.on ? "" : "pri") + '" data-rec="chat" data-t="" data-max="40" data-label="说一句" style="min-width:120px">' + (x.on ? "⏹ 说完了" : "🎙 说一句") + '</button><input id="sk-say" placeholder="或者打字，回车发送" style="flex:1 1 200px;min-width:0;height:38px;border-radius:10px;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);padding:0 12px;font:inherit;font-size:15px"><button class="ui-btn" data-act="chat-send">发送</button></div>' +
+      (x.busy ? '<div class="sk-note">正在识别……</div>' : "") + '<div class="sk-note">卡住了？说 "Sorry, could you say that again?" 或 "How do you say … in English?" 也算练习。</div></div>' + sum;
+  }
+  async function chatAsk() {
+    if (!CH || CH.busy) return; CH.busy = true; CH.err = ""; draw(); chatScroll();
+    const my = CH;
+    try {
+      const r = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "chat", scene: CH.scene, history: CH.msgs.map(m => ({ role: m.role, content: m.content })) }) });
+      const j = await r.json().catch(() => ({}));
+      if (CH !== my) return;
+      if (!j.ok) throw new Error(j.error === "noai" ? "AI 没开（Cloudflare 里绑定 Workers AI）" : "AI 没回上来，点重试");
+      const last = [...CH.msgs].reverse().find(m => m.role === "user"); if (last && j.fix) last.fix = j.fix;
+      CH.msgs.push({ role: "assistant", content: j.reply }); CH.busy = false; draw(); chatScroll();
+      if (chatAuto) say(j.reply, { who: "A" });
+    } catch (e) { if (CH === my) { CH.busy = false; CH.err = e.message || "出错了"; draw(); } }
+  }
+  function chatSend(text) {
+    text = String(text || "").trim(); if (!CH || !text || CH.busy) return;
+    CH.msgs.push({ role: "user", content: text }); CH.sum = null;
+    if (CH.msgs.filter(m => m.role === "user").length === 3) markDone("c:" + today()); // 聊上 3 句算今天用过 AI 陪练
+    chatAsk();
+  }
+  function chatScroll() { const el = root && root.querySelector("#sk-chat"); if (el && el.lastElementChild) el.lastElementChild.scrollIntoView({ block: "center", behavior: "smooth" }); }
+  async function chatSum() {
+    if (!CH || CH.sumBusy) return; CH.sumBusy = true; draw(); const my = CH;
+    try {
+      const j = await (await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "chatsum", scene: CH.scene, history: CH.msgs.map(m => ({ role: m.role, content: m.content })) }) })).json();
+      if (CH !== my) return; CH.sumBusy = false; if (j.ok) CH.sum = j; else tip("总结没出来，再点一次"); draw();
+      const b = root.querySelector(".sk-box:last-child"); if (b) b.scrollIntoView({ block: "start", behavior: "smooth" });
+    } catch (e) { if (CH === my) { CH.sumBusy = false; tip("总结没出来，再点一次"); draw(); } }
+  }
+  async function zhOf(en) { // 谷歌翻译（同阅读页）
+    try { const j = await (await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=" + encodeURIComponent(en))).json(); return (j[0] || []).map(x => x[0] || "").join(""); } catch (e) { return ""; }
+  }
+
+  // ===== 🎬 原声跟读 =====
+  let CLIPS = null, clipN = 40; const CLIPREC = {};
+  function loadClips() {
+    if (CLIPS) return Promise.resolve();
+    return fetch("/api/ext", { cache: "no-store" }).then(r => r.json()).then(j => {
+      const it = (j && j.items) || {}, L = [];
+      for (const k in it) {
+        if (!k.startsWith("med|med:")) continue; const mk = k.slice(4), at = it[k].at || 0;
+        if (mk.startsWith("med:w:")) { const w = mk.slice(6), c = it["savedCtx|" + w]; L.push({ mk, word: w, t: c && c.v && c.v.t ? String(c.v.t) : "", at }); }
+        else { const sk = mk.slice(6), s = Object.keys(it).find(x => x.startsWith("savedSents|") && it[x].v && it[x].v.k === sk), v = s && it[s].v; L.push({ mk, t: v ? String(v.t || "") : "", tr: v ? String(v.tr || "") : "", at }); }
+      }
+      CLIPS = L.sort((a, b) => b.at - a.at);
+    }).catch(() => { CLIPS = []; });
+  }
+  function clipGet(mk) { return CLIPREC[mk] ? Promise.resolve(CLIPREC[mk]) : fetch("/api/media?k=" + encodeURIComponent(mk)).then(r => r.ok ? r.json() : null).then(j => (CLIPREC[mk] = (j && j.rec) || {})).catch(() => ({})); }
+  let clipAudio = null;
+  function clipPlay(mk, slow) { clipGet(mk).then(r => { if (!r || !r.aud) { tip("这条没有原声"); return; } hush(); try { if (clipAudio) clipAudio.pause(); clipAudio = new Audio(r.aud); clipAudio.playbackRate = slow ? 0.75 : 1; clipAudio.play(); } catch (e) { tip("播放不了"); } }); }
+  function clipList() {
+    if (!CLIPS) { loadClips().then(draw); return '<div class="sk-empty">正在取你保存的原声……</div>'; }
+    if (!CLIPS.length) return '<div class="sk-intro">还没有原声：在电脑上用插件看 YouTube 时保存单词或句子（设置里开着「保存时存下原声和画面」），这里就会出现那一句的真人原声。</div>';
+    const L = CLIPS.slice(0, clipN);
+    return '<div class="sk-intro"><b>怎么练：</b>这些是你看 YouTube 时保存下来的真人原声（共 ' + CLIPS.length + " 条，最新的在前）。点 ▶ 听原声，跟着读，点 🎙 录音打分，再回放和原声对比。点「🖼」看当时的画面。已练 " + doneCount("v:") + " 条。</div>" +
+      '<div class="sk-lines">' + L.map(c => { const r = CLIPREC[c.mk], t = (r && r.t) || c.t, key = "v:" + c.mk; return '<div class="sk-ln" style="max-width:100%"><div class="sk-av">' + (isDone(key) ? "✓" : "🎬") + '</div><div class="sk-bub" style="flex:1 1 auto">' +
+        (r && r.img && c.showImg ? '<img src="' + r.img + '" alt="" style="width:100%;max-width:420px;border-radius:10px;display:block;margin-bottom:8px">' : "") +
+        '<div class="sk-en">' + (t ? esc(t) : '<span class="sk-mask">（点 ▶ 取原句）</span>') + (c.word ? ' <span class="sk-tag">' + esc(c.word) + "</span>" : "") + '</div><div class="sk-zh">' + esc((r && r.tr) || c.tr || "") + (r && r.title ? '　· <span style="opacity:.8">' + esc(r.title) + "</span>" : "") + "</div>" +
+        '<div class="sk-ops"><button class="sk-ib" data-clip="' + esc(c.mk) + '">▶ 原声</button><button class="sk-ib" data-clip="' + esc(c.mk) + '" data-slow="1">🐢 慢放</button><button class="sk-ib" data-clipimg="' + esc(c.mk) + '">🖼</button>' + (t ? recBtn(key, t, 25) : "") + "</div>" +
+        '<div data-res="' + esc(key) + '">' + resHtml(key) + "</div></div></div>"; }).join("") + "</div>" +
+      (CLIPS.length > clipN ? '<div class="sk-center" style="margin-top:12px"><button class="ui-btn" data-act="clip-more">再显示 40 条</button></div>' : "");
+  }
+
+  // ===== 🗣 话题：AI 点评 =====
+  const AIR = {}; // key → {busy, r, err}
+  function aiRateHtml(key) {
+    const a = AIR[key], x = RES[key] || {}, words = x.said ? toks(x.said).length : 0;
+    if (!a) return words >= 8 ? '<div class="sk-center"><button class="ui-btn pri" data-act="ai-rate">🤖 AI 点评这次回答</button></div>' : "";
+    if (a.busy) return '<div class="sk-note" style="text-align:center">AI 正在听你的回答（按雅思口语标准）……</div>';
+    if (a.err) return '<div class="sk-tip">' + esc(a.err) + ' <button class="sk-ib" data-act="ai-rate">重试</button></div>';
+    const r = a.r, B = r.band || {}, bk = "tb:" + key;
+    return '<div style="margin-top:12px"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:baseline"><span style="font-size:30px;font-weight:900;color:var(--ui-pur-text)">' + esc(B.overall) + '</span><span class="sk-note" style="margin:0">流利连贯 ' + esc(B.FC) + " · 词汇 " + esc(B.LR) + " · 语法 " + esc(B.GRA) + "（发音没算：AI 只看文字）</span></div>" +
+      '<div style="margin-top:6px;font-size:14.5px;line-height:1.7;color:var(--ui-ink-2)">' + esc(r.summary_zh || "") + "</div>" +
+      ((r.strengths_zh || []).length ? '<div style="margin-top:6px;font-size:14px;color:var(--ui-green,#7CE3B8)">' + r.strengths_zh.map(g => "👍 " + esc(g)).join("<br>") + "</div>" : "") +
+      ((r.fixes || []).length ? '<h3 style="margin-top:12px">✏️ 改一改</h3>' + r.fixes.map(f => '<div class="sk-ph"><div class="t"><div class="z"><span style="color:var(--ui-red,#ff8080)">' + esc(f.bad) + '</span></div><div class="e">' + esc(f.good) + '</div><div class="z">' + esc(f.why_zh || "") + '</div></div><button class="sk-ib" data-say="' + esc(f.good) + '">🔊</button></div>').join("") : "") +
+      (r.better ? '<h3 style="margin-top:12px">⭐ 升级版回答（照着再说一遍）</h3><div class="sk-sample">' + esc(r.better) + '</div><div class="sk-zh" style="font-size:14px;line-height:1.7;margin-top:6px">' + esc(r.better_zh || "") + '</div>' + ops(bk, r.better) : "") + "</div>";
+  }
+  async function aiRate(key, q) {
+    const x = RES[key] || {}; if (!x.said) return;
+    AIR[key] = { busy: true }; draw();
+    try {
+      const j = await (await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "speak", prompt: q, text: x.said }) })).json();
+      AIR[key] = j.ok ? { r: j } : { err: j.error === "noai" ? "AI 没开（Cloudflare 里绑定 Workers AI）" : j.error === "too short" ? "说得太短了，至少说几句再点评" : "AI 没回上来" };
+    } catch (e) { AIR[key] = { err: "网络问题，没连上 AI" }; }
+    draw();
   }
 
   /* ---------- 事件 ---------- */
@@ -362,13 +508,18 @@
     host.innerHTML = '<div id="speak"></div>'; root = host.firstChild;
     root.addEventListener("click", async e => {
       const t = e.target;
+      const cp = t.closest("[data-clip]"); if (cp) { clipPlay(cp.dataset.clip, !!cp.dataset.slow); clipGet(cp.dataset.clip).then(() => { if (sec === "clip" && !view) draw(); }); return; }
+      const ci = t.closest("[data-clipimg]"); if (ci) { const c = (CLIPS || []).find(x => x.mk === ci.dataset.clipimg); if (c) { c.showImg = !c.showImg; clipGet(c.mk).then(r => { if (c.showImg && !(r && r.img)) tip("这条没存画面"); draw(); }); } return; }
       const sy = t.closest("[data-say]"); if (sy) { if (RP || SH) { RP = null; SH = null; } say(sy.dataset.say, { slow: !!sy.dataset.slow, who: sy.dataset.who || "" }); return; }
       const rb = t.closest("[data-rec]"); if (rb) {
         const key = rb.dataset.rec, tgt = rb.dataset.t, max = +rb.dataset.max || 20;
         recStart(key, tgt, max, x => {
           if (key.indexOf("s:") === 0 && x.url) markDone(key); // 跟读句：录过就算练过
           if (RP && RP.mode === "rp" && key.indexOf("d:" + RP.id + ":") === 0) { (RP.shown = RP.shown || {})[RP.i] = true; draw(); }
-          if (key.indexOf("t:") === 0 && x.url && view) { markDone(key); draw(); }
+          if (key.indexOf("t:") === 0 && x.url && view) { markDone(key); delete AIR[key]; draw(); }
+          if (key.indexOf("v:") === 0 && x.url) markDone(key);
+          if (key === "chat") { RES.chat = { }; if (x.said) chatSend(x.said); else { tip("没听清，再说一次，或者打字"); draw(); } }
+          if (sec === "daily" && !view && key.indexOf("s:") === 0) draw();
         });
         return;
       }
@@ -379,6 +530,14 @@
       const sg = t.closest("[data-sg]"); if (sg) { stopAll(); shadowGroup = +sg.dataset.sg; draw(); return; }
       const qz = t.closest("[data-qz]"); if (qz && QZ && QZ.cur && QZ.picked == null) { QZ.picked = +qz.dataset.qz; QZ.n++; if (QZ.picked === QZ.cur[2]) QZ.ok++; if (QZ.n >= 10) { markDone("p:" + QZ.id); tip("10 题答对 " + QZ.ok + " 题"); } quizPaint(); say(QZ.cur[QZ.cur[2]]); return; }
       const b = t.closest("[data-act]"); if (!b) return; const a = b.dataset.act;
+      if (a === "chat-go") { const c = chatScenes().find(x => x.id === b.dataset.id); if (!c) return; stopAll(); CH = { id: c.id, title: c.title, scene: c.scene, msgs: [] }; chatAsk(); return; }
+      if (a === "chat-end") { stopAll(); CH = null; draw(); return; }
+      if (a === "chat-send") { const i = root.querySelector("#sk-say"); if (i && i.value.trim()) { const v = i.value; i.value = ""; chatSend(v); } return; }
+      if (a === "chat-retry") { chatAsk(); return; }
+      if (a === "chat-sum") { chatSum(); return; }
+      if (a === "chat-zh") { const m = CH && CH.msgs[+b.dataset.i]; if (m && !m.zh) zhOf(m.content).then(z => { m.zh = z || "（没翻译出来）"; draw(); }); return; }
+      if (a === "clip-more") { clipN += 40; draw(); return; }
+      if (a === "ai-rate") { const tp = (D.topics || []).find(x => view && x.id === view.id); if (tp) aiRate("t:" + tp.id, tp.q); return; }
       if (a === "back") { stopAll(); view = null; draw(); window.scrollTo(0, 0); return; }
       if (["dialog", "func", "pair", "conn", "topic"].includes(a)) { open(a, b.dataset.id); return; }
       if (a === "mark") { markDone(b.dataset.k); draw(); return; }
@@ -393,6 +552,8 @@
       if (a === "tm") { stopAll(); const total = +b.dataset.s || 60; TM = { id: view.id, phase: total > 60 ? "talk" : "prep", left: total > 60 ? total : 15, total }; if (TM.phase === "talk") recStart("t:" + TM.id, "", total + 5, () => { TM = null; markDone("t:" + view.id); draw(); }); TM.t = setInterval(tmTick, 1000); timerPaint(); return; }
       if (a === "tm-stop") { if (!TM) return; if (TM.phase === "prep") { TM.left = 1; tmTick(); } else { clearInterval(TM.t); recStop(false); } return; }
     });
+    root.addEventListener("keydown", e => { if (e.target.id === "sk-say" && e.key === "Enter" && !e.isComposing) { e.preventDefault(); const v = e.target.value; e.target.value = ""; chatSend(v); } });
+    root.addEventListener("change", e => { if (e.target.id === "sk-auto") { chatAuto = e.target.checked; LS("speak:chatAuto", chatAuto); } });
     document.addEventListener("keydown", e => { if (e.key === "Escape" && document.documentElement.classList.contains("show-speak")) { stopAll(); draw(); } });
   }
   window.speakShow = () => { init(); if (!root) return; draw(); if (!D) loadData().then(draw); };

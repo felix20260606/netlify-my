@@ -414,6 +414,35 @@ const WRITE_SYS = `You are a strict, experienced IELTS writing examiner. Assess 
 Reply with ONLY one JSON object, no markdown, exactly in this shape:
 {"band":{"TR":0,"CC":0,"LR":0,"GRA":0,"overall":0},"summary_zh":"2-3 sentences in Simplified Chinese","strengths_zh":["..."],"improve_zh":["specific, actionable advice in Simplified Chinese; quote the original phrase and give a better English version"],"rewrite":"an improved version of the whole answer in English, same ideas and similar length, band 8 level"}
 Give 2-4 strengths_zh and 3-6 improve_zh. overall = mean of the four, rounded to the nearest half band.`;
+// 口语（web/speak.js）：AI 陪练聊天、聊完总结、话题回答点评。学习者：中文母语、住吉隆坡、程序员、英语约 B1
+const SPEAK_WHO = "The learner is a Chinese native speaker (about CEFR B1) living in Kuala Lumpur, Malaysia, working as a software developer. Their words come from speech recognition, so ignore capitalisation, punctuation and obvious mis-hearings; never comment on pronunciation.";
+const CHAT_SYS = scene => `You are a friendly, natural English conversation partner. ${SPEAK_WHO}
+Situation: ${scene || "casual chat about daily life, work or hobbies"}. Stay in character for this situation.
+Reply in natural spoken American English, 1-2 short sentences (under 30 words), simple enough for B1, and usually end with a question to keep the conversation going.
+Also check the learner's LAST message for a clear grammar or word-choice mistake (not style, not punctuation).
+Reply with ONLY one JSON object, no markdown: {"reply":"your reply","fix":null}  or, if the last learner message had a real mistake: {"reply":"...","fix":{"bad":"the wrong part they said","good":"the corrected version","why_zh":"一句简体中文解释"}}`;
+const CHATSUM_SYS = `You are an English speaking coach. ${SPEAK_WHO} Review the whole conversation (the learner is "user").
+Reply with ONLY one JSON object, no markdown:
+{"summary_zh":"2-3 sentences in Simplified Chinese: how they did overall","good_zh":["things they did well, Simplified Chinese"],"fixes":[{"bad":"what they said","good":"correct / more natural version","why_zh":"简体中文解释"}],"phrases":[{"en":"a useful natural expression for this situation they could use next time","zh":"中文"}]}
+Give 1-3 good_zh, up to 6 fixes (only real problems, most important first), and 4-6 phrases.`;
+const SPEAKRATE_SYS = `You are a strict, experienced IELTS speaking examiner. ${SPEAK_WHO}
+Assess the transcript of their spoken answer to the question, using IELTS Speaking band descriptors for Fluency and Coherence (FC), Lexical Resource (LR) and Grammatical Range and Accuracy (GRA); you cannot hear pronunciation, so do not score it. Use half bands. Be realistic: short or simple answers score 4.5-6.0.
+Reply with ONLY one JSON object, no markdown:
+{"band":{"FC":0,"LR":0,"GRA":0,"overall":0},"summary_zh":"2-3 sentences in Simplified Chinese","strengths_zh":["..."],"fixes":[{"bad":"exact phrase they said","good":"better English","why_zh":"简体中文解释"}],"better":"an improved version of their answer, spoken style, same ideas, about 110-150 words, band 7.5 level","better_zh":"中文翻译"}
+Give 1-3 strengths_zh and 3-6 fixes. overall = mean of the three, rounded to the nearest half band.`;
+async function aiJson(env, msgs, ok, maxTok) {
+  let last = "";
+  for (const m of AI_MODELS) {
+    try {
+      const r = await env.AI.run(m, { messages: msgs, max_tokens: maxTok || 1024, temperature: 0.3 });
+      const raw = r && (typeof r.response === "string" ? r.response : JSON.stringify(r.response || r)), o = pickJson(raw);
+      if (o && ok(o)) return Object.assign({ ok: true, model: m }, o);
+      last = "bad output";
+    } catch (e) { last = String(e && e.message || e); }
+  }
+  return { ok: false, error: last || "ai failed" };
+}
+const clip = (s, n) => String(s == null ? "" : s).slice(0, n);
 function pickJson(s) { s = String(s || ""); const i = s.indexOf("{"), j = s.lastIndexOf("}"); if (i < 0 || j <= i) return null; try { return JSON.parse(s.slice(i, j + 1)); } catch (e) { return null; } }
 async function ai(req, env) {
   if (req.method === "OPTIONS") return json({ ok: true });
@@ -421,6 +450,23 @@ async function ai(req, env) {
   if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
   try {
     const b = await req.json(), text = String(b.text || "").split(/\s+/).slice(0, 1500).join(" ").slice(0, 10000), prompt = String(b.prompt || "").slice(0, 3000);
+    // 口语：chat（陪练回一句）、chatsum（聊完总结）、speak（话题回答点评）
+    if (b.task === "chat" || b.task === "chatsum") {
+      const H = (Array.isArray(b.history) ? b.history : []).slice(-16).map(x => ({ role: x && x.role === "assistant" ? "assistant" : "user", content: clip(x && x.content, 500) })).filter(x => x.content.trim());
+      if (b.task === "chat") {
+        const r = await aiJson(env, [{ role: "system", content: CHAT_SYS(clip(b.scene, 400)) }].concat(H.length ? H : [{ role: "user", content: "(The conversation starts now. Greet me and open the conversation for this situation.)" }]), o => typeof o.reply === "string" && o.reply.trim(), 300);
+        return json(r.ok ? { ok: true, model: r.model, reply: String(r.reply).trim(), fix: r.fix && r.fix.bad && r.fix.good ? { bad: clip(r.fix.bad, 300), good: clip(r.fix.good, 300), why_zh: clip(r.fix.why_zh, 300) } : null } : r, r.ok ? 200 : 502);
+      }
+      if (H.filter(x => x.role === "user").length < 2) return json({ ok: false, error: "too short" }, 400);
+      const conv = H.map(x => (x.role === "user" ? "user: " : "partner: ") + x.content).join("\n");
+      const r = await aiJson(env, [{ role: "system", content: CHATSUM_SYS }, { role: "user", content: "Situation: " + clip(b.scene, 400) + "\n\nConversation:\n" + conv }], o => typeof o.summary_zh === "string", 1200);
+      return json(r, r.ok ? 200 : 502);
+    }
+    if (b.task === "speak") {
+      if (text.split(/\s+/).length < 8) return json({ ok: false, error: "too short" }, 400);
+      const r = await aiJson(env, [{ role: "system", content: SPEAKRATE_SYS }, { role: "user", content: "Question: " + (prompt || "(not given)") + "\n\nTranscript of the candidate's spoken answer:\n" + text }], o => o.band && typeof o.better === "string", 1600);
+      return json(r, r.ok ? 200 : 502);
+    }
     if (b.task !== "write" || text.split(/\s+/).length < 20) return json({ ok: false, error: "bad body" }, 400);
     const K1 = "IELTS Academic Writing Task 1 (report on visual data given as text, at least 150 words; needs an overview)", K2 = "IELTS Writing Task 2 (essay, at least 250 words)", KM = "an email / letter (IELTS General Training Task 1, at least 150 words)";
     const kind = { t1: K1, task1: K1, t2: K2, task2: K2, mail: KM, email: KM, free: "free writing (judge it like general academic English)" }[b.type] || "IELTS Writing Task 2 (essay, at least 250 words)";

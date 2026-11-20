@@ -207,7 +207,9 @@
   function data() {
     const now = Date.now(), S = ST().srs || {}, L = W().filter(w => (w.type || "word") !== "pattern"); // 规律是参考资料，不算（和顶部、练习页同一个口径）
     const daily = mergeDaily(LG("pump:log", {}), SRV || {}, S, LG("pump:day", null), now);
-    const tk = dayKey(now), td = daily[tk];
+    const tk = dayKey(now), td = daily[tk] ? Object.assign({}, daily[tk]) : null; // 今天的卡片数：只算练习卡（先记下来，下面再加口语）
+    // 「🗣 口语」的练习次数（speak.js 记在 speak:log）：算进热力日历、连续天数、练习天数；每次（练完一段对话、跟读一句、说一个话题……）算 1
+    const SP = LG("speak:log", {}); for (const k in SP) { const v = +SP[k] || 0; if (!v || !/^\d{4}-\d{2}-\d{2}$/.test(k)) continue; const r = daily[k] && !daily[k].est ? daily[k] : (daily[k] = { n: 0, ok: 0, fail: 0, nw: 0, sec: 0 }); r.sp = v; r.n = (r.n || 0) + v; }
     let mastered = 0, learning = 0, untouched = 0;
     L.forEach(w => { const m = mfn(w); if (m >= 1) mastered++; else if (S[w.id]) learning++; else untouched++; });
     return { now, S, L, daily, tk, today: td && !td.est ? td.n : 0, todayEst: td && td.est ? td.n : 0, streak: streakOf(daily, now), days: Object.keys(daily).filter(k => daily[k].n > 0).length, mastered, learning, untouched };
