@@ -433,6 +433,10 @@ extension/
 web/
   index.html           主页面（顶部：英语 / 生活 / 视频），生词本和它的云同步都在这里
   watch.js             「🎬 视频」：嵌入播放器、同步双语字幕、点词查词、手机书签小工具
+  pump.js              生词本「🔊 练习」：PhrasePump 式练法、Ebisu 排程、掌握进度
+  grammar.js           生词本「📐 语法」：规律词条按 tag 分栏 + 插件句型，可搜索
+  reader.js            句子、规律、语法点的全屏查看页（#read/编号 直达）
+  export.js            导出：Anki、CSV、离线网页、JSON 备份、文字
   _worker.js           后台接口：视频字幕 /api/cap、生词本 /api/vocab（Cloudflare KV，绑定名 CAPTIONS）
   _routes.json         只让接口请求（/api/*）经过 _worker.js
   sw.js                超市价格清单的离线缓存
@@ -545,7 +549,7 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 
 ### 仓库与部署
 
-- 网站就在本仓库的 `web/`，推送到 `main` 后由 Cloudflare Pages 自动部署（构建输出目录 `web`，只有 `web/` 下有改动才部署，改插件、测试、README 不会消耗部署次数）。和本功能有关的文件：`web/index.html`（主页面）、`web/watch.js`（「🎬 视频」）、`web/_worker.js`（字幕存取接口，数据存在 Cloudflare KV，绑定名 `CAPTIONS`）、`web/_routes.json`（只让接口请求经过 `_worker.js`）。
+- 网站就在本仓库的 `web/`，推送到 `main` 后由 Cloudflare Pages 自动部署（构建输出目录 `web`，只有 `web/` 下有改动才部署，改插件、测试、README 不会消耗部署次数）。和本功能有关的文件：`web/index.html`（主页面）、`web/watch.js`（「🎬 视频」）、`web/_worker.js`（字幕存取接口，数据存在 Cloudflare KV，绑定名 `CAPTIONS`）、`web/_routes.json`（只让接口请求经过 `_worker.js`）、`web/pump.js`（「🔊 练习」）、`web/grammar.js`（「📐 语法」）、`web/reader.js`（句子 / 规律的全屏查看页）、`web/export.js`（导出）。
 - `site/` 只放书签小工具的源码 `site/bookmarklet.src.js` 和安装页，不是线上网站。
 - 部署额度：Cloudflare Pages 免费版每月 500 次构建，静态文件流量不限。字幕接口每天 10 万次请求；KV 每天 10 万次读取、各 1,000 次写入 / 删除 / 列表，存储 1 GB。超额只让当天那部分操作失败，网站本身照常打开。
 - 生词本不设口令，谁都能写。被乱改时可以还原，见下文「备份与还原」。
@@ -576,6 +580,7 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 - 设置页「词汇」一栏的 **同步到生词本网站 ›** 可以把本机已保存的词和云端「待整理队列」里的词一次补齐；更新后首次打开 YouTube 也会自动补齐一次。
 - 连续加词时云端写入是串行的，不会互相覆盖；同名词条不会重复添加。
 - 网站上的「已掌握」进度只在网站各设备间同步，不会反过来改插件里的标记。
+- 「规律」类词条（语法、搭配、发音、词根、场景、主题词汇等，2026-11-20 共 192 条）按 `tag` 分 13 类：列表选「规律」后下面一排分类按钮，「📐 语法」页按栏目显示。分类表和加新规律的格式见 `流程说明.md`「生词本」一节。
 
 ### 备份与还原
 
