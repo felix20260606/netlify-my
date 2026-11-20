@@ -913,7 +913,7 @@ function mergeState(a,b){ // union of two states; on same id, b wins. deletions 
   a=unpoison(a||def()); b=unpoison(b||def());
   const byId={};
   (a.custom||[]).forEach(e=>{if(e&&e.id)byId[e.id]=e;});
-  (b.custom||[]).forEach(e=>{if(e&&e.id)byId[e.id]=e;});
+  (b.custom||[]).forEach(e=>{if(e&&e.id&&!((+(byId[e.id]||{}).u||0)>(+e.u||0)))byId[e.id]=e;}); // 词条带修改时间 u：以新的为准
   const deleted=Array.from(new Set([...(a.deleted||[]),...(b.deleted||[])]));
   const del=new Set(deleted);
   const custom=Object.values(byId).filter(e=>!del.has(e.id));

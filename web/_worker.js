@@ -83,12 +83,12 @@ function unpoison(st) {
   if (hit && isObj(st.progress) && st.progress.v_possessions === "known") delete st.progress.v_possessions;
   return st;
 }
-// 和网页里的 mergeState 一样：两份取并集；同一个 id 以 b 为准；删除会传播
+// 和网页里的 mergeState 一样：两份取并集；同一个 id 以 b 为准（除非 a 的修改时间 u 更新）；删除会传播
 function vmerge(a, b) {
   a = vnorm(a); b = vnorm(b);
   const byId = {};
   a.custom.forEach(e => { if (e && e.id) byId[e.id] = e; });
-  b.custom.forEach(e => { if (e && e.id) byId[e.id] = e; });
+  b.custom.forEach(e => { if (e && e.id && !((+(byId[e.id] || {}).u || 0) > (+e.u || 0))) byId[e.id] = e; }); // 词条带修改时间 u（改过内容的）：以新的为准，免得别的设备的旧缓存盖回去
   const deleted = Array.from(new Set([...a.deleted, ...b.deleted]));
   const del = new Set(deleted);
   const custom = Object.values(byId).filter(e => !del.has(e.id));
