@@ -1125,7 +1125,7 @@ function renderList(){
      <div class="card-head">
        <div>
          ${w.type!=="word"?`<span class="typebadge ${w.type}">${CATNAME[w.type]}</span>`:""}
-         <div class="word-row">${w.type==="pattern"?"":`<img class="thumb-sm" data-wimg="${w.id}" alt="" loading="lazy">`}<span class="word">${w.word}</span><button class="say" data-say="${eAttr(noBrace(w.word))}" title="朗读">🔊</button></div>
+         <div class="word-row">${w.type==="pattern"&&!w.wiki?"":`<img class="thumb-sm" data-wimg="${w.id}" alt="" loading="lazy">`}<span class="word">${w.word}</span><button class="say" data-say="${eAttr(noBrace(w.word))}" title="朗读">🔊</button></div>
          ${w.phon?`<div class="phon">${w.phon}</div>`:""}
          ${w.en?`<div class="endef">${w.en}</div>`:""}
          <div class="tagrow">${w.tag?`<span class="tag">${w.tag}</span>`:""}<span class="tag">${w.date||""}</span></div>
@@ -1134,7 +1134,7 @@ function renderList(){
        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
      </div>
      <div class="body">
-       ${w.type==="pattern"?"":`<div class="bigvisual" style="display:none"><div class="gallery" data-wgallery="${w.id}"></div></div>`}<!-- 规律类标题是中文，按标题搜到的图不相干：只用对照表每行自己的小图 -->
+       ${w.type==="pattern"&&!w.wiki?"":`<div class="bigvisual" style="display:none"><div class="gallery" data-wgallery="${w.id}"></div></div>`}<!-- 规律类标题是中文，按标题搜到的图不相干：只有手动指定了维基条目（wiki 字段）的才显示封面，其余只用对照表每行自己的小图 -->
        <div class="sec-label">中文意思</div><div class="zh-full">${w.zh}</div>
        ${w.forms&&w.forms.length?`<div class="sec-label">${w.type==="sentence"?"常用句":(w.type==="pattern"?"对照表":"词形变化")}</div><div class="forms">${w.forms.map(f=>`<div>${f[3]?(String(f[3]).charAt(0)==="#"?`<span class="rowswatch" style="background:${eAttr(f[3])}"></span>`:`<img class="rowthumb" data-rowimg="${eAttr(f[3])}" alt="" loading="lazy">`):""}<span class="f">${f[0]}</span><span class="p">${f[1]}</span><span class="m">${f[2]}</span></div>`).join("")}</div>`:""}
        ${w.examples&&w.examples.length?`<div class="sec-label">例句</div>${w.examples.map(e=>`<div class="ex"><div class="en"><button class="say say-sm" data-say="${eAttr(noBrace(e[0]))}" title="朗读">🔊</button>${hl(e[0])}</div><div class="t">${e[1]}</div></div>`).join("")}`:""}
