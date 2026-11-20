@@ -431,28 +431,28 @@ Reply with ONLY one JSON object, no markdown:
 {"band":{"FC":0,"LR":0,"GRA":0,"overall":0},"summary_zh":"2-3 sentences in Simplified Chinese","strengths_zh":["..."],"fixes":[{"bad":"exact phrase they said","good":"better English","why_zh":"简体中文解释"}],"better":"an improved version of their answer, spoken style, same ideas, about 110-150 words, band 7.5 level","better_zh":"中文翻译"}
 Give 1-3 strengths_zh and 3-6 fixes. overall = mean of the three, rounded to the nearest half band.`;
 const HOWTO_SYS = `You help a Chinese learner say things in natural English. ${SPEAK_WHO}
-They give you something in Chinese (or mixed Chinese/English). Reply with ONLY one JSON object, no markdown:
+They give you something in Chinese (or mixed Chinese/English). Keep ALL of its meaning and details (e.g. if it mentions a bug, the boss, tomorrow, keep them). Reply with ONLY one JSON object, no markdown:
 {"items":[{"reg":"随意","en":"casual spoken version","note_zh":"什么时候这样说（简体中文，一句）"},{"reg":"中性","en":"...","note_zh":"..."},{"reg":"正式","en":"...","note_zh":"..."}],"words":[{"en":"key word or phrase used","zh":"中文"}]}
 Use natural American English that people really say; 2-4 words entries.`;
 const USEWORD_SYS = `You are a friendly English teacher. ${SPEAK_WHO}
 The learner was asked to say one sentence using a target word or phrase. Judge whether they used it correctly and naturally (meaning, grammar, collocation).
-Reply with ONLY one JSON object, no markdown: {"ok":true,"fixed":"their sentence corrected (same as theirs if already fine)","why_zh":"简体中文：哪里对 / 哪里错","better":"one more natural example sentence with the target","better_zh":"中文"}`;
+Reply with ONLY one JSON object, no markdown: {"correct":true,"fixed":"their sentence corrected (same as theirs if already fine)","why_zh":"简体中文：哪里对 / 哪里错","better":"one more natural example sentence with the target","better_zh":"中文"}`;
 const JUDGE_SYS = `You are a friendly English speaking coach. ${SPEAK_WHO}
 Someone asked the learner a question and they answered quickly in speech. Judge if the answer makes sense as a reply (it does not need to be long or perfect).
-Reply with ONLY one JSON object, no markdown: {"ok":true,"fb_zh":"简体中文：一两句反馈","fix":null,"better":"a natural reply a fluent speaker might give, 1-2 sentences"}  — set "fix" to {"bad":"...","good":"...","why_zh":"..."} only for a clear grammar/word mistake.`;
+Reply with ONLY one JSON object, no markdown: {"correct":true,"fb_zh":"简体中文：一两句反馈","fix":null,"better":"a natural reply a fluent speaker might give, 1-2 sentences"}  — set "fix" to {"bad":"...","good":"...","why_zh":"..."} only for a clear grammar/word mistake.`;
 const COACH_SYS = `You are a warm, practical English speaking coach writing in Simplified Chinese for a complete beginner who does not know how to start practising speaking. ${SPEAK_WHO}
 You get their self-assessment and their practice history. Make a concrete plan for the NEXT 7 DAYS using only these sections of the app (use the key in "sec"):
 rescue (救命句：听不懂/想不起时的 40 句), intro (自我介绍 12 句), daily (每日一练), dialog (情景对话：听全文、跟读、角色扮演), func (常用表达), drill (句型操练), pron (发音：最小对立词、连读、重音、绕口令、数字), shadow (跟读 120 句), clip (原声跟读), quick (快问快答), chat (AI 陪练), howto (这句话英语怎么说), topic (话题卡，AI 点评), mock (雅思口语模拟考).
 Reply with ONLY one JSON object, no markdown:
 {"level_zh":"一句话判断他现在的水平","advice_zh":"2-3 句最重要的建议","days":[{"day":1,"title":"今天的主题","steps":[{"do_zh":"具体做什么、做多久","sec":"rescue"}]}],"encourage_zh":"一句鼓励"}
-Exactly 7 days, 2-4 steps each, about 15-20 minutes a day, start easy (listen and repeat) and build up to talking with the AI and topics.`;
+In "do_zh" write plain Chinese for the learner (never write the section keys like rescue/dialog in the text; the button shows the section). Exactly 7 days, 2-4 steps each, about 15-20 minutes a day, start easy (listen and repeat) and build up to talking with the AI and topics.`;
 async function aiJson(env, msgs, ok, maxTok) {
   let last = "";
   for (const m of AI_MODELS) {
     try {
       const r = await env.AI.run(m, { messages: msgs, max_tokens: maxTok || 1024, temperature: 0.3 });
       const raw = r && (typeof r.response === "string" ? r.response : JSON.stringify(r.response || r)), o = pickJson(raw);
-      if (o && ok(o)) return Object.assign({ ok: true, model: m }, o);
+      if (o && ok(o)) return Object.assign({}, o, { ok: true, model: m }); // ok / model 是接口自己的，不让 AI 的输出盖掉
       last = "bad output";
     } catch (e) { last = String(e && e.message || e); }
   }
@@ -485,12 +485,12 @@ async function ai(req, env) {
     }
     if (b.task === "useword") {
       const w = clip(b.word, 80).trim(), t = clip(b.text, 500).trim(); if (!w || !t) return json({ ok: false, error: "bad body" }, 400);
-      const r = await aiJson(env, [{ role: "system", content: USEWORD_SYS }, { role: "user", content: "Target: " + w + (b.zh ? " (" + clip(b.zh, 80) + ")" : "") + "\nLearner's sentence: " + t }], o => typeof o.ok === "boolean", 500);
+      const r = await aiJson(env, [{ role: "system", content: USEWORD_SYS }, { role: "user", content: "Target: " + w + (b.zh ? " (" + clip(b.zh, 80) + ")" : "") + "\nLearner's sentence: " + t }], o => typeof o.correct === "boolean", 500);
       return json(r, r.ok ? 200 : 502);
     }
     if (b.task === "judge") {
       const q = clip(b.prompt, 300).trim(), t = clip(b.text, 600).trim(); if (!q || !t) return json({ ok: false, error: "bad body" }, 400);
-      const r = await aiJson(env, [{ role: "system", content: JUDGE_SYS }, { role: "user", content: "Question: " + q + "\nLearner's answer: " + t }], o => typeof o.ok === "boolean", 400);
+      const r = await aiJson(env, [{ role: "system", content: JUDGE_SYS }, { role: "user", content: "Question: " + q + "\nLearner's answer: " + t }], o => typeof o.correct === "boolean", 400);
       return json(r, r.ok ? 200 : 502);
     }
     if (b.task === "coach") {
