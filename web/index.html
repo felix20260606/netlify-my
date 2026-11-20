@@ -431,9 +431,9 @@
       </div>
     </div>
     <div class="statline">
-      <div class="stat gold"><b id="num">0</b><span>已收集</span></div>
-      <div class="stat"><b id="known-num">0</b><span>已掌握</span></div>
-      <div class="stat"><b id="learn-num">0</b><span>在学</span></div>
+      <div class="stat gold" id="st-total"><b id="num">0</b><span>生词</span></div>
+      <div class="stat" id="st-learn"><b id="learn-num">0</b><span>学习中</span></div>
+      <div class="stat" id="st-known"><b id="known-num">0</b><span>已掌握</span></div>
     </div>
     <div class="modes">
       <button data-mode="stats">📊 统计</button>
@@ -465,7 +465,7 @@
       </div>
       <div class="filters">
         <button data-f="all" class="on">全部</button>
-        <button data-f="learning">在学</button>
+        <button data-f="learning" title="还没掌握的（学习中 + 没练过）">未掌握</button>
         <button data-f="known">已掌握</button>
       </div>
     </div>
@@ -1023,18 +1023,31 @@ function build(){
   words=all.filter(w=>{if(seen.has(w.id))return false;seen.add(w.id);return true;})
            .map(w=>({...w,type:w.type||"word",status:state.progress[w.id]||"learning"}));
 }
+/* 生词本的统计口径（顶部、「🔊 练习」、「📊 统计」都用这一个，数字才对得上）：
+   生词 = 单词 + 短语 + 句子（「规律」是参考资料，不算）；已掌握 = 掌握进度 100%（标为已掌握，或练到半衰期 42 天）；
+   学习中 = 练过、还没掌握；没练过 = 其余 */
+function vocabStats(){
+  const L=words.filter(w=>(w.type||"word")!=="pattern"),S=state.srs||{};let known=0,learning=0;
+  L.forEach(w=>{if(masteryOf(w)>=1)known++;else if(S[w.id])learning++;});
+  return {total:L.length,known,learning,fresh:L.length-known-learning,patterns:words.length-L.length,pct:L.length?known/L.length:0};
+}
+window.vocabStats=vocabStats;
 function counts(){
-  const known=words.filter(w=>w.status==="known").length;
-  document.getElementById("num").textContent=words.length;
+  const vs=vocabStats(),known=vs.known;
+  document.getElementById("num").textContent=vs.total;
   document.getElementById("known-num").textContent=known;
+  const tt=(id,t)=>{const e=document.getElementById(id);if(e)e.title=t;};
+  tt("st-total","单词 + 短语 + 句子，共 "+vs.total+" 个（另有 "+vs.patterns+" 条规律是参考资料，不算在里面）");
+  tt("st-learn","练过、还没掌握的；还有 "+vs.fresh+" 个没练过");
+  tt("st-known","掌握进度 100%：标为已掌握，或练到半衰期 42 天（至少 6 周都很可能记得）");
   const by=t=>words.filter(w=>w.type===t).length;
   document.getElementById("c-all").textContent=words.length;
   document.getElementById("c-word").textContent=by("word");
   document.getElementById("c-phrase").textContent=by("phrase");
   document.getElementById("c-sentence").textContent=by("sentence");
   document.getElementById("c-pattern").textContent=by("pattern");
-  const ln=document.getElementById("learn-num");if(ln)ln.textContent=words.length-known;
-  const pct=words.length?Math.round(known/words.length*100):0;
+  const ln=document.getElementById("learn-num");if(ln)ln.textContent=vs.learning;
+  const pct=Math.round(vs.pct*100);
   const rp=document.getElementById("ring-pct");if(rp)rp.textContent=pct+"%";
   const rg=document.getElementById("mastery-ring");if(rg)rg.style.setProperty("--p",pct);
 }

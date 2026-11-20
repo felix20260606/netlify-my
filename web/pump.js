@@ -263,7 +263,8 @@
   const html = en => esc(en).replace(/\{([^}]+)\}/g, '<span class="t">$1</span>');
   function home() {
     playing = false; root.classList.remove("pp-known"); const p = plan(), S = srs();
-    const lrn = p.P.filter(w => S[w.id] && w.status !== "known").length, done = p.P.filter(w => w.status === "known").length;
+    const VS = window.vocabStats ? window.vocabStats() : null; // 学习中 / 已掌握：和顶部、统计页同一个口径（index.html 的 vocabStats）
+    const lrn = VS ? VS.learning : p.P.filter(w => S[w.id] && w.status !== "known").length, done = VS ? VS.known : p.P.filter(w => w.status === "known").length;
     const rs = p.live.filter(w => S[w.id] && S[w.id].at).map(w => rNow(S[w.id])), avgR = rs.length ? Math.round(rs.reduce((a, x) => a + x, 0) / rs.length * 100) : 0;
     p.list.slice(0, 12).forEach(w => sentFor(w)); // 先把例句取回来
     const urgent = p.due.filter(w => rNow(S[w.id]) <= URGENT_R).length, n = p.n;
@@ -275,8 +276,8 @@
       '<div class="pp-today"><span class="emo">' + emoji() + "</span>今天<b>" + day.n + " 张卡片</b></div>" + dayBar() +
       '<div class="pp-st"><div title="记得的概率已经降到 50% 以下（过了半衰期）、该复习的；「紧急」= 降到 30% 以下"><small>待复习</small><b>' + p.due.length + "</b><em>" + (urgent ? urgent + " 个紧急" : "") + '</em></div>' +
       '<div title="' + (rs.length ? "按 Ebisu 算，现在平均记得 " + avgR + "%" : "正在练的词") + '"><small>学习中</small><b>' + lrn + "</b><em>+" + p.fresh.length + ' 个排队中</em></div>' +
-      '<div title="半衰期到了 42 天（至少 6 周都很可能记得），自动算已掌握"><small>已学习</small><b>' + done + "</b></div></div>" +
-      (() => { const all = p.P.filter(w => !w.sg), kn = all.filter(w => w.status === "known").length, lr = all.filter(w => w.status !== "known" && S[w.id]), avg = lr.length ? lr.reduce((a, w) => a + mastery(S[w.id], w), 0) / lr.length : 0, tot = all.length ? kn / all.length : 0;
+      '<div title="半衰期到了 42 天（至少 6 周都很可能记得），自动算已掌握"><small>已掌握</small><b>' + done + "</b></div></div>" +
+      (() => { const all = VS ? words.filter(w => (w.type || "word") !== "pattern") : p.P.filter(w => !w.sg), kn = VS ? VS.known : all.filter(w => w.status === "known").length, lr = all.filter(w => mastery(S[w.id], w) < 1 && S[w.id]), avg = lr.length ? lr.reduce((a, w) => a + mastery(S[w.id], w), 0) / lr.length : 0, tot = all.length ? kn / all.length : 0;
         return '<div class="pp-master" title="半衰期到 42 天（至少 6 周都很可能记得）算已掌握"><div class="h"><span>🏆 已掌握</span><b>' + pcent(tot) + "%</b><small>" + kn + " / " + all.length + " 个</small></div>" + mbar(tot, true) + (lr.length ? '<div class="h2">学习中的 ' + lr.length + " 个词平均掌握进度 <b>" + pcent(avg) + "%</b></div>" + mbar(avg) : "") + "</div>"; })() +
       '<div class="pp-go"><button id="pp-start"' + (n ? "" : " disabled") + ">开始练习</button><span>" + (n ? n + " 张卡片" : p.mode === "none" ? (opt.sugg ? "测验、练习都关了：只练建议，现在没有建议" : "测验、练习、建议都关了，没有可练的") : "现在没有要练的") + "</span></div>" +
       '<div class="pp-only"><small>只练一种：</small><button id="pp-only-shadow"' + (p.queue.length ? "" : " disabled") + ' title="听一句，自己读一遍，录音转文字，标出读对、读漏的词">🎙 跟读</button><button id="pp-only-dict"' + (p.queue.length ? "" : " disabled") + ' title="只放声音，把整句打出来，逐词对错">✍️ 听写</button></div>' +

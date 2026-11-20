@@ -11,7 +11,7 @@
     ["json", "🗄 完整备份 JSON", "所有内容（含截图、原声），以后可以还原"],
     ["text", "📋 复制成文字", "复制到备忘录或微信（只有文字）"],
   ];
-  const SCOPES = [["all", "全部"], ["learning", "在学"], ["known", "已掌握"]];
+  const SCOPES = [["all", "全部"], ["learning", "未掌握"], ["known", "已掌握"]];
   const LS = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   const opt = Object.assign({ fmt: "anki", scope: "all", img: true, aud: true }, LS("exp:opt") || {});
   const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -81,7 +81,7 @@
   const files = media => Object.values(media).flatMap(m => [m.img1, m.img2, m.aud].filter(Boolean));
 
   // ---------- 各种格式 ----------
-  const statusOf = w => (w.status === "known" ? "已掌握" : "在学");
+  const statusOf = w => (w.status === "known" ? "已掌握" : "未掌握");
   const pct = w => (typeof masteryOf === "function" ? Math.round(masteryOf(w) * 100) : 0);
   const exs = w => (w.examples || []).filter(e => Array.isArray(e) && e[0]);
   function ankiText(ws, media) {
@@ -147,7 +147,7 @@
   async function run() {
     if (busy) return; const ws = pickWords(); if (!ws.length) { msg("这个范围里没有词"); return; }
     busy = true; const btn = document.getElementById("exp-run"); if (btn) btn.disabled = true;
-    const tag = { all: "全部", learning: "在学", known: "已掌握" }[opt.scope], stamp = today();
+    const tag = { all: "全部", learning: "未掌握", known: "已掌握" }[opt.scope], stamp = today();
     try {
       if (opt.fmt === "text") { const t = plainText(ws); try { await navigator.clipboard.writeText(t); msg("已复制 " + ws.length + " 个"); } catch (e) { save("生词本_" + tag + "_" + stamp + ".txt", new Blob([t], { type: "text/plain;charset=utf-8" })); msg("已下载为文本"); } return; }
       const media = await collectMedia(ws); nameMedia(ws, media); const fl = files(media), nImg = fl.filter(f => /^image/.test(f.mime)).length, nAud = fl.filter(f => /^audio/.test(f.mime)).length;

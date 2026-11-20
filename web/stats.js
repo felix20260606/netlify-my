@@ -205,11 +205,11 @@
     }).catch(() => { SRV = SRV || {}; });
   }
   function data() {
-    const now = Date.now(), S = ST().srs || {}, L = W();
+    const now = Date.now(), S = ST().srs || {}, L = W().filter(w => (w.type || "word") !== "pattern"); // 规律是参考资料，不算（和顶部、练习页同一个口径）
     const daily = mergeDaily(LG("pump:log", {}), SRV || {}, S, LG("pump:day", null), now);
     const tk = dayKey(now), td = daily[tk];
     let mastered = 0, learning = 0, untouched = 0;
-    L.forEach(w => { const m = mfn(w); if (m >= 1) mastered++; else if (S[w.id] && (S[w.id].at || S[w.id].h)) learning++; else untouched++; });
+    L.forEach(w => { const m = mfn(w); if (m >= 1) mastered++; else if (S[w.id]) learning++; else untouched++; });
     return { now, S, L, daily, tk, today: td && !td.est ? td.n : 0, todayEst: td && td.est ? td.n : 0, streak: streakOf(daily, now), days: Object.keys(daily).filter(k => daily[k].n > 0).length, mastered, learning, untouched };
   }
 
@@ -300,7 +300,7 @@
       t("fire", "🔥 " + d.streak, "天", d.streak ? "连续学习" : "今天练一下就开始连续") +
       t("", d.today || d.todayEst, d.today ? "张" : d.todayEst ? "个词" : "张", d.today ? "今天的卡片" : d.todayEst ? "今天练过的词（推算）" : "今天还没练") +
       t("", d.mastered, "个", "🏆 已掌握") +
-      t("", d.learning, "个", "在学" + (d.untouched ? " · 还有 " + d.untouched + " 个没练过" : "")) +
+      t("", d.learning, "个", "学习中" + (d.untouched ? " · 还有 " + d.untouched + " 个没练过" : "")) +
       t("", d.days, "天", "总练习天数") + "</div>";
   }
   function forecastHtml(d) {
