@@ -2,6 +2,29 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
+<script>
+/* 家人（多用户，不设密码）：当前是谁存在 localStorage 的 "vu"（空 = 主人）。必须在所有脚本之前运行：
+   ① 发往 /api/vocab、/api/ext、/api/media 的请求自动带上 ?u=<id>（后台按人分开存，见 _worker.js「六、家人」）
+   ② 这几个本机缓存按人分开存（键后面加 "@<id>"）：生词本、练习设置和计数、视频观看进度 —— 否则网页打开时会把上一个人的缓存合并进这个人的生词本
+   切换用户：改 "vu" 后整页重新加载（见下面 #who 菜单） */
+(function(){
+  var id="";try{id=localStorage.getItem("vu")||"";}catch(e){}
+  if(!/^[a-z0-9]{1,12}$/.test(id))id="";
+  window.VU=id;
+  if(!id)return;
+  var API=/^\/api\/(vocab|ext|media)$/,of=window.fetch;
+  window.fetch=function(u,o){
+    try{if(typeof u==="string"||u instanceof URL){var x=new URL(String(u),location.href);if(x.origin===location.origin&&API.test(x.pathname)){x.searchParams.set("u",id);u=x.pathname+x.search;}}}catch(e){}
+    return of.call(this,u,o);
+  };
+  if(navigator.sendBeacon){var ob=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=function(u,d){try{var x=new URL(String(u),location.href);if(x.origin===location.origin&&API.test(x.pathname)){x.searchParams.set("u",id);u=x.pathname+x.search;}}catch(e){}return ob(u,d);};}
+  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|wt:meta)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
+  var k=function(t,key){var ls=null;try{ls=window.localStorage;}catch(e){}return t===ls&&MINE.test(String(key))?key+"@"+id:key;};
+  S.getItem=function(key){return g.call(this,k(this,key));};
+  S.setItem=function(key,v){return st.call(this,k(this,key),v);};
+  S.removeItem=function(key){return rm.call(this,k(this,key));};
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ray's Life</title>
 <meta name="description" content="随手收词、精修词条、间隔练习——一本会长大的英语生词本">
@@ -53,6 +76,15 @@
   }
   .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
   .hero-lead{min-width:0}
+  /* 👤 当前用户（家人各用各的生词本） */
+  .who{display:inline-flex;align-items:center;gap:5px;margin:8px 0 0;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink-2);border-radius:999px;padding:4px 11px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;max-width:100%}
+  .who:hover{border-color:var(--ui-pur);color:var(--ui-ink)}.who b{color:var(--ui-ink);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:12em}
+  .who-menu{position:fixed;z-index:9600;min-width:200px;max-width:calc(100vw - 32px);background:var(--ui-surface);border:1px solid var(--ui-line-2);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.45);padding:6px;display:none}
+  .who-menu.on{display:block}
+  .who-menu button{display:flex;width:100%;align-items:center;gap:8px;border:0;background:transparent;color:var(--ui-ink-2);font:inherit;font-size:14px;text-align:left;padding:10px 12px;border-radius:10px;cursor:pointer;min-height:40px}
+  .who-menu button:hover{background:var(--ui-surface-2);color:var(--ui-ink)}.who-menu button.on{color:var(--ui-pur-text);font-weight:700}
+  .who-menu button.on::after{content:"✓";margin-left:auto}.who-menu hr{border:0;border-top:1px solid var(--ui-line);margin:5px 4px}
+  .who-menu .who-tip{color:var(--ui-muted);font-size:12px;padding:6px 12px 4px;line-height:1.5}
   .eyebrow{
     display:flex;align-items:center;gap:9px;
     font-family:var(--ui-font);
@@ -385,6 +417,7 @@
       <div class="hero-lead">
         <p class="eyebrow">Pocket Vocabulary</p>
         <h1>英语生词本</h1>
+        <button class="who" id="who" type="button" title="家人各用各的生词本：点这里切换">👤 <b id="who-name">…</b> ▾</button>
         <p class="lede">随手收词 · 精修词条 · 间隔练习<br>一本会长大的生词本</p>
       </div>
       <div class="ring" id="mastery-ring">
@@ -1183,13 +1216,56 @@ function toast(m){const t=document.getElementById("toast");t.textContent=m;t.cla
 function refresh(){build();prunePending();counts();renderList();renderPending();if(window.pumpRefresh)pumpRefresh();if(window.grammarRefresh)grammarRefresh();}
 
 // ⭐ 已保存：装了插件嵌插件页面（能编辑），没装显示网站只读版；插件晚一点连上会自动换过来
+// 插件同步的是插件设置里选的那个人（data-ban-user，旧版插件没有 = 主人）：和网站当前用户不是同一个人时不嵌插件页面，显示网站版
 function savedShow(){
-  const box=document.getElementById("savedbox"),id=document.documentElement.getAttribute("data-ban-ext")||"",web=!id&&!!window.savedWeb;
+  const ext=document.documentElement.getAttribute("data-ban-ext")||"",id=ext&&(document.documentElement.getAttribute("data-ban-user")||"")===(window.VU||"")?ext:"",web=!id&&!!window.savedWeb;
   box.classList.toggle("web",!id);
   if(id){const u="chrome-extension://"+id+"/saved.html",xf=document.getElementById("extframe");if(xf.getAttribute("src")!==u)xf.setAttribute("src",u);document.getElementById("ext-open").href=u;}
   else if(web)window.savedWeb.render(document.getElementById("ext-web"));
 }
 window.addEventListener("ban-ext",()=>{if(document.documentElement.getAttribute("data-mode")==="saved")savedShow();});
+
+/* ===== 👤 家人：切换用户（数据各自分开，不设密码；原理见 <head> 里最前面那段） ===== */
+(function(){
+  const btn=document.getElementById("who"),nameEl=document.getElementById("who-name");if(!btn)return;
+  const menu=document.createElement("div");menu.className="who-menu";document.body.append(menu);
+  const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  let users=null;try{users=JSON.parse(localStorage.getItem("vu:list")||"null");}catch(e){}
+  const me=()=>(users||[]).find(x=>x.id===(window.VU||""));
+  const paint=()=>{const m=me();nameEl.textContent=m?m.name:(window.VU?window.VU:"Ray");};
+  paint();
+  const load=()=>fetch("/api/users",{cache:"no-store"}).then(r=>r.json()).then(j=>{if(j&&j.ok){users=j.users;try{localStorage.setItem("vu:list",JSON.stringify(users));}catch(e){}
+    if(window.VU&&!users.some(x=>x.id===window.VU)){try{localStorage.removeItem("vu");}catch(e){}location.reload();return;} paint();}}).catch(()=>{});
+  load();
+  const close=()=>menu.classList.remove("on");
+  function open(){
+    const L=users||[{id:"",name:"Ray"}];
+    menu.innerHTML=L.map(x=>`<button data-u="${esc(x.id)}" class="${x.id===(window.VU||"")?"on":""}">👤 ${esc(x.name)}</button>`).join("")+
+      `<hr><button data-act="add">＋ 添加家人</button><button data-act="rename">✎ 改我的名字</button>${window.VU?'<button data-act="remove">✕ 删掉我（只能删还没内容的）</button>':""}<div class="who-tip">每个人的生词本、练习进度、已保存、标记各自分开。不设密码，家里人都能切换。</div>`;
+    const r=btn.getBoundingClientRect();menu.classList.add("on");
+    const w=menu.offsetWidth;menu.style.left=Math.max(16,Math.min(r.left,innerWidth-w-16))+"px";menu.style.top=(r.bottom+6)+"px";
+  }
+  async function switchTo(id){
+    if(id===(window.VU||""))return close();
+    close();toast("正在切换…");
+    try{if(typeof syncNow==="function")await Promise.race([syncNow(),new Promise(r=>setTimeout(r,4000))]);}catch(e){} // 先把这个人没传完的改动传上去
+    try{if(id)localStorage.setItem("vu",id);else localStorage.removeItem("vu");}catch(e){}
+    location.reload();
+  }
+  async function post(body){const r=await fetch("/api/users",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));if(!j.ok)throw new Error(j.error||"失败");users=j.users;try{localStorage.setItem("vu:list",JSON.stringify(users));}catch(e){}return j;}
+  btn.onclick=e=>{e.stopPropagation();menu.classList.contains("on")?close():(open(),load().then(()=>{if(menu.classList.contains("on"))open();}));};
+  menu.onclick=async e=>{
+    e.stopPropagation();const b=e.target.closest("button");if(!b)return;
+    if(b.dataset.u!=null)return switchTo(b.dataset.u);
+    if(b.dataset.act==="add"){const n=(prompt("家人的名字（比如：妈妈、Lily）")||"").trim();if(!n)return;
+      try{const j=await post({add:n});if(confirm("已添加「"+j.user.name+"」，现在切换过去吗？"))switchTo(j.user.id);else open();}catch(er){alert("没加上："+er.message);}}
+    if(b.dataset.act==="rename"){const m=me(),n=(prompt("改成什么名字？",m?m.name:"")||"").trim();if(!n)return;
+      try{await post({rename:{id:window.VU||"",name:n}});paint();open();}catch(er){alert("没改成："+er.message);}}
+    if(b.dataset.act==="remove"){const m=me();if(!confirm("删掉「"+(m?m.name:window.VU)+"」？只有还没收词、没保存内容的才能删（加错名字时用）。"))return;
+      try{await post({remove:window.VU});try{localStorage.removeItem("vocab_state_v1");localStorage.removeItem("vu");}catch(x){}location.reload();}catch(er){alert("没删："+er.message);}}
+  };
+  document.addEventListener("click",close);window.addEventListener("resize",close);
+})();
 // ⚙ 设置（朗读、导出）：弹窗，练习页右上角的齿轮打开
 window.openVocabSettings=function(){const p=document.getElementById("export-panel"),m=document.getElementById("sp-mask");p.classList.add("pop");m.classList.add("on");};
 function closeVocabSettings(){document.getElementById("export-panel").classList.remove("pop");document.getElementById("sp-mask").classList.remove("on");}

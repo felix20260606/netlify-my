@@ -26,12 +26,71 @@
 //   GET  ?k=med:w:apple → { ok, rec }
 //   POST {k, rec}       → 保存一条（单条最大 8MB）
 //
+// 六、家人（多用户）/api/users：不设密码，只是把各人的数据分开
+//   GET                         → { ok, users:[{id, name}] }，第一个 id 为 "" 的是原来的主人（数据就是上面那些原样的 KV 记录）
+//   POST {add:"名字"}            → 新建一个用户，返回 { ok, user:{id, name}, users }
+//   POST {rename:{id, name}}    → 改名字
+//   POST {remove:id}            → 删掉一个家人：只有他的生词本和插件数据都是空的才删（加错了名字用），有内容的拒绝（409）
+//   其它接口带 ?u=<id> 就读写这个人的数据：生词本、插件数据、录音截图、每日存档的 KV 键前面加 "u/<id>/"（如 u/u2/vocab、u/u2/m:med:w:apple）；
+//   不带 u（或 u 为空）就是主人。视频字幕 /api/cap、例句 /api/sent 大家共用。不认识的 u 返回 404，免得打错字写到一份没人看的数据里。
+//
 // 五、例句 /api/sent?w=单词（网站「🔊 练习」用：像 PhrasePump 一样每次换几句例句听）
 //   → { ok, w, items:[{en, zh}] }，来自 Tatoeba 例句库（只要 14 个词以内、带中文翻译、确实包含这个词的），在 KV 里缓存 30 天（"s/单词"）
 //   GET ?pump=数量 → 随机的额外句子（5–12 个词、带中文），练习名额没用完时补满（同 PhrasePump 的「pump」），不缓存
 const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab", EXT_PATH = "/api/ext", EXT_KEY = "ext", MEDIA_PATH = "/api/media", SENT_PATH = "/api/sent";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
 const okId = v => /^[\w-]{11}$/.test(v || "");
+// ---------- 家人（多用户） ----------
+const USERS_KEY = "users", DEF_USERS = [{ id: "", name: "Ray" }];
+let usersMem = null, usersAt = 0;
+async function usersList(kv, fresh) {
+  if (!fresh && usersMem && Date.now() - usersAt < 30000) return usersMem;
+  const d = await kv.get(USERS_KEY, "json"); usersMem = Array.isArray(d) && d.length ? d : DEF_USERS; usersAt = Date.now(); return usersMem;
+}
+// 这次请求是谁：?u=<id>；返回 KV 键前缀（主人是 ""），不认识的返回 null
+async function userPre(req, kv) {
+  const id = new URL(req.url).searchParams.get("u") || "";
+  if (!id) return "";
+  if (!/^[a-z0-9]{1,12}$/.test(id)) return null;
+  let L = await usersList(kv); if (!L.some(x => x.id === id)) L = await usersList(kv, true);
+  return L.some(x => x.id === id) ? "u/" + id + "/" : null;
+}
+const noUser = () => json({ ok: false, error: "unknown user" }, 404);
+async function users(req, env) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  const kv = env.CAPTIONS; if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
+  try {
+    const L = (await usersList(kv, true)).map(x => Object.assign({}, x));
+    if (req.method === "GET") return json({ ok: true, users: L });
+    if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
+    const b = JSON.parse((await req.text()) || "{}"), nm = v => String(v == null ? "" : v).replace(/[<>"&]/g, "").trim().slice(0, 20);
+    if (typeof b.add === "string") {
+      const name = nm(b.add); if (!name) return json({ ok: false, error: "name" }, 400);
+      if (L.some(x => x.name === name)) return json({ ok: false, error: "这个名字已经有了" }, 409);
+      if (L.length >= 20) return json({ ok: false, error: "too many" }, 400);
+      let n = 2; while (L.some(x => x.id === "u" + n)) n++;
+      const user = { id: "u" + n, name }; L.push(user);
+      await kv.put(USERS_KEY, JSON.stringify(L)); usersMem = L; usersAt = Date.now();
+      return json({ ok: true, user, users: L });
+    }
+    if (isObj(b.rename)) {
+      const x = L.find(y => y.id === String(b.rename.id || "")), name = nm(b.rename.name);
+      if (!x || !name) return json({ ok: false, error: "bad body" }, 400);
+      if (L.some(y => y !== x && y.name === name)) return json({ ok: false, error: "这个名字已经有了" }, 409);
+      x.name = name; await kv.put(USERS_KEY, JSON.stringify(L)); usersMem = L; usersAt = Date.now();
+      return json({ ok: true, users: L });
+    }
+    if (typeof b.remove === "string" && b.remove) {
+      const x = L.find(y => y.id === b.remove); if (!x) return json({ ok: false, error: "not found" }, 404);
+      const pre = "u/" + x.id + "/", v = vnorm(await kv.get(pre + VOCAB_KEY, "json")), e = await kv.get(pre + EXT_KEY, "json");
+      if (v.custom.length || v.pending.length || Object.keys(v.srs || {}).length || Object.keys(live((e && e.items) || {})).filter(k => !k.startsWith("set|")).length) return json({ ok: false, error: "这个人已经有生词或保存的内容，不能删" }, 409);
+      const left = L.filter(y => y !== x); await kv.put(USERS_KEY, JSON.stringify(left)); usersMem = left; usersAt = Date.now();
+      const keys = (await kv.list({ prefix: pre })).keys; for (const k of keys) await kv.delete(k.name);
+      return json({ ok: true, users: left });
+    }
+    return json({ ok: false, error: "bad body" }, 400);
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
 // 列表信息放在每条记录的 metadata 里（上限 1024 字节，所以这里把标题、作者截短；完整标题在记录正文里）
 const meta = d => { const last = d.cues[d.cues.length - 1]; return { title: [...d.title].slice(0, 100).join(""), author: [...d.author].slice(0, 50).join(""), n: d.cues.length, tr: d.cues.filter(c => c.r).length, dur: Math.round(last.e || last.s), at: d.at }; };
 const clean = (b, at) => ({ v: b.v, title: String(b.title || "").slice(0, 300), author: String(b.author || "").slice(0, 120), lang: String(b.lang || "en").slice(0, 12), tl: String(b.tl || "").slice(0, 12), at: at || Date.now(), cues: b.cues.slice(0, 6000).map(c => ({ s: +c.s || 0, e: +c.e || 0, t: String(c.t || "").slice(0, 600), r: String(c.r || "").slice(0, 600) })).filter(c => c.t) });
@@ -114,12 +173,14 @@ async function vocab(req, env) {
   const kv = env.CAPTIONS;
   if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
   try {
-    const stored = vnorm(await kv.get(VOCAB_KEY, "json")), before = JSON.stringify(stored); // 先记下原样：合并函数会就地改数组
+    const pre = await userPre(req, kv); if (pre === null) return noUser();
+    const VK = pre + VOCAB_KEY; // 这个人的生词本（主人就是 "vocab"）
+    const stored = vnorm(await kv.get(VK, "json")), before = JSON.stringify(stored); // 先记下原样：合并函数会就地改数组
     if (req.method === "GET") {
       const q = new URL(req.url).searchParams;
-      if (q.get("history")) { const l = await kv.list({ prefix: VOCAB_KEY + "@" }); return json({ ok: true, days: l.keys.map(k => k.name.slice(VOCAB_KEY.length + 1)).sort().reverse() }); }
+      if (q.get("history")) { const l = await kv.list({ prefix: VK + "@" }); return json({ ok: true, days: l.keys.map(k => k.name.slice(VK.length + 1)).sort().reverse() }); }
       const at = q.get("at");
-      if (at) { if (!/^\d{4}-\d{2}-\d{2}$/.test(at)) return json({ ok: false, error: "bad date" }, 400); const d = await kv.get(VOCAB_KEY + "@" + at, "json"); return d ? json(Object.assign({ ok: true, at }, vnorm(d))) : json({ ok: false, error: "not found" }, 404); }
+      if (at) { if (!/^\d{4}-\d{2}-\d{2}$/.test(at)) return json({ ok: false, error: "bad date" }, 400); const d = await kv.get(VK + "@" + at, "json"); return d ? json(Object.assign({ ok: true, at }, vnorm(d))) : json({ ok: false, error: "not found" }, 404); }
       return json(Object.assign({ ok: true }, stored));
     }
     if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
@@ -143,9 +204,9 @@ async function vocab(req, env) {
     else return json({ ok: false, error: "bad body" }, 400);
     const changed = JSON.stringify(next) !== before;
     if (changed) {
-      const day = VOCAB_KEY + "@" + new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // 北京时间的日期
+      const day = VK + "@" + new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // 北京时间的日期
       if (!(await kv.get(day))) await kv.put(day, before, { expirationTtl: 30 * 86400 }); // 当天第一次改动前，存一份改动前的样子
-      await kv.put(VOCAB_KEY, JSON.stringify(next));
+      await kv.put(VK, JSON.stringify(next));
     }
     return json(isObj(b.patch) ? { ok: true, changed } : { ok: true, changed, added, total: next.custom.length, state: next });
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
@@ -159,23 +220,25 @@ async function ext(req, env) {
   const kv = env.CAPTIONS;
   if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
   try {
-    const raw0 = await kv.get(EXT_KEY), doc = (raw0 && JSON.parse(raw0)) || { ver: 0, items: {} };
+    const pre = await userPre(req, kv); if (pre === null) return noUser();
+    const EK = pre + EXT_KEY; // 这个人的插件数据（主人就是 "ext"）
+    const raw0 = await kv.get(EK), doc = (raw0 && JSON.parse(raw0)) || { ver: 0, items: {} };
     if (!isObj(doc.items)) doc.items = {};
     if (req.method === "GET") {
       const q = new URL(req.url).searchParams;
-      if (q.get("history")) { const l = await kv.list({ prefix: EXT_KEY + "@" }); return json({ ok: true, days: l.keys.map(k => k.name.slice(EXT_KEY.length + 1)).sort().reverse() }); }
+      if (q.get("history")) { const l = await kv.list({ prefix: EK + "@" }); return json({ ok: true, days: l.keys.map(k => k.name.slice(EK.length + 1)).sort().reverse() }); }
       const at = q.get("at");
-      if (at) { if (!/^\d{4}-\d{2}-\d{2}$/.test(at)) return json({ ok: false, error: "bad date" }, 400); const d = await kv.get(EXT_KEY + "@" + at, "json"); return d ? json({ ok: true, at, ver: d.ver, items: live(d.items || {}) }) : json({ ok: false, error: "not found" }, 404); }
+      if (at) { if (!/^\d{4}-\d{2}-\d{2}$/.test(at)) return json({ ok: false, error: "bad date" }, 400); const d = await kv.get(EK + "@" + at, "json"); return d ? json({ ok: true, at, ver: d.ver, items: live(d.items || {}) }) : json({ ok: false, error: "not found" }, 404); }
       return json({ ok: true, ver: doc.ver, items: live(doc.items) });
     }
     if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
     const raw = await req.text(); if (raw.length > 20000000) return json({ ok: false, error: "too large" }, 413);
     const b = JSON.parse(raw || "{}");
     if (b.replace && isObj(b.replace.items)) { // 整份还原（内容取自存档或仓库里的 data/ext.json）
-      const day = EXT_KEY + "@" + bjDay(); if (raw0 && !(await kv.get(day))) await kv.put(day, raw0, { expirationTtl: 30 * 86400 });
+      const day = EK + "@" + bjDay(); if (raw0 && !(await kv.get(day))) await kv.put(day, raw0, { expirationTtl: 30 * 86400 });
       const now = Date.now(), items = {}; for (const k in b.replace.items) { const x = b.replace.items[k]; if (isObj(x)) items[k] = { v: x.v, at: now }; }
       for (const k in doc.items) if (!items[k]) items[k] = { del: 1, at: now };
-      const next = { ver: now, items }; await kv.put(EXT_KEY, JSON.stringify(next)); return json({ ok: true, ver: next.ver, items: live(items) });
+      const next = { ver: now, items }; await kv.put(EK, JSON.stringify(next)); return json({ ok: true, ver: next.ver, items: live(items) });
     }
     if (!isObj(b.changes)) return json({ ok: false, error: "bad body" }, 400);
     let changed = false; const gone = [];
@@ -188,10 +251,10 @@ async function ext(req, env) {
     }
     if (changed) {
       const cut = Date.now() - 120 * 86400e3; for (const k in doc.items) if (doc.items[k].del && doc.items[k].at < cut) delete doc.items[k];
-      const day = EXT_KEY + "@" + bjDay(); if (raw0 && !(await kv.get(day))) await kv.put(day, raw0, { expirationTtl: 30 * 86400 });
-      doc.ver = Date.now(); await kv.put(EXT_KEY, JSON.stringify(doc));
+      const day = EK + "@" + bjDay(); if (raw0 && !(await kv.get(day))) await kv.put(day, raw0, { expirationTtl: 30 * 86400 });
+      doc.ver = Date.now(); await kv.put(EK, JSON.stringify(doc));
     }
-    for (const m of gone) if (m.startsWith("med:")) await kv.delete("m:" + m);
+    for (const m of gone) if (m.startsWith("med:")) await kv.delete(pre + "m:" + m);
     return json({ ok: true, changed, ver: doc.ver, items: live(doc.items) });
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
@@ -200,15 +263,16 @@ async function media(req, env) {
   const kv = env.CAPTIONS;
   if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
   try {
+    const pre = await userPre(req, kv); if (pre === null) return noUser();
     const okK = k => typeof k === "string" && k.startsWith("med:") && k.length < 480;
     if (req.method === "GET") {
       const k = new URL(req.url).searchParams.get("k"); if (!okK(k)) return json({ ok: false, error: "bad key" }, 400);
-      const rec = await kv.get("m:" + k, "json"); return rec ? json({ ok: true, k, rec }) : json({ ok: false, error: "not found" }, 404);
+      const rec = await kv.get(pre + "m:" + k, "json"); return rec ? json({ ok: true, k, rec }) : json({ ok: false, error: "not found" }, 404);
     }
     if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
     const raw = await req.text(); if (raw.length > 8000000) return json({ ok: false, error: "too large" }, 413);
     const b = JSON.parse(raw || "{}"); if (!okK(b.k) || !isObj(b.rec)) return json({ ok: false, error: "bad body" }, 400);
-    await kv.put("m:" + b.k, JSON.stringify(b.rec));
+    await kv.put(pre + "m:" + b.k, JSON.stringify(b.rec));
     return json({ ok: true });
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
@@ -249,6 +313,7 @@ export default {
     const u = new URL(req.url);
     if (API_PATHS.includes(u.pathname)) return cap(req, env, u);
     if (u.pathname === VOCAB_PATH) return vocab(req, env);
+    if (u.pathname === "/api/users") return users(req, env);
     if (u.pathname === EXT_PATH) return ext(req, env);
     if (u.pathname === MEDIA_PATH) return media(req, env);
     if (u.pathname === SENT_PATH) return sent(req, env, u);

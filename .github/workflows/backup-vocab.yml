@@ -1,6 +1,7 @@
 # 每 6 小时把线上生词本存进仓库 data/vocab.json、插件数据存进 data/ext.json、视频字幕存进 data/captions/（有变化才提交）。
 # 原声和截图存成普通文件放进 data/media/（.webm / .jpg，只下载新增或改过的），在 GitHub 上能直接看、直接听。
 # 生词本不设口令，被乱改时从这里的历史版本还原；data/ 不在 web/ 里，不会触发网站重新部署。
+# 家人（多用户）：名单存进 data/users.json，每个人的生词本、插件数据、原声截图存进 data/users/<id>/（vocab.json、ext.json、media/）。
 name: 备份生词本和字幕
 on:
   schedule:
@@ -27,6 +28,17 @@ jobs:
           jq '{ver, items}' /tmp/ext.json > data/ext.json
       - name: 下载原声和截图（只下新增或有变化的）
         run: python3 tools/backup-media.py
+      - name: 下载家人的生词本、插件数据、原声截图
+        run: |
+          curl -fsS --retry 3 https://ruilearning-my.pages.dev/api/users -o /tmp/users.json
+          jq -e '.ok == true and (.users | type == "array")' /tmp/users.json > /dev/null
+          jq '.users' /tmp/users.json > data/users.json
+          for u in $(jq -r '.users[].id | select(. != "")' /tmp/users.json); do
+            mkdir -p "data/users/$u"
+            curl -fsS --retry 3 "https://ruilearning-my.pages.dev/api/vocab?u=$u" -o /tmp/v.json && jq -e '.ok == true and (.custom | type == "array")' /tmp/v.json > /dev/null && jq 'del(.ok)' /tmp/v.json > "data/users/$u/vocab.json"
+            curl -fsS --retry 3 "https://ruilearning-my.pages.dev/api/ext?u=$u" -o /tmp/e.json && jq -e '.ok == true and (.items | type == "object")' /tmp/e.json > /dev/null && jq '{ver, items}' /tmp/e.json > "data/users/$u/ext.json"
+            python3 tools/backup-media.py --user "$u"
+          done
       - name: 下载视频字幕（只下新增或有变化的）
         run: |
           mkdir -p data/captions
@@ -44,7 +56,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/vocab.json data/ext.json data/media data/captions
+          git add data/vocab.json data/ext.json data/media data/captions data/users.json
+          [ -d data/users ] && git add data/users
           if git diff --cached --quiet; then echo "没有变化"; exit 0; fi
           git commit -m "备份生词本、插件数据、原声截图和字幕 $(TZ=Asia/Shanghai date '+%F %H:%M')"
           git push

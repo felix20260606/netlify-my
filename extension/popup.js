@@ -34,4 +34,21 @@ $("audio").onchange = e => chrome.storage.local.set({ audioPick: { i: e.target.v
 document.addEventListener("click", e => { const i = e.target.closest(".inf"); if (!i) return; e.preventDefault(); const h = i.closest("label").nextElementSibling; if (h && h.classList.contains("hint")) h.classList.toggle("on"); });
 
 $("sy").onclick = e => { e.preventDefault(); $("syr").textContent = "同步中…"; chrome.runtime.sendMessage({ type: "syncAll", tl: V.target }, r => { $("syr").textContent = !r || !r.cloud ? "同步失败（未配置或网络问题）" : "新增 " + (r.added || 0) + " 个，网站共 " + r.total + " 个自定义词条"; }); };
+// 生词本用户（家人）：名单从网站取；切换交给后台（先传完当前的人的数据再换）
+chrome.storage.local.get({ siteUser: "" }, v => {
+  const sel = $("siteUser"), cur = v.siteUser || "";
+  const fill = L => { sel.innerHTML = ""; L.forEach(x => { const o = document.createElement("option"); o.value = x.id; o.textContent = x.name; sel.append(o); }); if (!L.some(x => x.id === cur)) { const o = document.createElement("option"); o.value = cur; o.textContent = cur; sel.append(o); } sel.value = cur; };
+  fill([{ id: "", name: "Ray" }]);
+  fetch("https://ruilearning-my.pages.dev/api/users").then(r => r.json()).then(j => { if (j && j.ok) fill(j.users); }).catch(() => {});
+  sel.onchange = () => {
+    const id = sel.value, name = sel.options[sel.selectedIndex].textContent;
+    if (!confirm("这台电脑的插件改成同步「" + name + "」的数据？\n会先把现在的数据传到云端，再换成「" + name + "」的已保存、标记和录音截图。")) { sel.value = cur; return; }
+    sel.disabled = true; $("sur").style.display = ""; $("sur").textContent = "切换中…（录音截图多的话要一会儿）";
+    chrome.runtime.sendMessage({ type: "setSiteUser", id }, r => {
+      sel.disabled = false;
+      if (r && r.ok) { $("sur").textContent = "已切换到「" + name + "」，打开的 YouTube 页面刷新一下"; chrome.storage.local.get({ saved: [] }, x => ($("n").textContent = x.saved.length)); }
+      else { $("sur").textContent = "没有切换：" + ((r && r.error) || "出错了"); sel.value = cur; }
+    });
+  };
+});
 $("rv").onclick = e => { e.preventDefault(); chrome.tabs.create({ url: "https://ruilearning-my.pages.dev/?go=pump" }); }; // 复习统一用网站「🔊 练习」

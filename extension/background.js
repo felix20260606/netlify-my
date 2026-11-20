@@ -1,5 +1,14 @@
 // 生词本和视频字幕都存在生词本网站的后台（Cloudflare），不需要配置文件和口令
 const SITE = "https://ruilearning-my.pages.dev", VOCAB = SITE + "/api/vocab";
+// 家人（多用户，不设密码）：插件同步的是设置页「生词本用户」选的那个人（chrome.storage.local 的 siteUser，空 = 主人 Ray）。
+// 发往网站 /api/vocab、/api/ext、/api/media 的请求自动带上 ?u=<id>（后台按人分开存）；切换见下面 setSiteUser
+let siteUser = null, userSwitching = false;
+const siteUserP = chrome.storage.local.get({ siteUser: "" }).then(v => (siteUser = v.siteUser || "")).catch(() => (siteUser = ""));
+const fetch0 = self.fetch.bind(self);
+self.fetch = async (u, o) => {
+  if (typeof u === "string" && u.startsWith(SITE + "/api/") && /^\/api\/(vocab|ext|media)(\?|$)/.test(u.slice(SITE.length))) { if (siteUser == null) await siteUserP; if (siteUser) u += (u.includes("?") ? "&" : "?") + "u=" + siteUser; }
+  return fetch0(u, o);
+};
 const vocabGet = () => fetch(VOCAB).then(r => { if (!r.ok) throw 0; return r.json(); });
 
 // ---------- 翻译 ----------
@@ -249,6 +258,7 @@ chrome.runtime.onMessage.addListener((m, _s, send) => {
   else if (m.type === "vocabMark") vocabMark(m.word, m.st).then(send);
   else if (m.type === "reviewNext") reviewNext(m.word).then(send);
   else if (m.type === "extSync") fullSync().then(send);
+  else if (m.type === "setSiteUser") setSiteUser(m.id).then(send).catch(e => send({ ok: false, error: String(e && e.message || e) }));
   else if (m.type === "pageSync") { if (Date.now() - fullAt > 120000) fullSync(); send({}); } // 打开 YouTube 页面：两分钟内最多同步一次
   else return false;
   return true;
@@ -361,6 +371,7 @@ const fullSync = () => { fullAt = Date.now(); return repair1120().catch(() => {}
 let syBusy = null, syAgain = false, syLast = 0, syT = 0;
 function extSyncSoon(ms) { clearTimeout(syT); syT = setTimeout(() => extSync(), ms == null ? 4000 : ms); }
 function extSync(force) {
+  if (userSwitching) return Promise.resolve({ ok: false, switching: true });
   if (syBusy) { syAgain = true; return syBusy; }
   syBusy = extSyncOnce(force).catch(e => ({ ok: false, error: String(e && e.message || e) })).then(async r => { syBusy = null; if (syAgain) { syAgain = false; await extSync(true); } return r; });
   return syBusy;
@@ -402,6 +413,27 @@ async function extSyncOnce(force) {
   for (const k in items) { if (!(k in L2.f)) continue; sig[k] = k.startsWith("med|") ? L2.f[k] : syHash(L2.f[k]); }
   await chrome.storage.local.set({ extBase: { ver: doc.ver, sig, at: Date.now() } });
   return { ok: true, sent: Object.keys(changes).length, up, got: ap.got, wrote: ap.wrote, total: Object.keys(items).length, pendingUp: medUp.length - up };
+}
+// 切换生词本用户：先把当前这个人的改动传完（传不上去就不切，免得丢数据），再清掉本机属于他的已保存、标记、标签、配图、录音截图，
+// 然后从云端拉新的人的数据。插件设置（storage.sync）不清：新的人云端有设置就用他的，没有就沿用现在的设置并传上去
+async function setSiteUser(id) {
+  id = String(id || ""); if (!/^([a-z0-9]{1,12})?$/.test(id)) return { ok: false, error: "bad user" };
+  await siteUserP; if (id === siteUser) return { ok: true, same: true };
+  const r = await extSync(true); if (!r || !r.ok) return { ok: false, error: "当前用户的数据没传完（网络问题？），没有切换" };
+  await cloudChain.catch(() => {});
+  const q = (await chrome.storage.local.get({ srsQueue: null })).srsQueue;
+  if (q && (Object.keys(q.srs || {}).length || Object.keys(q.progress || {}).length)) { const p = await vocabPatch({}); if (!p.ok) return { ok: false, error: "复习进度没传完（网络问题？），没有切换" }; }
+  userSwitching = true;
+  try {
+    if (syBusy) await syBusy.catch(() => {});
+    siteUser = id; await chrome.storage.local.set({ siteUser: id });
+    const all = await chrome.storage.local.get(null);
+    await chrome.storage.local.remove(Object.keys(all).filter(k => isSyKey(k) || ["extBase", "medIdx", "vocabCache", "srsQueue", "srs"].includes(k)));
+  } finally { userSwitching = false; }
+  // 先拉云端（新的人的已保存、标记），再对照他的生词本，最后再同步一次；顺序反过来会把他标成「忽略」的词又加回已保存
+  fullAt = Date.now(); const s1 = await extSync(true).catch(() => null);
+  await nbApply().catch(() => {}); const s2 = await extSync(true).catch(() => null);
+  return { ok: true, user: id, sync: s2 || s1 };
 }
 chrome.storage.onChanged.addListener((c, area) => {
   if (area === "sync") return extSyncSoon();

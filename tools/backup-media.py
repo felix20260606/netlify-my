@@ -9,12 +9,17 @@
   data/media/index.json        键名 → 文件名和签名
 w = 单词，s = 句子和短语。网站上删掉的，备份里保留（Git 历史里也有）。
 还原：python3 tools/restore-media.py（把这里的文件重新传回 Cloudflare）。
+家人（多用户）：python3 tools/backup-media.py --user u2 → 读 data/users/u2/ext.json，存到 data/users/u2/media/。
 """
 import base64, json, os, re, sys, urllib.parse, urllib.request
 
 SITE = "https://ruilearning-my.pages.dev"
-ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
+USER = sys.argv[sys.argv.index("--user") + 1] if "--user" in sys.argv else ""  # 家人的 id（空 = 主人）
+if USER and not re.fullmatch(r"[a-z0-9]{1,12}", USER):
+    sys.exit("bad --user")
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", *(["users", USER] if USER else []))
 OUT = os.path.join(ROOT, "media")
+UQ = "&u=" + USER if USER else ""
 EXT = {"audio/webm": ".webm", "audio/ogg": ".ogg", "audio/mp4": ".m4a", "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
 
 
@@ -51,7 +56,7 @@ def main():
         if idx.get(key, {}).get("sig") == sig:
             continue
         try:
-            rec = get(SITE + "/api/media?k=" + urllib.parse.quote(key)).get("rec")
+            rec = get(SITE + "/api/media?k=" + urllib.parse.quote(key) + UQ).get("rec")
         except Exception as e:
             print("下载失败，下次再试：", key, e, file=sys.stderr)
             continue
