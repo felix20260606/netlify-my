@@ -37,6 +37,8 @@
 // 五、例句 /api/sent?w=单词（网站「🔊 练习」用：像 PhrasePump 一样每次换几句例句听）
 //   → { ok, w, items:[{en, zh}] }，来自 Tatoeba 例句库（只要 14 个词以内、带中文翻译、确实包含这个词的），在 KV 里缓存 30 天（"s/单词"）
 //   GET ?pump=数量 → 随机的额外句子（5–12 个词、带中文），练习名额没用完时补满（同 PhrasePump 的「pump」），不缓存
+// 七、查词 /api/dict、抓文章 /api/readurl、AI 写作评分 /api/ai、语音转文字 /api/stt：见各自函数上面的说明
+//   生词本回收站：GET /api/vocab?trash=1 → { items:[{e 词条, at 删除时间}] }（30 天，按人分开）；POST {untrash:id} 从回收站拿掉
 const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab", EXT_PATH = "/api/ext", EXT_KEY = "ext", MEDIA_PATH = "/api/media", SENT_PATH = "/api/sent";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
 const okId = v => /^[\w-]{11}$/.test(v || "");
@@ -178,6 +180,7 @@ async function vocab(req, env) {
     const stored = vnorm(await kv.get(VK, "json")), before = JSON.stringify(stored); // 先记下原样：合并函数会就地改数组
     if (req.method === "GET") {
       const q = new URL(req.url).searchParams;
+      if (q.get("trash")) { const now = Date.now(); return json({ ok: true, items: ((await kv.get(VK + ":trash", "json")) || []).filter(t => t && t.e && now - t.at < 30 * 86400e3) }); } // 回收站
       if (q.get("history")) { const l = await kv.list({ prefix: VK + "@" }); return json({ ok: true, days: l.keys.map(k => k.name.slice(VK.length + 1)).sort().reverse() }); }
       const at = q.get("at");
       if (at) { if (!/^\d{4}-\d{2}-\d{2}$/.test(at)) return json({ ok: false, error: "bad date" }, 400); const d = await kv.get(VK + "@" + at, "json"); return d ? json(Object.assign({ ok: true, at }, vnorm(d))) : json({ ok: false, error: "not found" }, 404); }
@@ -187,6 +190,7 @@ async function vocab(req, env) {
     const raw = await req.text(); if (raw.length > 5000000) return json({ ok: false, error: "too large" }, 413);
     const b = JSON.parse(raw || "{}");
     let next, added = 0;
+    if (typeof b.untrash === "string") { const tk = VK + ":trash", L = ((await kv.get(tk, "json")) || []).filter(t => t && t.e && t.e.id !== b.untrash); await kv.put(tk, JSON.stringify(L)); return json({ ok: true, items: L }); } // 恢复后从回收站拿掉（恢复本身由网页用新 id 加回去：删除记录只增不减）
     if (Array.isArray(b.add)) { const r = vadd(stored, b.add.slice(0, 2000)); next = r.d; added = r.n; }
     else if (b.state && typeof b.state === "object") {
       // 旧版网页（词条写死在页面里）会把搬进来的词当成重复草稿删掉，所以只接受新版网页（v:2）的整份同步
@@ -204,6 +208,9 @@ async function vocab(req, env) {
     else return json({ ok: false, error: "bad body" }, 400);
     const changed = JSON.stringify(next) !== before;
     if (changed) {
+      // 回收站：这次被删掉的词条整条存进 VK + ":trash"（30 天内能在网站上恢复）
+      const gone = new Set(next.deleted), had = JSON.parse(before).custom.filter(e => e && e.id && gone.has(e.id) && !next.custom.some(x => x && x.id === e.id));
+      if (had.length) { const tk = VK + ":trash", now = Date.now(), old = ((await kv.get(tk, "json")) || []).filter(t => t && t.e && now - t.at < 30 * 86400e3 && !had.some(e => e.id === t.e.id)); await kv.put(tk, JSON.stringify(had.map(e => ({ e, at: now })).concat(old).slice(0, 500))); }
       const day = VK + "@" + new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // 北京时间的日期
       if (!(await kv.get(day))) await kv.put(day, before, { expirationTtl: 30 * 86400 }); // 当天第一次改动前，存一份改动前的样子
       await kv.put(VK, JSON.stringify(next));
@@ -308,6 +315,112 @@ async function sent(req, env, u) {
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
 
+// ---------- 查词 /api/dict?w=单词或短语 ----------
+// → { ok, word, phon, audio, zh 常用中文, zhs:[{pos, terms}], en:[{pos, def, ex}], examples:[[英, 中]] }，大家共用，KV 缓存 30 天（"d/词"）
+// 来源都是免费的：中文 = 谷歌翻译（插件同款接口），音标 / 英文释义 / 发音 = dictionaryapi.dev，例句 = Tatoeba（同 /api/sent）
+const UA = { "User-Agent": "ruilearning-my (personal study site)" };
+async function gtrans(text, tl, bd) {
+  const r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=" + tl + "&dt=t" + (bd ? "&dt=bd" : "") + "&dj=1&q=" + encodeURIComponent(text));
+  if (!r.ok) return null; return r.json();
+}
+async function dict(req, env, u) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  const w = String(u.searchParams.get("w") || "").trim().replace(/\s+/g, " ");
+  if (!w || w.length > 80 || !/^[A-Za-z][A-Za-z0-9' .,?!-]*$/.test(w)) return json({ ok: false, error: "bad word" }, 400);
+  const kv = env.CAPTIONS, key = "d/" + w.toLowerCase();
+  try {
+    const hit = kv && (await kv.get(key, "json")); if (hit && !u.searchParams.get("fresh")) return json(Object.assign({ ok: true, cached: true }, hit));
+    const one = w.split(" ").length <= 3;
+    const [g, d, ex] = await Promise.all([
+      gtrans(w, "zh-CN", one).catch(() => null),
+      one ? fetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(w.toLowerCase()), { headers: UA }).then(r => r.ok ? r.json() : null).catch(() => null) : null,
+      /^[a-z][a-z' -]{0,40}$/i.test(w) ? sent(new Request("https://x/"), env, new URL("https://x/api/sent?w=" + encodeURIComponent(w.toLowerCase()))).then(r => r.json()).catch(() => null) : null,
+    ]);
+    const out = { word: w, phon: "", audio: "", zh: "", zhs: [], en: [], examples: [] };
+    if (g) { out.zh = (g.sentences || []).map(x => x.trans || "").join(""); out.zhs = (g.dict || []).slice(0, 4).map(x => ({ pos: x.pos || "", terms: (x.terms || []).slice(0, 6) })); }
+    if (Array.isArray(d) && d[0]) {
+      const ps = d.flatMap(x => x.phonetics || []);
+      out.phon = (d.find(x => x.phonetic) || {}).phonetic || (ps.find(p => p.text) || {}).text || "";
+      out.audio = ((ps.find(p => /-us\.mp3$/.test(p.audio || "")) || ps.find(p => p.audio)) || {}).audio || "";
+      d.forEach(x => (x.meanings || []).forEach(m => (m.definitions || []).slice(0, 3).forEach(df => { if (out.en.length < 6) out.en.push({ pos: m.partOfSpeech || "", def: df.definition || "", ex: df.example || "" }); })));
+    }
+    if (ex && ex.ok) out.examples = (ex.items || []).slice(0, 5).map(x => [x.en, x.zh]);
+    if (!out.zh && !out.en.length) return json({ ok: false, error: "not found", word: w }, 404);
+    if (kv) await kv.put(key, JSON.stringify(out), { expirationTtl: 30 * 86400 });
+    return json(Object.assign({ ok: true }, out));
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
+
+// ---------- 抓文章正文 /api/readurl?url=… （「📰 阅读」用）→ { ok, title, text }：只取标题和正文段落（p、h1–h3、li、blockquote），不存 ----------
+async function readurl(req, env, u) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  let t; try { t = new URL(u.searchParams.get("url") || ""); } catch (e) { return json({ ok: false, error: "bad url" }, 400); }
+  if (!/^https?:$/.test(t.protocol)) return json({ ok: false, error: "bad url" }, 400);
+  try {
+    const r = await fetch(t.toString(), { headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36", "Accept": "text/html" }, redirect: "follow" });
+    if (!r.ok) return json({ ok: false, error: "http " + r.status }, 502);
+    if (!/html/i.test(r.headers.get("content-type") || "")) return json({ ok: false, error: "not html" }, 415);
+    let title = "", og = "", skip = 0, cur = null; const blocks = [];
+    const B = { element(el) { if (skip) return; cur = { t: el.tagName, s: "" }; blocks.push(cur); el.onEndTag(() => { cur = null; }); }, text(x) { if (cur && !skip) cur.s += x.text; } };
+    const SK = { element(el) { skip++; el.onEndTag(() => { skip--; }); } };
+    await new HTMLRewriter()
+      .on("title", { text(x) { title += x.text; } })
+      .on('meta[property="og:title"]', { element(el) { og = el.getAttribute("content") || ""; } })
+      .on("script,style,nav,footer,aside,form,noscript,figure", SK)
+      .on("p,h1,h2,h3,li,blockquote", B)
+      .transform(r).arrayBuffer();
+    const dec = s => s.replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&#x27;|&rsquo;|&lsquo;/g, "'").replace(/&ldquo;|&rdquo;/g, '"').replace(/&mdash;/g, "—").replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n)).replace(/\s+/g, " ").trim();
+    const paras = blocks.map(b => ({ t: b.t, s: dec(b.s) })).filter(b => b.s && (b.t[0] === "h" || b.s.split(" ").length >= (b.t === "li" ? 6 : 5)));
+    const text = paras.map(b => b.s).join("\n\n").slice(0, 60000);
+    if (text.split(/\s+/).length < 40) return json({ ok: false, error: "no article text" }, 422);
+    return json({ ok: true, title: dec(og || title).slice(0, 200), text, url: t.toString() });
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
+
+// ---------- AI（Cloudflare Workers AI，免费额度每天 1 万 neurons；要在 Pages 项目「设置 → 绑定」里加 Workers AI，变量名 AI）----------
+// POST /api/ai {task:"write", type:t1|t2|mail|free, prompt, text} → { ok, band:{TR,CC,LR,GRA,overall}, summary_zh, strengths_zh:[], improve_zh:[], rewrite }；没开 AI 时 { ok:false, error:"noai" }
+// POST /api/stt（请求体就是录音文件）→ { ok, text }：跟读打分用（Whisper 语音转文字）
+const AI_MODELS = ["@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"];
+const WRITE_SYS = `You are a strict, experienced IELTS writing examiner. Assess the candidate's answer using the official IELTS Writing band descriptors (Task Response / Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy). Use half bands (e.g. 6.5). Be realistic: most learner essays score 5.0-7.0; penalise answers under the word limit or off topic.
+Reply with ONLY one JSON object, no markdown, exactly in this shape:
+{"band":{"TR":0,"CC":0,"LR":0,"GRA":0,"overall":0},"summary_zh":"2-3 sentences in Simplified Chinese","strengths_zh":["..."],"improve_zh":["specific, actionable advice in Simplified Chinese; quote the original phrase and give a better English version"],"rewrite":"an improved version of the whole answer in English, same ideas and similar length, band 8 level"}
+Give 2-4 strengths_zh and 3-6 improve_zh. overall = mean of the four, rounded to the nearest half band.`;
+function pickJson(s) { s = String(s || ""); const i = s.indexOf("{"), j = s.lastIndexOf("}"); if (i < 0 || j <= i) return null; try { return JSON.parse(s.slice(i, j + 1)); } catch (e) { return null; } }
+async function ai(req, env) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  if (!env.AI) return json({ ok: false, error: "noai" });
+  if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
+  try {
+    const b = await req.json(), text = String(b.text || "").slice(0, 8000), prompt = String(b.prompt || "").slice(0, 3000);
+    if (b.task !== "write" || text.split(/\s+/).length < 20) return json({ ok: false, error: "bad body" }, 400);
+    const kind = { t1: "IELTS Academic Writing Task 1 (report on visual data, at least 150 words)", t2: "IELTS Writing Task 2 (essay, at least 250 words)", mail: "an email / letter (like IELTS General Task 1, at least 150 words)", free: "free writing (judge it like a Task 2 essay)" }[b.type] || "IELTS Writing Task 2 (essay, at least 250 words)";
+    const msgs = [{ role: "system", content: WRITE_SYS }, { role: "user", content: "Task type: " + kind + "\nQuestion: " + (prompt || "(not given)") + "\n\nCandidate's answer:\n" + text }];
+    let last = "";
+    for (const m of AI_MODELS) {
+      try {
+        const r = await env.AI.run(m, { messages: msgs, max_tokens: 2048, temperature: 0.2 });
+        const raw = r && (typeof r.response === "string" ? r.response : JSON.stringify(r.response || r));
+        const o = pickJson(raw);
+        if (o && o.band) return json({ ok: true, model: m, band: o.band, summary_zh: o.summary_zh || "", strengths_zh: o.strengths_zh || [], improve_zh: o.improve_zh || [], rewrite: o.rewrite || "" });
+        last = "bad output";
+      } catch (e) { last = String(e && e.message || e); }
+    }
+    return json({ ok: false, error: last || "ai failed" }, 502);
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
+async function stt(req, env) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  if (!env.AI) return json({ ok: false, error: "noai" });
+  if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
+  try {
+    const buf = await req.arrayBuffer(); if (!buf.byteLength) return json({ ok: false, error: "empty" }, 400); if (buf.byteLength > 4e6) return json({ ok: false, error: "too large" }, 413);
+    const bytes = new Uint8Array(buf); let bin = ""; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    try { const r = await env.AI.run("@cf/openai/whisper-large-v3-turbo", { audio: btoa(bin), language: "en" }); if (r && r.text != null) return json({ ok: true, text: String(r.text).trim() }); } catch (e) {}
+    const r = await env.AI.run("@cf/openai/whisper", { audio: [...bytes] });
+    return json({ ok: true, text: String((r && r.text) || "").trim() });
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
+
 export default {
   async fetch(req, env) {
     const u = new URL(req.url);
@@ -317,6 +430,10 @@ export default {
     if (u.pathname === EXT_PATH) return ext(req, env);
     if (u.pathname === MEDIA_PATH) return media(req, env);
     if (u.pathname === SENT_PATH) return sent(req, env, u);
+    if (u.pathname === "/api/dict") return dict(req, env, u);
+    if (u.pathname === "/api/readurl") return readurl(req, env, u);
+    if (u.pathname === "/api/ai") return ai(req, env);
+    if (u.pathname === "/api/stt") return stt(req, env);
     return env.ASSETS.fetch(req);
   }
 };
