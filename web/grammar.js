@@ -1,4 +1,4 @@
-/* 生词本「📐 语法」：常用语法、句型、拼写构词、发音等速查，按类别分好，可搜索，点开看对照表和例句。
+/* 生词本「📐 语法」：常用语法、句型、拼写构词、发音等速查，按类别分好，可搜索，点开进全屏查看页（reader.js）。
    内容来源：
    ① 生词本里的「规律」词条（type=pattern），按 tag 分到各栏；主题词汇 / 场景表达不算语法，留在「📖 列表」的规律分类里
    ② 插件的句型提示数据 web/vs/pattern.js（VS_PAT_LIST：看视频时字幕下面的句型标签，和插件同一份）
@@ -20,7 +20,7 @@
   ];
   // 插件字幕里的语法下划线（颜色、线型同插件 content.css）
   const MARKS = [["pa", "solid #5BB0FF 2px", "I {worked} late."], ["pf", "double #35D0BA 2px", "I {have finished}."], ["pg", "wavy #8EE05A 2px", "She {is reading}."], ["md", "dashed #FF8FC7 2px", "You {should} go."], ["pv", "solid #FF7A59 3.5px", "It {was built} in 1990."], ["s3", "dotted #5BB0FF 2.5px", "He {works} here."], ["pl", "dotted #B0B7C0 2.5px", "two {books}"], ["art", "dotted #E8D36B 2.5px", "{a} cat, {the} sun"], ["cmp", "dashed #C9A0FF 2px", "{bigger}, {the best}"], ["neg", "", "I {don't} know."]];
-  let root = null, sec = LG("grammar:sec", "all"), q = "", open = new Set(), loaded = false;
+  let root = null, sec = LG("grammar:sec", "all"), q = "", loaded = false;
   const CSS = `
   #grammar{display:none;max-width:1200px;margin:0 auto;padding:6px 0 40px}#grammar.on{display:block}
   .gr-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
@@ -30,17 +30,10 @@
   .gr-chips button b{margin-left:5px;font-weight:600;color:var(--ui-muted)}.gr-chips button.on{background:var(--ui-pur);border-color:var(--ui-pur);color:#fff}.gr-chips button.on b{color:#fff}
   .gr-sec{margin:18px 0 8px;font-size:16px;font-weight:800;color:var(--ui-ink)}.gr-sec small{margin-left:8px;font-weight:500;color:var(--ui-muted);font-size:12.5px}
   .gr-list{display:grid;grid-template-columns:1fr;gap:10px}@media(min-width:1024px){.gr-list{grid-template-columns:1fr 1fr}}
-  .gr-it{background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:14px;overflow:hidden}
-  .gr-h{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer}.gr-h:hover{background:var(--ui-surface-2)}
-  .gr-h .t{flex:1 1 auto;min-width:0}.gr-h b{display:block;color:var(--ui-ink);font-size:15px}.gr-h span{display:block;color:var(--ui-muted);font-size:13px;margin-top:2px}
-  .gr-h i{font-style:normal;color:var(--ui-muted);transition:transform .15s}.gr-it.open .gr-h i{transform:rotate(90deg)}
-  .gr-b{display:none;padding:2px 14px 14px;border-top:1px solid var(--ui-line)}.gr-it.open .gr-b{display:block}
-  .gr-tb{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}.gr-tb td{padding:6px 8px;border-bottom:1px solid var(--ui-line);vertical-align:top;color:var(--ui-ink-2)}.gr-tb td:first-child{color:var(--ui-ink);font-weight:600;white-space:nowrap}.gr-tb td.m{color:var(--ui-pur-text);white-space:nowrap;font-size:12.5px}
-  @media(max-width:600px){.gr-tb td:first-child{white-space:normal}}
-  .gr-lab{margin:12px 0 4px;font-size:12px;font-weight:700;color:var(--ui-muted);letter-spacing:.05em}
-  .gr-ex{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14.5px;color:var(--ui-ink)}.gr-ex em{font-style:normal;color:var(--ui-orange);font-weight:700}.gr-ex small{display:block;color:var(--ui-muted);font-size:13px}
-  .gr-say{flex:0 0 auto;border:0;background:var(--ui-surface-2);color:var(--ui-ink-2);border-radius:8px;width:28px;height:28px;cursor:pointer}
-  .gr-tip{margin-top:10px;padding:8px 12px;border-radius:10px;background:var(--ui-pur-soft);color:var(--ui-ink-2);font-size:13.5px}
+  .gr-it{display:flex;align-items:center;gap:12px;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:14px;padding:13px 16px;cursor:pointer;transition:border-color .15s,background .15s}
+  .gr-it:hover{border-color:var(--ui-pur);background:var(--ui-surface-2)}.gr-it .t{flex:1 1 auto;min-width:0}.gr-it b{display:block;color:var(--ui-ink);font-size:15.5px}.gr-it span{display:block;color:var(--ui-ink-2);font-size:13.5px;margin-top:3px}
+  .gr-it .pv{margin:7px 0 0;color:var(--ui-muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gr-it .n{margin:5px 0 0;color:var(--ui-pur-text);font-size:12px}
+  .gr-it>i{font-style:normal;font-size:22px;color:var(--ui-muted)}.gr-it:hover>i{color:var(--ui-pur-text)}
   .gr-mk{display:grid;grid-template-columns:1fr;gap:8px}@media(min-width:1024px){.gr-mk{grid-template-columns:1fr 1fr}}
   .gr-mk div{display:flex;gap:12px;align-items:center;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--ui-ink-2)}.gr-mk b{min-width:96px;color:var(--ui-ink)}.gr-mk u{text-underline-offset:4px;color:var(--ui-ink)}
   .gr-empty{color:var(--ui-muted);text-align:center;padding:40px 0}`;
@@ -49,24 +42,22 @@
     if (loaded) return Promise.resolve(); loaded = true;
     return Promise.all(["vs/pattern.js", "vs/gram.js"].map(src => window.VS_PAT_LIST && /pattern/.test(src) || window.VS_GRAM_NAME && /gram/.test(src) ? null : new Promise(res => { const s = document.createElement("script"); s.src = src + "?v=" + Date.now().toString(36).slice(0, -4); s.onload = s.onerror = res; document.head.append(s); }))).then(() => draw());
   }
-  const hl = s => esc(String(s)).replace(/\{([^}]+)\}/g, "<em>$1</em>");
-  const enOf = s => String(s).replace(/[{}]/g, "").split(/[一-鿿（(]/)[0].trim(); // 例句里英文部分（句型例句后面带中文）
-  function items() { // 每栏的条目：{ key, title, sub, rows, ex:[[en, zh]], tip, text(搜索用) }
+    const enOf = s => String(s).replace(/[{}]/g, "").split(/[一-鿿（(]/)[0].trim(); // 例句里英文部分（句型例句后面带中文）
+  function items() { // 每栏的条目：查看页格式（reader.js 的 readerFromWord / readerFromPat）+ text（搜索用）
     const W = (typeof words !== "undefined" ? words : []).filter(w => w.type === "pattern");
     const out = {};
     SECTIONS.forEach(s => {
-      if (s.tags) out[s.k] = W.filter(w => s.tags.includes(w.tag)).map(w => ({ key: "w:" + w.id, title: w.word, sub: w.zh, rows: (w.forms || []).map(f => [f[0], f[1], f[2]]), ex: (w.examples || []).filter(x => x && x[0]), tip: w.tip }));
-      else if (s.src === "pat") out[s.k] = (window.VS_PAT_LIST || []).map(p => ({ key: "p:" + p.id, title: p.name, sub: p.zh, rows: [], ex: p.ex ? [[p.ex.replace(/([.?!])\s*([一-鿿])/, "$1\n$2").split("\n")[0], (p.ex.match(/[.?!]\s*([一-鿿].*)$/) || [])[1] || ""]] : [], tip: p.tip }));
+      if (s.tags) out[s.k] = W.filter(w => s.tags.includes(w.tag)).map(window.readerFromWord);
+      else if (s.src === "pat") out[s.k] = (window.VS_PAT_LIST || []).map(window.readerFromPat);
     });
     Object.values(out).forEach(L => L.forEach(x => (x.text = [x.title, x.sub, x.tip].concat(x.rows.flat(), x.ex.flat()).join(" ").toLowerCase())));
     return out;
   }
+  // 卡片：标题、中文、对照表前几行预览；点开进全屏查看页（reader.js），在那里看完整的对照表、配图、例句
   function card(x) {
-    const o = open.has(x.key) || !!q;
-    return '<div class="gr-it' + (o ? " open" : "") + '" data-k="' + esc(x.key) + '"><div class="gr-h"><div class="t"><b>' + esc(x.title) + "</b><span>" + esc(x.sub || "") + '</span></div><i>›</i></div><div class="gr-b">' +
-      (x.rows.length ? '<table class="gr-tb">' + x.rows.map(r => "<tr><td>" + esc(r[0]) + "</td>" + (r[1] && r[1] !== "→" ? '<td class="m">' + esc(r[1]) + "</td>" : "") + "<td" + (r[1] && r[1] !== "→" ? "" : ' colspan="2"') + ">" + esc(r[2] || "") + "</td></tr>").join("") + "</table>" : "") +
-      (x.ex.length ? '<div class="gr-lab">例句</div>' + x.ex.map(e => '<div class="gr-ex"><button class="gr-say" data-say="' + esc(enOf(e[0])) + '" title="朗读">🔊</button><div>' + hl(e[0]) + (e[1] ? "<small>" + esc(e[1]) + "</small>" : "") + "</div></div>").join("") : "") +
-      (x.tip ? '<div class="gr-tip">💡 ' + esc(x.tip) + "</div>" : "") + "</div></div>";
+    const pv = x.rows.length ? x.rows.slice(0, 4).map(r => String(r[0]).replace(/[{}]/g, "")).join(" · ") : x.ex.length ? enOf(x.ex[0][0]) : "";
+    const n = [x.rows.length ? x.rows.length + " 行" : "", x.ex.length ? x.ex.length + " 例句" : "", x.rows.some(r => r[3]) || x.cover ? "🖼 配图" : ""].filter(Boolean).join(" · ");
+    return '<div class="gr-it" data-k="' + esc(x.key) + '"><div class="t"><b>' + esc(x.title) + "</b><span>" + esc(x.sub || "") + "</span>" + (pv ? '<p class="pv">' + esc(pv) + "</p>" : "") + (n ? '<p class="n">' + n + "</p>" : "") + '</div><i>›</i></div>';
   }
   function draw() {
     if (!root) return;
@@ -89,8 +80,10 @@
     const st = document.createElement("style"); st.textContent = CSS; document.head.append(st);
     root.addEventListener("click", e => {
       const ch = e.target.closest(".gr-chips button"); if (ch) { sec = ch.dataset.s; LS("grammar:sec", sec); draw(); return; }
-      const sy = e.target.closest(".gr-say"); if (sy) { e.stopPropagation(); try { speak(sy.dataset.say); } catch (er) {} return; }
-      const h = e.target.closest(".gr-h"); if (h) { const it = h.parentNode, k = it.dataset.k; if (open.has(k)) open.delete(k); else open.add(k); it.classList.toggle("open"); }
+      const it = e.target.closest(".gr-it"); if (!it || !window.openReader) return;
+      const by = {}; Object.values(items()).flat().forEach(x => (by[x.key] = x)); // 换条的顺序 = 页面上看到的顺序（当前栏目 / 搜索结果）
+      const keys = [...root.querySelectorAll(".gr-it")].map(n => n.dataset.k), L = keys.map(k => by[k]).filter(Boolean);
+      window.openReader(L, keys.indexOf(it.dataset.k));
     });
     root.addEventListener("input", e => { if (e.target.id !== "gr-q") return; q = e.target.value; const pos = e.target.selectionStart; draw(); const n = root.querySelector("#gr-q"); n.focus(); n.setSelectionRange(pos, pos); });
   }
