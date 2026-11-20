@@ -1711,7 +1711,7 @@ refresh(); // show seed words immediately, no waiting on storage
   function rd(key){try{var v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v:[];}catch(e){return [];}}
   function seen(k){try{return JSON.parse(localStorage.getItem("mine:seen:"+k)||"{}")||{};}catch(e){return {};}}
   function setSeen(k,o){quiet=true;try{localStorage.setItem("mine:seen:"+k,JSON.stringify(o));}catch(e){}quiet=false;}
-  function post(k,ch){if(!Object.keys(ch).length)return;var sn=seen(k);for(var id in ch)sn[id]=ch[id].at;setSeen(k,sn);
+  function post(k,ch){if(!Object.keys(ch).length)return;var sn=seen(k);for(var id in ch){ch[id].at=Math.max(ch[id].at,(+sn[id]||0)+1);sn[id]=ch[id].at;}setSeen(k,sn);
     fetch("/api/mine",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({k:k,changes:ch})}).catch(function(){});}
   function push(key,before,after){var c=KS[key],B={},A={},ch={},now=Date.now();
     before.forEach(function(x){if(x&&c.id(x))B[c.id(x)]=JSON.stringify(x);});
