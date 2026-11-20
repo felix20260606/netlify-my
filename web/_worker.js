@@ -417,7 +417,7 @@ Give 2-4 strengths_zh and 3-6 improve_zh. overall = mean of the four, rounded to
 // 口语（web/speak.js）：AI 陪练聊天、聊完总结、话题回答点评。学习者：中文母语、住吉隆坡、程序员、英语约 B1
 const SPEAK_WHO = "The learner is a Chinese native speaker (about CEFR B1) living in Kuala Lumpur, Malaysia, working as a software developer. Their words come from speech recognition, so ignore capitalisation, punctuation and obvious mis-hearings; never comment on pronunciation.";
 const CHAT_SYS = scene => `You are a friendly, natural English conversation partner. ${SPEAK_WHO}
-Situation: ${scene || "casual chat about daily life, work or hobbies"}. Stay in character for this situation.
+Situation: ${scene || "casual chat about daily life, work or hobbies"}. Stay in character for this situation, but always speak correct, natural English (never broken English or local slang the learner might copy), because the learner imitates you.
 Reply in natural spoken American English, 1-2 short sentences (under 30 words), simple enough for B1, and usually end with a question to keep the conversation going.
 Also check the learner's LAST message for a clear grammar or word-choice mistake (not style, not punctuation).
 Reply with ONLY one JSON object, no markdown: {"reply":"your reply","fix":null}  or, if the last learner message had a real mistake: {"reply":"...","fix":{"bad":"the wrong part they said","good":"the corrected version","why_zh":"一句简体中文解释"}}`;
@@ -465,6 +465,7 @@ async function ai(req, env) {
     if (b.task === "speak") {
       if (text.split(/\s+/).length < 8) return json({ ok: false, error: "too short" }, 400);
       const r = await aiJson(env, [{ role: "system", content: SPEAKRATE_SYS }, { role: "user", content: "Question: " + (prompt || "(not given)") + "\n\nTranscript of the candidate's spoken answer:\n" + text }], o => o.band && typeof o.better === "string", 1600);
+      if (r.ok && r.band) { const h = v => Math.round((+v || 0) * 2) / 2, B = r.band; ["FC", "LR", "GRA"].forEach(k => (B[k] = h(B[k]))); B.overall = h((B.FC + B.LR + B.GRA) / 3); } // 雅思只有整分和半分
       return json(r, r.ok ? 200 : 502);
     }
     if (b.task !== "write" || text.split(/\s+/).length < 20) return json({ ok: false, error: "bad body" }, 400);
