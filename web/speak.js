@@ -397,5 +397,7 @@
   }
   window.speakShow = () => { init(); if (!root) return; draw(); if (!D) loadData().then(draw); };
   window.speakHide = () => { if (root) { stopAll(); } };
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+  // 直达链接（?go=speak）或上次停在口语页：切换标签的代码比本文件先跑，那时还没有 speakShow，这里补画一次
+  const boot = () => { init(); if (document.documentElement.classList.contains("show-speak")) window.speakShow(); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
 })();
