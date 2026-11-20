@@ -4,6 +4,8 @@
    - 顶部：词数、预计阅读时间、生词率（不在生词本、且比设定水平难的词的占比）、按词频分的水平分布条
    - 每句末尾 🔊 读整句，点句子左侧的小圆点也行；「全文朗读」逐句读并高亮当前句，可以停止
    - 我的文章：最近读过的存在本机 localStorage「reading:docs」（最多 20 篇，{id, title, text, at, pos}，pos = 读到第几句）
+   - 译文：阅读栏「译文」按钮显示 / 隐藏每段下面的中文（记在本机「reading:trOn」）；按段翻译（浏览器直接调谷歌翻译，失败退到 MyMemory），
+     译好的存在本机「reading:tr」（{文章 id: {段号: 中文, t: 标题中文}}，只留「我的文章」里还在的），再打开不用重新翻
    依赖 index.html 的全局：words / speak / toast；生词本加词用 window.vocabAddWord(word, sentence)
    依赖后台：GET /api/readurl?url=… → {ok, title, text}；GET /api/dict?w=… → {ok, word, phon, zh, en, examples:[[en, zh]]}；
             GET /api/ext（只读，取插件设置里的词汇水平，和 watch.js 同一个接口） */
@@ -169,6 +171,11 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
   .ra-sm{display:inline-flex;align-items:center;justify-content:center;width:18px;height:1em;vertical-align:-.08em;cursor:pointer}
   .ra-sm::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ui-line-2);transition:background .15s}.ra-sm:hover::before,.ra-s.cur .ra-sm::before{background:var(--ui-pur-text)}
   .ra-ss{border:0;background:none;padding:0 3px;margin:0;font-size:.62em;line-height:1;vertical-align:.12em;cursor:pointer;opacity:.5;color:inherit}.ra-ss:hover{opacity:1}
+  .ra-tr{display:none;margin:-.55em 0 1.2em;padding:8px 12px;border-left:3px solid var(--ui-pur-soft,rgba(156,63,208,.35));background:var(--ui-surface);border-radius:0 10px 10px 0;color:var(--ui-ink-2);font-family:var(--ui-font);font-size:15.5px;line-height:1.75}
+  .ra-tr.ld{color:var(--ui-muted);font-size:14px}.ra-tr.err{color:var(--ui-muted);font-size:13.5px;cursor:pointer}
+  .ra-ttr{display:none;margin:-4px 0 12px;color:var(--ui-ink-2);font-size:16px}
+  #reading.tr-on .ra-tr,#reading.tr-on .ra-ttr{display:block}
+  #reading .ui-btn[data-a="tr"].on{background:var(--ui-pur-soft,rgba(156,63,208,.22));border-color:var(--ui-pur);color:var(--ui-pur-text)}
   .ra-end{margin-top:26px;display:flex;justify-content:center}
   #ra-fab{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:60;display:none;border:0;border-radius:999px;height:44px;padding:0 18px;background:var(--ui-pur);color:#fff;font:inherit;font-size:15px;font-weight:700;box-shadow:var(--ui-shadow);cursor:pointer}#ra-fab.on{display:block}
   /* 单词：和视频字幕同一套颜色、下划线（watch.js 的 VS_CSS 只作用于视频页和练习页，这里照抄一份给阅读页） */
@@ -198,6 +205,49 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
 
   let quiet = 0, root = null, view = "home", doc = null, P = { paras: [], sents: [] }, draft = "", urlDraft = "", msg = "", msgOk = false, fetching = false;
   let lvSel = String(LG("reading:lv", "auto")), PS = {}, vsP = null, vsDone = false;
+
+  /* ---------- 译文：按段翻译，显示 / 隐藏 ---------- */
+  let trOn = !!LG("reading:trOn", true), trBusy = 0;
+  const TRK = "reading:tr", trAll = () => { const o = LG(TRK, {}); return o && typeof o === "object" ? o : {}; };
+  function trGet(id) { return trAll()[id] || {}; }
+  function trPut(id, k, v) { // 只留「我的文章」里还在的几篇，免得本机存储越积越多
+    const o = trAll(), keep = new Set(docs().map(d => d.id)); keep.add(id);
+    for (const x in o) if (!keep.has(x)) delete o[x];
+    (o[id] = o[id] || {})[k] = v; if (!LS(TRK, o)) { const n = {}; n[id] = o[id]; LS(TRK, n); }
+  }
+  async function gtx(q) { // 谷歌翻译（浏览器直接调，和生词本加词同一个入口）
+    const r = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=" + encodeURIComponent(q));
+    if (!r.ok) throw new Error("g" + r.status); const j = await r.json();
+    const t = (j[0] || []).map(x => x[0] || "").join(""); if (!t) throw new Error("empty"); return t;
+  }
+  async function mym(q) { // 备用：MyMemory（每次最多 500 个字）
+    const r = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(q.slice(0, 480)) + "&langpair=en|zh-CN");
+    const j = r.ok && (await r.json()), t = j && j.responseData && j.responseData.translatedText; if (!t || /MYMEMORY WARNING/i.test(t)) throw new Error("mm"); return t;
+  }
+  async function translate(sents) { // 一段（几句）→ 中文；太长的段按句子拆成 1500 字以内几块翻
+    const parts = []; let cur = "";
+    sents.forEach(x => { if (cur && (cur + " " + x).length > 1500) { parts.push(cur); cur = x; } else cur = cur ? cur + " " + x : x; }); if (cur) parts.push(cur);
+    const out = [];
+    for (const q of parts) { try { out.push(await gtx(q)); } catch (e) { const ss = q.match(/[^.!?…]+[.!?…]*["'”’)\]]*\s*/g) || [q], z = []; for (const x of ss) z.push(await mym(x.trim())); out.push(z.join("")); } }
+    return out.join("");
+  }
+  // 把当前文章没翻的段翻出来（两段同时翻），翻好一段填一段
+  function fillTr() {
+    if (!trOn || !doc || !root || view !== "read") return;
+    const id = doc.id, have = trGet(id), my = ++trBusy;
+    const jobs = [...root.querySelectorAll(".ra-tr[data-p], .ra-ttr")].filter(el => have[el.dataset.p] == null && !el.dataset.busy);
+    const run = async () => {
+      while (jobs.length && my === trBusy && doc && doc.id === id) {
+        const el = jobs.shift(), k = el.dataset.p; el.dataset.busy = "1";
+        const src = k === "t" ? [doc.title] : (P.paras[+k] || []).map(i => P.sents[i]);
+        try { const t = await translate(src); trPut(id, k, t); if (el.isConnected) { el.textContent = t; el.className = el.className.replace(/\s*(ld|err)\b/g, ""); } else { const n = root.querySelector('[data-p="' + k + '"]'); if (n) { n.textContent = t; n.classList.remove("ld", "err"); } } }
+        catch (e) { const n = el.isConnected ? el : root.querySelector('[data-p="' + k + '"]'); if (n) { n.textContent = "翻译没取到，点这里重试"; n.classList.remove("ld"); n.classList.add("err"); } }
+        delete el.dataset.busy;
+      }
+    };
+    run(); run();
+  }
+  function trHtml(k, cls) { const t = doc ? trGet(doc.id)[k] : null; return '<div class="' + cls + (t == null ? " ld" : "") + '" data-p="' + k + '">' + (t == null ? "翻译中…" : esc(t)) + "</div>"; }
 
   /* ---------- 生词本状态（words：已掌握 known / 在学 learning） ---------- */
   let book = new Map();
@@ -335,12 +385,13 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
   }
   function drawRead() {
     const skip0 = P.paras.length > 1 && P.paras[0].map(i => P.sents[i]).join(" ") === doc.title; // 第一段就是标题：不重复显示
-    const body = P.paras.map((p, pi) => pi === 0 && skip0 ? "" : "<p>" + p.map(i => '<span class="ra-s" data-i="' + i + '"><b class="ra-sm" data-si="' + i + '" title="朗读这句"></b>' + sentHtml(P.sents[i]) + ' <button class="ra-ss" data-si="' + i + '" title="朗读这句" aria-label="朗读这句">🔊</button></span> ').join("") + "</p>").join("");
-    root.innerHTML = '<div class="ra-bar"><button class="ui-btn" data-a="home">← 文章列表</button><span class="sp"></span><button class="ui-btn pri" data-a="all">' + (tts ? "⏹ 停止朗读" : "▶ 全文朗读") + "</button></div>" +
-      '<h1 class="ra-title">' + esc(doc.title) + '</h1><div class="ra-stats" id="ra-stats">' + statsHtml() + "</div>" +
+    const body = P.paras.map((p, pi) => pi === 0 && skip0 ? "" : "<p>" + p.map(i => '<span class="ra-s" data-i="' + i + '"><b class="ra-sm" data-si="' + i + '" title="朗读这句"></b>' + sentHtml(P.sents[i]) + ' <button class="ra-ss" data-si="' + i + '" title="朗读这句" aria-label="朗读这句">🔊</button></span> ').join("") + "</p>" + trHtml(pi, "ra-tr")).join("");
+    root.classList.toggle("tr-on", trOn);
+    root.innerHTML = '<div class="ra-bar"><button class="ui-btn" data-a="home">← 文章列表</button><span class="sp"></span><button class="ui-btn' + (trOn ? " on" : "") + '" data-a="tr" title="显示 / 隐藏每段的中文译文">文 译文' + (trOn ? "：显示" : "：隐藏") + '</button><button class="ui-btn pri" data-a="all">' + (tts ? "⏹ 停止朗读" : "▶ 全文朗读") + "</button></div>" +
+      '<h1 class="ra-title">' + esc(doc.title) + "</h1>" + trHtml("t", "ra-ttr") + '<div class="ra-stats" id="ra-stats">' + statsHtml() + "</div>" +
       '<div class="ra-body" id="ra-body">' + body + '</div><div class="ra-end"><button class="ui-btn" data-a="home">读完了，回到文章列表</button></div>' +
       '<button id="ra-fab" data-a="all">⏹ 停止朗读</button>';
-    syncTts();
+    syncTts(); fillTr();
   }
   function draw() { if (!root) return; if (view === "read" && doc) drawRead(); else { view = "home"; drawHome(); } }
 
@@ -459,6 +510,7 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
       const t = e.target;
       const w = t.closest("[data-w]"); if (w) { e.stopPropagation(); const s = w.closest(".ra-s"); openPop(w.dataset.w, w, s ? +s.dataset.i : w.dataset.si != null ? +w.dataset.si : null); return; }
       const sm = t.closest("[data-si]"); if (sm) { sayOne(+sm.dataset.si); return; }
+      if (t.closest(".ra-tr.err, .ra-ttr.err")) { const n = t.closest(".err"); n.textContent = "翻译中…"; n.classList.remove("err"); n.classList.add("ld"); fillTr(); return; }
       const b = t.closest("[data-a]"); if (!b) return; const a = b.dataset.a;
       if (a === "del") { e.stopPropagation(); const L = docs(), d = L.find(x => x.id === b.dataset.id); if (!d || !confirm("删除「" + (d.title || "这篇文章") + "」？只删这台设备上的记录。")) return; saveDocs(L.filter(x => x.id !== d.id)); if (doc && doc.id === d.id) doc = null; draw(); return; }
       if (a === "open") { const d = docs().find(x => x.id === b.dataset.id); if (d) openDoc(d.text, d.title, d.id); return; }
@@ -472,6 +524,7 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
       }
       if (a === "home") { stopAll(); closePop(); view = "home"; draw(); try { root.scrollIntoView({ block: "start" }); } catch (er) {} return; }
       if (a === "all") { if (tts) stopAll(); else readAll(firstVisible()); }
+      if (a === "tr") { trOn = !trOn; LS("reading:trOn", trOn); root.classList.toggle("tr-on", trOn); b.classList.toggle("on", trOn); b.textContent = "文 译文" + (trOn ? "：显示" : "：隐藏"); fillTr(); }
     });
     root.addEventListener("input", e => { if (e.target.id === "ra-text") draft = e.target.value; else if (e.target.id === "ra-url") urlDraft = e.target.value; });
     root.addEventListener("keydown", e => { if (e.target.id === "ra-url" && e.key === "Enter") { e.preventDefault(); urlDraft = e.target.value; fromUrl(urlDraft); } });

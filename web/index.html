@@ -18,7 +18,7 @@
     return of.call(this,u,o);
   };
   if(navigator.sendBeacon){var ob=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=function(u,d){try{var x=new URL(String(u),location.href);if(x.origin===location.origin&&API.test(x.pathname)){x.searchParams.set("u",id);u=x.pathname+x.search;}}catch(e){}return ob(u,d);};}
-  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|pump:log|wt:meta|reading:docs|reading:lv|writing:draft|writing:history|writing:lang|vocab:test|remind:time)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
+  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|pump:log|wt:meta|reading:docs|reading:tr|reading:lv|writing:draft|writing:history|writing:lang|vocab:test|remind:time)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
   var k=function(t,key){var ls=null;try{ls=window.localStorage;}catch(e){}return t===ls&&MINE.test(String(key))?key+"@"+id:key;};
   S.getItem=function(key){return g.call(this,k(this,key));};
   S.setItem=function(key,v){return st.call(this,k(this,key),v);};
