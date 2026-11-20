@@ -12,13 +12,13 @@
   if(!/^[a-z0-9]{1,12}$/.test(id))id="";
   window.VU=id;
   if(!id)return;
-  var API=/^\/api\/(vocab|ext|media)$/,of=window.fetch;
+  var API=/^\/api\/(vocab|ext|media|mine)$/,of=window.fetch;
   window.fetch=function(u,o){
     try{if(typeof u==="string"||u instanceof URL){var x=new URL(String(u),location.href);if(x.origin===location.origin&&API.test(x.pathname)){x.searchParams.set("u",id);u=x.pathname+x.search;}}}catch(e){}
     return of.call(this,u,o);
   };
   if(navigator.sendBeacon){var ob=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=function(u,d){try{var x=new URL(String(u),location.href);if(x.origin===location.origin&&API.test(x.pathname)){x.searchParams.set("u",id);u=x.pathname+x.search;}}catch(e){}return ob(u,d);};}
-  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|pump:log|wt:meta|reading:docs|reading:tr|reading:lv|writing:draft|writing:history|writing:lang|vocab:test|remind:time)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
+  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|pump:log|wt:meta|reading:docs|reading:tr|reading:lv|writing:draft|writing:history|writing:lang|vocab:test|remind:time|mine:seen:reading|mine:seen:writing|mine:seen:vtest)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
   var k=function(t,key){var ls=null;try{ls=window.localStorage;}catch(e){}return t===ls&&MINE.test(String(key))?key+"@"+id:key;};
   S.getItem=function(key){return g.call(this,k(this,key));};
   S.setItem=function(key,v){return st.call(this,k(this,key),v);};
@@ -1698,9 +1698,53 @@ refresh(); // show seed words immediately, no waiting on storage
 <script src="watch.js?v=13"></script>
 <script src="channels.js?v=3"></script>
 <script src="pump.js?v=25"></script>
-<script src="read.js?v=2"></script>
+<script src="read.js?v=4"></script>
 <script src="write.js?v=1"></script>
 <script src="stats.js?v=1"></script>
+<script>
+/* 个人学习资料换设备也在：阅读的文章（reading:docs）、作文批改历史（writing:history）、词汇量测试（vocab:test）
+   这三页照旧存本机；这里在本机存储这一层盯着：哪一条变了就传到后台 /api/mine（按人分开），删掉的传删除记号；
+   打开网站、切到这几页时把后台的合进来（别的设备新加 / 改过 / 删掉的）。mine:seen:* 记着上次见到的后台版本时间 */
+(function(){
+  var KS={"reading:docs":{k:"reading",max:20,id:function(x){return x.id;}},"writing:history":{k:"writing",max:30,id:function(x){return x.id;}},"vocab:test":{k:"vtest",max:10,id:function(x){return String(x.at);}}};
+  var S=Storage.prototype,set0=S.setItem,quiet=false;
+  function rd(key){try{var v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v:[];}catch(e){return [];}}
+  function seen(k){try{return JSON.parse(localStorage.getItem("mine:seen:"+k)||"{}")||{};}catch(e){return {};}}
+  function setSeen(k,o){quiet=true;try{localStorage.setItem("mine:seen:"+k,JSON.stringify(o));}catch(e){}quiet=false;}
+  function post(k,ch){if(!Object.keys(ch).length)return;var sn=seen(k);for(var id in ch)sn[id]=ch[id].at;setSeen(k,sn);
+    fetch("/api/mine",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({k:k,changes:ch})}).catch(function(){});}
+  function push(key,before,after){var c=KS[key],B={},A={},ch={},now=Date.now();
+    before.forEach(function(x){if(x&&c.id(x))B[c.id(x)]=JSON.stringify(x);});
+    after.forEach(function(x){if(x&&c.id(x)){A[c.id(x)]=1;if(B[c.id(x)]!==JSON.stringify(x))ch[c.id(x)]={v:x,at:now};}});
+    for(var id in B)if(!A[id])ch[id]={del:1,at:now};
+    post(c.k,ch);}
+  S.setItem=function(key,v){var c=!quiet&&KS[key];var ls=null;try{ls=window.localStorage;}catch(e){}if(this!==ls)c=null;var before=c?rd(key):null;var r=set0.apply(this,arguments);if(c)push(key,before,rd(key));return r;};
+  var busy={};
+  window.mineSyncPull=function(key){var c=KS[key];if(!c||busy[key])return Promise.resolve(false);busy[key]=1;
+    return fetch("/api/mine?k="+c.k,{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
+      if(!j||!j.ok)return false;var R=j.items||{},sn=seen(c.k),L=rd(key),byId={},changed=false,up={};
+      L.forEach(function(x){if(x&&c.id(x))byId[c.id(x)]=x;});
+      for(var id in R){var r=R[id];var known=+sn[id]||0;
+        if(r.del){if(byId[id]&&r.at>known){delete byId[id];changed=true;}}
+        else if(!byId[id]){if(r.at>known||!sn[id]){byId[id]=r.v;changed=true;}}
+        else if(r.at>known&&JSON.stringify(byId[id])!==JSON.stringify(r.v)){byId[id]=r.v;changed=true;}
+        sn[id]=Math.max(known,+r.at||0);}
+      for(var id2 in byId)if(!R[id2]&&!sn[id2])up[id2]={v:byId[id2],at:Date.now()}; // 这台设备上从没传过的：补传
+      setSeen(c.k,sn);post(c.k,up);
+      if(changed){var M=Object.keys(byId).map(function(i){return byId[i];}).sort(function(a,b){return (+b.at||0)-(+a.at||0);}).slice(0,c.max);
+        quiet=true;try{localStorage.setItem(key,JSON.stringify(M));}catch(e){}quiet=false;}
+      return changed;}).catch(function(){return false;}).then(function(ch){busy[key]=0;return ch;});};
+  function redraw(key){
+    if(key==="reading:docs"&&window.readingRefresh&&document.getElementById("reading").classList.contains("on"))readingRefresh();
+    if(key==="vocab:test"&&window.statsRefresh)statsRefresh();
+    var wv=document.getElementById("ielts-write-view");if(key==="writing:history"&&wv&&wv.dataset.on&&window.writingShow)writingShow(wv);}
+  function pullAll(){Object.keys(KS).forEach(function(key){window.mineSyncPull(key).then(function(ch){if(ch)redraw(key);});});}
+  window.addEventListener("load",function(){setTimeout(pullAll,1500);
+    if(/^#article\//.test(location.hash)){var l1=document.getElementById("l1-en"),nb=document.getElementById("tab-notebook"),rb=document.querySelector('.modes button[data-mode="reading"]');if(l1)l1.click();if(nb)nb.click();if(rb)rb.click();} // 阅读文章的直达链接
+  });
+  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")pullAll();}); // 切回这个标签页时再拉一次
+})();
+</script>
 <script>if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceWorker.register('/sw.js').catch(function(){});} // 装到手机桌面后离线也能打开（sw.js：网络优先，断网用上次的）</script>
 <script src="export.js?v=1"></script>
 <script src="saved-web.js?v=5"></script>

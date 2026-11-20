@@ -315,6 +315,27 @@ async function sent(req, env, u) {
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
 
+// ---------- 个人的学习资料 /api/mine（按人分开，换设备也在）：阅读的文章、作文批改历史、词汇量测试 ----------
+// GET  ?k=reading|writing|vtest → { ok, items:{ id:{v, at} | {del:1, at} } }（删除记号保留 60 天）
+// POST {k, changes:{ id:{v,at}|{del:1,at} }} → 同一项以 at 新的为准，返回合并后的 { ok, items }
+const MINE_K = /^(reading|writing|vtest)$/;
+async function mine(req, env, u) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  const kv = env.CAPTIONS; if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
+  try {
+    const pre = await userPre(req, kv); if (pre === null) return noUser();
+    if (req.method === "GET") { const k = u.searchParams.get("k") || ""; if (!MINE_K.test(k)) return json({ ok: false, error: "bad k" }, 400); return json({ ok: true, items: ((await kv.get(pre + "mine:" + k, "json")) || {}).items || {} }); }
+    if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
+    const raw = await req.text(); if (raw.length > 3000000) return json({ ok: false, error: "too large" }, 413);
+    const b = JSON.parse(raw || "{}"); if (!MINE_K.test(b.k || "") || !isObj(b.changes)) return json({ ok: false, error: "bad body" }, 400);
+    const key = pre + "mine:" + b.k, cur = ((await kv.get(key, "json")) || {}).items || {}, now = Date.now(); let changed = false;
+    for (const id in b.changes) { const x = b.changes[id]; if (!isObj(x) || !(+x.at) || String(id).length > 200) continue; if (!cur[id] || +x.at > +cur[id].at) { cur[id] = x.del ? { del: 1, at: +x.at } : { v: x.v, at: +x.at }; changed = true; } }
+    for (const id in cur) if (cur[id].del && now - cur[id].at > 60 * 86400e3) { delete cur[id]; changed = true; }
+    if (changed) { const out = JSON.stringify({ items: cur }); if (out.length > 20000000) return json({ ok: false, error: "too large" }, 413); await kv.put(key, out); }
+    return json({ ok: true, items: cur });
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
+
 // ---------- 查词 /api/dict?w=单词或短语 ----------
 // → { ok, word, phon, audio, zh 常用中文, zhs:[{pos, terms}], en:[{pos, def, ex}], examples:[[英, 中]] }，大家共用，KV 缓存 30 天（"d/词"）
 // 来源都是免费的：中文 = 谷歌翻译（插件同款接口），音标 / 英文释义 / 发音 = dictionaryapi.dev，例句 = Tatoeba（同 /api/sent）
@@ -440,6 +461,7 @@ export default {
     if (u.pathname === MEDIA_PATH) return media(req, env);
     if (u.pathname === SENT_PATH) return sent(req, env, u);
     if (u.pathname === "/api/dict") return dict(req, env, u);
+    if (u.pathname === "/api/mine") return mine(req, env, u);
     if (u.pathname === "/api/readurl") return readurl(req, env, u);
     if (u.pathname === "/api/ai") return ai(req, env);
     if (u.pathname === "/api/stt") return stt(req, env);

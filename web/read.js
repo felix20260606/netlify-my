@@ -352,7 +352,7 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
     if (text.length > MAX_CHARS) { text = text.slice(0, MAX_CHARS); tip("文章太长，只保留前 " + MAX_CHARS / 10000 + " 万字"); }
     const old = docs().find(x => (id && x.id === id) || x.text === text);
     doc = { id: old ? old.id : id || "d" + Date.now().toString(36), title: title || (old && old.title) || titleOf(text), text, at: Date.now(), pos: old ? old.pos || 0 : 0 };
-    remember(doc); stopAll(); closePop(); view = "read"; P = parse(text); draw(); quiet = Date.now() + 1500; // 程序滚动不算「读到哪」
+    remember(doc); stopAll(); closePop(); view = "read"; P = parse(text); draw(); setHash(doc.id); quiet = Date.now() + 1500; // 程序滚动不算「读到哪」
     const at = doc.pos > 0 && root.querySelector('.ra-s[data-i="' + doc.pos + '"]');
     if (at) { at.scrollIntoView({ block: "center" }); at.classList.add("flash"); setTimeout(() => at.classList.remove("flash"), 1600); tip("从上次读到的地方继续"); }
     else try { root.scrollIntoView({ block: "start" }); } catch (e) {}
@@ -387,7 +387,7 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
     const skip0 = P.paras.length > 1 && P.paras[0].map(i => P.sents[i]).join(" ") === doc.title; // 第一段就是标题：不重复显示
     const body = P.paras.map((p, pi) => pi === 0 && skip0 ? "" : "<p>" + p.map(i => '<span class="ra-s" data-i="' + i + '"><b class="ra-sm" data-si="' + i + '" title="朗读这句"></b>' + sentHtml(P.sents[i]) + ' <button class="ra-ss" data-si="' + i + '" title="朗读这句" aria-label="朗读这句">🔊</button></span> ').join("") + "</p>" + trHtml(pi, "ra-tr")).join("");
     root.classList.toggle("tr-on", trOn);
-    root.innerHTML = '<div class="ra-bar"><button class="ui-btn" data-a="home">← 文章列表</button><span class="sp"></span><button class="ui-btn' + (trOn ? " on" : "") + '" data-a="tr" title="显示 / 隐藏每段的中文译文">文 译文' + (trOn ? "：显示" : "：隐藏") + '</button><button class="ui-btn pri" data-a="all">' + (tts ? "⏹ 停止朗读" : "▶ 全文朗读") + "</button></div>" +
+    root.innerHTML = '<div class="ra-bar"><button class="ui-btn" data-a="home">← 文章列表</button><span class="sp"></span><button class="ui-btn" data-a="link" title="复制这篇文章的直达链接">🔗 链接</button><button class="ui-btn' + (trOn ? " on" : "") + '" data-a="tr" title="显示 / 隐藏每段的中文译文">文 译文' + (trOn ? "：显示" : "：隐藏") + '</button><button class="ui-btn pri" data-a="all">' + (tts ? "⏹ 停止朗读" : "▶ 全文朗读") + "</button></div>" +
       '<h1 class="ra-title">' + esc(doc.title) + "</h1>" + trHtml("t", "ra-ttr") + '<div class="ra-stats" id="ra-stats">' + statsHtml() + "</div>" +
       '<div class="ra-body" id="ra-body">' + body + '</div><div class="ra-end"><button class="ui-btn" data-a="home">读完了，回到文章列表</button></div>' +
       '<button id="ra-fab" data-a="all">⏹ 停止朗读</button>';
@@ -522,7 +522,8 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
         if (!v) { const u = ((root.querySelector("#ra-url") || {}).value || "").trim(); if (u) { fromUrl(u); return; } }
         showMsg(""); openDoc(v); if (view === "read") draft = ""; return;
       }
-      if (a === "home") { stopAll(); closePop(); view = "home"; draw(); try { root.scrollIntoView({ block: "start" }); } catch (er) {} return; }
+      if (a === "link") { const u = location.origin + "/#article/" + encodeURIComponent(doc.id); (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => tip("已复制这篇文章的链接（换设备打开也能直接读到这篇）"), () => prompt("复制这个链接：", u)); return; }
+      if (a === "home") { stopAll(); closePop(); view = "home"; draw(); setHash(""); try { root.scrollIntoView({ block: "start" }); } catch (er) {} return; }
       if (a === "all") { if (tts) stopAll(); else readAll(firstVisible()); }
       if (a === "tr") { trOn = !trOn; LS("reading:trOn", trOn); root.classList.toggle("tr-on", trOn); b.classList.toggle("on", trOn); b.textContent = "文 译文" + (trOn ? "：显示" : "：隐藏"); fillTr(); }
     });
@@ -541,7 +542,16 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
     window.addEventListener("resize", () => placePop());
   }
 
-  window.readingShow = () => { init(); if (!root) return; loadBook(); draw(); ensureVs().then(() => redrawKeep()); }; // 先画出来（不上色），vs 模块加载完再上色
+  // 直达链接：地址 #article/文章id（文章会同步到后台，换设备也能打开）
+  function setHash(id) { try { const h = id ? "#article/" + encodeURIComponent(id) : ""; if (location.hash !== h && (id || /^#article\//.test(location.hash))) history.replaceState(null, "", location.pathname + location.search + h); } catch (e) {} }
+  async function fromHash() {
+    const m = location.hash.match(/^#article\/(.+)$/); if (!m) return false; const id = decodeURIComponent(m[1]);
+    let d = docs().find(x => x.id === id);
+    if (!d && window.mineSyncPull) { await window.mineSyncPull("reading:docs"); d = docs().find(x => x.id === id); }
+    if (d) { if (!(view === "read" && doc && doc.id === id)) openDoc(d.text, d.title, d.id); return true; }
+    tip("没找到这篇文章（可能已经删掉了）"); setHash(""); return false;
+  }
+  window.readingShow = () => { init(); if (!root) return; loadBook(); draw(); ensureVs().then(() => redrawKeep()); fromHash(); }; // 先画出来（不上色），vs 模块加载完再上色
   window.readingRefresh = () => { if (!root) return; loadBook(); if (root.classList.contains("on")) redrawKeep(); }; // 生词本变了（加词、标记已掌握）时调用
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
