@@ -8,7 +8,7 @@
   const hl = s => esc(String(s)).replace(/\{([^}]+)\}/g, "<em>$1</em>");
   const enOf = s => String(s).replace(/[{}]/g, "").split(/[一-鿿（(]/)[0].trim();
   const CSS = `
-  #rd{position:fixed;inset:0;z-index:500;background:var(--ui-bg,#1d1e21);display:none;flex-direction:column}#rd.on{display:flex}
+  #rd{position:fixed;inset:0;z-index:9500;background:var(--ui-bg,#1d1e21);display:none;flex-direction:column}#rd.on{display:flex}
   #rd .rd-top{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--ui-line,#34373d);background:var(--ui-bar,#18191c)}
   #rd .rd-top button{border:1px solid var(--ui-line-2,#454950);background:var(--ui-surface-2,#2d2f34);color:var(--ui-ink,#e6e8eb);border-radius:10px;height:34px;padding:0 12px;font:inherit;font-size:14px;cursor:pointer}
   #rd .rd-top .pos{margin-left:auto;color:var(--ui-muted,#959ca5);font-size:13px}#rd .rd-top .tag{color:var(--ui-pur-text,#C59BEF);font-size:13px;font-weight:700}
@@ -30,7 +30,7 @@
   #rd .rd-nav{flex:0 0 auto;display:flex;gap:10px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--ui-line);background:var(--ui-bar,#18191c)}
   #rd .rd-nav button{flex:1;height:44px;border-radius:12px;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);font:inherit;font-size:15px;cursor:pointer}#rd .rd-nav button:disabled{opacity:.35;cursor:default}
   #rd .rd-nav .hint{flex:0 0 auto;align-self:center;color:var(--ui-muted);font-size:12px}@media(max-width:600px){#rd .rd-nav .hint{display:none}#rd h1{font-size:23px}}
-  #rd-big{position:fixed;inset:0;z-index:510;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;cursor:zoom-out}#rd-big img{max-width:92vw;max-height:88vh;border-radius:10px}`;
+  #rd-big{position:fixed;inset:0;z-index:9600;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;cursor:zoom-out}#rd-big img{max-width:92vw;max-height:88vh;border-radius:10px}.toast{z-index:9700!important}`;
   let el = null, list = [], idx = 0, opened = false, pushed = false;
   // ---------- 维基图片（封面大图、对照表每行小图）：查一次记住 ----------
   const IMG = (() => { try { return JSON.parse(localStorage.getItem("reader:img") || "{}"); } catch (e) { return {}; } })();
