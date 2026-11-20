@@ -44,8 +44,16 @@
     return Promise.all(["vs/pattern.js", "vs/gram.js"].map(src => window.VS_PAT_LIST && /pattern/.test(src) || window.VS_GRAM_NAME && /gram/.test(src) ? null : new Promise(res => { const s = document.createElement("script"); s.src = src + "?v=" + Date.now().toString(36).slice(0, -4); s.onload = s.onerror = res; document.head.append(s); }))).then(() => draw());
   }
     const enOf = s => String(s).replace(/[{}]/g, "").split(/[一-鿿（(]/)[0].trim(); // 例句里英文部分（句型例句后面带中文）
+  // 家人（多用户）：规律是参考资料，存在主人 Ray 的生词本里；家人打开语法页时也读一份主人的规律（只读），和自己加的合在一起显示。
+  // 用 Request 对象请求：index.html 开头给 /api/vocab 自动加 ?u= 的那段只处理字符串网址，这样读到的是主人的
+  let shared = null;
+  function loadShared() {
+    if (!window.VU || shared) return; shared = [];
+    fetch(new Request("/api/vocab", { cache: "no-store" })).then(r => r.json()).then(j => { shared = ((j && j.custom) || []).filter(w => w && w.type === "pattern"); draw(); }).catch(() => { shared = null; });
+  }
   function items() { // 每栏的条目：查看页格式（reader.js 的 readerFromWord / readerFromPat）+ text（搜索用）
-    const W = (typeof words !== "undefined" ? words : []).filter(w => w.type === "pattern");
+    const own = (typeof words !== "undefined" ? words : []).filter(w => w.type === "pattern"), ids = new Set(own.map(w => w.id));
+    const W = own.concat((shared || []).filter(w => !ids.has(w.id)));
     const out = {};
     SECTIONS.forEach(s => {
       if (s.tags) out[s.k] = W.filter(w => s.tags.includes(w.tag)).map(window.readerFromWord);
@@ -88,7 +96,7 @@
     });
     root.addEventListener("input", e => { if (e.target.id !== "gr-q") return; q = e.target.value; const pos = e.target.selectionStart; draw(); const n = root.querySelector("#gr-q"); n.focus(); n.setSelectionRange(pos, pos); });
   }
-  window.grammarShow = () => { init(); if (!root) return; draw(); loadPat(); }; // 直达链接（?go=grammar）时可能比本文件的初始化先调用：先初始化
-  window.grammarRefresh = () => { if (root && root.classList.contains("on")) { draw(); loadPat(); } };
+  window.grammarShow = () => { init(); if (!root) return; draw(); loadPat(); loadShared(); }; // 直达链接（?go=grammar）时可能比本文件的初始化先调用：先初始化
+  window.grammarRefresh = () => { if (root && root.classList.contains("on")) { draw(); loadPat(); loadShared(); } };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
