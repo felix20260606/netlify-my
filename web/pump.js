@@ -326,7 +326,7 @@
       (sp.listen ? listenSet(w, sp.listen) : []).forEach((x, i) => cards.push(Object.assign({ s: { en: mark(x.en, w), zh: x.zh, orig: x.orig, src: x.src }, i, k: "listen" }, base)));
       extra();
     });
-    const RANK = { quiz: 0, gfill: 0, sugg: 1, dict: 3, shadow: 4 }; // 听写、跟读放在听完之后 cards = cards.map((c, i) => ({ c, i })).sort((a, b) => (RANK[a.c.k] ?? 2) - (RANK[b.c.k] ?? 2) || a.i - b.i).map(o => o.c); // 顺序同 PhrasePump：测验 → 建议 → 练习
+    const RANK = { quiz: 0, gfill: 0, sugg: 1, dict: 3, shadow: 4 }; cards = cards.map((c, i) => ({ c, i })).sort((a, b) => (RANK[a.c.k] ?? 2) - (RANK[b.c.k] ?? 2) || a.i - b.i).map(o => o.c); // 顺序同 PhrasePump：测验 → 建议 → 练习；我们加的听写、跟读放在听完之后
     cards.forEach((c, i) => { c.last = !cards.slice(i + 1).some(x => x.w.id === c.w.id); });
     // 名额还有剩：例句库的额外句子补满（不记进度，同 PhrasePump 的 pump）
     if (p.pump) fetch("/api/sent?pump=" + p.pump).then(r => r.json()).then(j => { if (!playing) return; (j.items || []).forEach((x, i) => cards.push({ w: { id: "pump_" + i, word: "", zh: "", pump: 1 }, s: { en: x.en, zh: x.zh, src: "tatoeba" }, i: 0, k: "listen", last: true, rev: 0 })); if (cards[at]) show(); }).catch(() => {});

@@ -378,7 +378,7 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
   const DC = new Map();
   async function dict(w) {
     const k = w.toLowerCase(); if (DC.has(k)) return DC.get(k);
-    const get = async q => { try { const r = await fetch("/api/dict?w=" + encodeURIComponent(q)); if (!r.ok) return null; const j = await r.json(); return j && j.ok ? j : null; } catch (e) { return null; } };
+    const get = async q => { try { if (window.dictGet) return await window.dictGet(q); const r = await fetch("/api/dict?w=" + encodeURIComponent(q)); if (!r.ok) return null; const j = await r.json(); return j && j.ok ? j : null; } catch (e) { return null; } }; // dictGet（index.html）：后台没拿到中文时浏览器自己补
     let j = await get(k); const l = lemma(k); if (!j && l && l !== k) j = await get(l); // 变形查不到时用原形再查一次
     if (j) DC.set(k, j); return j;
   }
