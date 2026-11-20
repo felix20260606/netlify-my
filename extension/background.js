@@ -416,9 +416,12 @@ async function extSyncOnce(force) {
 }
 // 切换生词本用户：先把当前这个人的改动传完（传不上去就不切，免得丢数据），再清掉本机属于他的已保存、标记、标签、配图、录音截图，
 // 然后从云端拉新的人的数据。插件设置（storage.sync）不清：新的人云端有设置就用他的，没有就沿用现在的设置并传上去
-async function setSiteUser(id) {
+let switchChain = Promise.resolve();
+function setSiteUser(id) { const run = () => setSiteUser1(id); const p = switchChain.then(run, run); switchChain = p.catch(() => {}); return p; } // 网站开了几个标签页时一个一个来
+async function setSiteUser1(id) {
   id = String(id || ""); if (!/^([a-z0-9]{1,12})?$/.test(id)) return { ok: false, error: "bad user" };
   await siteUserP; if (id === siteUser) return { ok: true, same: true };
+  if (id) { const L = await fetch(SITE + "/api/users").then(r => r.json()).catch(() => null); if (!L || !L.ok) return { ok: false, error: "取不到家人名单（网络问题？），没有切换" }; if (!L.users.some(x => x.id === id)) return { ok: false, error: "没有这个家人" }; }
   const r = await extSync(true); if (!r || !r.ok) return { ok: false, error: "当前用户的数据没传完（网络问题？），没有切换" };
   await cloudChain.catch(() => {});
   const q = (await chrome.storage.local.get({ srsQueue: null })).srsQueue;

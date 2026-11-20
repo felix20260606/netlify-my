@@ -58,6 +58,8 @@ const fs = require("fs"), vm = require("vm"), path = require("path");
   ok(local.marks && local.marks.skipme === "ignore" && !local.saved.includes("skipme"), "ignored word not re-added");
   ok(local["med:w:owner"] && local["med:w:owner"].t === "owner clip", "owner media downloaded again");
   ok(!extOf("ext")["saved|skipme"], "owner cloud not polluted");
+  // 名单里没有的人不切
+  r = await T.setSiteUser("u7"); ok(!r.ok && local.siteUser === "", "unknown user refused " + JSON.stringify(r));
   // 网络断了不切
   const f0 = ctx.fetch; ctx.fetch = async () => { throw new Error("offline"); };
   await ctx.chrome.storage.local.set({ saved: [...local.saved, "offline1"] });

@@ -1,7 +1,15 @@
 // 在生词本网站上运行：告诉网页「这台电脑装了插件」、插件的 ID 和插件同步的是哪个家人（data-ban-user，空 = 主人），
-// 网站「⭐ 已保存」在同一个人时直接嵌入插件的页面（能编辑），不是同一个人时显示网站版
-chrome.storage.local.get({ siteUser: "" }, v => {
-  document.documentElement.setAttribute("data-ban-user", (v && v.siteUser) || "");
+// 网站「⭐ 已保存」在同一个人时直接嵌入插件的页面（能编辑），不是同一个人时显示网站版。
+// 家人：插件跟着网站走 —— 网站上「👤」切到谁（网站本机 localStorage 的 "vu"），这台电脑的插件就同步给谁（后台 setSiteUser：先传完当前的人再换）
+const tell = u => {
+  document.documentElement.setAttribute("data-ban-user", u || "");
   document.documentElement.setAttribute("data-ban-ext", chrome.runtime.id);
   window.dispatchEvent(new Event("ban-ext"));
+};
+chrome.storage.local.get({ siteUser: "" }, v => {
+  const cur = (v && v.siteUser) || "";
+  let vu = ""; try { vu = localStorage.getItem("vu") || ""; } catch (e) {}
+  if (!/^[a-z0-9]{1,12}$/.test(vu)) vu = "";
+  tell(cur);
+  if (vu !== cur) chrome.runtime.sendMessage({ type: "setSiteUser", id: vu }, r => { if (r && r.ok) tell(vu); });
 });
