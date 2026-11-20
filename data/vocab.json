@@ -4,434 +4,1450 @@
       "id": "u_1783074145779_nntv",
       "type": "word",
       "word": "tire",
-      "phon": "/ˈtʌɪ̯ɚ/",
-      "en": "To become sleepy or weary.",
-      "zh": "轮胎",
+      "phon": "/taɪr/",
+      "en": "to become bored with something, or to become tired",
+      "zh": "厌倦（tire of）；（使）疲劳、变累；轮胎（美式拼写，英式作 tyre）",
       "tag": "收集",
       "date": "2026-07-03",
-      "forms": [],
-      "examples": [
+      "forms": [
         [
-          "I tire of this book.",
-          ""
+          "tired",
+          "→",
+          "adj. 累的；厌倦的（be tired of）"
+        ],
+        [
+          "tiring",
+          "→",
+          "adj. 令人疲劳的"
+        ],
+        [
+          "tireless",
+          "→",
+          "adj. 不知疲倦的"
+        ],
+        [
+          "tires",
+          "→",
+          "n. 轮胎（复数）"
         ]
       ],
-      "tip": ""
+      "examples": [
+        [
+          "I {tire} of this book.",
+          "我对这本书厌倦了。"
+        ],
+        [
+          "Long meetings {tire} me out.",
+          "长时间的会议让我筋疲力尽。"
+        ],
+        [
+          "Kids never {tire} of this game.",
+          "孩子们玩这个游戏从来不腻。"
+        ]
+      ],
+      "tip": "tire 当动词＝“使累”，tired 就是“被弄累了”；tire of sth＝玩腻、厌倦。当名词是“轮胎”（英式拼 tyre），两个意思同形不同义。",
+      "related": [
+        [
+          "exhaust",
+          "使筋疲力尽"
+        ],
+        [
+          "weary",
+          "使疲倦；厌倦"
+        ],
+        [
+          "get bored of",
+          "厌倦"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_applause",
       "type": "word",
       "word": "Applause",
-      "phon": "/əplˈɔz/",
-      "en": "The act of applauding; approbation and praise publicly expressed by the clapping of hands, stamping or tapping of the feet, acclamation, huzzas, or…",
-      "zh": "掌声；采声；鼓掌欢迎",
+      "phon": "/əˈplɔz/",
+      "en": "the sound of people clapping to show they enjoyed or approve of something",
+      "zh": "掌声；鼓掌；喝彩、称赞",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
-      "examples": [],
-      "tip": ""
+      "forms": [
+        [
+          "applaud",
+          "→",
+          "v. 鼓掌；称赞"
+        ],
+        [
+          "applauded",
+          "→",
+          "过去式/过去分词"
+        ]
+      ],
+      "examples": [
+        [
+          "The {applause} lasted two minutes.",
+          "掌声持续了两分钟。"
+        ],
+        [
+          "Let's give her a round of {applause}!",
+          "让我们给她热烈的掌声！"
+        ],
+        [
+          "The crowd broke into {applause}.",
+          "观众爆发出掌声。"
+        ]
+      ],
+      "tip": "applause 是不可数名词，不说 an applause，要说 a round of applause（一阵掌声）。动词是 applaud，plaud 有“拍手”的意思。",
+      "related": [
+        [
+          "clapping",
+          "拍手"
+        ],
+        [
+          "cheers",
+          "欢呼"
+        ],
+        [
+          "ovation",
+          "（热烈的）鼓掌欢迎"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_careless",
       "type": "word",
       "word": "careless",
-      "phon": "/kˈɛɹləs/",
-      "en": "Not concerned or worried (about).",
-      "zh": "粗心；马虎；漫不经心；大意",
+      "phon": "/ˈkɛrləs/",
+      "en": "not giving enough care or thought to what you do or to other people",
+      "zh": "漫不经心的、不顾及他人的；粗心的、马虎的；随意的、不在乎的",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "carelessly",
+          "→",
+          "adv. 粗心地；漫不经心地"
+        ],
+        [
+          "carelessness",
+          "→",
+          "n. 粗心；疏忽"
+        ],
+        [
+          "careful",
+          "→",
+          "反义 adj. 小心的"
+        ]
+      ],
       "examples": [
         [
           "Well, if he's not here, he has a reason because there is not a cruel or {careless} bone in his body.",
-          "好吧，如果他不在这里，他是有原因的，因为他的身体里没有残忍或粗心的骨头。"
+          "好吧，如果他没来，那他一定有原因，因为他骨子里一点也不残忍、不马虎。"
+        ],
+        [
+          "It was {careless} of me to forget.",
+          "我忘了这事，太粗心了。"
+        ],
+        [
+          "A {careless} driver caused the accident.",
+          "一个粗心的司机造成了这场事故。"
         ]
       ],
-      "tip": ""
+      "tip": "care（在意）+ -less（没有）＝“不在意” → 粗心、漫不经心。反义词 careful＝care + -ful（充满）。",
+      "related": [
+        [
+          "sloppy",
+          "马虎的"
+        ],
+        [
+          "thoughtless",
+          "欠考虑的"
+        ],
+        [
+          "negligent",
+          "疏忽的"
+        ],
+        [
+          "careful",
+          "小心的（反义）"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_cruel",
       "type": "word",
       "word": "cruel",
-      "phon": "/kɹˈuəl/",
-      "en": "Intentionally causing or reveling in pain and suffering; merciless, heartless.",
-      "zh": "残忍的；残忍；残酷；残暴",
+      "phon": "/ˈkruəl/",
+      "en": "deliberately causing pain or suffering to people or animals",
+      "zh": "残忍的；残酷的；无情的",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "crueler / cruelest",
+          "→",
+          "比较级/最高级"
+        ],
+        [
+          "cruelty",
+          "→",
+          "n. 残忍；虐待"
+        ],
+        [
+          "cruelly",
+          "→",
+          "adv. 残忍地"
+        ]
+      ],
       "examples": [
         [
           "Well, if he's not here, he has a reason because there is not a {cruel} or careless bone in his body.",
-          "好吧，如果他不在这里，他是有原因的，因为他的身体里没有残忍或粗心的骨头。"
+          "好吧，如果他没来，那他一定有原因，因为他骨子里一点也不残忍、不马虎。"
+        ],
+        [
+          "Don't be so {cruel} to your brother.",
+          "别对你弟弟那么狠。"
+        ],
+        [
+          "Life can be {cruel} sometimes.",
+          "生活有时候很残酷。"
         ]
       ],
-      "tip": ""
+      "tip": "cruel 和 crude（粗糙）长得像但不同；animal cruelty＝虐待动物。谐音“哭肉”：残忍到让人哭。",
+      "related": [
+        [
+          "mean",
+          "刻薄的"
+        ],
+        [
+          "brutal",
+          "野蛮的；残酷的"
+        ],
+        [
+          "heartless",
+          "无情的"
+        ],
+        [
+          "kind",
+          "善良的（反义）"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_pitch",
       "type": "word",
       "word": "pitch",
-      "phon": "/pˈɪtʃ/",
-      "en": "A sticky, gummy substance secreted by trees; tree sap.",
-      "zh": "沥青；音调；音高；足球场",
+      "phon": "/pɪtʃ/",
+      "en": "how high or low a sound or voice is",
+      "zh": "音高；音调；（体育）场地、球场；投球；推销、宣传说辞；沥青",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "pitches",
+          "→",
+          "n. 复数 / v. 第三人称单数"
+        ],
+        [
+          "pitched",
+          "→",
+          "过去式；adj. 有……音高的（high-pitched 尖声的）"
+        ],
+        [
+          "pitcher",
+          "→",
+          "n. 投手；水罐"
+        ]
+      ],
       "examples": [
         [
           "melodically, for a yes-no question, and that is his {pitch} goes up towards the end of the phrase.",
-          "旋律优美地，对于是非问题，他的音调在乐句结尾处上升。"
+          "从旋律上看，是非疑问句中，他的音调会在句末上扬。"
+        ],
+        [
+          "Her voice has a very high {pitch}.",
+          "她的声音音调很高。"
+        ],
+        [
+          "He gave a great sales {pitch}.",
+          "他的推销说辞讲得很棒。"
         ]
       ],
-      "tip": ""
+      "tip": "pitch 核心是“抛、定高低”：把球抛出去＝投球，把声音定在某个高度＝音高，把想法抛给别人＝推销（pitch an idea）。英式英语里 football pitch＝足球场。",
+      "related": [
+        [
+          "tone",
+          "语调"
+        ],
+        [
+          "intonation",
+          "语调起伏"
+        ],
+        [
+          "throw",
+          "扔、投"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_thesis",
       "type": "word",
       "word": "thesis",
-      "phon": "/θˈisəs/",
-      "en": "Senses relating to logic, rhetoric, etc. A proposition or statement supported by arguments. A lengthy essay written to establish the validity of a…",
-      "zh": "论文；论点；论断；论题",
+      "phon": "/ˈθisɪs/",
+      "en": "a long piece of writing on a subject, done for a university degree",
+      "zh": "（毕业）论文、学位论文；论点、论题",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "theses",
+          "→",
+          "n. 复数（/ˈθisiz/）"
+        ]
+      ],
       "examples": [
         [
           "And they say, “We need to talk about your {thesis}.”",
-          "他们说：“我们得和你谈一下论文的事儿。”"
+          "他们说：“我们得和你谈谈你的论文。”"
+        ],
+        [
+          "She's writing her master's {thesis}.",
+          "她在写硕士论文。"
+        ],
+        [
+          "What's the main {thesis} of this essay?",
+          "这篇文章的中心论点是什么？"
         ]
       ],
-      "tip": ""
+      "tip": "复数不加 s，是 theses（同 crisis→crises）。thesis 多指硕士/本科论文，博士论文常说 dissertation；学术期刊上的文章叫 paper。",
+      "related": [
+        [
+          "dissertation",
+          "（博士）论文"
+        ],
+        [
+          "paper",
+          "论文；学术文章"
+        ],
+        [
+          "argument",
+          "论点"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_scoop",
       "type": "word",
       "word": "scoop",
-      "phon": "/skˈup/",
-      "en": "Any cup-shaped or bowl-shaped tool, usually with a handle, used to lift and move loose or soft solid material.",
-      "zh": "舀；挖掘；挖；掘",
+      "phon": "/skup/",
+      "en": "to lift something out with a curved, spoon-like movement; also a spoon-shaped tool",
+      "zh": "舀、挖（向下再向上的弧形动作）；勺子、铲子；一勺的量；独家新闻",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "scoops",
+          "→",
+          "n. 复数 / v. 第三人称单数"
+        ],
+        [
+          "scooped",
+          "→",
+          "过去式/过去分词"
+        ],
+        [
+          "scoop up",
+          "→",
+          "phr. 舀起；一把抱起"
+        ]
+      ],
       "examples": [
         [
           "our way up. Will you be mean to him too? And then too also has that {scoop} down and then back up.",
-          "我们的道路。你也会对他不好吗？然后也有向下舀，然后又向上的情况。"
+          "……一路往上。你也会对他刻薄吗？然后 too 这个词的语调也有那种先往下“舀”、再往上扬的走向。"
+        ],
+        [
+          "Two {scoops} of ice cream, please.",
+          "请给我两球冰淇淋。"
+        ],
+        [
+          "She {scooped} up the baby and ran.",
+          "她一把抱起孩子就跑。"
         ]
       ],
-      "tip": ""
+      "tip": "想象冰淇淋勺：先往下挖，再往上带起 → 这就是 scoop 的动作，所以语调先降后升也能形容为 scoop。记者“挖”到的独家新闻也叫 scoop。",
+      "related": [
+        [
+          "spoon",
+          "勺子"
+        ],
+        [
+          "ladle",
+          "长柄勺；舀"
+        ],
+        [
+          "dig",
+          "挖"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_reinvented",
       "type": "word",
       "word": "reinvented",
-      "phon": "/ɹiɪnvˈɛntɪd/",
-      "en": "simple past and past participle of reinvent",
-      "zh": "重新发明",
+      "phon": "/ˌriɪnˈvɛntɪd/",
+      "en": "past tense of reinvent: changed something or yourself so much that it seems new",
+      "zh": "重塑（了）、彻底改造（了）；重新发明（了）",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "reinvent",
+          "→",
+          "原形 v. 重塑；重新发明"
+        ],
+        [
+          "reinventing",
+          "→",
+          "现在分词"
+        ],
+        [
+          "reinvention",
+          "→",
+          "n. 重塑；改头换面"
+        ]
+      ],
       "examples": [
         [
           "picking your spots, business decisions. But a guy like Horford has {reinvented}",
-          "选择你的位置，商业决策。但像霍福德这样的人已经重塑了"
+          "……挑选出手位置、做商业决策。但像霍福德这样的球员已经重塑了（自己）"
+        ],
+        [
+          "She {reinvented} herself as a chef.",
+          "她转型成了一名厨师。"
+        ],
+        [
+          "The brand {reinvented} its image last year.",
+          "这个品牌去年彻底重塑了形象。"
         ]
       ],
-      "tip": ""
+      "tip": "re-（重新）+ invent（发明）。reinvent oneself＝“重塑自我、转型”，体育/职场里最常见；reinvent the wheel＝重复造轮子，白费力气。",
+      "related": [
+        [
+          "transform",
+          "改变；改造"
+        ],
+        [
+          "remake",
+          "重做；翻拍"
+        ],
+        [
+          "revamp",
+          "翻新；改进"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_impacts",
       "type": "word",
       "word": "impacts",
-      "phon": "/ɪmpˈækts/",
-      "en": "plural of impact",
-      "zh": "影响；碰撞；弹着；揕",
+      "phon": "/ˈɪmpækts/",
+      "en": "plural of impact: strong effects that something has on someone or something",
+      "zh": "影响（复数）；冲击；撞击",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "impact",
+          "→",
+          "n. 影响；撞击 / v. 影响"
+        ],
+        [
+          "impactful",
+          "→",
+          "adj. 有影响力的"
+        ]
+      ],
       "examples": [
         [
           "those guys have been able to reinvent and have the big {impacts}.",
-          "这些人已经能够重塑并产生巨大影响。"
+          "这些人能够重塑自己，并产生巨大的影响。"
+        ],
+        [
+          "Social media {impacts} how we think.",
+          "社交媒体影响着我们的思维方式。"
+        ],
+        [
+          "The new law had big {impacts} on small businesses.",
+          "新法规对小企业影响很大。"
         ]
       ],
-      "tip": ""
+      "tip": "im-（进入）+ pact（压、撞）＝“撞进去” → 冲击 → 影响。固定搭配：have an impact on sth（对……有影响）。",
+      "related": [
+        [
+          "effect",
+          "影响；效果"
+        ],
+        [
+          "influence",
+          "影响（力）"
+        ],
+        [
+          "consequence",
+          "后果"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_growth",
       "type": "word",
       "word": "growth",
-      "phon": "/ɡɹˈoʊθ/",
-      "en": "An increase in size, number, value, or strength.",
-      "zh": "生长；发展；发育；发达",
+      "phon": "/ɡroʊθ/",
+      "en": "the process of getting bigger, better or more developed",
+      "zh": "成长；增长；发展；生长；（身体上的）肿块",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "grow",
+          "→",
+          "v. 生长；增长"
+        ],
+        [
+          "grown",
+          "→",
+          "adj. 成年的（grown-up）"
+        ],
+        [
+          "growth mindset",
+          "→",
+          "n. 成长型思维"
+        ]
+      ],
       "examples": [
         [
           "Yeah, I mean one word I always talk about is like the just {growth} mindset.",
-          "是的，我的意思是我经常谈论的一个词就是公正的成长心态。"
+          "是的，我常说的一个词就是“成长型思维”。"
+        ],
+        [
+          "The city saw rapid {growth} last year.",
+          "这座城市去年发展很快。"
+        ],
+        [
+          "Travel is great for personal {growth}.",
+          "旅行对个人成长很有帮助。"
         ]
       ],
-      "tip": ""
+      "tip": "grow（长）+ -th（名词后缀，同 true→truth、wide→width）＝生长、增长。growth mindset 成长型思维 vs fixed mindset 固定型思维。",
+      "related": [
+        [
+          "development",
+          "发展"
+        ],
+        [
+          "increase",
+          "增长"
+        ],
+        [
+          "progress",
+          "进步"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_mindset",
       "type": "word",
       "word": "mindset",
-      "phon": "/mˈaɪndsɛt/",
-      "en": "A way of thinking; an attitude or opinion, especially a habitual one.",
-      "zh": "心态",
+      "phon": "/ˈmaɪndsɛt/",
+      "en": "a person's way of thinking and their attitudes",
+      "zh": "思维方式；心态；观念",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "mindsets",
+          "→",
+          "n. 复数"
+        ],
+        [
+          "growth mindset",
+          "→",
+          "成长型思维"
+        ],
+        [
+          "fixed mindset",
+          "→",
+          "固定型思维"
+        ]
+      ],
       "examples": [
         [
           "Yeah, I mean one word I always talk about is like the just growth {mindset}.",
-          "是的，我的意思是我经常谈论的一个词就是公正的成长心态。"
+          "是的，我常说的一个词就是“成长型思维”。"
+        ],
+        [
+          "You need a winning {mindset}.",
+          "你需要有赢家心态。"
+        ],
+        [
+          "Changing your {mindset} takes time.",
+          "改变思维方式需要时间。"
         ]
       ],
-      "tip": ""
+      "tip": "mind（头脑）+ set（设定好的）＝脑子里“设定好的模式” → 思维方式、心态。常说 get into the right mindset（进入状态）。",
+      "related": [
+        [
+          "attitude",
+          "态度"
+        ],
+        [
+          "outlook",
+          "观点；看法"
+        ],
+        [
+          "mentality",
+          "心态；思想"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_i_poured_myself_some_wine",
       "type": "phrase",
       "word": "I poured myself some wine.",
       "phon": "",
-      "en": "",
-      "zh": "我给自己倒了一些酒。",
+      "en": "I filled a glass with some wine for myself.",
+      "zh": "我给自己倒了点酒。",
       "tag": "视频",
       "date": "2026-11-17",
       "forms": [],
-      "examples": [],
-      "tip": ""
+      "examples": [
+        [
+          "I {poured myself} some wine.",
+          "我给自己倒了点酒。"
+        ],
+        [
+          "She {poured herself} a cup of tea.",
+          "她给自己倒了一杯茶。"
+        ],
+        [
+          "He {made himself} a sandwich.",
+          "他给自己做了个三明治。"
+        ]
+      ],
+      "tip": "pour oneself sth＝给自己倒（饮料），句型是“动词 + 反身代词 + 东西”，同类还有 make myself coffee、help yourself（请自便）。pour 读 /pɔr/，和 poor 发音相近。",
+      "related": [
+        [
+          "pour",
+          "倒；灌"
+        ],
+        [
+          "help yourself",
+          "请自便"
+        ],
+        [
+          "a glass of wine",
+          "一杯葡萄酒"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_guys",
       "type": "word",
       "word": "guys",
-      "phon": "/ɡˈaɪz/",
-      "en": "plural of guy",
-      "zh": "伙计们；佬；傢伙",
+      "phon": "/ɡaɪz/",
+      "en": "plural of guy: men, or (informally) a group of people of any gender",
+      "zh": "大家、伙计们（you guys，口语称呼，男女都可用）；家伙、男人（guy 的复数）",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
-      "examples": [],
-      "tip": ""
+      "forms": [
+        [
+          "guy",
+          "→",
+          "n. 单数 家伙；男人"
+        ],
+        [
+          "you guys",
+          "→",
+          "你们（口语）"
+        ]
+      ],
+      "examples": [
+        [
+          "Hey {guys}, what's up?",
+          "嘿，大家好，最近怎么样？"
+        ],
+        [
+          "Are you {guys} coming tonight?",
+          "你们今晚来吗？"
+        ],
+        [
+          "Those {guys} are really good at basketball.",
+          "那几个人篮球打得真好。"
+        ]
+      ],
+      "tip": "单数 guy 一般指男的，但复数 you guys / hey guys 称呼一群人时男女通用，相当于“大家、你们”，非常口语。",
+      "related": [
+        [
+          "folks",
+          "各位；大家"
+        ],
+        [
+          "everyone",
+          "大家"
+        ],
+        [
+          "dude",
+          "老兄（俚语）"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_motion",
       "type": "word",
       "word": "motion",
-      "phon": "/mˈoʊʃən/",
-      "en": "A change whereby something goes from one place to another; a state of progression from one place to another; a change of position with respect to…",
-      "zh": "运动；议案；动议；动作",
+      "phon": "/ˈmoʊʃən/",
+      "en": "the act or process of moving, or a particular movement",
+      "zh": "动作、姿势；运动、移动；（会议上的）动议、提案",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
-      "examples": [],
-      "tip": ""
+      "forms": [
+        [
+          "motions",
+          "→",
+          "n. 复数"
+        ],
+        [
+          "motionless",
+          "→",
+          "adj. 一动不动的"
+        ],
+        [
+          "slow motion",
+          "→",
+          "慢动作"
+        ],
+        [
+          "motion sickness",
+          "→",
+          "晕车/晕船"
+        ]
+      ],
+      "examples": [
+        [
+          "Watch it again in slow {motion}.",
+          "用慢动作再看一遍。"
+        ],
+        [
+          "Use a smooth {motion} when you shoot.",
+          "投篮时动作要流畅。"
+        ],
+        [
+          "I get {motion} sickness on buses.",
+          "我坐公交会晕车。"
+        ]
+      ],
+      "tip": "mot- 词根＝“动”：motor（马达）、emotion（情绪是心里的“动”）、motivate（激励）。go through the motions＝走过场、敷衍了事。",
+      "related": [
+        [
+          "movement",
+          "动作；移动"
+        ],
+        [
+          "gesture",
+          "手势"
+        ],
+        [
+          "proposal",
+          "提议"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_squint",
       "type": "word",
       "word": "squint",
-      "phon": "/skwˈɪnt/",
-      "en": "To look with the eyes partly closed, as in bright sunlight, or as a threatening expression.",
-      "zh": "眯；乜",
+      "phon": "/skwɪnt/",
+      "en": "to look at something with your eyes partly closed",
+      "zh": "眯眼（看）；斜视（眼疾）；眯眼的样子",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
-      "examples": [],
-      "tip": ""
+      "forms": [
+        [
+          "squints",
+          "→",
+          "第三人称单数"
+        ],
+        [
+          "squinted",
+          "→",
+          "过去式/过去分词"
+        ],
+        [
+          "squinting",
+          "→",
+          "现在分词"
+        ]
+      ],
+      "examples": [
+        [
+          "I had to {squint} in the bright sun.",
+          "阳光太刺眼，我只好眯着眼。"
+        ],
+        [
+          "He {squinted} at the tiny text.",
+          "他眯着眼看那些小字。"
+        ],
+        [
+          "Stop {squinting} and wear your glasses.",
+          "别眯眼了，戴上眼镜吧。"
+        ]
+      ],
+      "tip": "squint 和 squeeze（挤）开头一样：把眼睛“挤”成一条缝看东西。常用 squint at sth（眯眼看某物）。",
+      "related": [
+        [
+          "peer",
+          "凝视；费力地看"
+        ],
+        [
+          "blink",
+          "眨眼"
+        ],
+        [
+          "glance",
+          "瞥一眼"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_decisions",
       "type": "word",
       "word": "decisions",
-      "phon": "/dɪsˈɪʒənz/",
-      "en": "plural of decision",
-      "zh": "决定；决断；定案；果断",
+      "phon": "/dɪˈsɪʒənz/",
+      "en": "plural of decision: choices you make after thinking about something",
+      "zh": "决定（复数）；决策；果断",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
-      "examples": [
+      "forms": [
         [
-          "So the Rational Decision-Maker will make the rational decision",
-          "所以理性决策者会做出理性决策"
+          "decision",
+          "→",
+          "n. 单数"
+        ],
+        [
+          "decide",
+          "→",
+          "v. 决定"
+        ],
+        [
+          "decisive",
+          "→",
+          "adj. 果断的；决定性的"
         ]
       ],
-      "tip": ""
+      "examples": [
+        [
+          "So the Rational Decision-Maker will make the rational {decision}",
+          "所以理性决策者会做出理性的决定"
+        ],
+        [
+          "I make bad {decisions} when I'm tired.",
+          "我累的时候容易做错决定。"
+        ],
+        [
+          "We need to make some tough {decisions}.",
+          "我们得做一些艰难的决定。"
+        ]
+      ],
+      "tip": "搭配用 make a decision（做决定），不说 do a decision。de-（离开）+ cis（切）＝“切断其他选择” → 决定，同根词 scissors（剪刀）。",
+      "related": [
+        [
+          "choice",
+          "选择"
+        ],
+        [
+          "judgment",
+          "判断"
+        ],
+        [
+          "conclusion",
+          "结论"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_reinvent",
       "type": "word",
       "word": "reinvent",
-      "phon": "/ɹiɪnvˈɛnt/",
-      "en": "To invent again something that has already been invented.",
-      "zh": "重新发明",
+      "phon": "/ˌriɪnˈvɛnt/",
+      "en": "to change something or yourself so much that it seems completely new",
+      "zh": "重塑、彻底改造（reinvent oneself 转型）；重新发明",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
-      "examples": [],
-      "tip": ""
+      "forms": [
+        [
+          "reinvented",
+          "→",
+          "过去式/过去分词"
+        ],
+        [
+          "reinventing",
+          "→",
+          "现在分词"
+        ],
+        [
+          "reinvention",
+          "→",
+          "n. 重塑；改头换面"
+        ]
+      ],
+      "examples": [
+        [
+          "He wants to {reinvent} himself after college.",
+          "他想在大学毕业后重塑自我。"
+        ],
+        [
+          "Don't {reinvent} the wheel.",
+          "别重复造轮子（别白费力气）。"
+        ],
+        [
+          "The company had to {reinvent} itself to survive.",
+          "公司必须彻底转型才能活下去。"
+        ]
+      ],
+      "tip": "re-（重新）+ invent（发明）。最常见的两个用法：reinvent oneself（转型、重塑自我）和 reinvent the wheel（重复造轮子，做无用功）。",
+      "related": [
+        [
+          "transform",
+          "改变；改造"
+        ],
+        [
+          "reshape",
+          "重塑"
+        ],
+        [
+          "revamp",
+          "翻新；改进"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_possessions",
       "type": "word",
       "word": "possessions",
-      "phon": "/pəzˈɛʃənz/",
-      "en": "plural of possession",
-      "zh": "财产；所有；所有权；属地",
+      "phon": "/pəˈzɛʃənz/",
+      "en": "plural of possession: the things that you own",
+      "zh": "（个人）财物、所有物；财产；（possession）拥有、持有",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
-      "examples": [],
-      "tip": ""
+      "forms": [
+        [
+          "possession",
+          "→",
+          "n. 单数 拥有；所有物"
+        ],
+        [
+          "possess",
+          "→",
+          "v. 拥有；具有"
+        ],
+        [
+          "possessive",
+          "→",
+          "adj. 占有欲强的；所有格的"
+        ]
+      ],
+      "examples": [
+        [
+          "He sold most of his {possessions}.",
+          "他卖掉了大部分家当。"
+        ],
+        [
+          "Keep your personal {possessions} with you.",
+          "请随身携带个人物品。"
+        ],
+        [
+          "She values experiences over {possessions}.",
+          "比起物质，她更看重经历。"
+        ]
+      ],
+      "tip": "复数 possessions＝“个人的东西、家当”；单数 possession 多指“拥有”（in possession of）。篮球里 possession 是“球权”。",
+      "related": [
+        [
+          "belongings",
+          "随身物品"
+        ],
+        [
+          "property",
+          "财产"
+        ],
+        [
+          "stuff",
+          "东西"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_procrastinator",
       "type": "word",
       "word": "procrastinator",
-      "phon": "/pɹəkɹˈæstəneɪtɚ/",
-      "en": "One who procrastinates; one who delays working on things.",
-      "zh": "拖延者",
+      "phon": "/proʊˈkræstəˌneɪtər/",
+      "en": "someone who keeps delaying things they should do",
+      "zh": "拖延者；爱拖延的人",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "procrastinate",
+          "→",
+          "v. 拖延"
+        ],
+        [
+          "procrastination",
+          "→",
+          "n. 拖延（症）"
+        ],
+        [
+          "procrastinators",
+          "→",
+          "n. 复数"
+        ]
+      ],
       "examples": [
         [
           "what goes on in the heads of {procrastinators},",
           "拖延者脑子里在想什么"
+        ],
+        [
+          "I'm a terrible {procrastinator}.",
+          "我是个超级拖延症患者。"
+        ],
+        [
+          "Every {procrastinator} loves a deadline extension.",
+          "每个拖延的人都爱截止日期延期。"
         ]
       ],
-      "tip": ""
+      "tip": "pro-（向前）+ crastin（明天，拉丁语 cras）＝“推到明天” → 拖延；-or 表示人。",
+      "related": [
+        [
+          "slacker",
+          "偷懒的人"
+        ],
+        [
+          "dawdler",
+          "磨蹭的人"
+        ],
+        [
+          "put off",
+          "推迟（动词短语）"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_deadline",
       "type": "word",
       "word": "deadline",
-      "phon": "/dˈɛdlaɪn/",
-      "en": "A time limit in the form of a date on or before which something must be completed.",
-      "zh": "最后期限；期限；限期；截稿线",
+      "phon": "/ˈdɛdlaɪn/",
+      "en": "the time or date by which something must be finished",
+      "zh": "截止日期；最后期限",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "deadlines",
+          "→",
+          "n. 复数"
+        ],
+        [
+          "meet a deadline",
+          "→",
+          "按时完成"
+        ],
+        [
+          "miss a deadline",
+          "→",
+          "错过截止日期"
+        ]
+      ],
       "examples": [
         [
           "with three days until the {deadline},",
           "距离截止日期还有三天，"
+        ],
+        [
+          "The {deadline} is next Friday.",
+          "截止日期是下周五。"
+        ],
+        [
+          "I always miss my {deadlines}.",
+          "我总是赶不上截止日期。"
         ]
       ],
-      "tip": ""
+      "tip": "dead（死）+ line（线）＝“死线”，超过就不行了，中文网络用语“DDL”就是它的缩写。",
+      "related": [
+        [
+          "due date",
+          "到期日"
+        ],
+        [
+          "time limit",
+          "时限"
+        ],
+        [
+          "cutoff",
+          "截止"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_brains",
       "type": "word",
       "word": "brains",
-      "phon": "/bɹˈeɪnz/",
-      "en": "plural of brain",
-      "zh": "大脑；脑；头脑；脑髓",
+      "phon": "/breɪnz/",
+      "en": "plural of brain; also (informal) intelligence",
+      "zh": "大脑（复数）；头脑、智力；（the brains）出主意的人、智囊",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "brain",
+          "→",
+          "n. 单数"
+        ],
+        [
+          "brainy",
+          "→",
+          "adj. 聪明的"
+        ],
+        [
+          "brainstorm",
+          "→",
+          "v./n. 头脑风暴"
+        ]
+      ],
       "examples": [
         [
           "that the {brains} of procrastinators were actually different",
           "拖延者的大脑实际上是不同的"
+        ],
+        [
+          "She's got beauty and {brains}.",
+          "她才貌双全。"
+        ],
+        [
+          "He's the {brains} behind the project.",
+          "他是这个项目的幕后智囊。"
         ]
       ],
-      "tip": ""
+      "tip": "brains 复数常表示“聪明才智”：use your brains（动动脑子）；the brains behind sth＝背后出主意的人。",
+      "related": [
+        [
+          "mind",
+          "头脑"
+        ],
+        [
+          "intelligence",
+          "智力"
+        ],
+        [
+          "intellect",
+          "智力；才智"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_bone",
       "type": "word",
       "word": "bone",
-      "phon": "/bˈoʊn/",
-      "en": "A composite material consisting largely of calcium phosphate and collagen and making up the skeleton of most vertebrates.",
-      "zh": "骨；骨头；骨法",
+      "phon": "/boʊn/",
+      "en": "one of the hard parts that make up the skeleton of a body",
+      "zh": "骨头；（not a … bone in one's body）骨子里毫无……；骨质",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "bones",
+          "→",
+          "n. 复数"
+        ],
+        [
+          "bony",
+          "→",
+          "adj. 骨瘦如柴的；多刺的"
+        ],
+        [
+          "boneless",
+          "→",
+          "adj. 去骨的"
+        ]
+      ],
       "examples": [
         [
           "Well, if he's not here, he has a reason because there is not a cruel or careless {bone} in his body.",
-          "好吧，如果他不在这里，他是有原因的，因为他的身体里没有残忍或粗心的骨头。"
+          "好吧，如果他没来，那他一定有原因，因为他骨子里一点也不残忍、不马虎。"
+        ],
+        [
+          "She doesn't have a mean {bone} in her body.",
+          "她骨子里一点都不坏。"
+        ],
+        [
+          "He broke a {bone} in his foot.",
+          "他脚上骨折了。"
         ]
       ],
-      "tip": ""
+      "tip": "There isn't a mean/lazy bone in his body＝他骨子里一点都不刻薄/懒，夸人常用。另外 have a bone to pick with sb＝要和某人算账。",
+      "related": [
+        [
+          "skeleton",
+          "骨架"
+        ],
+        [
+          "joint",
+          "关节"
+        ],
+        [
+          "spine",
+          "脊柱"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_happen",
       "type": "word",
       "word": "happen",
-      "phon": "/hˈæpən/",
-      "en": "To occur or take place.",
-      "zh": "发生；碰巧；正好；刚好",
+      "phon": "/ˈhæpən/",
+      "en": "to take place, especially without being planned",
+      "zh": "发生；碰巧（happen to do）；（happen to sb）某人遭遇……",
       "tag": "视频",
       "date": "2026-11-17",
-      "forms": [],
+      "forms": [
+        [
+          "happened",
+          "→",
+          "过去式/过去分词"
+        ],
+        [
+          "happening",
+          "→",
+          "n. 事件；现在分词"
+        ],
+        [
+          "happens",
+          "→",
+          "第三人称单数"
+        ]
+      ],
       "examples": [
         [
           "And that would {happen} every single paper.",
-          "而且每次写论文都这样。"
+          "而且每次写论文都会这样。"
+        ],
+        [
+          "What {happened} to your phone?",
+          "你手机怎么了？"
+        ],
+        [
+          "I {happen} to know the owner.",
+          "我碰巧认识老板。"
         ]
       ],
-      "tip": ""
+      "tip": "happen 不用被动语态，不说 was happened。happen to do＝碰巧做；happen to sb＝某人出了事。hap 有“运气”之意，同根 happy、perhaps。",
+      "related": [
+        [
+          "occur",
+          "发生（正式）"
+        ],
+        [
+          "take place",
+          "举行；发生"
+        ],
+        [
+          "come about",
+          "产生；发生"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_productive",
       "type": "word",
       "word": "productive",
-      "phon": "/pɹəˈdʌktɪv/",
-      "en": "Capable of producing something, especially in abundance; fertile.",
-      "zh": "富有成效的；丰厚；丰满；能生产的",
+      "phon": "/prəˈdʌktɪv/",
+      "en": "achieving a lot or getting useful results",
+      "zh": "有成效的、高效的；（土地等）多产的；有意义的",
       "tag": "视频",
       "date": "2026-11-18",
-      "forms": [],
+      "forms": [
+        [
+          "productivity",
+          "→",
+          "n. 生产力；效率"
+        ],
+        [
+          "productively",
+          "→",
+          "adv. 富有成效地"
+        ],
+        [
+          "unproductive",
+          "→",
+          "反义 adj. 徒劳的"
+        ]
+      ],
       "examples": [
         [
           "to do something {productive},",
-          "去做些有意义的事情，"
+          "去做点有意义的事，"
+        ],
+        [
+          "I had a really {productive} morning.",
+          "我今天上午效率很高。"
+        ],
+        [
+          "Let's have a {productive} meeting.",
+          "我们开个有成效的会吧。"
         ]
       ],
-      "tip": ""
+      "tip": "produce（生产）→ product（产品）→ productive（能产出的）→ 高效的。日常常说 a productive day（充实高效的一天）。",
+      "related": [
+        [
+          "efficient",
+          "高效的"
+        ],
+        [
+          "fruitful",
+          "富有成果的"
+        ],
+        [
+          "useful",
+          "有用的"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_nasal_consonant",
       "type": "phrase",
       "word": "nasal consonant",
-      "phon": "",
-      "en": "",
-      "zh": "鼻辅音",
+      "phon": "/ˈneɪzəl ˈkɑnsənənt/",
+      "en": "a consonant sound made by letting air out through the nose, like m, n or ng",
+      "zh": "鼻辅音（如 m、n、ng）",
       "tag": "视频",
       "date": "2026-11-18",
-      "forms": [],
+      "forms": [
+        [
+          "nasal consonants",
+          "→",
+          "复数"
+        ],
+        [
+          "nasal",
+          "→",
+          "adj. 鼻的；鼻音的"
+        ]
+      ],
       "examples": [
         [
           "Man, man, now that has more length. Man is the ae vowel followed by the {nasal consonant} N.",
-          "伙计，伙计，现在它更长了。 Man 是元音 ae 后面跟着鼻辅音 N。"
+          "Man，man，这个音就更长了。Man 是 ae 元音，后面跟着鼻辅音 N。"
+        ],
+        [
+          "M is a {nasal consonant}.",
+          "M 是一个鼻辅音。"
+        ],
+        [
+          "English has three {nasal consonants}.",
+          "英语有三个鼻辅音。"
         ]
       ],
-      "tip": ""
+      "tip": "nasal（鼻子的）+ consonant（辅音）。发音时捏住鼻子就发不出 m、n、ng，说明气流走鼻腔。元音在鼻辅音前通常会拉长，比如 man 比 mat 长。",
+      "related": [
+        [
+          "vowel",
+          "元音"
+        ],
+        [
+          "nasal",
+          "鼻音的"
+        ],
+        [
+          "consonant",
+          "辅音"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_consonant",
       "type": "word",
       "word": "consonant",
-      "phon": "/kˈɑnsənənt/",
-      "en": "A sound that results from the passage of air through restrictions of the oral cavity; any sound that is not the nucleus of a syllable, the nucleus…",
-      "zh": "辅音；子音；和谐的；蒹容",
+      "phon": "/ˈkɑnsənənt/",
+      "en": "a speech sound that is not a vowel, like b, t or s",
+      "zh": "辅音；（正式）一致的、和谐的（consonant with）",
       "tag": "视频",
       "date": "2026-11-18",
-      "forms": [],
+      "forms": [
+        [
+          "consonants",
+          "→",
+          "n. 复数"
+        ],
+        [
+          "vowel",
+          "→",
+          "对应词 n. 元音"
+        ]
+      ],
       "examples": [
         [
           "Man, man, now that has more length. Man is the ae vowel followed by the nasal {consonant} N.",
-          "伙计，伙计，现在它更长了。 Man 是元音 ae 后面跟着鼻辅音 N。"
+          "Man，man，这个音就更长了。Man 是 ae 元音，后面跟着鼻辅音 N。"
+        ],
+        [
+          "\"B\" is a {consonant}, not a vowel.",
+          "B 是辅音，不是元音。"
+        ],
+        [
+          "This word ends in a {consonant}.",
+          "这个单词以辅音结尾。"
         ]
       ],
-      "tip": ""
+      "tip": "con-（一起）+ son（声音，同 sound、sonic）＝“和元音一起才能发声的音” → 辅音。vowel 是元音，a/e/i/o/u。",
+      "related": [
+        [
+          "vowel",
+          "元音"
+        ],
+        [
+          "syllable",
+          "音节"
+        ],
+        [
+          "phoneme",
+          "音素"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "reserve",
@@ -16455,482 +17471,1548 @@
       "id": "v_congenital",
       "type": "word",
       "word": "congenital",
-      "phon": "/kəndʒˈɛnətəl/",
-      "en": "Of a trait or a disease, present since birth.",
-      "zh": "先天性的",
+      "phon": "/kənˈdʒɛnɪtl/",
+      "en": "existing since birth, especially of a disease or condition",
+      "zh": "先天的、天生的（疾病或缺陷）；（口语）天生就……的（congenital liar 天生爱撒谎的人）",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
-      "examples": [],
-      "tip": ""
+      "forms": [
+        [
+          "congenitally",
+          "→",
+          "adv. 先天地"
+        ]
+      ],
+      "examples": [
+        [
+          "He has a {congenital} heart problem.",
+          "他有先天性心脏病。"
+        ],
+        [
+          "She was born with a {congenital} defect.",
+          "她生来就有先天缺陷。"
+        ],
+        [
+          "He's a {congenital} liar.",
+          "他天生就爱撒谎。"
+        ]
+      ],
+      "tip": "con-（一起）+ genit（出生，同 gene、generate）＝“和出生一起来的” → 先天的。多用于医学；“天赋”用 natural/innate。",
+      "related": [
+        [
+          "inborn",
+          "天生的"
+        ],
+        [
+          "innate",
+          "先天的；固有的"
+        ],
+        [
+          "hereditary",
+          "遗传的"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_athletic",
       "type": "word",
       "word": "athletic",
-      "phon": "/æθlˈɛtɪk/",
-      "en": "Having to do with athletes.",
-      "zh": "运动的；田径的",
+      "phon": "/æθˈlɛtɪk/",
+      "en": "physically strong and good at sports; or related to sports",
+      "zh": "运动的、体育的；（体格）健壮的、运动能力强的",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "athlete",
+          "→",
+          "n. 运动员"
+        ],
+        [
+          "athletics",
+          "→",
+          "n. 体育运动；田径（英）"
+        ],
+        [
+          "athletically",
+          "→",
+          "adv. 在运动方面"
+        ]
+      ],
       "examples": [
         [
           "started to see that I had some {athletic} genes, I maybe picked up some",
-          "开始意识到自己有一些运动天赋（音乐方面）时，我可能在射击方面养成了一些"
+          "开始发现自己有一些运动基因，我可能学到了一些"
+        ],
+        [
+          "He's tall and very {athletic}.",
+          "他个子高，运动能力很强。"
+        ],
+        [
+          "I need new {athletic} shoes.",
+          "我需要一双新运动鞋。"
         ]
       ],
-      "tip": ""
+      "tip": "athlete（运动员）+ -ic（形容词）。重音在第二音节 ath-LET-ic，athlete 只有两个音节，别读成 ath-e-lete。",
+      "related": [
+        [
+          "sporty",
+          "爱运动的"
+        ],
+        [
+          "fit",
+          "健康的；健壮的"
+        ],
+        [
+          "muscular",
+          "肌肉发达的"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_genes",
       "type": "word",
       "word": "genes",
-      "phon": "/dʒˈinz/",
-      "en": "plural of gene",
-      "zh": "基因",
+      "phon": "/dʒinz/",
+      "en": "plural of gene: the units in your cells passed down from your parents",
+      "zh": "基因（复数）",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "gene",
+          "→",
+          "n. 单数"
+        ],
+        [
+          "genetic",
+          "→",
+          "adj. 遗传的；基因的"
+        ],
+        [
+          "genetics",
+          "→",
+          "n. 遗传学"
+        ]
+      ],
       "examples": [
         [
           "started to see that I had some athletic {genes}, I maybe picked up some",
-          "开始意识到自己有一些运动天赋（音乐方面）时，我可能在射击方面养成了一些"
+          "开始发现自己有一些运动基因，我可能学到了一些"
+        ],
+        [
+          "She got her height from her dad's {genes}.",
+          "她的身高遗传了她爸的基因。"
+        ],
+        [
+          "Good {genes} help, but practice matters more.",
+          "好基因有帮助，但练习更重要。"
         ]
       ],
-      "tip": ""
+      "tip": "genes 和 jeans（牛仔裤）读音完全一样 /dʒinz/，常被拿来开玩笑：It's in my genes（这是天生的）。gen 词根＝出生，同 generate、congenital。",
+      "related": [
+        [
+          "DNA",
+          "脱氧核糖核酸"
+        ],
+        [
+          "heredity",
+          "遗传"
+        ],
+        [
+          "genetics",
+          "遗传学"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_laces",
       "type": "word",
       "word": "laces",
-      "phon": "/lˈeɪsəz/",
-      "en": "plural of lace",
-      "zh": "鞋带；花边；缎带；系带",
+      "phon": "/ˈleɪsɪz/",
+      "en": "plural of lace: strings used to tie shoes",
+      "zh": "鞋带（复数）；（lace）蕾丝、花边；（lace up）系紧鞋带",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "lace",
+          "→",
+          "n. 单数 鞋带；蕾丝"
+        ],
+        [
+          "lace up",
+          "→",
+          "phr. 系鞋带"
+        ],
+        [
+          "laced",
+          "→",
+          "过去式；adj. 掺了……的"
+        ]
+      ],
       "examples": [
         [
           "I can feel the {laces} not fixed. I'll turn that into a pump fake.",
-          "我感觉鞋带没系好。我会把它变成一个假动作。"
+          "我能感觉到（球上的）缝线没对好。我会把它变成一个投篮假动作。"
+        ],
+        [
+          "Your {laces} are untied.",
+          "你的鞋带松了。"
+        ],
+        [
+          "I need to tie my {laces}.",
+          "我得系一下鞋带。"
         ]
       ],
-      "tip": ""
+      "tip": "shoelaces 常简称 laces；lace 不可数时是“蕾丝”。在原句里球员说投篮时能感觉到球上的“缝线（laces）”没对正，篮球、橄榄球上的缝线也叫 laces。",
+      "related": [
+        [
+          "shoelace",
+          "鞋带"
+        ],
+        [
+          "string",
+          "绳子"
+        ],
+        [
+          "knot",
+          "结"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_pump_fake",
       "type": "phrase",
       "word": "pump fake",
-      "phon": "",
-      "en": "",
-      "zh": "泵假",
+      "phon": "/ˈpʌmp ˌfeɪk/",
+      "en": "a fake shooting motion in basketball meant to make a defender jump",
+      "zh": "（篮球）投篮假动作、假投；（v.）做投篮假动作",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "pump-fake",
+          "→",
+          "v. 做投篮假动作"
+        ],
+        [
+          "pump-faked",
+          "→",
+          "过去式"
+        ]
+      ],
       "examples": [
         [
           "I can feel the laces not fixed. I'll turn that into a {pump fake}.",
-          "我感觉鞋带没系好。我会把它变成一个假动作。"
+          "我能感觉到（球上的）缝线没对好。我会把它变成一个投篮假动作。"
+        ],
+        [
+          "He used a {pump fake} to get a free shot.",
+          "他用一个投篮假动作换来了空位出手。"
+        ],
+        [
+          "Don't jump at every {pump fake}.",
+          "别每个假动作都跳。"
         ]
       ],
-      "tip": ""
+      "tip": "pump（像打气筒一样上下压）+ fake（假的）＝把球往上一“压”假装要投，引防守人起跳。也叫 shot fake。",
+      "related": [
+        [
+          "shot fake",
+          "投篮假动作"
+        ],
+        [
+          "head fake",
+          "头部假动作"
+        ],
+        [
+          "crossover",
+          "变向运球"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_pump",
       "type": "word",
       "word": "pump",
-      "phon": "/pˈʌmp/",
-      "en": "A device for moving or compressing a liquid or gas.",
-      "zh": "泵；抽；抽水；唧筒",
+      "phon": "/pʌmp/",
+      "en": "a quick up-and-down movement like a fake shot; also a machine that moves liquid or air",
+      "zh": "（篮球）假投时把球往上一晃（pump fake）；泵；用泵抽、打气；（pumped）兴奋的",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "pumped",
+          "→",
+          "过去式；adj. 兴奋的、干劲十足的"
+        ],
+        [
+          "pumping",
+          "→",
+          "现在分词"
+        ],
+        [
+          "pump up",
+          "→",
+          "phr. 打气；使兴奋"
+        ]
+      ],
       "examples": [
         [
           "I can feel the laces not fixed. I'll turn that into a {pump} fake.",
-          "我感觉鞋带没系好。我会把它变成一个假动作。"
+          "我能感觉到（球上的）缝线没对好。我会把它变成一个投篮假动作。"
+        ],
+        [
+          "Can you {pump} up my bike tires?",
+          "你能帮我给自行车打气吗？"
+        ],
+        [
+          "I'm so {pumped} for the game!",
+          "我对这场比赛超兴奋！"
         ]
       ],
-      "tip": ""
+      "tip": "pump 的核心动作是“一下一下压”：打气筒、水泵都是这样。所以篮球里把球往上一压假装投篮＝pump fake；人被“打足了气”＝pumped（兴奋）。",
+      "related": [
+        [
+          "inflate",
+          "充气"
+        ],
+        [
+          "fake",
+          "假动作"
+        ],
+        [
+          "hype",
+          "使兴奋（俚语）"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_flick",
       "type": "word",
       "word": "flick",
-      "phon": "/flˈɪk/",
-      "en": "A short, quick movement, especially a brush, sweep, or flip.",
-      "zh": "轻弹；拂去；弹；抽动",
+      "phon": "/flɪk/",
+      "en": "a small, quick, sharp movement, especially of the wrist or finger",
+      "zh": "（手腕等）轻抖、轻弹；（用手指）弹开；快速翻动（flick through）；（口语）电影",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "flicked",
+          "→",
+          "过去式/过去分词"
+        ],
+        [
+          "flicking",
+          "→",
+          "现在分词"
+        ],
+        [
+          "flick through",
+          "→",
+          "phr. 快速翻阅"
+        ]
+      ],
       "examples": [
         [
           "Great {flick} flick of the wrist. great flick of the wrist.",
-          "手腕一抖，动作漂亮。"
+          "手腕那一抖，太漂亮了。手腕一抖，真漂亮。"
+        ],
+        [
+          "She {flicked} the light switch on.",
+          "她啪地打开了电灯开关。"
+        ],
+        [
+          "I {flicked} through the magazine.",
+          "我快速翻了翻杂志。"
         ]
       ],
-      "tip": ""
+      "tip": "flick 是拟声感很强的词，像“啪”的一下轻弹。投篮常说 the flick of the wrist（手腕一抖）。别和 flicker（闪烁）搞混。",
+      "related": [
+        [
+          "snap",
+          "啪地一下"
+        ],
+        [
+          "flip",
+          "轻抛；翻转"
+        ],
+        [
+          "tap",
+          "轻拍"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_wrist",
       "type": "word",
       "word": "wrist",
-      "phon": "/ɹˈɪst/",
-      "en": "The complex joint between forearm bones, carpus, and metacarpals where the hand is attached to the arm; the carpus in a narrow sense.",
-      "zh": "手腕；腕；臂腕；胳膊腕子",
+      "phon": "/rɪst/",
+      "en": "the joint between your hand and your arm",
+      "zh": "手腕；腕关节",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "wrists",
+          "→",
+          "n. 复数"
+        ],
+        [
+          "wristwatch",
+          "→",
+          "n. 手表"
+        ],
+        [
+          "wristband",
+          "→",
+          "n. 腕带；护腕"
+        ]
+      ],
       "examples": [
         [
           "Great flick flick of the {wrist}. great flick of the wrist.",
-          "手腕一抖，动作漂亮。"
+          "手腕那一抖，太漂亮了。手腕一抖，真漂亮。"
+        ],
+        [
+          "I hurt my {wrist} playing tennis.",
+          "我打网球伤了手腕。"
+        ],
+        [
+          "She wears a watch on her left {wrist}.",
+          "她左手腕上戴着手表。"
         ]
       ],
-      "tip": ""
+      "tip": "w 不发音，读 /rɪst/，同 write、wrong。和 waist（腰）、wrist（腕）别混：w-ai-st 是腰，wr-i-st 是腕。",
+      "related": [
+        [
+          "ankle",
+          "脚踝"
+        ],
+        [
+          "elbow",
+          "手肘"
+        ],
+        [
+          "palm",
+          "手掌"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_cuz",
       "type": "word",
       "word": "cuz",
-      "phon": "/kuz/",
-      "en": "Informal spelling of 'cause (“because”).",
-      "zh": "因为",
+      "phon": "/kəz/",
+      "en": "an informal spelling of \"because\", used in speech and texting",
+      "zh": "因为（口语，= because / 'cause）；（俚语）表亲、哥们儿（= cousin）",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "'cause",
+          "→",
+          "另一种口语写法"
+        ],
+        [
+          "coz",
+          "→",
+          "英式口语写法"
+        ],
+        [
+          "because",
+          "→",
+          "正式写法"
+        ]
+      ],
       "examples": [
         [
           "Yeah, Reggie's was different {cuz} they they almost tell you like, you know,",
-          "是的，雷吉的情况不一样，因为他们几乎是直接告诉你，你知道，"
+          "是的，雷吉的情况不一样，因为他们几乎直接告诉你，你知道，"
+        ],
+        [
+          "I left early {cuz} I was tired.",
+          "我早走了，因为太累了。"
+        ],
+        [
+          "Can't talk now, {cuz} I'm driving.",
+          "现在没法聊，因为我在开车。"
         ]
       ],
-      "tip": ""
+      "tip": "cuz 就是 because 口语里吞掉前半的 be-，只在聊天、发消息时用，正式写作要写 because。另外 What's up, cuz? 里的 cuz 是 cousin（哥们儿）。",
+      "related": [
+        [
+          "because",
+          "因为"
+        ],
+        [
+          "since",
+          "既然；因为"
+        ],
+        [
+          "'cause",
+          "因为（口语）"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_fake",
       "type": "word",
       "word": "fake",
-      "phon": "/fˈeɪk/",
-      "en": "Not real; false, fraudulent.",
-      "zh": "伪造的；假；伪造；伪",
+      "phon": "/feɪk/",
+      "en": "a move that tricks an opponent; also not real or genuine",
+      "zh": "假动作（体育）；假的、伪造的；假装、伪造；冒牌货、赝品",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "faked",
+          "→",
+          "过去式/过去分词"
+        ],
+        [
+          "faking",
+          "→",
+          "现在分词"
+        ],
+        [
+          "faker",
+          "→",
+          "n. 冒充者；装模作样的人"
+        ]
+      ],
       "examples": [
         [
           "I can feel the laces not fixed. I'll turn that into a pump {fake}.",
-          "我感觉鞋带没系好。我会把它变成一个假动作。"
+          "我能感觉到（球上的）缝线没对好。我会把它变成一个投篮假动作。"
+        ],
+        [
+          "That bag is definitely {fake}.",
+          "那个包肯定是假货。"
+        ],
+        [
+          "She {faked} a smile.",
+          "她挤出一个假笑。"
         ]
       ],
-      "tip": ""
+      "tip": "fake 形容词、动词、名词同形：fake news（假新闻）、fake it till you make it（先装着，直到真做到）；体育里 fake＝假动作，如 pump fake、head fake。",
+      "related": [
+        [
+          "false",
+          "假的"
+        ],
+        [
+          "counterfeit",
+          "伪造的"
+        ],
+        [
+          "pretend",
+          "假装"
+        ],
+        [
+          "real",
+          "真的（反义）"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_dedicated",
       "type": "word",
       "word": "dedicated",
-      "phon": "/dˈɛdəkeɪtəd/",
-      "en": "Devoted; loyal; conscientious.",
-      "zh": "投入的；专用；耿耿；耿",
+      "phon": "/ˈdɛdɪˌkeɪtɪd/",
+      "en": "gave something entirely to a particular purpose; as an adjective, very committed",
+      "zh": "（dedicate 的过去式）把……专门用于、献给；（adj.）专注的、敬业的；专用的",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "dedicate",
+          "→",
+          "原形 v. 献身于；专门用于"
+        ],
+        [
+          "dedication",
+          "→",
+          "n. 奉献；敬业；献词"
+        ],
+        [
+          "dedicated to",
+          "→",
+          "致力于……的；专门用于……的"
+        ]
+      ],
       "examples": [
         [
           "All right. Well, we've {dedicated} this episode to the art of shooting the",
-          "好的。好了，我们这期节目专门讲解"
+          "好的。那么，我们这期节目专门讲投篮的艺术"
+        ],
+        [
+          "She's a very {dedicated} teacher.",
+          "她是一位非常敬业的老师。"
+        ],
+        [
+          "This song is {dedicated} to my mom.",
+          "这首歌献给我妈妈。"
         ]
       ],
-      "tip": ""
+      "tip": "de-（加强）+ dic（说，宣布）＝“郑重宣布献给” → 奉献、专门用于。dedicate A to B 结构里 to 是介词，后接名词或 doing。",
+      "related": [
+        [
+          "devoted",
+          "全心全意的"
+        ],
+        [
+          "committed",
+          "坚定的；投入的"
+        ],
+        [
+          "devote",
+          "把……献给"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_knack",
       "type": "word",
       "word": "knack",
-      "phon": "/nˈæk/",
-      "en": "A readiness in performance; aptness at doing something.",
-      "zh": "诀窍；窍门；诀；熟练",
+      "phon": "/næk/",
+      "en": "a natural skill or ability to do something well",
+      "zh": "诀窍、窍门；（天生的）本领、才能（have a knack for）",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "knacks",
+          "→",
+          "n. 复数"
+        ],
+        [
+          "have a knack for",
+          "→",
+          "擅长……；有……的天赋"
+        ]
+      ],
       "examples": [
         [
           "as fascinating as someone that just has a {knack} for shooting. I had a knack for",
-          "有些人天生擅长射击一样令人着迷。我很擅长"
+          "和那些天生就会投篮的人一样让人着迷。我挺有投篮天赋的"
+        ],
+        [
+          "She has a {knack} for languages.",
+          "她很有语言天赋。"
+        ],
+        [
+          "Cooking rice is easy once you get the {knack}.",
+          "掌握窍门后煮饭很简单。"
         ]
       ],
-      "tip": ""
+      "tip": "k 不发音，读 /næk/，同 knife、knee。固定搭配：have a knack for (doing) sth（有……的本事）、get the knack of（掌握窍门）。",
+      "related": [
+        [
+          "talent",
+          "天赋"
+        ],
+        [
+          "gift",
+          "天赋"
+        ],
+        [
+          "skill",
+          "技能"
+        ],
+        [
+          "trick",
+          "窍门"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_obsessed",
       "type": "word",
       "word": "obsessed",
-      "phon": "/əbsˈɛst/",
-      "en": "simple past and past participle of obsess",
-      "zh": "痴迷",
+      "phon": "/əbˈsɛst/",
+      "en": "unable to stop thinking about something; extremely interested in it",
+      "zh": "着迷的、痴迷的（be obsessed with）；（obsess 的过去式）使着迷、困扰",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "obsess",
+          "→",
+          "原形 v. 使着迷；困扰"
+        ],
+        [
+          "obsession",
+          "→",
+          "n. 痴迷；执念"
+        ],
+        [
+          "obsessive",
+          "→",
+          "adj. 着迷的；强迫性的"
+        ]
+      ],
       "examples": [
         [
           "shooting. I was {obsessed}. I shot I shot every day, but when I started playing",
-          "射击。我当时非常着迷。我每天都练习投篮，但我13岁开始打球的时候"
+          "投篮。我当时很痴迷。我每天都练投篮，但当我开始打球时"
+        ],
+        [
+          "I'm {obsessed} with this song.",
+          "我超迷这首歌。"
+        ],
+        [
+          "He's {obsessed} with his phone.",
+          "他整天离不开手机。"
         ]
       ],
-      "tip": ""
+      "tip": "ob-（对着）+ sess（坐，同 session）＝“一直坐在你心头” → 挥之不去、痴迷。搭配介词 with：be obsessed with sth。",
+      "related": [
+        [
+          "hooked",
+          "上瘾的"
+        ],
+        [
+          "crazy about",
+          "对……着迷"
+        ],
+        [
+          "addicted",
+          "上瘾的"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_backspin",
       "type": "word",
       "word": "backspin",
-      "phon": "/bˈækspɪn/",
-      "en": "Spin applied to a ball in order to slow it, change its flight, or stop it when it lands.",
-      "zh": "后旋",
+      "phon": "/ˈbækˌspɪn/",
+      "en": "a backward spin on a ball that slows it or makes it bounce back",
+      "zh": "（球的）后旋、回旋",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "topspin",
+          "→",
+          "对应词 n. 上旋"
+        ],
+        [
+          "sidespin",
+          "→",
+          "n. 侧旋"
+        ]
+      ],
       "examples": [
         [
           "I don't know. It just made sense. The {backspin}, the flick of the wrist, all",
-          "我不知道。这完全合乎逻辑。反手旋转，手腕的轻弹，还有"
+          "我也说不清，就是觉得很合理。后旋、手腕的轻抖，所有"
+        ],
+        [
+          "Good shooters put {backspin} on the ball.",
+          "好的射手投篮会让球带后旋。"
+        ],
+        [
+          "The {backspin} made the ball stop quickly.",
+          "后旋让球很快停下来。"
         ]
       ],
-      "tip": ""
+      "tip": "back（向后）+ spin（旋转）＝后旋。投篮时手腕下压、手指拨球就会产生 backspin，球碰框后更容易“软”进。反义 topspin 上旋，乒乓球、网球常用。",
+      "related": [
+        [
+          "spin",
+          "旋转"
+        ],
+        [
+          "topspin",
+          "上旋"
+        ],
+        [
+          "arc",
+          "弧线"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_sorts_of",
       "type": "phrase",
       "word": "sorts of",
-      "phon": "",
-      "en": "",
-      "zh": "有点",
+      "phon": "/ˈsɔrts əv/",
+      "en": "used in \"all sorts of\" to mean many different kinds of",
+      "zh": "（all sorts of）各种各样的、形形色色的；各类",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "all sorts of",
+          "→",
+          "各种各样的"
+        ],
+        [
+          "sort of",
+          "→",
+          "有点儿（口语，≠ sorts of）"
+        ],
+        [
+          "a sort of",
+          "→",
+          "一种……"
+        ]
+      ],
       "examples": [
         [
           "your career was 36 and volume, all {sorts of} different ones. Um which is",
-          "你的职业生涯有 36 个不同的时期。嗯，这是"
+          "你的职业生涯……各种各样不同的。嗯，这是"
+        ],
+        [
+          "We talked about all {sorts of} things.",
+          "我们聊了各种各样的事。"
+        ],
+        [
+          "The market sells all {sorts of} fruit.",
+          "这个市场卖各种水果。"
         ]
       ],
-      "tip": ""
+      "tip": "注意区分：all sorts of＝各种各样（= all kinds of）；sort of（单数、无 s）＝有点儿（= kind of），如 I'm sort of tired。原 zh“有点”是 sort of 的意思。",
+      "related": [
+        [
+          "all kinds of",
+          "各种各样的"
+        ],
+        [
+          "various",
+          "各种的"
+        ],
+        [
+          "sort of",
+          "有点儿"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_kebab",
       "type": "word",
       "word": "kebab",
-      "phon": "/kəbˈɑb/",
-      "en": "A dish usually made of cut meat roasted on a skewer or spit, especially one based on Middle Eastern or South Asian cuisine. A hand-held dish…",
-      "zh": "烤肉串；烤肉霸",
+      "phon": "/kəˈbɑb/",
+      "en": "meat cooked on a skewer or spit, often served in bread with salad and sauce",
+      "zh": "（土耳其）旋转烤肉卷（döner kebab，柏林街头名吃）；烤肉串",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "kebabs",
+          "→",
+          "n. 复数"
+        ],
+        [
+          "kabob",
+          "→",
+          "美式拼写"
+        ],
+        [
+          "döner kebab",
+          "→",
+          "旋转烤肉卷"
+        ],
+        [
+          "shish kebab",
+          "→",
+          "烤肉串"
+        ]
+      ],
       "examples": [
         [
           "Best {kebab} I've ever had. If you're ever in Berlin, that was so good.",
-          "我吃过最好吃的烤肉串。如果你有机会去柏林，那真是太棒了。"
+          "这是我吃过最好吃的烤肉卷。如果你去柏林，一定要尝尝，太好吃了。"
+        ],
+        [
+          "Let's grab a {kebab} after the bar.",
+          "喝完酒去吃个烤肉卷吧。"
+        ],
+        [
+          "We grilled chicken {kebabs} on the beach.",
+          "我们在海边烤了鸡肉串。"
         ]
       ],
-      "tip": ""
+      "tip": "柏林的 döner kebab 是夹在面包里的旋转烤肉，和中东/南亚串在签子上的 shish kebab 不同。美式也拼 kabob。",
+      "related": [
+        [
+          "skewer",
+          "烤串签；串"
+        ],
+        [
+          "shawarma",
+          "沙威玛"
+        ],
+        [
+          "gyro",
+          "希腊烤肉卷"
+        ],
+        [
+          "satay",
+          "沙爹"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_skip_the_line",
       "type": "phrase",
       "word": "skip the line",
-      "phon": "",
-      "en": "",
-      "zh": "免排队",
+      "phon": "/ˌskɪp ðə ˈlaɪn/",
+      "en": "to go ahead of people who are waiting in a line; also to avoid waiting by paying extra",
+      "zh": "插队；（买票）免排队、走快速通道",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "skipped the line",
+          "→",
+          "过去式"
+        ],
+        [
+          "skip-the-line ticket",
+          "→",
+          "免排队门票"
+        ],
+        [
+          "cut in line",
+          "→",
+          "插队（同义说法）"
+        ]
+      ],
       "examples": [
         [
           "Oh my god, if you {skip the line}. If you skip the line, Germans would be very offended, because everyone has to be in line",
-          "我的天哪，如果你插队的话。如果你插队，德国人会非常生气，因为每个人都必须一个接"
+          "我的天，如果你插队的话。如果你插队，德国人会非常生气，因为每个人都必须排队"
+        ],
+        [
+          "Don't {skip the line}, it's rude.",
+          "别插队，那样很没礼貌。"
+        ],
+        [
+          "We bought tickets to {skip the line}.",
+          "我们买了免排队的票。"
         ]
       ],
-      "tip": ""
+      "tip": "skip（跳过）+ the line（队伍）＝跳过队伍。贬义时＝插队，同义 cut in line / jump the queue（英式）；景点门票上的 skip-the-line 则是“免排队”，是卖点。",
+      "related": [
+        [
+          "cut in line",
+          "插队"
+        ],
+        [
+          "jump the line",
+          "插队"
+        ],
+        [
+          "jump the queue",
+          "插队（英式）"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_skip",
       "type": "word",
       "word": "skip",
-      "phon": "/skˈɪp/",
-      "en": "To move by hopping on alternate feet.",
-      "zh": "跳过；跳跃；踊跃；跃",
+      "phon": "/skɪp/",
+      "en": "to not do, take or have something; to jump over it",
+      "zh": "跳过、略过；不参加（skip class 逃课、skip breakfast 不吃早饭）；（skip the line）插队；蹦跳",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "skipped",
+          "→",
+          "过去式/过去分词"
+        ],
+        [
+          "skipping",
+          "→",
+          "现在分词"
+        ],
+        [
+          "skips",
+          "→",
+          "第三人称单数"
+        ]
+      ],
       "examples": [
         [
           "Oh my god, if you {skip} the line. If you skip the line, Germans would be very offended, because everyone has to be in line",
-          "我的天哪，如果你插队的话。如果你插队，德国人会非常生气，因为每个人都必须一个接"
+          "我的天，如果你插队的话。如果你插队，德国人会非常生气，因为每个人都必须排队"
+        ],
+        [
+          "I {skipped} breakfast this morning.",
+          "我今天没吃早饭。"
+        ],
+        [
+          "Let's {skip} this part.",
+          "这部分我们跳过吧。"
         ]
       ],
-      "tip": ""
+      "tip": "skip 本义“蹦跳”，引申为“跳过”某样东西：skip a song（切歌）、skip class（逃课）、skip the ads（跳过广告）。过去式双写 p：skipped。",
+      "related": [
+        [
+          "miss",
+          "错过；缺席"
+        ],
+        [
+          "omit",
+          "省略"
+        ],
+        [
+          "jump",
+          "跳"
+        ],
+        [
+          "pass on",
+          "放弃；不要"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_offended",
       "type": "word",
       "word": "offended",
-      "phon": "/əfˈɛndəd/",
-      "en": "This term needs a definition. Please help out and add a definition, then remove the text {{rfdef}}.",
-      "zh": "冒犯了；生气的",
+      "phon": "/əˈfɛndɪd/",
+      "en": "upset or annoyed because someone has been rude or disrespectful",
+      "zh": "被冒犯的、生气的；不高兴的；（offend 的过去式）冒犯了",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "offend",
+          "→",
+          "原形 v. 冒犯；得罪"
+        ],
+        [
+          "offense",
+          "→",
+          "n. 冒犯；（篮球）进攻；罪行"
+        ],
+        [
+          "offensive",
+          "→",
+          "adj. 冒犯的；进攻的"
+        ]
+      ],
       "examples": [
         [
           "Oh my god, if you skip the line. If you skip the line, Germans would be very {offended}, because everyone has to be in line",
-          "我的天哪，如果你插队的话。如果你插队，德国人会非常生气，因为每个人都必须一个接"
+          "我的天，如果你插队的话。如果你插队，德国人会非常生气，因为每个人都必须排队"
+        ],
+        [
+          "No offense, I didn't mean to {offend} you.",
+          "无意冒犯，我不是故意惹你不高兴。"
+        ],
+        [
+          "She was {offended} by his joke.",
+          "她被他的玩笑惹恼了。"
         ]
       ],
-      "tip": ""
+      "tip": "offended 描述“人觉得被冒犯”，offensive 描述“事物令人反感”。口头禅 No offense（无意冒犯）；篮球里 offense 是“进攻”。",
+      "related": [
+        [
+          "upset",
+          "不高兴的"
+        ],
+        [
+          "insulted",
+          "受辱的"
+        ],
+        [
+          "hurt",
+          "受伤的（感情）"
+        ],
+        [
+          "annoyed",
+          "恼火的"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_assumed",
       "type": "word",
       "word": "assumed",
-      "phon": "/əsˈumd/",
-      "en": "simple past and past participle of assume",
-      "zh": "假定；假装的",
+      "phon": "/əˈsumd/",
+      "en": "past tense of assume: thought something was true without checking",
+      "zh": "以为、假定（了）；（adj.）假的、化名的（assumed name）；承担（了）（职责）",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "assume",
+          "→",
+          "原形 v. 假定；以为；承担"
+        ],
+        [
+          "assumption",
+          "→",
+          "n. 假设；设想"
+        ],
+        [
+          "assuming",
+          "→",
+          "conj. 假设……"
+        ]
+      ],
       "examples": [
         [
           "So, I would have {assumed} if you skipped the line in Germany, people would be offended.",
-          "所以，我原本以为如果你在德国插队，人们会觉得被冒犯了。"
+          "所以，我本来以为如果你在德国插队，大家会觉得被冒犯。"
+        ],
+        [
+          "I {assumed} you already knew.",
+          "我以为你已经知道了。"
+        ],
+        [
+          "Don't {assume} everyone agrees with you.",
+          "别以为每个人都同意你。"
         ]
       ],
-      "tip": ""
+      "tip": "assume＝“没确认就先认定”。俗语：Never assume — it makes an ASS of U and ME（拆成 ass-u-me 记）。I would have assumed…＝我本来会以为……",
+      "related": [
+        [
+          "suppose",
+          "猜想；认为"
+        ],
+        [
+          "presume",
+          "假定"
+        ],
+        [
+          "guess",
+          "猜"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_stereotypes",
       "type": "word",
       "word": "stereotypes",
-      "phon": "/stˈɛɹiətaɪps/",
-      "en": "plural of stereotype",
-      "zh": "刻板印象；铅板；铅印",
+      "phon": "/ˈstɛriəˌtaɪps/",
+      "en": "plural of stereotype: fixed, oversimplified ideas about a group of people",
+      "zh": "刻板印象（复数）；成见；（v.）对……有刻板印象",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "stereotype",
+          "→",
+          "n. 单数 / v. 形成刻板印象"
+        ],
+        [
+          "stereotypical",
+          "→",
+          "adj. 典型的；刻板的"
+        ],
+        [
+          "stereotyped",
+          "→",
+          "adj. 老套的"
+        ]
+      ],
       "examples": [
         [
           "And then Torres is literally proving at the moment that {stereotypes} are not really working. This guy's skipping the line.",
-          "而托雷斯目前正在用实际行动证明，刻板印象其实并不奏效。这家伙插队了。"
+          "而托雷斯此刻就在实际证明，刻板印象其实并不靠谱。这家伙在插队。"
+        ],
+        [
+          "That's just a {stereotype} about Germans.",
+          "那只是对德国人的刻板印象。"
+        ],
+        [
+          "Let's not rely on {stereotypes}.",
+          "我们别靠刻板印象来判断。"
         ]
       ],
-      "tip": ""
+      "tip": "stereo（固定、立体）+ type（印刷字模）＝原指印刷用的固定铅版，一印出来都一样 → 引申为“一成不变的看法”。常用 break stereotypes（打破刻板印象）。",
+      "related": [
+        [
+          "cliché",
+          "陈词滥调"
+        ],
+        [
+          "prejudice",
+          "偏见"
+        ],
+        [
+          "generalization",
+          "一概而论"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_good_looking",
       "type": "word",
       "word": "good-looking",
-      "phon": "/ɡˈʊdlʊkɪŋ/",
-      "en": "Physically attractive (of a person).",
-      "zh": "好看；睆；美貌；漂亮",
+      "phon": "/ˌɡʊdˈlʊkɪŋ/",
+      "en": "physically attractive",
+      "zh": "好看的、帅的；漂亮的；有吸引力的",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "better-looking",
+          "→",
+          "比较级"
+        ],
+        [
+          "best-looking",
+          "→",
+          "最高级"
+        ],
+        [
+          "good looks",
+          "→",
+          "n. 好相貌"
+        ]
+      ],
       "examples": [
         [
           "I'm just too {good-looking}, man. They let me jump the line.",
-          "我长得太帅了，老兄。他们让我插队了。"
+          "我就是长得太帅了，老兄。他们让我插队了。"
+        ],
+        [
+          "He's a really {good-looking} guy.",
+          "他是个大帅哥。"
+        ],
+        [
+          "She's even more {good-looking} in person.",
+          "她本人比照片还好看。"
         ]
       ],
-      "tip": ""
+      "tip": "good-looking 男女都可用；handsome 多形容男性，pretty / beautiful 多形容女性。比较级是 better-looking，不是 gooder-looking。",
+      "related": [
+        [
+          "handsome",
+          "英俊的"
+        ],
+        [
+          "attractive",
+          "有魅力的"
+        ],
+        [
+          "pretty",
+          "漂亮的"
+        ],
+        [
+          "cute",
+          "可爱的"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_licking",
       "type": "word",
       "word": "licking",
-      "phon": "/lˈɪkɪŋ/",
-      "en": "The act by which something is licked.",
-      "zh": "舔；舐；打败；餂",
+      "phon": "/ˈlɪkɪŋ/",
+      "en": "present participle of lick: moving your tongue over something",
+      "zh": "舔（lick 的现在分词）；（口语）痛打、惨败",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "lick",
+          "→",
+          "原形 v./n. 舔"
+        ],
+        [
+          "licked",
+          "→",
+          "过去式/过去分词"
+        ],
+        [
+          "take a licking",
+          "→",
+          "挨揍；惨败"
+        ]
+      ],
       "examples": [
         [
           "they're all camping here until I see the guy just start {licking} things and we saw the knife.",
-          "这里露营，直到我看到那个人开始舔东西，然后我们还看到了刀。"
+          "……都在这里露营，直到我看到那个人开始舔东西，然后我们看到了刀。"
+        ],
+        [
+          "The dog keeps {licking} my hand.",
+          "狗一直在舔我的手。"
+        ],
+        [
+          "Stop {licking} your fingers!",
+          "别舔手指了！"
         ]
       ],
-      "tip": ""
+      "tip": "lick 发音像“舔”的声音。finger-licking good＝好吃到吮手指（肯德基口号）；口语 take a licking＝挨揍、被打得很惨。",
+      "related": [
+        [
+          "taste",
+          "尝"
+        ],
+        [
+          "suck",
+          "吮吸"
+        ],
+        [
+          "chew",
+          "嚼"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_pickpocket",
       "type": "word",
       "word": "pickpocket",
-      "phon": "/pˈɪkpɑkət/",
-      "en": "One who steals from the pocket of a passerby, usually by sleight of hand.",
-      "zh": "扒手；掱",
+      "phon": "/ˈpɪkˌpɑkɪt/",
+      "en": "to steal from someone's pocket or bag; also a thief who does this",
+      "zh": "扒窃、被扒（v.，be pickpocketed）；扒手、小偷（n.）",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "pickpocketed",
+          "→",
+          "过去式/过去分词（被扒：get pickpocketed）"
+        ],
+        [
+          "pickpocketing",
+          "→",
+          "n. 扒窃行为"
+        ],
+        [
+          "pickpockets",
+          "→",
+          "n. 复数"
+        ]
+      ],
       "examples": [
         [
           "Have you ever been {pickpocket}?",
-          "你曾被扒窃过吗？"
+          "你被扒过吗？"
+        ],
+        [
+          "Watch out for {pickpockets} on the train.",
+          "在火车上小心扒手。"
+        ],
+        [
+          "I got {pickpocketed} in Barcelona.",
+          "我在巴塞罗那被扒了。"
         ]
       ],
-      "tip": ""
+      "tip": "pick（掏）+ pocket（口袋）＝掏口袋的人 → 扒手。“被扒了”地道说法是 get pickpocketed；原句 Have you ever been pickpocket? 是口语误用，规范应为 pickpocketed。",
+      "related": [
+        [
+          "thief",
+          "小偷"
+        ],
+        [
+          "steal",
+          "偷"
+        ],
+        [
+          "robbery",
+          "抢劫"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_chilling",
       "type": "word",
       "word": "chilling",
-      "phon": "/tʃˈɪlɪŋ/",
-      "en": "Becoming cold.",
-      "zh": "令人不寒而栗；变冷；镇；使冷",
+      "phon": "/ˈtʃɪlɪŋ/",
+      "en": "(informal) relaxing and not doing much",
+      "zh": "（口语）放松、闲待着（chill 的现在分词）；令人毛骨悚然的；使变冷、冷藏",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "chill",
+          "→",
+          "原形 v. 放松；冷藏 / n. 寒意"
+        ],
+        [
+          "chilled",
+          "→",
+          "adj. 冰镇的；放松的"
+        ],
+        [
+          "chilly",
+          "→",
+          "adj. 冷飕飕的"
+        ]
+      ],
       "examples": [
         [
           "{chilling} and sitting down.",
           "放松地坐着。"
+        ],
+        [
+          "We're just {chilling} at home tonight.",
+          "我们今晚就在家里放松一下。"
+        ],
+        [
+          "That was a {chilling} story.",
+          "那是个让人毛骨悚然的故事。"
         ]
       ],
-      "tip": ""
+      "tip": "chill 本义“冷”→ 冷静下来 → 放松：chill out（放松、冷静点）、Netflix and chill。形容词 chilling 则是“冷到骨子里”→ 令人不寒而栗，看语境区分。",
+      "related": [
+        [
+          "relaxing",
+          "放松"
+        ],
+        [
+          "hanging out",
+          "闲逛；待着"
+        ],
+        [
+          "chill out",
+          "冷静；放松"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_substance",
       "type": "word",
       "word": "substance",
-      "phon": "/sˈʌbstəns/",
-      "en": "Physical matter; material.",
-      "zh": "物质；实质；物；体",
+      "phon": "/ˈsʌbstəns/",
+      "en": "a drug, especially an illegal one; also a type of solid, liquid or gas",
+      "zh": "（违禁）药物、毒品（多用复数 substances）；物质；实质、内容；要点",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "substances",
+          "→",
+          "n. 复数"
+        ],
+        [
+          "substantial",
+          "→",
+          "adj. 大量的；实质的"
+        ],
+        [
+          "substance abuse",
+          "→",
+          "滥用药物"
+        ]
+      ],
       "examples": [
         [
           "can't close all the techno bar and stuff. Like people go to techno bar and they need the {substance}. So if you are a German policy maker, how do",
-          "不能把所有的电子音乐酒吧之类的都关掉。就像人们去电子音乐酒吧，他们需要毒品一样。那么，如果你是一位德国政策制定者，"
+          "不能把所有的电子音乐酒吧之类的都关掉。人们去电子音乐酒吧就需要那些药物。那么，如果你是德国的政策制定者，"
+        ],
+        [
+          "This is a dangerous {substance}.",
+          "这是一种危险物质。"
+        ],
+        [
+          "The speech was nice but had no {substance}.",
+          "演讲很好听，但没什么实质内容。"
         ]
       ],
-      "tip": ""
+      "tip": "sub-（在下面）+ stance（站）＝“站在底下撑着的东西” → 物质、实质。controlled substance / substance abuse 是“毒品、药物滥用”的委婉说法。",
+      "related": [
+        [
+          "drug",
+          "药物；毒品"
+        ],
+        [
+          "material",
+          "材料"
+        ],
+        [
+          "matter",
+          "物质"
+        ],
+        [
+          "essence",
+          "本质"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "v_ball",
       "type": "word",
       "word": "ball",
-      "phon": "",
-      "en": "",
-      "zh": "球；舞会；丸子",
+      "phon": "/bɔl/",
+      "en": "a round object that is thrown, kicked or hit in games",
+      "zh": "球；舞会；球状物、团（a ball of yarn 一团毛线）",
       "tag": "视频",
       "date": "2026-11-19",
-      "forms": [],
+      "forms": [
+        [
+          "balls",
+          "→",
+          "n. 复数"
+        ],
+        [
+          "ballroom",
+          "→",
+          "n. 舞厅"
+        ],
+        [
+          "have a ball",
+          "→",
+          "玩得很开心"
+        ]
+      ],
       "examples": [
         [
           "What about this one? Are you a {ball} watcher or rim watcher?",
-          ""
+          "那这个呢？你投篮时是盯着球看，还是盯着篮筐看？"
+        ],
+        [
+          "Pass me the {ball}!",
+          "把球传给我！"
+        ],
+        [
+          "We had a {ball} at the party.",
+          "我们在派对上玩得超开心。"
         ]
       ],
-      "tip": ""
+      "tip": "ball 除了“球”，还有正式“舞会”的意思（ballroom 舞厅、ballet 芭蕾同源）。习语 have a ball＝玩得很嗨；the ball is in your court＝轮到你做决定了。",
+      "related": [
+        [
+          "sphere",
+          "球体"
+        ],
+        [
+          "rim",
+          "篮筐"
+        ],
+        [
+          "dance",
+          "舞会；跳舞"
+        ]
+      ],
+      "u": 1795186510136
     },
     {
       "id": "plural_nouns",
@@ -38136,6 +40218,58 @@
       ],
       "tip": "play the piano 加 the，play football 不加；classical music 古典音乐，classic 是经典",
       "u": 1795181282680
+    },
+    {
+      "id": "v_matrix",
+      "type": "word",
+      "word": "Matrix",
+      "phon": "/ˈmeɪtrɪks/",
+      "en": "The Matrix is a 1999 sci-fi film; generally, a grid of numbers or the setting in which something develops",
+      "zh": "《黑客帝国》（The Matrix，1999 年科幻电影）；矩阵；（孕育事物的）母体、环境；基质；模具",
+      "tag": "视频",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "matrices",
+          "→",
+          "n. 复数（/ˈmeɪtrɪsiz/）"
+        ],
+        [
+          "matrixes",
+          "→",
+          "n. 复数（较少用）"
+        ]
+      ],
+      "examples": [
+        [
+          "The {Matrix}. An interesting shot.",
+          "《黑客帝国》。一个很有意思的镜头。"
+        ],
+        [
+          "Have you seen {The Matrix}?",
+          "你看过《黑客帝国》吗？"
+        ],
+        [
+          "Multiply the two {matrices}.",
+          "把这两个矩阵相乘。"
+        ]
+      ],
+      "tip": "matr- 来自拉丁语 mater（母亲），本义“子宫”→ 孕育事物的母体 → 矩阵。复数是 matrices（同 index→indices）。电影里的 the Matrix 就是“母体”这个虚拟世界。",
+      "related": [
+        [
+          "grid",
+          "网格"
+        ],
+        [
+          "array",
+          "数组；阵列"
+        ],
+        [
+          "framework",
+          "框架"
+        ]
+      ],
+      "u": 1795186510136
     }
   ],
   "progress": {
@@ -38172,7 +40306,8 @@
     "pub": "known",
     "bar": "known",
     "skyscraper": "known",
-    "v_ball": "known"
+    "v_ball": "known",
+    "v_matrix": "learning"
   },
   "deleted": [
     "u_1782668109496_exc6",

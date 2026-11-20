@@ -1,0 +1,26 @@
+{
+  "custom": [
+    {
+      "id": "v_consumption",
+      "type": "word",
+      "word": "consumption",
+      "phon": "/kənsˈʌmpʃən/",
+      "en": "The act of eating, drinking or using.",
+      "zh": "消耗；消费；消耗量",
+      "tag": "视频",
+      "date": "2026-11-20",
+      "forms": [],
+      "examples": [
+        [
+          "What they did in Germany now on the one hand is they legalized marijuana but only like certain amounts for your own {consumption}",
+          "一方面，德国现在将大麻合法化了，但只允许个人购买一定数量的大麻，"
+        ]
+      ],
+      "tip": ""
+    }
+  ],
+  "progress": {},
+  "deleted": [],
+  "pending": [],
+  "srs": {}
+}

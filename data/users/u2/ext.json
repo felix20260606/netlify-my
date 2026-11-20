@@ -1,0 +1,339 @@
+{
+  "ver": 1795183201827,
+  "items": {
+    "set|arrowKeys": {
+      "v": false,
+      "at": 1795183170591
+    },
+    "set|autoPause": {
+      "v": false,
+      "at": 1795183170591
+    },
+    "set|below": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|bgColor": {
+      "v": "#000000",
+      "at": 1795183170591
+    },
+    "set|bgOpacity": {
+      "v": 73,
+      "at": 1795183170591
+    },
+    "set|blurTrans": {
+      "v": false,
+      "at": 1795183170591
+    },
+    "set|cloze": {
+      "v": false,
+      "at": 1795183170591
+    },
+    "set|colIgnore": {
+      "v": "#CDA8F7",
+      "at": 1795183170591
+    },
+    "set|colKnown": {
+      "v": "#7CE3B8",
+      "at": 1795183170591
+    },
+    "set|colSpecial": {
+      "v": "#7CE3B8",
+      "at": 1795183170591
+    },
+    "set|colSuggest": {
+      "v": "#FFB86B",
+      "at": 1795183170591
+    },
+    "set|ctlHidden": {
+      "v": false,
+      "at": 1795183170591
+    },
+    "set|enabled": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|engine": {
+      "v": "youtube",
+      "at": 1795183170591
+    },
+    "set|fadeRare": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|font": {
+      "v": "Arial, Helvetica, sans-serif",
+      "at": 1795183170591
+    },
+    "set|gramLabel": {
+      "v": "off",
+      "at": 1795183170591
+    },
+    "set|greenKnown": {
+      "v": false,
+      "at": 1795183170591
+    },
+    "set|hideBar": {
+      "v": false,
+      "at": 1795183170591
+    },
+    "set|hideMode": {
+      "v": "off",
+      "at": 1795183170591
+    },
+    "set|hoverPause": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|level": {
+      "v": 700,
+      "at": 1795183170591
+    },
+    "set|merge": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|origSize": {
+      "v": 100,
+      "at": 1795183170591
+    },
+    "set|panelOpen": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|panelTrans": {
+      "v": "inline",
+      "at": 1795183170591
+    },
+    "set|posBottom": {
+      "v": 19,
+      "at": 1795183170591
+    },
+    "set|ratio": {
+      "v": 1,
+      "at": 1795183170591
+    },
+    "set|showGram": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|showHuman": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|showIgnore": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|showLearn": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|showLearnOutline": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|showPat": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|showSpecial": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|showSuggest": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|showTrans": {
+      "v": true,
+      "at": 1795183170591
+    },
+    "set|target": {
+      "v": "zh-CN",
+      "at": 1795183170591
+    },
+    "set|trColor": {
+      "v": "#f2f1ed",
+      "at": 1795183170591
+    },
+    "set|trSize": {
+      "v": 100,
+      "at": 1795183170591
+    },
+    "sugg|berlin": {
+      "v": {
+        "at": 1795183186059,
+        "n": 23,
+        "s": 59.52,
+        "t": "Why no homo? No McQueen Berlin bro. Yeah yeah yeah yeah yeah.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|bite": {
+      "v": {
+        "at": 1795183186059,
+        "n": 5,
+        "s": 434.56,
+        "t": "Bro, you got to look after yourself. Can I help you a little bit?",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|cuz": {
+      "v": {
+        "at": 1795183186059,
+        "n": 6,
+        "s": 173.44,
+        "t": "and take a beer, cuz that's the German rule.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|drug": {
+      "v": {
+        "at": 1795183186059,
+        "n": 8,
+        "s": 304.32,
+        "t": "Berlin Zoo is one of the German capital's most enduringly popular attractions. The park around it draws some of the city's hard drug users.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|euro": {
+      "v": {
+        "at": 1795183186059,
+        "n": 6,
+        "s": 0,
+        "t": "I'm going to give her 50 euro and if it's not crazy enough then you take it.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|german": {
+      "v": {
+        "at": 1795183186059,
+        "n": 15,
+        "s": 84.6,
+        "t": "me the best German food. If it's not the best then I was told by Nick that And they lied to you. What do you do? Yeah you boycott them. Take them out of your life.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|germany": {
+      "v": {
+        "at": 1795183186059,
+        "n": 9,
+        "s": 110.96,
+        "t": "Who says Germany don't have good food huh?",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|max": {
+      "v": {
+        "at": 1795183186059,
+        "n": 5,
+        "s": 77.04,
+        "t": "Good to see you. This is Max. You have seen him in a lot of my videos. We went to Budapest we went everywhere. Um he's about to show",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|park": {
+      "v": {
+        "at": 1795183186059,
+        "n": 12,
+        "s": 157.28,
+        "t": "Yeah. Uh hanging around in maybe parks.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|skip": {
+      "v": {
+        "at": 1795183186059,
+        "n": 5,
+        "s": 175.88,
+        "t": "How to offend a German? Oh my god, if you skip the line. If you skip the line, Germans would be very offended, because everyone has to be in line behind each other,",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|stress": {
+      "v": {
+        "at": 1795183186059,
+        "n": 5,
+        "s": 716,
+        "t": "I don't know why why whenever I look at European, I feel like they have no stress. Like they There's just no stress in their life.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|study": {
+      "v": {
+        "at": 1795183186059,
+        "n": 13,
+        "s": 138.68,
+        "t": "Yeah, I'm still a student. Do you get to study for free?",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|torture": {
+      "v": {
+        "at": 1795183186059,
+        "n": 5,
+        "s": 339.84,
+        "t": "Yeah. And he he wrote is to cleanse sick souls then with the copyright she did to me and spiritual torture. You have spiritual torture?",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|tourist": {
+      "v": {
+        "at": 1795183186059,
+        "n": 7,
+        "s": 490.56,
+        "t": "I think like the tourists.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "sugg|woo": {
+      "v": {
+        "at": 1795183186059,
+        "n": 6,
+        "s": 1040.76,
+        "t": "What did he say? Oh, What the Say, what did he say? Nothing. He didn't say any words that you could But he said woo woo woo.",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183190084
+    },
+    "saved|consumption": {
+      "v": "consumption",
+      "at": 1795183201227
+    },
+    "savedCtx|consumption": {
+      "v": {
+        "at": 1795183196353,
+        "s": 912.44,
+        "t": "What they did in Germany now on the one hand is they legalized marijuana but only like certain amounts for your own consumption",
+        "v": "2Wf3xLuz5Kg"
+      },
+      "at": 1795183201227
+    },
+    "wimg|consumption": {
+      "v": {
+        "c": [],
+        "o": 0
+      },
+      "at": 1795183201227
+    },
+    "med|med:w:consumption": {
+      "v": "1795183196353:0:22723:0",
+      "at": 1795183201227
+    }
+  }
+}
