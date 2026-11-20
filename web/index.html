@@ -416,6 +416,7 @@
       <button data-c="sentence">句子<b id="c-sentence">0</b></button>
       <button data-c="pattern">规律<b id="c-pattern">0</b></button>
     </div>
+    <div class="ptags" id="ptags"></div><!-- 选「规律」时按分类（词条的 tag）再细分 -->
     <div class="toolbar">
       <div class="search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -866,6 +867,10 @@
   .ring{box-shadow:0 5px 16px rgba(0,0,0,.3)}
   .search:focus-within{border-color:var(--ui-pur);box-shadow:0 0 0 3px rgba(156,63,208,.22)}
   .filters button.on,.actions .mark.on,.got{background:var(--ui-orange);border-color:var(--ui-orange);color:#2b1d05;box-shadow:none}
+  .ptags{display:none;flex-wrap:wrap;gap:6px;margin-top:10px}.ptags.on{display:flex}
+  .ptags button{border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink-2);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+  .ptags button b{margin-left:5px;font-weight:600;color:var(--ui-muted)}.ptags button.on{background:var(--ui-pur);border-color:var(--ui-pur);color:#fff}.ptags button.on b{color:#fff}
+  @media (max-width:767px){.ptags{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:10px -16px 0;padding:0 16px}.ptags::-webkit-scrollbar{display:none}.ptags button{flex:0 0 auto}}
   .cats button.on,#triprow button.on{background:var(--ui-pur);border-color:var(--ui-pur);color:#fff;box-shadow:0 3px 10px rgba(156,63,208,.3)}
   .vtest{background:var(--ui-pur)}
   .card--phrase::before{background:var(--ui-green-2)}.card--sentence::before{background:#8e6bd0}
@@ -938,7 +943,18 @@ async function syncNow(){
   }catch(e){}finally{syncing=false; if(syncAgain){syncAgain=false;schedulePush();}}
 }
 function schedulePush(){ clearTimeout(pushTimer); pushTimer=setTimeout(syncNow,1500); }
-let state=def(), words=[], filter="all", query="", cat="all", addType="word", sortBy="new";
+let state=def(), words=[], filter="all", query="", cat="all", addType="word", sortBy="new", ptag="all";
+/* 规律的分类（词条 tag）：顺序 = 「规律」下面分类按钮的顺序；没列到的 tag 排在后面 */
+const PTAGS=[["语法规律","📐 语法"],["搭配易混","🔗 搭配易混"],["拼写规律","✏️ 拼写"],["书写规律","🖊 书写标点"],["构词规律","🧱 构词"],["词根","🌱 词根"],["发音规律","🔊 发音"],["口语规律","💬 口语"],["数字规律","🔢 数字"],["日期规律","📅 日期"],["美英差异","🇺🇸🇬🇧 美英"],["场景表达","🧭 场景"],["主题词汇","🗂 主题词汇"]];
+function renderPtags(){
+  const box=document.getElementById("ptags");if(!box)return;
+  box.classList.toggle("on",cat==="pattern");if(cat!=="pattern")return;
+  const n={};words.forEach(w=>{if(w.type==="pattern"){const t=w.tag||"其他";n[t]=(n[t]||0)+1;}});
+  const L=PTAGS.filter(([t])=>n[t]).concat(Object.keys(n).filter(t=>!PTAGS.some(p=>p[0]===t)).map(t=>[t,t]));
+  if(ptag!=="all"&&!n[ptag])ptag="all";
+  const all=Object.values(n).reduce((a,b)=>a+b,0);
+  box.innerHTML=`<button data-pt="all" class="${ptag==="all"?"on":""}">全部<b>${all}</b></button>`+L.map(([t,l])=>`<button data-pt="${eAttr(t)}" class="${ptag===t?"on":""}">${l}<b>${n[t]}</b></button>`).join("");
+}
 function sortedWords(){
   let arr=words.map((w,i)=>({w,i}));
   if(sortBy==="az")arr.sort((a,b)=>a.w.word.toLowerCase().localeCompare(b.w.word.toLowerCase()));
@@ -1121,6 +1137,7 @@ function renderList(){
   const box=document.getElementById("list");
   let arr=sortedWords();
   if(cat!=="all")arr=arr.filter(w=>w.type===cat);
+  renderPtags();if(cat==="pattern"&&ptag!=="all")arr=arr.filter(w=>(w.tag||"其他")===ptag);
   if(filter!=="all")arr=arr.filter(w=>filter==="known"?w.status==="known":w.status!=="known");
   if(query){const q=query.toLowerCase();arr=arr.filter(w=>w.word.toLowerCase().includes(q)||w.zh.includes(query));}
   if(!arr.length){box.innerHTML='<div class="empty">这个分类还没有内容。<br>问我新词/短语/台词，或用“添加”自己加进来。</div>';return;}
@@ -1234,6 +1251,8 @@ function setCat(c){
   renderList();
 }
 document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>setCat(b.dataset.c));
+document.getElementById("ptags").onclick=e=>{const b=e.target.closest("[data-pt]");if(!b)return;ptag=b.dataset.pt;try{localStorage.setItem("list:ptag",ptag);}catch(x){}renderList();};
+try{ptag=localStorage.getItem("list:ptag")||"all";}catch(x){}
 
 
 /* ===== quick collect (from videos / web pages) ===== */
@@ -1529,6 +1548,6 @@ refresh(); // show seed words immediately, no waiting on storage
 <script src="export.js?v=1"></script>
 <script src="saved-web.js?v=5"></script>
 <script src="reader.js?v=2"></script>
-<script src="grammar.js?v=3"></script>
+<script src="grammar.js?v=4"></script>
 </body>
 </html>

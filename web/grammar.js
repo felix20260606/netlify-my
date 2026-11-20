@@ -9,9 +9,10 @@
   const LG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, LS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const SECTIONS = [
     { k: "grammar", t: "📐 语法速查", tags: ["语法规律"] },
+    { k: "colloc", t: "🔗 搭配和易混词", tags: ["搭配易混"] },
     { k: "pattern", t: "🧩 常用句型", src: "pat" },
-    { k: "spell", t: "✏️ 拼写和词形", tags: ["拼写规律"] },
-    { k: "word", t: "🧱 构词和词根", tags: ["构词规律", "词根"] },
+    { k: "spell", t: "✏️ 拼写和书写", tags: ["拼写规律", "书写规律"] },
+    { k: "word", t: "🧱 构词和词根", tags: ["构词规律", "词缀规律", "词根"] },
     { k: "sound", t: "🔊 发音", tags: ["发音规律"] },
     { k: "spoken", t: "💬 口语表达", tags: ["口语规律"] },
     { k: "number", t: "🔢 数字和日期", tags: ["数字规律", "日期规律"] },
