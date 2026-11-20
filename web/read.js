@@ -1,0 +1,494 @@
+/* 生词本「📰 阅读」：粘贴英文文章（或填网址抓正文），大字号按段落、按句子显示，点词查词、一键加入生词本。
+   - 上色和语法下划线：和看视频时的字幕同一套（watch.js 的 window.__vs 加载 web/vs/ 里和插件共用的 freq.js / vlevel.js / gram.js）
+     · 生词本里已掌握的词不上色，在学的加淡紫底
+   - 顶部：词数、预计阅读时间、生词率（不在生词本、且比设定水平难的词的占比）、按词频分的水平分布条
+   - 每句末尾 🔊 读整句，点句子左侧的小圆点也行；「全文朗读」逐句读并高亮当前句，可以停止
+   - 我的文章：最近读过的存在本机 localStorage「reading:docs」（最多 20 篇，{id, title, text, at, pos}，pos = 读到第几句）
+   依赖 index.html 的全局：words / speak / toast；生词本加词用 window.vocabAddWord(word, sentence)
+   依赖后台：GET /api/readurl?url=… → {ok, title, text}；GET /api/dict?w=… → {ok, word, phon, zh, en, examples:[[en, zh]]}；
+            GET /api/ext（只读，取插件设置里的词汇水平，和 watch.js 同一个接口） */
+(function () {
+  "use strict";
+
+  /* ================= 纯函数：清理文本、分段、分句、分词（不碰页面，node 里也能测） ================= */
+  // 不算句末的缩写（后面跟大写也不断句）："Mr. Lee"、"Dr. Tan"、"St. Paul"
+  const ABBR = new Set("mr mrs ms dr prof st jr sr mt vs fig gen col lt sgt capt rev hon inc ltd co corp dept approx jan feb mar apr jun jul aug sep sept oct nov dec al".split(" "));
+  // 和 web/vs/vlevel.js 的 VS_WORD_RE 一样的分词规则（字母数字，中间可以带 ' ’ -）
+  const WORD_RE = /[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu;
+
+  function cleanText(t) {
+    return String(t == null ? "" : t).replace(/\r\n?/g, "\n").replace(/[    ]/g, " ").replace(/[​‌‍﻿]/g, "")
+      .replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  }
+  // 分段：有空行就按空行分（段内换行并成空格）；没有空行就一行一段，但上一行没写完（不以标点结尾、下一行小写开头）时接上
+  function splitParas(t) {
+    t = cleanText(t); if (!t) return [];
+    let blocks;
+    if (/\n\n/.test(t)) blocks = t.split(/\n\n+/).map(b => b.replace(/\n/g, " "));
+    else {
+      blocks = [];
+      t.split("\n").forEach(l => { const p = blocks.length - 1; if (p >= 0 && !/[.!?:;"”’)\]…]$/.test(blocks[p]) && /^[a-z]/.test(l)) blocks[p] += " " + l; else blocks.push(l); });
+    }
+    return blocks.map(b => b.replace(/\s+/g, " ").trim()).filter(b => /[A-Za-z]/.test(b));
+  }
+  // 分句：. ! ? … 后面跟空格、下一个字不是小写时断开；缩写（Mr.）、人名首字母（J. K.）、e.g. / U.S.、No. 5、小数都不断
+  function splitSents(p) {
+    p = String(p == null ? "" : p).replace(/\s+/g, " ").trim(); if (!p) return [];
+    const out = [], re = /[.!?…]+["'”’)\]]*(?=\s|$)/g; let m, start = 0;
+    while ((m = re.exec(p))) {
+      const end = m.index + m[0].length, rest = p.slice(end).replace(/^\s+/, "");
+      if (!rest) break;
+      if (/^[a-z]/.test(rest)) continue; // 下一个字小写：多半不是句末（"Really?" she asked. / Hmm... maybe）
+      if (/^\.["'”’)\]]*$/.test(m[0])) { // 只有一个句点：看前面那个词是不是缩写
+        const lw = (p.slice(start, m.index).match(/([A-Za-z][A-Za-z.]*)$/) || [])[1] || "";
+        if (ABBR.has(lw.toLowerCase())) continue;
+        if (/^[A-Z]$/.test(lw)) continue; // 人名首字母 J. K. Rowling
+        if (/^([A-Za-z]\.)+[A-Za-z]$/.test(lw)) continue; // e.g. / i.e. / U.S.
+        if (/^no$/i.test(lw) && /^\d/.test(rest)) continue; // No. 5
+      }
+      out.push(p.slice(start, end).trim()); start = end;
+    }
+    const last = p.slice(start).trim(); if (last) out.push(last);
+    return out;
+  }
+  // 分词：[{ w 词, i 位置, first 是否句首（判断大写是不是专有名词用，规则同 vlevel.js 的 vsMark） }]
+  function tokens(s) {
+    s = String(s == null ? "" : s); const out = []; let m; WORD_RE.lastIndex = 0;
+    while ((m = WORD_RE.exec(s))) { const prev = s.slice(0, m.index).replace(/\s+$/, ""); out.push({ w: m[0], i: m.index, first: !prev || /[.?!…“‘"'(\[:;—–\-]$/.test(prev) }); }
+    return out;
+  }
+  const isWord = w => /[A-Za-z]/.test(w);
+  const wordCount = t => tokens(t).filter(x => isWord(x.w)).length;
+  // 标题：第一段很短、不以句号结尾就当标题；否则取开头 8 个词
+  function titleOf(t) {
+    const p = splitParas(t)[0] || ""; if (!p) return "未命名文章";
+    if (p.length <= 80 && !/[.!?]$/.test(p)) return p;
+    const ws = p.split(/\s+/); return ws.slice(0, 8).join(" ").replace(/[,.;:!?]+$/, "") + (ws.length > 8 ? "…" : "");
+  }
+  // 文章 → { paras: [[句子序号…]…], sents: [句子…] }，句子序号全文连续编号
+  function parse(t) { const sents = [], paras = splitParas(t).map(p => splitSents(p).map(s => sents.push(s) - 1)); return { paras, sents }; }
+  // 生词本匹配用：常见词尾变化的原形（同 watch.js 的 stems）
+  function stems(w) { const o = [w]; if (/ies$/.test(w)) o.push(w.slice(0, -3) + "y"); if (/(es|ed)$/.test(w)) o.push(w.slice(0, -2), w.slice(0, -1)); if (/s$/.test(w)) o.push(w.slice(0, -1)); if (/ing$/.test(w)) o.push(w.slice(0, -3), w.slice(0, -3) + "e"); if (/(.)\1(ed|ing)$/.test(w)) o.push(w.replace(/(.)\1(ed|ing)$/, "$1")); return o; }
+
+  /* ================= 内置示例短文（原创） ================= */
+  const SAMPLES = [
+    { id: "s:saturday", tag: "日常", title: "A Slow Saturday Morning", text: `Every Saturday, I try to wake up without an alarm. Usually my body still opens its eyes at seven, but I stay in bed for a few more minutes and listen to the rain on the window. There is no meeting to join and no train to catch, so the morning feels much longer than a weekday morning.
+
+After I get up, I make a pot of coffee and two slices of toast with peanut butter. I eat breakfast slowly by the window while I write a short list of things I want to do. The list is never very serious. Last week it said: buy vegetables, call Mum, fix the bike light, and read one chapter of a book.
+
+Around ten o'clock, I walk to the small market near my flat. The man who sells fruit already knows my name, and he always tells me which mangoes are the sweetest that day. I don't always believe him, but I usually buy them anyway.
+
+By lunchtime I have finished most of my list. The bike light is still broken, of course. I have decided that it can wait until next Saturday.` },
+    { id: "s:penang", tag: "旅行", title: "Two Days in Penang", text: `If you only have a weekend, Penang is one of the easiest trips you can take from Kuala Lumpur. The flight takes less than an hour, and the bus from the airport to George Town is cheap and comfortable.
+
+On our first morning, we rented bicycles and rode through the old streets of George Town. Many of the shophouses are more than a hundred years old, and some walls are covered with paintings of children, cats and bicycles. Tourists stop to take photos everywhere, so it is better to go early before the streets get crowded.
+
+In the afternoon, the heat became too much for us, and we hid inside a quiet café with ceiling fans and very strong iced coffee. Later, we took the funicular train up Penang Hill. The air at the top was cooler, and we could see the whole island and the long bridge to the mainland.
+
+Of course, the real reason most people visit Penang is the food. In two days we tried char kway teow, assam laksa and a bowl of cendol that was so cold it made my teeth hurt. My advice is simple: bring comfortable shoes, drink lots of water, and leave some space in your stomach.` },
+    { id: "s:gps", tag: "科技", title: "How Does Your Phone Know Where You Are?", text: `When you open a map app, a small blue dot shows your position almost immediately. It feels like magic, but your phone is actually combining several different signals.
+
+The most famous one is GPS. High above the Earth, there are dozens of satellites that constantly send out the time and their own position. Your phone listens to at least four of them and measures how long each signal took to arrive. Because radio signals travel at a known speed, the phone can calculate its distance from each satellite and work out where it is.
+
+However, GPS has weaknesses. Inside a shopping mall or between tall buildings, the signals can be blocked or reflected. That is why your phone also uses nearby Wi-Fi networks and mobile phone towers. Companies have recorded where millions of these networks are, so seeing a few familiar names is often enough to guess your location within a few dozen metres.
+
+Finally, sensors inside the phone help to fill the gaps. The compass knows which way you are facing, and the accelerometer can tell when you are walking. Put together, these clues make the blue dot surprisingly accurate, even in places where the sky is hard to see.` },
+    { id: "s:mamak", tag: "马来西亚", title: "Breakfast at the Mamak Stall", text: `When I first moved to Malaysia, a colleague told me that I could not really understand the country until I had eaten breakfast at a mamak stall. A few days later, she took me to one near our office.
+
+A mamak is a simple restaurant run by Indian Muslim families. Most of them have plastic chairs, metal tables and a big TV showing football, and many stay open all night. Nobody cares what you wear, and you can sit there for hours with just one drink.
+
+My colleague ordered for both of us. First came roti canai, a flat bread that is crispy outside and soft inside, served with a small bowl of curry. Then the waiter brought two glasses of teh tarik. The name means "pulled tea", because the tea is poured from one cup to another from a great height until it becomes smooth and foamy.
+
+The whole breakfast cost less than ten ringgit. Now I go to the same stall almost every week. The waiter remembers that I like my tea less sweet, and when he sees me coming, he simply nods and starts pulling.` },
+    { id: "s:train", tag: "日常", title: "Missing the Last Train", text: `Last month I learned an expensive lesson about checking the timetable. I had spent the evening at a friend's birthday dinner on the other side of the city. The food was great, the conversation was even better, and nobody looked at the clock.
+
+When I finally said goodbye, it was almost midnight. I walked quickly to the station, only to find the gates closed and the lights turned off. A tired security guard told me that the last train had left twenty minutes earlier. I stood there for a moment, feeling a little silly.
+
+My phone battery was at eight percent, so I had to make a decision fast. I booked a ride with an app and waited outside a closed convenience store. Because it was late on a Friday night, prices were much higher than usual, and the ride cost almost five times as much as a train ticket.
+
+The driver was friendly, though. He told me that he picks up people like me every weekend, and he called us "the midnight club". Since that night, I always check when the last train leaves before I go out, and I carry a small power bank in my bag.` },
+    { id: "s:cashless", tag: "马来西亚", title: "Life Without Cash in Kuala Lumpur", text: `A few years ago, I always kept some cash in my wallet. These days, I sometimes go a whole week in Kuala Lumpur without touching a single banknote.
+
+Most of my payments happen on my phone. At the supermarket, I scan a QR code at the counter and the money leaves my bank account in a second. Even the small noodle stall near my flat has a printed QR code stuck to the wall, next to a photo of the owner's cat. On toll roads and at train stations, a card called Touch 'n Go does the same job, and I can top it up with an app whenever the balance gets low.
+
+This way of living is convenient, but it is not perfect. Once, my phone died while I was waiting to pay for petrol, and the cashier had to watch me search every pocket for coins. Older people sometimes find the apps confusing, and a few night markets still prefer cash.
+
+So I have made a small rule for myself. I still carry fifty ringgit, folded neatly behind my identity card. I rarely use it, but on the day my battery runs out, it will feel like the best money I have ever saved.` },
+  ];
+
+  const PURE = { cleanText, splitParas, splitSents, tokens, wordCount, titleOf, parse, stems, SAMPLES };
+  if (typeof module === "object" && module && module.exports) module.exports = PURE;
+  if (typeof document === "undefined") return; // node 测试：只要上面的纯函数
+
+  /* ================= 页面部分 ================= */
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const LG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
+  const LS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+  const tip = m => { try { toast(m); } catch (e) {} };
+  const say = t => { try { speak(t); } catch (e) {} };
+  const reEsc = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const isSheet = () => { try { return matchMedia("(max-width: 600px)").matches; } catch (e) { return innerWidth <= 600; } };
+  const KEY = "reading:docs", MAX_DOCS = 20, MAX_CHARS = 80000, WPM = 150; // 学英语的人按每分钟 150 词估阅读时间
+  const LEVELS = [1000, 2000, 3000, 4000, 5000, 6000, 8000, 10000, 15000];
+  // 水平分布条：按词频排名分档（排名来自插件同一份词频表 VS_RANK）
+  const BANDS = [["前 1000", "#8EE5A1"], ["1000–3000", "#6FD3FF"], ["3000–6000", "#C59BEF"], ["6000–1.2万", "#FFB86B"], ["1.2万以后", "#FF8A7A"], ["人名 / 数字", "#5d636b"]];
+
+  const CSS = `
+  #reading{display:none;max-width:900px;margin:0 auto;padding:6px 0 60px;overflow-wrap:anywhere}#reading.on{display:block}
+  #reading *{box-sizing:border-box}
+  .ra-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin:4px 0 12px}.ra-head h2{margin:0;font-size:20px;color:var(--ui-ink)}.ra-head span{color:var(--ui-muted);font-size:13.5px}
+  .ra-card{background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:var(--ui-radius,14px);padding:14px}
+  .ra-card textarea{display:block;width:100%;min-height:150px;resize:vertical;border-radius:12px;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);padding:12px 14px;font:inherit;font-size:15px;line-height:1.6}
+  .ra-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}.ra-row.end{justify-content:flex-end}
+  .ra-row input{flex:1 1 200px;min-width:0;height:40px;border-radius:10px;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);padding:0 12px;font:inherit;font-size:14.5px}
+  .ra-msg{margin-top:8px;font-size:13.5px;color:var(--ui-red);min-height:0}.ra-msg:empty{display:none}.ra-msg.ok{color:var(--ui-muted)}
+  .ra-sec{margin:22px 0 10px;font-size:16px;font-weight:800;color:var(--ui-ink)}.ra-sec small{margin-left:8px;font-weight:500;color:var(--ui-muted);font-size:12.5px}
+  .ra-grid{display:grid;grid-template-columns:1fr;gap:10px}@media(min-width:720px){.ra-grid{grid-template-columns:1fr 1fr}}
+  .ra-it{display:flex;align-items:center;gap:12px;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:14px;padding:12px 14px;cursor:pointer;transition:border-color .15s,background .15s;min-width:0}
+  .ra-it:hover{border-color:var(--ui-pur);background:var(--ui-surface-2)}.ra-it .t{flex:1 1 auto;min-width:0}
+  .ra-it b{display:block;color:var(--ui-ink);font-size:15px;line-height:1.4}.ra-it span{display:block;color:var(--ui-muted);font-size:12.5px;margin-top:3px}
+  .ra-it .pv{color:var(--ui-ink-2);font-size:13px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ra-it .tg{display:inline-block;font-size:11.5px;line-height:19px;padding:0 7px;border-radius:6px;background:var(--ui-pur-soft);color:var(--ui-pur-text);margin-right:6px}
+  .ra-it .del{flex:0 0 auto;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-muted);border-radius:9px;height:32px;padding:0 10px;font:inherit;font-size:13px;cursor:pointer}.ra-it .del:hover{color:var(--ui-red);border-color:var(--ui-red-line)}
+  .ra-it>i{font-style:normal;font-size:22px;color:var(--ui-muted)}
+  .ra-empty{color:var(--ui-muted);font-size:14px;padding:14px 2px}
+  .ra-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:2px 0 12px}.ra-bar .sp{flex:1 1 auto}
+  .ra-title{margin:4px 0 10px;font-size:26px;line-height:1.35;color:var(--ui-ink)}
+  .ra-stats{background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:14px;padding:12px 14px;margin-bottom:18px}
+  .ra-nums{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--ui-ink-2)}.ra-nums b{color:var(--ui-ink);font-size:16px}.ra-nums .hi b{color:var(--ui-orange)}
+  .ra-nums label{margin-left:auto;display:flex;align-items:center;gap:6px;color:var(--ui-muted);font-size:13px;min-width:0}
+  .ra-nums select{height:30px;border-radius:8px;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);font:inherit;font-size:13px;max-width:200px;min-width:0}
+  .ra-dist{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--ui-surface-2);margin-top:12px}.ra-dist i{display:block;height:100%}
+  .ra-leg{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12px;color:var(--ui-muted)}.ra-leg i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .ra-note{margin-top:8px;font-size:12.5px;color:var(--ui-muted)}
+  .ra-unk{margin-top:10px}.ra-unk summary{cursor:pointer;font-size:13.5px;color:var(--ui-pur-text)}
+  .ra-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ra-chips button{border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);border-radius:999px;padding:3px 11px;font:inherit;font-size:13.5px;cursor:pointer}.ra-chips button small{color:var(--ui-muted);margin-left:3px}
+  .ra-body{font-size:21px;line-height:1.95;color:var(--ui-ink);font-family:"Noto Serif",Georgia,"Times New Roman",var(--ui-font),serif}
+  .ra-body p{margin:0 0 1.05em}
+  .ra-s{border-radius:6px;transition:background .2s,box-shadow .2s}.ra-s.cur{background:rgba(156,63,208,.22);box-shadow:0 0 0 3px rgba(156,63,208,.22)}.ra-s.flash{background:rgba(156,63,208,.14)}
+  .ra-sm{display:inline-flex;align-items:center;justify-content:center;width:18px;height:1em;vertical-align:-.08em;cursor:pointer}
+  .ra-sm::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ui-line-2);transition:background .15s}.ra-sm:hover::before,.ra-s.cur .ra-sm::before{background:var(--ui-pur-text)}
+  .ra-ss{border:0;background:none;padding:0 3px;margin:0;font-size:.62em;line-height:1;vertical-align:.12em;cursor:pointer;opacity:.5;color:inherit}.ra-ss:hover{opacity:1}
+  .ra-end{margin-top:26px;display:flex;justify-content:center}
+  #ra-fab{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:60;display:none;border:0;border-radius:999px;height:44px;padding:0 18px;background:var(--ui-pur);color:#fff;font:inherit;font-size:15px;font-weight:700;box-shadow:var(--ui-shadow);cursor:pointer}#ra-fab.on{display:block}
+  /* 单词：和视频字幕同一套颜色、下划线（watch.js 的 VS_CSS 只作用于视频页和练习页，这里照抄一份给阅读页） */
+  #reading .vs-w{cursor:pointer;border-radius:3px}#reading .vs-w:hover{background:var(--ui-surface-3)}
+  #reading .vs-w.vs-k{color:var(--vs-ck,#7CE3B8)}#reading .vs-w.vs-u1,#reading .vs-w.vs-ln{color:var(--vs-cs,#FFB86B)}#reading .vs-w.vs-u2{color:var(--vs-ci,#CDA8F7)}#reading .vs-w.vs-sp{color:var(--vs-cp,#7CE3B8)}
+  #reading .vs-w.vs-rare{opacity:.55}
+  #reading .vs-w.vs-lo{box-shadow:inset 0 0 0 1.5px #E9CF8A;background:rgba(255,226,140,.14);border-radius:6px;padding:0 3px}
+  #reading .vs-w[class*=" g-"]{text-underline-offset:5px}
+  #reading .vs-w.g-pa{text-decoration:underline solid #5BB0FF 2px}#reading .vs-w.g-pf{text-decoration:underline double #35D0BA 2px}#reading .vs-w.g-pg{text-decoration:underline wavy #8EE05A 2px}#reading .vs-w.g-md{text-decoration:underline dashed #FF8FC7 2px}#reading .vs-w.g-pv{text-decoration:underline solid #FF7A59 3.5px}#reading .vs-w.g-s3{text-decoration:underline dotted #5BB0FF 2.5px}#reading .vs-w.g-pl{text-decoration:underline dotted #B0B7C0 2.5px}#reading .vs-w.g-art{text-decoration:underline dotted #E8D36B 2.5px}#reading .vs-w.g-cmp{text-decoration:underline dashed #C9A0FF 2px}#reading .vs-w.g-neg{box-shadow:inset 0 2px 0 #FF5C5C}
+  #reading .vs-w.vs-ph{background:rgba(255,226,140,.13);box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A;border-radius:0;padding:0 2px}#reading .vs-w.vs-ph.ph-s{border-radius:5px 0 0 5px;box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A,inset 1.5px 0 0 #E9CF8A}#reading .vs-w.vs-ph.ph-e{border-radius:0 5px 5px 0;box-shadow:inset 0 1.5px 0 #E9CF8A,inset 0 -1.5px 0 #E9CF8A,inset -1.5px 0 0 #E9CF8A}
+  #reading .vs-w.ra-lr{background:var(--ui-pur-soft,rgba(156,63,208,.18));box-shadow:0 0 0 2px var(--ui-pur-soft,rgba(156,63,208,.18));border-radius:4px}
+  /* 点词弹窗：电脑上贴着单词，手机上从底部弹出 */
+  #ra-mask{position:fixed;inset:0;z-index:8990;background:rgba(0,0,0,.45);display:none}#ra-mask.on{display:block}
+  #ra-pop{position:fixed;z-index:9000;display:none;width:340px;max-width:calc(100vw - 16px);max-height:60vh;overflow:auto;background:var(--ui-surface,#26282c);border:1px solid var(--ui-line-2,#454950);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.5);padding:14px 16px;color:var(--ui-ink,#E6E8EB);font-family:var(--ui-font);overflow-wrap:anywhere}#ra-pop.on{display:block}
+  #ra-pop.sheet{left:0!important;right:0;top:auto!important;bottom:0;width:auto;max-width:none;max-height:72vh;border-radius:18px 18px 0 0;border-bottom:0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+  #ra-pop .hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}#ra-pop .hd b{font-size:22px}#ra-pop .hd .ph{color:var(--ui-muted);font-size:14px}
+  #ra-pop .hd button{border:0;background:var(--ui-surface-2,#2d2f34);color:var(--ui-ink-2);border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:15px}#ra-pop .hd .x{margin-left:auto;background:none;color:var(--ui-muted);font-size:18px}
+  #ra-pop .zh{margin-top:8px;font-size:16.5px;font-weight:700;line-height:1.5}#ra-pop .en{margin-top:6px;color:var(--ui-ink-2);font-size:14px;line-height:1.55}
+  #ra-pop .ld{margin-top:8px;color:var(--ui-muted);font-size:14px}
+  #ra-pop .ex{display:flex;gap:8px;align-items:flex-start;margin-top:8px;background:var(--ui-surface-2,#2d2f34);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.5}#ra-pop .ex small{display:block;color:var(--ui-muted);font-size:13px}
+  #ra-pop .ex button{flex:0 0 auto;border:0;background:none;cursor:pointer;padding:0;font-size:13px;line-height:1.5}
+  #ra-pop .gm{margin-top:8px;font-size:13px;color:#9cc8ff}
+  #ra-pop .act{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}#ra-pop .act .ui-btn{flex:1 1 auto}#ra-pop .act .ui-btn.in{background:var(--ui-surface-2);border-color:var(--ui-line-2);color:var(--ui-muted);cursor:default}
+  #ra-pop .act a{font-size:13px;white-space:nowrap}
+  @media(max-width:600px){.ra-body{font-size:18.5px;line-height:1.9}.ra-title{font-size:22px}.ra-nums label{margin-left:0;width:100%}.ra-nums select{flex:1 1 auto;max-width:none}#ra-pop .act .ui-btn{min-height:46px}}
+  .toast{z-index:9700!important}`;
+
+  let quiet = 0, root = null, view = "home", doc = null, P = { paras: [], sents: [] }, draft = "", urlDraft = "", msg = "", msgOk = false, fetching = false;
+  let lvSel = String(LG("reading:lv", "auto")), PS = {}, vsP = null, vsDone = false;
+
+  /* ---------- 生词本状态（words：已掌握 known / 在学 learning） ---------- */
+  let book = new Map();
+  function loadBook() {
+    book = new Map();
+    try { (typeof words !== "undefined" ? words : []).forEach(w => { const k = String(w.word || "").toLowerCase().replace(/[{}]/g, "").replace(/’/g, "'").trim(); if (k && (!book.has(k) || w.status === "known")) book.set(k, w.status === "known" ? "kn" : "lr"); }); } catch (e) {}
+  }
+  const lemma = w => { try { return typeof vsLemma === "function" ? vsLemma(w) : w; } catch (e) { return w; } };
+  function bookStatus(w) {
+    w = String(w || "").toLowerCase().replace(/’/g, "'"); if (!w) return "";
+    for (const s of stems(w).concat(lemma(w))) if (book.has(s)) return book.get(s);
+    return "";
+  }
+
+  /* ---------- 上色：和视频字幕同一套（web/vs/ 的 vsMark + vsGramHtml） ---------- */
+  // 加载 vs/ 模块：优先用 watch.js 的 window.__vs.load()（顺便把插件标记、生词本合进 VS_MARKS）；没有视频页就自己加载那几个文件
+  function ensureVs() {
+    if (vsP) return vsP;
+    vsP = (async () => {
+      try { if (window.__vs && window.__vs.load) await window.__vs.load(); } catch (e) {}
+      if (typeof vsMark !== "function") {
+        let ver = ""; try { ver = (await (await fetch("vs/VERSION", { cache: "no-store" })).text()).trim(); } catch (e) {}
+        const F = ["freq.js", "vlevel.js", "gram.js"];
+        await new Promise(res => F.forEach((f, i) => { const s = document.createElement("script"); s.src = "vs/" + f + "?v=" + ver; s.async = false; if (i === F.length - 1) s.onload = s.onerror = res; document.head.append(s); }));
+      }
+      // 插件设置（词汇水平、颜色、开关）：只读，和 watch.js 读的是同一份
+      try { const it = (await (await fetch("/api/ext", { cache: "no-store" })).json()).items || {}; for (const k in it) if (k.indexOf("set|") === 0) PS[k.slice(4)] = it[k].v; } catch (e) {}
+      vsDone = true;
+    })().catch(() => { vsDone = true; });
+    return vsP;
+  }
+  const plugLevel = () => { const n = Number(PS.level); return PS.level != null && isFinite(n) && n >= 0 ? n : -1; };
+  const effLevel = () => (lvSel === "auto" ? (plugLevel() >= 0 ? plugLevel() : 3000) : Number(lvSel) || 3000);
+  // 文章里的 & < > 和直引号：vs 模块是在「转义后的文本」里找单词的，&amp; / &quot; 里的字母会被当成单词，所以先换成占位符 / 弯引号，上色后再换回实体
+  const protect = t => String(t).replace(/&/g, "").replace(/</g, "").replace(/>/g, "").replace(/(^|[\s(\[{—–-])"/g, "$1“").replace(/"/g, "”");
+  const unprotect = h => h.replace(//g, "&amp;").replace(//g, "&lt;").replace(//g, "&gt;");
+  function sentHtml(t) {
+    const pt = protect(t); let h = null;
+    try {
+      // 跟随插件水平、插件也设了水平：直接用视频页那一份（还带保存过的短语框）
+      if (lvSel === "auto" && plugLevel() >= 0 && window.__vs && window.__vs.ready && window.__vs.ready()) h = window.__vs.html(pt);
+      if (h == null && typeof vsMark === "function") { // 自己选了水平 / 插件没设水平：同样的函数，换个水平
+        const S = Object.assign({ fadeRare: true }, PS, { level: effLevel() });
+        h = vsMark(pt, S);
+        if (S.showGram !== false && /\s/.test(t) && typeof vsGramHtml === "function") h = vsGramHtml(h).replace(/ g-(\w+)(?=[ "])/g, (a, c) => (S["g_" + c] === false ? "" : a));
+      }
+    } catch (e) { h = null; }
+    if (h == null) h = pt.replace(WORD_RE, w => '<span class="vs-w" data-w="' + w + '">' + w + "</span>"); // vs 模块还没加载：先不上色，照样能点
+    // 生词本里的词：已掌握的去掉颜色，在学的换成淡紫底
+    h = h.replace(/<span class="([^"]*)" data-w="([^"]*)">/g, (a, cl, w) => {
+      if (!/\bvs-w\b/.test(cl)) return a; const st = bookStatus(w); if (!st) return a;
+      const c = cl.replace(/\s*\bvs-(u1|u2|ln|lo|k|sp|rare)\b/g, "") + (st === "lr" ? " ra-lr" : "");
+      return '<span class="' + c + '" data-w="' + w + '">';
+    });
+    return unprotect(h);
+  }
+
+  /* ---------- 统计：词数、阅读时间、生词率、水平分布 ---------- */
+  function rankOf(w) {
+    const k = w.toLowerCase().replace(/’/g, "'"); let r = vsRank(k); const l = lemma(k);
+    if (l !== k && VS_RANK[l] && VS_RANK[l] < r) r = VS_RANK[l]; return r;
+  }
+  function analyze() {
+    const ready = vsDone && typeof vsRank === "function" && typeof vsCat === "function" && typeof VS_RANK !== "undefined";
+    const S = { level: effLevel(), ratio: PS.ratio || 1.5 }, bands = BANDS.map(() => 0), unk = new Map();
+    let n = 0, unkN = 0;
+    P.sents.forEach((s, si) => tokens(s).forEach(t => {
+      if (!isWord(t.w)) return; n++; if (!ready) return;
+      let cat = ""; try { cat = vsCat(t.w, S, t.first, false, true); } catch (e) {}
+      if (cat === "special") { bands[5]++; return; }
+      const r = rankOf(t.w); bands[r <= 1000 ? 0 : r <= 3000 ? 1 : r <= 6000 ? 2 : r <= 12000 ? 3 : 4]++;
+      if ((cat === "suggest" || cat === "rare") && !bookStatus(t.w)) {
+        unkN++; const k = lemma(t.w.toLowerCase()); const u = unk.get(k); if (u) u.c++; else unk.set(k, { w: t.w.toLowerCase(), c: 1, r, si });
+      }
+    }));
+    return { ready, n, mins: Math.max(1, Math.round(n / WPM)), unkN, rate: n ? unkN / n : 0, bands, unk: [...unk.values()].sort((a, b) => b.c - a.c || a.r - b.r) };
+  }
+  function statsHtml() {
+    const a = analyze(), tot = a.bands.reduce((x, y) => x + y, 0) || 1, pct = x => Math.round(x * 1000) / 10 + "%";
+    const pl = plugLevel(), opt = (v, t) => '<option value="' + v + '"' + (String(lvSel) === String(v) ? " selected" : "") + ">" + t + "</option>";
+    const sel = '<label>生词标准 <select id="ra-lv">' + opt("auto", pl >= 0 ? "跟随插件（" + pl + " 词）" : "跟随插件（未设置，按 3000）") + LEVELS.map(v => opt(v, "常用 " + v + " 词以内算认识")).join("") + "</select></label>";
+    let h = '<div class="ra-nums"><span><b>' + a.n + "</b> 词</span><span>约 <b>" + a.mins + "</b> 分钟</span>" +
+      (a.ready ? '<span class="hi">生词率 <b>' + pct(a.rate) + "</b>（" + a.unkN + " 处，" + a.unk.length + " 个词）</span>" : "<span>" + (vsDone ? "生词率：词频表没加载上" : "生词率计算中…") + "</span>") + sel + "</div>";
+    if (a.ready) {
+      h += '<div class="ra-dist">' + a.bands.map((x, i) => (x ? '<i style="width:' + (x / tot) * 100 + "%;background:" + BANDS[i][1] + '" title="' + esc(BANDS[i][0]) + " " + pct(x / tot) + '"></i>' : "")).join("") + "</div>" +
+        '<div class="ra-leg">' + a.bands.map((x, i) => (x ? '<span><i style="background:' + BANDS[i][1] + '"></i>' + esc(BANDS[i][0]) + " " + pct(x / tot) + "</span>" : "")).join("") + "</div>";
+      if (lvSel === "auto" && pl < 0) h += '<div class="ra-note">插件里还没设词汇水平，暂时按「常用 3000 词以内算认识」上色和统计，可以在右上角改。</div>';
+      if (a.unk.length) h += '<details class="ra-unk"><summary>本文生词 ' + a.unk.length + " 个（点词查释义）</summary><div class=\"ra-chips\">" + a.unk.slice(0, 60).map(u => '<button data-w="' + esc(u.w) + '" data-si="' + u.si + '">' + esc(u.w) + (u.c > 1 ? "<small>×" + u.c + "</small>" : "") + "</button>").join("") + "</div></details>";
+    }
+    return h;
+  }
+
+  /* ---------- 我的文章（本机 localStorage） ---------- */
+  const docs = () => { const L = LG(KEY, []); return Array.isArray(L) ? L.filter(d => d && d.id && typeof d.text === "string") : []; };
+  function saveDocs(L) { L = L.slice(0, MAX_DOCS); if (!LS(KEY, L)) { if (!LS(KEY, L.slice(0, 8))) tip("本机存储满了，这篇文章没存下来"); } } // 存不下时只留最近 8 篇
+  function remember(d) { const L = docs().filter(x => x.id !== d.id); L.unshift({ id: d.id, title: d.title, text: d.text, at: d.at, pos: d.pos || 0 }); saveDocs(L); }
+  let posTimer = 0;
+  function setPos(i) { if (!doc || doc.pos === i) return; doc.pos = i; clearTimeout(posTimer); posTimer = setTimeout(() => { const L = docs(), x = L.find(y => y.id === doc.id); if (x) { x.pos = doc.pos; saveDocs(L); } }, 800); }
+  function openDoc(text, title, id) {
+    text = cleanText(text);
+    if (!text || !/[A-Za-z]/.test(text)) { showMsg("先粘贴一段英文文章"); return; }
+    if (text.length > MAX_CHARS) { text = text.slice(0, MAX_CHARS); tip("文章太长，只保留前 " + MAX_CHARS / 10000 + " 万字"); }
+    const old = docs().find(x => (id && x.id === id) || x.text === text);
+    doc = { id: old ? old.id : id || "d" + Date.now().toString(36), title: title || (old && old.title) || titleOf(text), text, at: Date.now(), pos: old ? old.pos || 0 : 0 };
+    remember(doc); stopAll(); closePop(); view = "read"; P = parse(text); draw(); quiet = Date.now() + 1500; // 程序滚动不算「读到哪」
+    const at = doc.pos > 0 && root.querySelector('.ra-s[data-i="' + doc.pos + '"]');
+    if (at) { at.scrollIntoView({ block: "center" }); at.classList.add("flash"); setTimeout(() => at.classList.remove("flash"), 1600); tip("从上次读到的地方继续"); }
+    else try { root.scrollIntoView({ block: "start" }); } catch (e) {}
+  }
+  function showMsg(m, ok) { msg = m; msgOk = !!ok; const el = root && root.querySelector("#ra-msg"); if (el) { el.textContent = m; el.classList.toggle("ok", !!ok); } }
+  async function fromUrl(u) {
+    u = String(u || "").trim(); if (!u) { showMsg("先填文章网址"); return; }
+    if (!/^https?:\/\//i.test(u)) u = "https://" + u;
+    if (fetching) return; fetching = true; showMsg("正在抓取正文…", true); const b = root.querySelector('[data-a="url"]'); if (b) b.disabled = true;
+    let j = null; try { const r = await fetch("/api/readurl?url=" + encodeURIComponent(u)); j = await r.json(); } catch (e) { j = null; }
+    fetching = false; if (b) b.disabled = false;
+    if (j && j.ok && j.text && /[A-Za-z]/.test(j.text)) { showMsg(""); urlDraft = ""; openDoc(j.text, j.title ? String(j.title).trim() : ""); }
+    else { showMsg("这个网站抓不到，请直接粘贴正文"); tip("这个网站抓不到，请直接粘贴正文"); }
+  }
+
+  /* ---------- 画页面 ---------- */
+  const fmtAt = t => { const d = new Date(t), n = new Date(); if (isNaN(d)) return ""; const hm = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); return d.toDateString() === n.toDateString() ? "今天 " + hm : d.getMonth() + 1 + "月" + d.getDate() + "日" + (d.getFullYear() !== n.getFullYear() ? "（" + d.getFullYear() + "）" : ""); };
+  function drawHome() {
+    const L = docs();
+    const mine = L.length ? '<div class="ra-grid">' + L.map(d => { const p = parse(d.text), n = p.sents.length, pc = n > 1 ? Math.round(((d.pos || 0) / (n - 1)) * 100) : 0;
+      return '<div class="ra-it" data-a="open" data-id="' + esc(d.id) + '"><div class="t"><b>' + esc(d.title || "未命名文章") + "</b><span>" + esc(fmtAt(d.at)) + " · " + wordCount(d.text) + " 词" + (pc > 0 ? " · 读到 " + Math.min(100, pc) + "%" : "") + '</span></div><button class="del" data-a="del" data-id="' + esc(d.id) + '">删除</button><i>›</i></div>'; }).join("") + "</div>"
+      : '<div class="ra-empty">还没有读过的文章。粘贴一篇，或者先读下面的示例。</div>';
+    root.innerHTML = '<div class="ra-head"><h2>📰 阅读</h2><span>粘贴英文文章或网址，点词查词，一键加入生词本</span></div>' +
+      '<div class="ra-card"><textarea id="ra-text" placeholder="把英文文章粘贴到这里…（直接粘贴网址也行）">' + esc(draft) + "</textarea>" +
+      '<div class="ra-row"><input id="ra-url" inputmode="url" placeholder="或者填文章网址 https://…" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(urlDraft) + '"><button class="ui-btn" data-a="url">抓取</button></div>' +
+      '<div class="ra-msg' + (msgOk ? " ok" : "") + '" id="ra-msg">' + esc(msg) + '</div><div class="ra-row end"><button class="ui-btn pri" data-a="go">开始阅读 →</button></div></div>' +
+      '<div class="ra-sec">📚 我的文章<small>最近 ' + MAX_DOCS + " 篇，只存在这台设备</small></div>" + mine +
+      '<div class="ra-sec">✨ 示例短文<small>每篇 200 词左右</small></div><div class="ra-grid">' +
+      SAMPLES.map(s => '<div class="ra-it" data-a="sample" data-id="' + s.id + '"><div class="t"><b>' + esc(s.title) + '</b><span><em class="tg">' + esc(s.tag) + "</em>" + wordCount(s.text) + ' 词</span><div class="pv">' + esc(splitSents(splitParas(s.text)[0])[0]) + "</div></div><i>›</i></div>").join("") + "</div>";
+  }
+  function drawRead() {
+    const skip0 = P.paras.length > 1 && P.paras[0].map(i => P.sents[i]).join(" ") === doc.title; // 第一段就是标题：不重复显示
+    const body = P.paras.map((p, pi) => pi === 0 && skip0 ? "" : "<p>" + p.map(i => '<span class="ra-s" data-i="' + i + '"><b class="ra-sm" data-si="' + i + '" title="朗读这句"></b>' + sentHtml(P.sents[i]) + ' <button class="ra-ss" data-si="' + i + '" title="朗读这句" aria-label="朗读这句">🔊</button></span> ').join("") + "</p>").join("");
+    root.innerHTML = '<div class="ra-bar"><button class="ui-btn" data-a="home">← 文章列表</button><span class="sp"></span><button class="ui-btn pri" data-a="all">' + (tts ? "⏹ 停止朗读" : "▶ 全文朗读") + "</button></div>" +
+      '<h1 class="ra-title">' + esc(doc.title) + '</h1><div class="ra-stats" id="ra-stats">' + statsHtml() + "</div>" +
+      '<div class="ra-body" id="ra-body">' + body + '</div><div class="ra-end"><button class="ui-btn" data-a="home">读完了，回到文章列表</button></div>' +
+      '<button id="ra-fab" data-a="all">⏹ 停止朗读</button>';
+    syncTts();
+  }
+  function draw() { if (!root) return; if (view === "read" && doc) drawRead(); else { view = "home"; drawHome(); } }
+
+  /* ---------- 朗读：单句、全文逐句（高亮当前句） ---------- */
+  let tts = null;
+  function voiceOf(u) { // 和 index.html 的 speak() 用同一个声音、语速
+    try { if (typeof chosenVoice !== "undefined" && chosenVoice) { u.voice = chosenVoice; u.lang = chosenVoice.lang; } else u.lang = "en-US"; } catch (e) { u.lang = "en-US"; }
+    try { u.rate = (typeof state !== "undefined" && state && state.rate) || 0.95; } catch (e) { u.rate = 0.95; }
+  }
+  function hiSent(i) { if (!root) return; root.querySelectorAll(".ra-s.cur").forEach(x => x.classList.remove("cur")); const el = i >= 0 && root.querySelector('.ra-s[data-i="' + i + '"]'); if (!el) return; el.classList.add("cur"); const r = el.getBoundingClientRect(); if (r.top < 70 || r.bottom > innerHeight - 110) el.scrollIntoView({ block: "center", behavior: "smooth" }); }
+  function syncTts() { if (!root) return; root.querySelectorAll('[data-a="all"]').forEach(b => { if (b.id === "ra-fab") b.classList.toggle("on", !!tts); else b.textContent = tts ? "⏹ 停止朗读" : "▶ 全文朗读"; }); }
+  function stopAll() { if (!tts) return; clearTimeout(tts.t); tts = null; try { speechSynthesis.cancel(); } catch (e) {} hiSent(-1); syncTts(); }
+  function readAll(from) {
+    if (!("speechSynthesis" in window)) { tip("此环境不支持朗读，可在手机浏览器打开"); return; }
+    stopAll(); const run = {}; tts = run; syncTts();
+    const step = i => {
+      if (tts !== run) return;
+      if (i >= P.sents.length || !root.classList.contains("on") || view !== "read") { stopAll(); if (i >= P.sents.length) tip("读完了"); return; }
+      hiSent(i); setPos(i);
+      const u = new SpeechSynthesisUtterance(P.sents[i]); voiceOf(u); let done = false;
+      const next = () => { if (done || tts !== run) return; done = true; clearTimeout(run.t); run.t = setTimeout(() => step(i + 1), 220); };
+      u.onend = next; u.onerror = e => { if (e && (e.error === "interrupted" || e.error === "canceled")) return; next(); };
+      run.t = setTimeout(next, 5000 + P.sents[i].length * 140); // 有些浏览器偶尔不触发 onend：超时也往下读
+      try { speechSynthesis.speak(u); } catch (e) { stopAll(); }
+    };
+    try { speechSynthesis.cancel(); } catch (e) {}
+    setTimeout(() => step(Math.max(0, Math.min(from || 0, P.sents.length - 1))), 80);
+  }
+  function sayOne(i) { stopAll(); const el = root.querySelector('.ra-s[data-i="' + i + '"]'); if (el) { el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1500); } say(P.sents[i]); setPos(i); }
+  // 屏幕上第一句看得见的句子（全文朗读从这里开始；滚动时记进度）
+  function firstVisible() { const L = root.querySelectorAll(".ra-s"); for (const el of L) if (el.getBoundingClientRect().bottom > 90) return +el.dataset.i; return 0; }
+
+  /* ---------- 点词弹窗 ---------- */
+  let pop = null, mask = null, popReq = 0, popWord = "", popSent = "", popEl = null;
+  const DC = new Map();
+  async function dict(w) {
+    const k = w.toLowerCase(); if (DC.has(k)) return DC.get(k);
+    const get = async q => { try { const r = await fetch("/api/dict?w=" + encodeURIComponent(q)); if (!r.ok) return null; const j = await r.json(); return j && j.ok ? j : null; } catch (e) { return null; } };
+    let j = await get(k); const l = lemma(k); if (!j && l && l !== k) j = await get(l); // 变形查不到时用原形再查一次
+    if (j) DC.set(k, j); return j;
+  }
+  function buildPop() {
+    if (pop) return;
+    mask = document.createElement("div"); mask.id = "ra-mask"; mask.onclick = closePop;
+    pop = document.createElement("div"); pop.id = "ra-pop"; pop.setAttribute("role", "dialog");
+    document.body.append(mask, pop);
+    pop.addEventListener("click", e => {
+      const b = e.target.closest("[data-a]"); if (!b) return; const a = b.dataset.a;
+      if (a === "px") closePop(); else if (a === "psay") say(b.dataset.t || popWord); else if (a === "padd") addWord(b);
+    });
+  }
+  function placePop() {
+    if (!pop || !pop.classList.contains("on")) return;
+    const sh = isSheet(); pop.classList.toggle("sheet", sh); mask.classList.toggle("on", sh);
+    if (sh || !popEl || !popEl.isConnected) { if (!sh) { pop.style.left = Math.max(8, (innerWidth - pop.offsetWidth) / 2) + "px"; pop.style.top = "80px"; } return; }
+    const r = popEl.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+    let left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8), top = r.bottom + 8;
+    if (top + h > innerHeight - 8 && r.top - h - 8 > 8) top = r.top - h - 8; // 下面放不下就放到上面
+    pop.style.left = left + "px"; pop.style.top = Math.max(8, Math.min(top, innerHeight - h - 8)) + "px";
+  }
+  function addBtn(w) {
+    const st = bookStatus(w);
+    return st ? '<button class="ui-btn in" disabled>' + (st === "kn" ? "已在生词本（已掌握）" : "已在生词本") + "</button>" : '<button class="ui-btn pri" data-a="padd">＋ 加入生词本</button>';
+  }
+  function popHtml(w, d, loading) {
+    const word = (d && d.word) || w, cam = "https://dictionary.cambridge.org/dictionary/english-chinese-simplified/" + encodeURIComponent(word.toLowerCase());
+    const g = popEl && typeof VS_GRAM_NAME !== "undefined" ? [...popEl.classList].filter(c => /^g-/.test(c)).map(c => VS_GRAM_NAME[c.slice(2)]).filter(Boolean) : [];
+    let h = '<div class="hd"><b>' + esc(word) + "</b>" + (d && d.phon ? '<span class="ph">' + esc(d.phon) + "</span>" : "") + '<button data-a="psay" data-t="' + esc(word) + '" title="朗读">🔊</button><button class="x" data-a="px" title="关闭">✕</button></div>';
+    if (loading) h += '<div class="ld">查询中…</div>';
+    else if (d) {
+      const zh = (Array.isArray(d.zh) ? d.zh.join("；") : d.zh) + (Array.isArray(d.zhs) && d.zhs.length ? "（" + d.zhs.map(x => (x.pos ? x.pos + " " : "") + (x.terms || []).slice(0, 3).join("、")).join("；") + "）" : ""), en = Array.isArray(d.en) ? d.en.slice(0, 3).map(x => typeof x === "string" ? x : (x.pos ? "(" + x.pos + ") " : "") + (x.def || "")).join("; ") : d.en; // /api/dict：en 是 [{pos, def, ex}]，zhs 是各词性的中文
+      if (zh) h += '<div class="zh">' + esc(zh) + "</div>"; if (en) h += '<div class="en">' + esc(en) + "</div>";
+      (Array.isArray(d.examples) ? d.examples : []).filter(x => x && x[0]).slice(0, 2).forEach(x => { h += '<div class="ex"><button data-a="psay" data-t="' + esc(x[0]) + '" title="朗读例句">🔊</button><div>' + esc(x[0]) + (x[1] ? "<small>" + esc(x[1]) + "</small>" : "") + "</div></div>"; });
+      if (g.length) h += '<div class="gm">这里的语法：' + esc(g.join(" · ")) + "</div>";
+    }
+    return h + '<div class="act">' + (loading ? "" : addBtn(word)) + '<a href="' + cam + '" target="_blank" rel="noopener">Cambridge 词典 ↗</a></div>';
+  }
+  async function openPop(w, el, si) {
+    buildPop(); w = String(w || "").replace(/’/g, "'"); if (!w) return;
+    const req = ++popReq; popWord = w; popEl = el;
+    const re = new RegExp("(^|[^\\p{L}])" + reEsc(w) + "(?![\\p{L}])", "iu");
+    popSent = si != null && P.sents[si] && re.test(P.sents[si]) ? P.sents[si] : P.sents.find(s => re.test(s)) || "";
+    pop.innerHTML = popHtml(w, null, true); pop.classList.add("on"); placePop();
+    if (!tts) say(w);
+    const d = await dict(w); if (req !== popReq || !pop.classList.contains("on")) return;
+    pop.innerHTML = popHtml(w, d, false); placePop(); // 查不到：只剩单词、朗读、加入生词本、Cambridge 链接
+  }
+  function closePop() { if (!pop) return; popReq++; popWord = ""; popEl = null; pop.classList.remove("on", "sheet"); mask.classList.remove("on"); }
+  function addWord(b) {
+    const d = DC.get(popWord.toLowerCase()), w = String((d && d.word) || popWord).toLowerCase(), f = window.vocabAddWord;
+    if (typeof f !== "function") { tip("生词本还没准备好，暂时加不了"); return; }
+    b.disabled = true; b.textContent = "加入中…";
+    let r; try { r = f(w, popSent); } catch (e) { r = Promise.reject(e); }
+    Promise.resolve(r).then(res => {
+      if (res === false) { b.disabled = false; b.textContent = "＋ 加入生词本"; return; }
+      b.className = "ui-btn in"; b.textContent = "已在生词本";
+      setTimeout(() => { loadBook(); if (book.size && !bookStatus(w)) book.set(w, "lr"); redrawKeep(); }, 300); // 重新上色：新加的词换成「在学」
+    }).catch(() => { b.disabled = false; b.textContent = "＋ 加入生词本"; tip("加入失败，请再试一次"); });
+  }
+
+  /* ---------- 重画（保持滚动位置、朗读高亮） ---------- */
+  function redrawKeep() {
+    if (!root || !root.classList.contains("on") || view !== "read") return; // 首页不依赖上色，不重画（免得打字时文本框被换掉）
+    const y = window.scrollY, cur = root.querySelector(".ra-s.cur"), ci = cur ? cur.dataset.i : null;
+    const open = root.querySelector(".ra-unk[open]");
+    draw(); window.scrollTo(0, y);
+    if (ci != null) { const el = root.querySelector('.ra-s[data-i="' + ci + '"]'); if (el) el.classList.add("cur"); }
+    if (open) { const u = root.querySelector(".ra-unk"); if (u) u.open = true; }
+  }
+
+  function init() {
+    if (root) return; root = document.getElementById("reading"); if (!root) return;
+    const st = document.createElement("style"); st.textContent = CSS; document.head.append(st);
+    loadBook();
+    root.addEventListener("click", e => {
+      const t = e.target;
+      const w = t.closest("[data-w]"); if (w) { e.stopPropagation(); const s = w.closest(".ra-s"); openPop(w.dataset.w, w, s ? +s.dataset.i : w.dataset.si != null ? +w.dataset.si : null); return; }
+      const sm = t.closest("[data-si]"); if (sm) { sayOne(+sm.dataset.si); return; }
+      const b = t.closest("[data-a]"); if (!b) return; const a = b.dataset.a;
+      if (a === "del") { e.stopPropagation(); const L = docs(), d = L.find(x => x.id === b.dataset.id); if (!d || !confirm("删除「" + (d.title || "这篇文章") + "」？只删这台设备上的记录。")) return; saveDocs(L.filter(x => x.id !== d.id)); if (doc && doc.id === d.id) doc = null; draw(); return; }
+      if (a === "open") { const d = docs().find(x => x.id === b.dataset.id); if (d) openDoc(d.text, d.title, d.id); return; }
+      if (a === "sample") { const s = SAMPLES.find(x => x.id === b.dataset.id); if (s) openDoc(s.text, s.title, s.id); return; }
+      if (a === "url") { urlDraft = (root.querySelector("#ra-url") || {}).value || ""; fromUrl(urlDraft); return; }
+      if (a === "go") {
+        const v = ((root.querySelector("#ra-text") || {}).value || "").trim();
+        if (/^https?:\/\/\S+$/i.test(v)) { fromUrl(v); return; } // 文本框里只粘了一个网址：当网址抓
+        if (!v) { const u = ((root.querySelector("#ra-url") || {}).value || "").trim(); if (u) { fromUrl(u); return; } }
+        showMsg(""); openDoc(v); if (view === "read") draft = ""; return;
+      }
+      if (a === "home") { stopAll(); closePop(); view = "home"; draw(); try { root.scrollIntoView({ block: "start" }); } catch (er) {} return; }
+      if (a === "all") { if (tts) stopAll(); else readAll(firstVisible()); }
+    });
+    root.addEventListener("input", e => { if (e.target.id === "ra-text") draft = e.target.value; else if (e.target.id === "ra-url") urlDraft = e.target.value; });
+    root.addEventListener("keydown", e => { if (e.target.id === "ra-url" && e.key === "Enter") { e.preventDefault(); urlDraft = e.target.value; fromUrl(urlDraft); } });
+    root.addEventListener("change", e => { if (e.target.id !== "ra-lv") return; lvSel = e.target.value; LS("reading:lv", lvSel); redrawKeep(); });
+    // 点弹窗外面关掉；Esc 先关弹窗，再停朗读
+    document.addEventListener("click", e => { if (pop && pop.classList.contains("on") && !pop.contains(e.target) && !e.target.closest("#reading [data-w]")) closePop(); });
+    document.addEventListener("keydown", e => { if (e.key !== "Escape" || !root.classList.contains("on")) return; if (pop && pop.classList.contains("on")) closePop(); else if (tts) stopAll(); });
+    let sT = 0;
+    window.addEventListener("scroll", () => {
+      if (pop && pop.classList.contains("on") && !pop.classList.contains("sheet")) closePop();
+      if (view !== "read" || tts || !root.classList.contains("on") || sT || Date.now() < quiet) return;
+      sT = setTimeout(() => { sT = 0; if (view === "read" && !tts && root.classList.contains("on")) setPos(firstVisible()); }, 500); // 记住读到哪一句
+    }, { passive: true });
+    window.addEventListener("resize", () => placePop());
+  }
+
+  window.readingShow = () => { init(); if (!root) return; loadBook(); draw(); ensureVs().then(() => redrawKeep()); }; // 先画出来（不上色），vs 模块加载完再上色
+  window.readingRefresh = () => { if (!root) return; loadBook(); if (root.classList.contains("on")) redrawKeep(); }; // 生词本变了（加词、标记已掌握）时调用
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+})();

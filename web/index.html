@@ -18,7 +18,7 @@
     return of.call(this,u,o);
   };
   if(navigator.sendBeacon){var ob=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=function(u,d){try{var x=new URL(String(u),location.href);if(x.origin===location.origin&&API.test(x.pathname)){x.searchParams.set("u",id);u=x.pathname+x.search;}}catch(e){}return ob(u,d);};}
-  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|wt:meta)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
+  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|pump:log|wt:meta|reading:docs|reading:lv|writing:draft|writing:history|writing:lang|vocab:test|remind:time)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
   var k=function(t,key){var ls=null;try{ls=window.localStorage;}catch(e){}return t===ls&&MINE.test(String(key))?key+"@"+id:key;};
   S.getItem=function(key){return g.call(this,k(this,key));};
   S.setItem=function(key,v){return st.call(this,k(this,key),v);};
@@ -35,8 +35,9 @@
 <meta name="apple-mobile-web-app-title" content="Ray's Life">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230C9370'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle'%3E%F0%9F%93%92%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230C9370'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle'%3E%F0%9F%93%92%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="manifest" href="/manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -202,7 +203,11 @@
   .tagrow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
   .tag{font-size:11px;background:var(--paper-2);border:1px solid var(--line);color:var(--muted);padding:2px 8px;border-radius:999px}
   .chev{flex:0 0 auto;color:var(--muted);transition:.2s;margin-top:4px}
-  .card.open .chev{transform:rotate(180deg)}.card .chev.go{transform:none!important}.card-head>div:first-child{min-width:0}
+  .card.open .chev{transform:rotate(180deg)}.card .chev.go{transform:none!important}
+  .trash-btn{margin-left:auto;border:1px solid var(--ui-line-2,#454950);background:var(--ui-surface-2,#2d2f34);color:var(--ui-ink-2,#c9ced4);border-radius:10px;height:34px;padding:0 12px;font:inherit;font-size:13px;cursor:pointer}
+  .trash-card{background:var(--ui-surface,#25272b);border:1px solid var(--ui-line,#34373d);border-radius:14px;padding:12px 14px;margin:0 0 14px}
+  .trash-card .th{display:flex;align-items:center;gap:10px;margin-bottom:8px}.trash-card .th small{color:var(--ui-muted);flex:1}
+  .trash-card .tr{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--ui-line)}.trash-card .tr .w{font-weight:700;color:var(--ui-ink)}.trash-card .tr .z{flex:1;min-width:0;color:var(--ui-muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trash-card .tr .d{color:var(--ui-muted);font-size:12px}.trash-card .tr.empty{color:var(--ui-muted);justify-content:center}.card-head>div:first-child{min-width:0}
   .rdpv .z{margin-top:6px;color:var(--ui-ink-2,#c9ced4);font-size:14px;line-height:1.5}.rdpv .r{margin-top:4px;color:var(--ui-muted,#959ca5);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .head-right{display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-top:2px}
   .spk{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;font-size:15px;line-height:1;padding:7px 9px;cursor:pointer}
@@ -434,6 +439,8 @@
       <button data-mode="pump">🔊 练习</button>
       <button data-mode="list" class="on">📖 列表</button>
       <button data-mode="grammar">📐 语法</button>
+      <button data-mode="reading">📰 阅读</button>
+      <button data-mode="stats">📊 统计</button>
     </div>
   </div>
 </header>
@@ -469,7 +476,9 @@
         <option value="az">🔤 字母 A→Z</option>
         <option value="za">🔤 字母 Z→A</option>
       </select>
+      <button id="trash-btn" class="trash-btn" type="button" title="30 天内删掉的词条，可以恢复">🗑 回收站</button>
     </div>
+    <div id="trash-box"></div>
     <div class="list" id="list"></div>
   </div>
 
@@ -482,6 +491,8 @@
 
   <!-- 📐 语法：常用语法、句型、拼写构词、发音等速查（见 grammar.js） -->
   <div id="grammar"></div>
+  <div id="reading"></div>
+  <div id="stats"></div>
 
 
   <!-- ADD -->
@@ -632,6 +643,7 @@
 <div id="view-ielts">
 <div id="ielts-subnav">
   <div class="seg-wrap">
+    <button id="ielts-t-write" type="button">📝 写作批改</button>
     <button id="ielts-t-notes" class="on" type="button">✍️ 笔记</button>
     <button id="ielts-t-basics" type="button">📖 常识</button>
   </div>
@@ -781,6 +793,7 @@
 
 </div>
 </div><!-- /ielts-basics -->
+<div id="ielts-write-view" style="display:none;padding:52px 16px 40px;max-width:1100px;margin:0 auto"></div>
 <div id="ielts-notes-view"><iframe id="ieltsframe" title="雅思笔记" referrerpolicy="no-referrer"></iframe></div>
 </div><!-- /view-ielts -->
 <style id="mobile-adapt">
@@ -1213,7 +1226,7 @@ function download(name,text,type){
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),1800);}
 
 /* ===== events ===== */
-function refresh(){build();prunePending();counts();renderList();renderPending();if(window.pumpRefresh)pumpRefresh();if(window.grammarRefresh)grammarRefresh();}
+function refresh(){build();prunePending();counts();renderList();renderPending();if(window.pumpRefresh)pumpRefresh();if(window.grammarRefresh)grammarRefresh();if(window.readingRefresh&&document.getElementById("reading").classList.contains("on"))readingRefresh();if(window.statsRefresh)statsRefresh();}
 
 // ⭐ 已保存：装了插件嵌插件页面（能编辑），没装显示网站只读版；插件晚一点连上会自动换过来
 // 插件同步的是插件设置里选的那个人（data-ban-user，旧版插件没有 = 主人）：和网站当前用户不是同一个人时不嵌插件页面，显示网站版
@@ -1278,6 +1291,8 @@ document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
   document.getElementById("pump").classList.toggle("on",m==="pump"); if(m==="pump"&&window.pumpShow)pumpShow();
   document.getElementById("savedbox").classList.toggle("on",m==="saved"); if(m==="saved")savedShow();
   document.getElementById("grammar").classList.toggle("on",m==="grammar"); if(m==="grammar"&&window.grammarShow)grammarShow();
+  document.getElementById("reading").classList.toggle("on",m==="reading"); if(m==="reading"&&window.readingShow)readingShow();
+  document.getElementById("stats").classList.toggle("on",m==="stats"); if(m==="stats"&&window.statsShow)statsShow();
   try{localStorage.setItem("vocab_mode",m);}catch(e){}
   
   document.getElementById("export-panel").classList.toggle("on",m==="export");
@@ -1332,7 +1347,22 @@ try{ptag=localStorage.getItem("list:ptag")||"all";}catch(x){}
 
 
 /* ===== quick collect (from videos / web pages) ===== */
-async function enrich(entry){
+async function enrich(entry){ // 后台 /api/dict 一次拿齐：中文（谷歌翻译）、音标和英文释义（dictionaryapi.dev）、例句（Tatoeba）；后台不通再用老办法
+  try{
+    const j=await (await fetch("/api/dict?w="+encodeURIComponent(entry.word))).json();
+    if(j&&j.ok){
+      if(j.phon)entry.phon=j.phon;
+      const zs=(j.zhs||[]).map(x=>(x.terms||[]).slice(0,3).join("、")).filter(Boolean);
+      entry.zh=[j.zh].concat(zs).filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,3).join("；")||"(未查到，可手动补)";
+      const d=(j.en||[])[0];entry.en=d?(d.pos?"("+d.pos+") ":"")+d.def:"";
+      const re=new RegExp("\\b("+entry.word.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\w*)","i");
+      const ex=(j.examples||[]).map(x=>[String(x[0]).replace(re,"{$1}"),x[1]||""]);
+      (j.en||[]).forEach(x=>{if(x.ex&&ex.length<4)ex.push([String(x.ex).replace(re,"{$1}"),""]);});
+      entry.examples=(entry.examples||[]).concat(ex).slice(0,4);
+      if(j.audio)entry.audio=j.audio;
+      return;
+    }
+  }catch(e){}
   try{
     const r=await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(entry.word));
     const j=await r.json();
@@ -1355,12 +1385,13 @@ async function enrich(entry){
   if(entry.en==="(查询中…)")entry.en="";
   if(entry.zh==="(翻译中…)")entry.zh="(未查到，可手动补)";
 }
-async function quickAdd(word){
-  word=(word||"").trim().replace(/[^A-Za-z' -]/g,"");
+async function quickAdd(word,sentence){
+  word=(word||"").trim().replace(/[^A-Za-z' -]/g,"").replace(/\s+/g," ");
   if(!word)return false;
   if(words.some(w=>w.word.toLowerCase()===word.toLowerCase())){return false;}
-  const entry={id:"u_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),type:"word",word:word,
-    phon:"",en:"(查询中…)",zh:"(翻译中…)",tag:"收集",date:new Date().toISOString().slice(0,10),forms:[],examples:[],tip:""};
+  const re=new RegExp("\\b("+word.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\w*)","i"),own=sentence&&re.test(sentence)?[[String(sentence).trim().replace(re,"{$1}"),""]]:[];
+  const entry={id:"u_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),type:/\s/.test(word)?"phrase":"word",word:word,
+    phon:"",en:"(查询中…)",zh:"(翻译中…)",tag:"收集",date:new Date().toISOString().slice(0,10),forms:[],examples:own,tip:"",auto:1}; // auto：自动生成的词条（想要多义项、记忆法时再发给 Claude 补）
   state.custom.push(entry);refresh();save(state);
   await enrich(entry);refresh();save(state);
   return true;
@@ -1371,7 +1402,10 @@ async function addMany(list){
   toast("已添加 "+added+" 个"+(dup?("，跳过 "+dup+" 个重复"):""));
 }
 function escHtml(s){return (s+"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function addPending(list){
+function addPending(list){ // 书签收的词：直接自动生成词条（不再等整理）；生成不了的才留在待整理队列
+  addMany(list);
+}
+function addPendingQueue(list){
   let added=0,dup=0;
   const known=new Set(words.map(w=>w.word.toLowerCase()));
   state.pending=state.pending||[];
@@ -1399,10 +1433,34 @@ function renderPending(){
   if(!p.length){box.innerHTML='';return;} // 队列空就不显示（「📒 加生词」书签收的词会先进这里，发给 Claude 整理后才进列表）
   box.innerHTML='<div class="pend-card"><div style="font-size:13px;font-weight:700;color:var(--accent);margin:2px 0 8px">📤 待整理 '+p.length+' 个 · 发给 Claude 做成完整词条</div>'+
     '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+p.map(w=>'<span style="font-size:13px;background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:4px 11px">'+escHtml(w)+'</span>').join('')+'</div>'+
-    '<div class="vrow"><button id="pend-copy" class="bulk-btn primary-btn">📋 复制发给 Claude</button><button id="pend-clear" class="bulk-btn">清空</button></div></div>';
+    '<div class="vrow"><button id="pend-auto" class="bulk-btn primary-btn">⚡ 自动生成词条</button><button id="pend-copy" class="bulk-btn">📋 复制发给 Claude</button><button id="pend-clear" class="bulk-btn">清空</button></div></div>';
   const cp=document.getElementById("pend-copy");if(cp)cp.onclick=async()=>{const t=(state.pending||[]).join("\n");try{await navigator.clipboard.writeText(t);toast("已复制，粘贴发给 Claude");}catch(e){download("pending.txt",t,"txt");toast("已下载为文本");}};
+  const au=document.getElementById("pend-auto");if(au)au.onclick=async()=>{const L=(state.pending||[]).slice();au.disabled=true;au.textContent="生成中…";await addMany(L);prunePending();renderPending();};
   const cl=document.getElementById("pend-clear");if(cl)cl.onclick=()=>{if(confirm("清空待整理队列？")){state.pending=[];save(state);renderPending();}};
 }
+// 阅读、视频等页面「＋ 加入生词本」：查词典自动生成词条，带上原句
+window.vocabAddWord=async(word,sentence)=>{const ok=await quickAdd(word,sentence);toast(ok?"已加入生词本："+word:"已在生词本里");return ok;};
+// ===== 🗑 回收站：30 天内删掉的词条（后台 /api/vocab?trash=1），恢复时用新 id 加回去（删除记录只增不减），复习进度一起带回 =====
+async function renderTrash(){
+  const box=document.getElementById("trash-box");if(!box)return;
+  if(!box.classList.contains("on")){box.innerHTML="";return;}
+  box.innerHTML='<div class="trash-card">读取中…</div>';
+  let items=[];try{items=(await (await fetch("/api/vocab?trash=1",{cache:"no-store"})).json()).items||[];}catch(e){}
+  const have=new Set(words.map(w=>String(w.word).toLowerCase()));
+  items=items.filter(t=>t&&t.e&&!have.has(String(t.e.word||"").toLowerCase()));
+  box.innerHTML='<div class="trash-card"><div class="th"><b>🗑 回收站</b><small>30 天内删掉的 '+items.length+' 条，恢复后进度照旧</small><button id="trash-x" class="bulk-btn">收起</button></div>'+
+    (items.length?items.map(t=>'<div class="tr"><span class="w">'+escHtml(String(t.e.word||"").replace(/[{}]/g,""))+'</span><span class="z">'+escHtml(String(t.e.zh||"").slice(0,40))+'</span><span class="d">'+new Date(t.at).toLocaleDateString()+'</span><button class="bulk-btn" data-rs="'+escHtml(t.e.id)+'">恢复</button></div>').join(""):'<div class="tr empty">回收站是空的</div>')+'</div>';
+  box.querySelector("#trash-x").onclick=()=>{box.classList.remove("on");renderTrash();};
+  box.querySelectorAll("[data-rs]").forEach(b=>b.onclick=async()=>{
+    const t=items.find(x=>x.e.id===b.dataset.rs);if(!t)return;b.disabled=true;
+    const nid=t.e.id.replace(/_r\d+$/,"")+"_r"+Date.now().toString(36),e=Object.assign({},t.e,{id:nid,u:Date.now()});
+    state.custom.push(e);if(state.srs&&state.srs[t.e.id])state.srs[nid]=Object.assign({},state.srs[t.e.id]);if(state.progress&&state.progress[t.e.id])state.progress[nid]=state.progress[t.e.id];
+    refresh();save(state);
+    try{await fetch("/api/vocab",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({untrash:t.e.id})});}catch(x){}
+    toast("已恢复："+String(t.e.word).replace(/[{}]/g,""));renderTrash();
+  });
+}
+document.getElementById("trash-btn").onclick=()=>{const b=document.getElementById("trash-box");b.classList.toggle("on");renderTrash();};
 function parseWords(t){return (t||"").split(/[,\n;]+/).map(s=>s.trim()).filter(Boolean);}
 function handleHash(){
   const m=location.hash.match(/[#&]add=([^&]+)/);
@@ -1603,24 +1661,36 @@ refresh(); // show seed words immediately, no waiting on storage
   var basics=document.getElementById('ielts-basics'),notesV=document.getElementById('ielts-notes-view');
   var ifr=document.getElementById('ieltsframe');
   if(!bBtn||!nBtn||!basics||!notesV)return;
+  var wBtn=document.getElementById('ielts-t-write'),writeV=document.getElementById('ielts-write-view');
   function sw(which){
-    var isNotes=which==='notes';
-    bBtn.classList.toggle('on',!isNotes);
+    var isNotes=which==='notes',isW=which==='write';
+    bBtn.classList.toggle('on',which==='basics');
     nBtn.classList.toggle('on',isNotes);
-    basics.style.display=isNotes?'none':'block';
+    wBtn.classList.toggle('on',isW);
+    basics.style.display=which==='basics'?'block':'none';
     notesV.style.display=isNotes?'block':'none';
+    writeV.style.display=isW?'block':'none';
+    if(isW&&window.writingShow&&!writeV.dataset.on){writeV.dataset.on='1';writingShow(writeV);}
     if(isNotes&&ifr&&!ifr.getAttribute('src'))ifr.setAttribute('src','ielts-notes.html');
     try{localStorage.setItem('ielts_sub',which);}catch(e){}
   }
   bBtn.onclick=function(){sw('basics');};
   nBtn.onclick=function(){sw('notes');};
+  wBtn.onclick=function(){sw('write');};
   var s='';try{s=localStorage.getItem('ielts_sub')||'';}catch(e){}
-  sw(s==='basics'?'basics':'notes');
+  if(s==='notes'&&!localStorage.getItem('ielts_sub_w'))s='write'; // 新加的「写作批改」排最前，第一次默认进它；之后记住上次选的
+  try{localStorage.setItem('ielts_sub_w','1');}catch(e){}
+  var first=s==='basics'||s==='notes'?s:'write';
+  if(document.readyState==='complete')sw(first);else window.addEventListener('load',function(){sw(first);}); // 等 write.js 加载完
 })();
 </script>
 <script src="watch.js?v=13"></script>
 <script src="channels.js?v=3"></script>
-<script src="pump.js?v=23"></script>
+<script src="pump.js?v=24"></script>
+<script src="read.js?v=1"></script>
+<script src="write.js?v=1"></script>
+<script src="stats.js?v=1"></script>
+<script>if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceWorker.register('/sw.js').catch(function(){});} // 装到手机桌面后离线也能打开（sw.js：网络优先，断网用上次的）</script>
 <script src="export.js?v=1"></script>
 <script src="saved-web.js?v=5"></script>
 <script src="reader.js?v=2"></script>

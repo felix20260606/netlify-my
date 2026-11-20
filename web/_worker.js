@@ -391,9 +391,10 @@ async function ai(req, env) {
   if (!env.AI) return json({ ok: false, error: "noai" });
   if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
   try {
-    const b = await req.json(), text = String(b.text || "").slice(0, 8000), prompt = String(b.prompt || "").slice(0, 3000);
+    const b = await req.json(), text = String(b.text || "").split(/\s+/).slice(0, 1500).join(" ").slice(0, 10000), prompt = String(b.prompt || "").slice(0, 3000);
     if (b.task !== "write" || text.split(/\s+/).length < 20) return json({ ok: false, error: "bad body" }, 400);
-    const kind = { t1: "IELTS Academic Writing Task 1 (report on visual data, at least 150 words)", t2: "IELTS Writing Task 2 (essay, at least 250 words)", mail: "an email / letter (like IELTS General Task 1, at least 150 words)", free: "free writing (judge it like a Task 2 essay)" }[b.type] || "IELTS Writing Task 2 (essay, at least 250 words)";
+    const K1 = "IELTS Academic Writing Task 1 (report on visual data given as text, at least 150 words; needs an overview)", K2 = "IELTS Writing Task 2 (essay, at least 250 words)", KM = "an email / letter (IELTS General Training Task 1, at least 150 words)";
+    const kind = { t1: K1, task1: K1, t2: K2, task2: K2, mail: KM, email: KM, free: "free writing (judge it like general academic English)" }[b.type] || "IELTS Writing Task 2 (essay, at least 250 words)";
     const msgs = [{ role: "system", content: WRITE_SYS }, { role: "user", content: "Task type: " + kind + "\nQuestion: " + (prompt || "(not given)") + "\n\nCandidate's answer:\n" + text }];
     let last = "";
     for (const m of AI_MODELS) {

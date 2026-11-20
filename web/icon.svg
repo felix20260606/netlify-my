@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 英语练习图标：紫色圆角方块 + 白色打开的书 + 书上方的字母 A -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ab52d4"/>
+      <stop offset="1" stop-color="#5b2a7c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- 书：左右两页 -->
+  <path d="M256 214c-38-26-86-34-136-28v178c50-6 98 2 136 28z" fill="#ffffff"/>
+  <path d="M256 214c38-26 86-34 136-28v178c-50-6-98 2-136 28z" fill="#efe3fa"/>
+  <path d="M256 214v178" stroke="#7a3aa6" stroke-width="6"/>
+  <!-- 页上的横线 -->
+  <g stroke="#c9a6e6" stroke-width="9" stroke-linecap="round">
+    <path d="M150 238c30-2 58 2 82 12M150 278c30-2 58 2 82 12M150 318c30-2 58 2 82 12"/>
+    <path d="M362 238c-30-2-58 2-82 12M362 278c-30-2-58 2-82 12M362 318c-30-2-58 2-82 12"/>
+  </g>
+  <!-- 字母 A -->
+  <path d="M256 82l-44 104h22l9-24h26l9 24h22zM249 144l7-20 7 20z" fill="#ffffff"/>
+</svg>
