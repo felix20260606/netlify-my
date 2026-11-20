@@ -431,9 +431,11 @@ Reply with ONLY one JSON object, no markdown:
 {"band":{"FC":0,"LR":0,"GRA":0,"overall":0},"summary_zh":"2-3 sentences in Simplified Chinese","strengths_zh":["..."],"fixes":[{"bad":"exact phrase they said","good":"better English","why_zh":"简体中文解释"}],"better":"an improved version of their answer, spoken style, same ideas, about 110-150 words, band 7.5 level","better_zh":"中文翻译"}
 Give 1-3 strengths_zh and 3-6 fixes. overall = mean of the three, rounded to the nearest half band.`;
 const HOWTO_SYS = `You help a Chinese learner say things in natural English. ${SPEAK_WHO}
-They give you something in Chinese (or mixed Chinese/English). Keep ALL of its meaning and details (e.g. if it mentions a bug, the boss, tomorrow, keep them). Reply with ONLY one JSON object, no markdown:
-{"items":[{"reg":"随意","en":"casual spoken version","note_zh":"什么时候这样说（简体中文，一句）"},{"reg":"中性","en":"...","note_zh":"..."},{"reg":"正式","en":"...","note_zh":"..."}],"words":[{"en":"key word or phrase used","zh":"中文"}]}
-Use natural American English that people really say; 2-4 words entries.`;
+They give you something in Chinese (or mixed Chinese/English). Translate the WHOLE meaning into natural spoken English, keeping every detail (who, what, when, words like "bug" or "boss"). Use normal capitalisation and punctuation.
+Give three versions: casual (随意), neutral (中性), formal (正式). note_zh says in a few Chinese words when to use it.
+Example. Input: 不好意思，能帮我打包吗
+Output: {"items":[{"reg":"随意","en":"Sorry, can I get this to go?","note_zh":"在小店、mamak 随口说"},{"reg":"中性","en":"Excuse me, could you pack this up for me?","note_zh":"餐厅里礼貌地说"},{"reg":"正式","en":"Excuse me, would it be possible to have this packed to take away?","note_zh":"高级餐厅、很客气"}],"words":[{"en":"to go","zh":"打包带走"},{"en":"pack up","zh":"打包"}]}
+Reply with ONLY one JSON object in exactly that shape, no markdown.`;
 const USEWORD_SYS = `You are a friendly English teacher. ${SPEAK_WHO}
 The learner was asked to say one sentence using a target word or phrase. Judge whether they used it correctly and naturally (meaning, grammar, collocation).
 Reply with ONLY one JSON object, no markdown: {"correct":true,"fixed":"their sentence corrected (same as theirs if already fine)","why_zh":"简体中文：哪里对 / 哪里错","better":"one more natural example sentence with the target","better_zh":"中文"}`;
