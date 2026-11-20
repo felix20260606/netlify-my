@@ -126,6 +126,7 @@
   .pp-rate button.pressed,.pp-rcb button.pressed{outline:2px solid #fff;box-shadow:0 0 0 3px rgba(250,219,255,.27)}.pp-rate button:disabled{opacity:.45;cursor:default}
   .pp-done{position:relative;margin-bottom:16px}.pp-done .x{position:absolute;right:12px;top:10px;border:0;background:none;color:var(--ui-muted);font-size:16px;cursor:pointer}
   .pp-card .st{position:absolute;right:58px;top:10px;border:0;background:none;color:var(--ui-muted);font-size:18px;cursor:pointer;line-height:1}.pp-card .st.on{color:#E8A23C}
+  .pp-gear{margin-left:auto;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink-2);border-radius:999px;width:32px;height:32px;font-size:16px;cursor:pointer}.pp-gear:hover{color:var(--ui-pur-text);border-color:var(--ui-pur)}
   .pp-top .tb{border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink-2);border-radius:999px;height:26px;min-width:34px;padding:0 8px;font:inherit;font-size:12px;cursor:pointer;margin-left:6px}
   .pp-keyhelp{margin:6px auto 10px;max-width:420px;background:var(--ui-surface);border:1px solid var(--ui-line-2);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--ui-ink-2);cursor:pointer}.pp-keyhelp b{display:block;margin-bottom:6px;color:var(--ui-ink)}.pp-keyhelp kbd{display:inline-block;min-width:110px;font:12px monospace;color:var(--ui-pur-text)}
   .pp-first{position:absolute;right:12px;bottom:34px;font-size:15px;opacity:.75}
@@ -247,7 +248,7 @@
     const seg = (k, list, isOn, title) => '<div class="pp-row"' + (title ? ' title="' + title + '"' : "") + "><span>" + list.name + '</span><span class="pp-seg" data-k="' + k + '">' + list.items.map(([v, t]) => '<b data-v="' + esc(v) + '" class="' + (isOn(v) ? "on" : "") + '">' + esc(t) + "</b>").join("") + "</span></div>";
     const tags = EXT ? [...new Set(Object.values(EXT.tags))] : [];
     // 布局、文字、顺序同 PhrasePump：左边统计和开始，右边「会话」设置（测验 · 建议 · 练习 · 练习数量 · 新项目 · 筛选），我们自己加的放在后面
-    root.innerHTML = lastSum + '<div class="pp-home"><div class="pp-hc"><h2>🔊 <b>练习</b></h2>' +
+    root.innerHTML = lastSum + '<div class="pp-home"><div class="pp-hc"><h2>🔊 <b>练习</b><button class="pp-gear" id="pp-gear" title="设置：朗读语音、导出">⚙</button></h2>' +
       '<div class="pp-today"><span class="emo">' + emoji() + "</span>今天<b>" + day.n + " 张卡片</b></div>" + dayBar() +
       '<div class="pp-st"><div title="记得的概率已经降到 50% 以下（过了半衰期）、该复习的；「紧急」= 降到 30% 以下"><small>待复习</small><b>' + p.due.length + "</b><em>" + (urgent ? urgent + " 个紧急" : "") + '</em></div>' +
       '<div title="' + (rs.length ? "按 Ebisu 算，现在平均记得 " + avgR + "%" : "正在练的词") + '"><small>学习中</small><b>' + lrn + "</b><em>+" + p.fresh.length + ' 个排队中</em></div>' +
@@ -269,6 +270,7 @@
       seg("types", { name: "类型", items: [["word", "单词"], ["phrase", "短语"], ["sentence", "句子"], ["pattern", "规律"]] }, v => opt.types.includes(v)) +
       '<p class="pp-note">插件里的「复习」也打开这里，进度是同一份：在哪台设备练都算。「练习数量」是这一组的卡片张数；「新项目」是其中新词最多占的比例。每个词这一轮要么听 3 句例句（每次换着听），要么做 1 道填空。按 Ebisu 排复习（同 Language Reactor）：记得的概率降到 50%（过了半衰期）时再练，越接近遗忘时答对，半衰期涨得越多；半衰期到 42 天（至少 6 周都很可能记得），自动算「已掌握」。电脑上可以用键盘（同 Language Reactor）：A 上一个、S 播放、E 显示 / 看答案、D 下一个；测验和认词卡 Z 忘了、C 记得；建议 Z 已知、X 学习、C 跳过。</p></div></div>';
     root.querySelector("#pp-start").onclick = () => { lastSum = ""; start(); };
+    root.querySelector("#pp-gear").onclick = () => window.openVocabSettings && window.openVocabSettings();
     const sx = root.querySelector("#pp-sumx"); if (sx) sx.onclick = () => { lastSum = ""; home(); };
     root.querySelector("#pp-quiz").onchange = e => { opt.quiz = e.target.checked; LS("pump:opt", opt); home(); }; // 关了「测验」：只听不考
     const rs0 = root.querySelector("#pp-reset"); if (rs0) rs0.onclick = () => { opt = JSON.parse(JSON.stringify(DEF)); LS("pump:opt", opt); home(); };
@@ -346,7 +348,7 @@
     const prog = mNow == null ? "" : '<div class="pp-prog' + (known ? " known" : "") + '" title="这个词的掌握进度：半衰期到 42 天（6 周）算已掌握">' + (known ? "🏆 已掌握" : "掌握进度") + mbar(mNow, known) + "<b>" + pcent(mNow) + "%</b>" + (c.done && mNow > (c.m0 || 0) + 0.005 ? '<em>+' + (pcent(mNow) - pcent(c.m0 || 0)) + "%</em>" : "") + "</div>";
     const typ = x => (x.k === "quiz" ? "t" : x.k === "sugg" ? "p" : "e"), segs = ["t", "p", "e"].map(k => ({ k, n: cards.filter(x => typ(x) === k).length, d: cards.filter((x, i) => typ(x) === k && (i < at || x.done)).length })).filter(g => g.n);
     const bar = '<div class="pp-segbar" title="测验 / 建议 / 练习">' + segs.map(g => '<span class="sg-' + g.k + '" style="flex:' + g.n + '"><i style="width:' + (g.d / g.n * 100) + '%"></i></span>').join("") + "</div>";
-    const top = '<div class="pp-top"><button id="pp-back">← 返回</button>' + bar + "<span>" + (at + 1) + "/" + cards.length + '</span><button class="tb" id="pp-keys" title="快捷键">⌨</button><button class="tb" id="pp-speed" title="播放速度">' + (opt.speed === 1 ? "1x" : opt.speed + "x") + "</button></div>" + prog;
+    const top = '<div class="pp-top"><button id="pp-back">← 返回</button>' + bar + "<span>" + (at + 1) + "/" + cards.length + '</span><button class="tb" id="pp-gear2" title="设置：朗读语音、导出">⚙</button><button class="tb" id="pp-keys" title="快捷键">⌨</button><button class="tb" id="pp-speed" title="播放速度">' + (opt.speed === 1 ? "1x" : opt.speed + "x") + "</button></div>" + prog;
     root.classList.toggle("pp-known", !!known); // 已掌握的词：卡片换成金色
     const ctl = (k) => '<div class="pp-ctl"><div><button id="pp-a" title="上一个"' + (at ? "" : " disabled") + '>‹</button><kbd>A</kbd></div><div><button id="pp-s" title="重听">↻</button><kbd>S</kbd></div><div><button id="pp-e" title="' + (k === "quiz" ? "看答案" : k === "recall" ? "翻开" : "显示") + '"' + ((k === "listen" && c.rev >= 2) || (k === "quiz" && (c.done || c.rev >= 1)) || (k === "recall" && c.flip) || k === "sugg" ? " disabled" : "") + '>👁</button><kbd>E</kbd></div><div><button id="pp-d" class="pri' + ((k === "quiz" || (k === "recall" && c.flip)) && !c.done ? " wait" : "") + '" title="下一个">›</button><kbd>D</kbd></div></div>';
     const first = c.wasNew && !c.w.sg && !c.w.pump ? '<span class="pp-first" title="第一次练这个词">🌱</span>' : "";
@@ -392,6 +394,7 @@
       if (!c.done) { root.querySelector("#pp-fail").onclick = () => rate(c, false); root.querySelector("#pp-ok").onclick = () => rate(c, true); }
     }
     root.querySelector("#pp-back").onclick = () => { stopAudio(); home(); };
+    root.querySelector("#pp-gear2").onclick = () => window.openVocabSettings && window.openVocabSettings();
     root.querySelector("#pp-speed").onclick = () => { opt.speed = opt.speed === 1 ? 0.75 : opt.speed === 0.75 ? 0.5 : 1; LS("pump:opt", opt); show(); say(c); }; // 同 RL：1x → 0.75x → 0.5x
     root.querySelector("#pp-keys").onclick = () => { const k = root.querySelector(".pp-keyhelp"); if (k) return k.remove(); const d = document.createElement("div"); d.className = "pp-keyhelp"; d.innerHTML = "<b>快捷键</b>" + [["A / ←", "上一个"], ["S / ↓ / 空格", "播放"], ["E", "显示（听力：先原文、再翻译）/ 看答案（测验）"], ["D / →", "下一个"], ["Z / C", "测验：忘了 / 记得"], ["Z / X / C", "建议：已知 / 学习 / 跳过"], ["R", "收藏这句（☆）"]].map(x => "<div><kbd>" + x[0] + "</kbd>" + x[1] + "</div>").join(""); d.onclick = () => d.remove(); root.querySelector(".pp-top").after(d); };
     root.querySelector("#pp-pl").onclick = root.querySelector("#pp-s").onclick = () => say(c);
@@ -486,7 +489,7 @@
     // 生词本的模式：新加的「⭐ 已保存」排最前，第一次打开默认进它；之后记住上次选的模式
     // ?go=pump / ?go=saved：插件里的「复习」「已保存」按钮直接打开这里
     let m = "saved"; try { m = localStorage.getItem("vocab_mode") || "saved"; } catch (e) {}
-    if (m === "flash" || m === "test") m = "pump"; // 「背诵」「自测」已并进练习的认词卡
+    if (m === "flash" || m === "test" || m === "export") m = "pump"; // 「背诵」「自测」已并进练习的认词卡；「⚙ 设置」挪到练习右上角的齿轮
     const go = new URLSearchParams(location.search).get("go");
     if (go && /^(saved|pump|list)$/.test(go)) { m = go; try { history.replaceState(null, "", location.pathname); localStorage.setItem("wt:tab", "0"); } catch (e) {} const l1 = document.getElementById("l1-en"), nb = document.getElementById("tab-notebook"); if (l1) l1.click(); if (nb) nb.click(); }
     const b = document.querySelector('.modes button[data-mode="' + m + '"]') || document.querySelector('.modes button[data-mode="saved"]');

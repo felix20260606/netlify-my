@@ -206,6 +206,11 @@
   /* ---- Add / Export drawers ---- */
   .panel{background:var(--paper);border-radius:14px;border:1px solid var(--line);padding:16px;margin-top:14px;display:none}
   .panel.on{display:block}
+  /* ⚙ 设置：弹窗（练习页右上角齿轮打开） */
+  #export-panel.pop{display:block;position:fixed;z-index:400;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 80px);overflow:auto;margin:0;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+  #sp-mask{display:none;position:fixed;inset:0;z-index:399;background:rgba(0,0,0,.55)}#sp-mask.on{display:block}
+  #export-panel .sp-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}#export-panel .sp-hd h3{margin:0}#sp-close{border:0;background:none;color:var(--muted);font-size:18px;cursor:pointer}
+  .pend-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 12px}
   .panel h3{font-family:var(--ui-font);margin:0 0 10px;font-size:17px}
   .panel label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
   .panel input,.panel textarea{width:100%;font-family:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:12px;background:var(--paper-2);color:var(--ink)}
@@ -228,7 +233,6 @@
   .speedseg button.on{background:var(--jade);border-color:var(--jade);color:var(--paper)}
   .vtest{background:var(--accent);color:#fff;border:0;font-family:inherit;font-weight:700;font-size:13px;padding:9px 16px;border-radius:12px;cursor:pointer;white-space:nowrap}
   .vhint{font-size:12px;color:var(--muted);line-height:1.5;margin:10px 0 0}
-  #bulk-words{width:100%;font-family:inherit;font-size:14px;padding:10px 11px;border:1px solid var(--line);border-radius:12px;background:var(--paper-2);color:var(--ink);resize:vertical}
   .bulk-btn{flex:1;font-family:inherit;font-size:13px;font-weight:600;padding:11px;border-radius:12px;cursor:pointer;border:1px solid var(--line);background:var(--paper-2);color:var(--ink)}
   .bulk-btn.primary-btn{background:var(--jade);color:var(--paper);border:0}
   .divider{border:none;border-top:1px solid var(--line);margin:18px 0}
@@ -392,7 +396,6 @@
       <button data-mode="saved">⭐ 已保存</button>
       <button data-mode="pump">🔊 练习</button>
       <button data-mode="list" class="on">📖 列表</button>
-      <button data-mode="export">⚙ 设置</button>
     </div>
   </div>
 </header>
@@ -400,6 +403,7 @@
 <div class="wrap">
   <!-- LIST -->
   <div id="list-view">
+    <div id="pending-box"></div>
     <div class="cats" id="list-cats">
       <button data-c="all" class="on">全部<b id="c-all">0</b></button>
       <button data-c="word">单词<b id="c-word">0</b></button>
@@ -440,23 +444,10 @@
 
   <!-- ADD -->
   <!-- EXPORT -->
+  <div id="sp-mask"></div>
   <div class="panel" id="export-panel">
-    <h3>📥 快速收集（看视频时用）</h3>
-    <textarea id="bulk-words" rows="3" placeholder="粘贴单词，每行一个或逗号隔开，例如：&#10;iconic&#10;brutal, weird"></textarea>
-    <div class="vrow">
-      <button id="bulk-clip" class="bulk-btn">📋 读取剪贴板</button>
-      <button id="bulk-add" class="bulk-btn primary-btn">➕ 收进待整理</button>
-    </div>
-    <p class="vhint">收集的词会先进「待整理队列」，<b>不直接进列表</b>。发给 Claude 做成完整词条（多义项/例句/记忆法）后，才会出现在笔记本里。</p>
-    <div id="pending-box" style="margin-top:12px"></div>
-    <hr class="divider">
-    <h3>📊 学习统计</h3>
-    <div class="hubstats">
-      <div class="hs"><b id="h-total">0</b><span>总条数</span></div>
-      <div class="hs"><b id="h-known">0</b><span>已掌握</span></div>
-      <div class="hs"><b id="h-learning">0</b><span>在学</span></div>
-    </div>
-    <h3 style="margin-top:20px">🔊 朗读设置</h3>
+    <div class="sp-hd"><h3>⚙ 设置</h3><button type="button" id="sp-close" title="关闭">✕</button></div>
+    <h3>🔊 朗读设置</h3>
     <div class="voicebox">
       <label>语音（选一个你喜欢的）</label>
       <select id="voice-sel"><option>加载中…</option></select>
@@ -469,7 +460,8 @@
       </div>
       <p class="vhint">朗读用手机自带语音。想要更自然的声音，可到手机「设置 → 辅助功能/语言 → 文字转语音」里下载“增强/高质量”英语语音包，回来就能在上面选到。</p>
     </div>
-    <h3 style="margin-top:20px">导出 / 备份</h3>
+    <h3 style="margin-top:20px">📤 导出</h3>
+    <p class="vhint">生词本每 6 小时自动备份到 GitHub，不用靠导出备份；想拿到 Anki、Excel 里用时再导出。</p>
     <div class="exp-btns">
       <button id="e-anki"><b>📇 Anki 卡片格式 (.txt)</b><span>正面单词，背面意思+例句，可直接导入 Anki 背诵</span></button>
       <button id="e-csv"><b>📊 表格 (.csv)</b><span>Excel / Google Sheets 打开，整理复习</span></button>
@@ -793,7 +785,7 @@
     /* 输入控件 ≥16px，避免 iOS 聚焦自动放大 */
     .search input{font-size:16px;padding:11px 0}
     #sort-sel{font-size:16px;min-height:44px;padding:8px 11px;max-width:100%}
-    .panel input,.panel textarea,#bulk-words,#voice-sel{font-size:16px}
+    .panel input,.panel textarea,#voice-sel{font-size:16px}
     #voice-sel{min-height:44px}
 
     /* 单词列表 */
@@ -975,9 +967,6 @@ function counts(){
   document.getElementById("c-phrase").textContent=by("phrase");
   document.getElementById("c-sentence").textContent=by("sentence");
   document.getElementById("c-pattern").textContent=by("pattern");
-  const ht=document.getElementById("h-total");if(ht)ht.textContent=words.length;
-  const hk=document.getElementById("h-known");if(hk)hk.textContent=known;
-  const hl_=document.getElementById("h-learning");if(hl_)hl_.textContent=words.length-known;
   const ln=document.getElementById("learn-num");if(ln)ln.textContent=words.length-known;
   const pct=words.length?Math.round(known/words.length*100):0;
   const rp=document.getElementById("ring-pct");if(rp)rp.textContent=pct+"%";
@@ -1211,6 +1200,10 @@ function savedShow(){
   else if(web)window.savedWeb.render(document.getElementById("ext-web"));
 }
 window.addEventListener("ban-ext",()=>{if(document.documentElement.getAttribute("data-mode")==="saved")savedShow();});
+// ⚙ 设置（朗读、导出）：弹窗，练习页右上角的齿轮打开
+window.openVocabSettings=function(){const p=document.getElementById("export-panel"),m=document.getElementById("sp-mask");p.classList.add("pop");m.classList.add("on");};
+function closeVocabSettings(){document.getElementById("export-panel").classList.remove("pop");document.getElementById("sp-mask").classList.remove("on");}
+document.getElementById("sp-close").onclick=closeVocabSettings;document.getElementById("sp-mask").onclick=closeVocabSettings;
 document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".modes button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
   const m=b.dataset.mode;
@@ -1322,10 +1315,10 @@ function prunePending(){ // drop words that are already in the notebook
 function renderPending(){
   const box=document.getElementById("pending-box");if(!box)return;
   const p=state.pending||[];
-  if(!p.length){box.innerHTML='<p class="vhint">待整理队列空。看视频时点「📒 加生词」书签、或在上面粘词收集 —— 词会先进这里等你发我整理，不会直接进列表。</p>';return;}
-  box.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--accent);margin:2px 0 8px">📤 待整理 '+p.length+' 个 · 发给 Claude 做成完整词条</div>'+
+  if(!p.length){box.innerHTML='';return;} // 队列空就不显示（「📒 加生词」书签收的词会先进这里，发给 Claude 整理后才进列表）
+  box.innerHTML='<div class="pend-card"><div style="font-size:13px;font-weight:700;color:var(--accent);margin:2px 0 8px">📤 待整理 '+p.length+' 个 · 发给 Claude 做成完整词条</div>'+
     '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+p.map(w=>'<span style="font-size:13px;background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:4px 11px">'+escHtml(w)+'</span>').join('')+'</div>'+
-    '<div class="vrow"><button id="pend-copy" class="bulk-btn primary-btn">📋 复制发给 Claude</button><button id="pend-clear" class="bulk-btn">清空</button></div>';
+    '<div class="vrow"><button id="pend-copy" class="bulk-btn primary-btn">📋 复制发给 Claude</button><button id="pend-clear" class="bulk-btn">清空</button></div></div>';
   const cp=document.getElementById("pend-copy");if(cp)cp.onclick=async()=>{const t=(state.pending||[]).join("\n");try{await navigator.clipboard.writeText(t);toast("已复制，粘贴发给 Claude");}catch(e){download("pending.txt",t,"txt");toast("已下载为文本");}};
   const cl=document.getElementById("pend-clear");if(cl)cl.onclick=()=>{if(confirm("清空待整理队列？")){state.pending=[];save(state);renderPending();}};
 }
@@ -1339,10 +1332,6 @@ function handleHash(){
   }
 }
 window.addEventListener("hashchange",handleHash);
-const bc=document.getElementById("bulk-clip");
-if(bc)bc.onclick=async()=>{try{const t=await navigator.clipboard.readText();document.getElementById("bulk-words").value=t;toast("已读取剪贴板");}catch(e){toast("无法读取剪贴板，请手动粘贴");}};
-const ba=document.getElementById("bulk-add");
-if(ba)ba.onclick=()=>{const list=parseWords(document.getElementById("bulk-words").value);if(!list.length){toast("请先粘贴单词");return;}document.getElementById("bulk-words").value="";addPending(list);};
 
 document.getElementById("e-anki").onclick=()=>{download("vocab_anki.txt",anki(),"txt");toast("Anki 文件已下载");};
 document.getElementById("e-csv").onclick=()=>{download("vocab.csv",csv(),"csv");toast("CSV 已下载");};
@@ -1562,7 +1551,7 @@ refresh(); // show seed words immediately, no waiting on storage
 </script>
 <script src="watch.js?v=13"></script>
 <script src="channels.js?v=3"></script>
-<script src="pump.js?v=21"></script>
+<script src="pump.js?v=22"></script>
 <script src="saved-web.js?v=5"></script>
 </body>
 </html>
