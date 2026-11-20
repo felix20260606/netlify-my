@@ -4340,7 +4340,9 @@
           "这家店周日不营业。"
         ]
       ],
-      "tip": "星期首字母一律大写；缩写取前三个字母 + 点。Wednesday 读 /ˈwenzdeɪ/（第一个 d 不发音）。weekday 工作日、weekend 周末；“在星期几”用介词 on：on Monday"
+      "tip": "星期首字母一律大写；缩写取前三个字母 + 点。Wednesday 读 /ˈwenzdeɪ/（第一个 d 不发音）。weekday 工作日、weekend 周末；“在星期几”用介词 on：on Monday",
+      "wiki": "Calendar",
+      "u": 1795167599235
     },
     {
       "id": "months",
@@ -4421,7 +4423,9 @@
           "报告九月到期。"
         ]
       ],
-      "tip": "月份首字母一律大写；缩写多为前三字母 + 点（May/June/July 本身短，May 一般不缩写）。“在某月”用介词 in：in July。February 读 /ˈfebruəri/ 别漏第一个 r"
+      "tip": "月份首字母一律大写；缩写多为前三字母 + 点（May/June/July 本身短，May 一般不缩写）。“在某月”用介词 in：in July。February 读 /ˈfebruəri/ 别漏第一个 r",
+      "wiki": "Month",
+      "u": 1795167599235
     },
     {
       "id": "date_expr",
@@ -4526,7 +4530,8 @@
         [
           "climate",
           "→",
-          "气候（≠ weather 天气）"
+          "气候（≠ weather 天气）",
+          "Climate"
         ]
       ],
       "examples": [
@@ -4539,7 +4544,9 @@
           "中国大部分位于温带。"
         ]
       ],
-      "tip": "从赤道往两极：tropical 热带 → subtropical 亚热带 → temperate 温带 → frigid/polar 寒带/极地。tropic(名,回归线/热带)+ -al → tropical(形)。climate 气候(长期) ≠ weather 天气(当下)；赤道 equator、半球 hemisphere"
+      "tip": "从赤道往两极：tropical 热带 → subtropical 亚热带 → temperate 温带 → frigid/polar 寒带/极地。tropic(名,回归线/热带)+ -al → tropical(形)。climate 气候(长期) ≠ weather 天气(当下)；赤道 equator、半球 hemisphere",
+      "wiki": "Köppen climate classification",
+      "u": 1795167599235
     },
     {
       "id": "thigh",
@@ -10985,7 +10992,9 @@
         ]
       ],
       "tip": "美式 color = 英式 colour。深浅：light 浅 / dark 深 / pale 淡 / bright 鲜艳（light green 浅绿、dark red 深红）。发音坑：beige /beɪʒ/、turquoise /ˈtɜːkwɔɪz/、purple /ˈpɜːpl/。gray(美)=grey(英)",
-      "related": []
+      "related": [],
+      "wiki": "Color wheel",
+      "u": 1795167599235
     },
     {
       "id": "amber",
@@ -11286,7 +11295,9 @@
         ]
       ],
       "tip": "「乘…」用 by：by car/bus/train/plane（但步行是 on foot）。上下车分两种：大交通(公交/地铁/火车/飞机)用 get on/off；小车(小汽车/出租车)用 get in/out。换乘 transfer、通勤 commute。🚦红绿灯：等红灯 wait at a red light、闯红灯 run a red light；give sb the green light = 给某人开绿灯/批准。美英差异：subway(美)=tube(英)、truck(美)=lorry(英)、highway(美)=motorway(英)、amber(英)=yellow(美)",
-      "related": []
+      "related": [],
+      "wiki": "Public transport",
+      "u": 1795167599235
     },
     {
       "id": "downstairs",
@@ -11447,7 +11458,8 @@
         [
           "single / double room",
           "→",
-          "单人房 / 双人房（一张大床）"
+          "单人房 / 双人房（一张大床）",
+          "Bed size"
         ],
         [
           "twin room",
@@ -11473,7 +11485,8 @@
         [
           "front desk / reception",
           "→",
-          "前台（英式多用 reception）"
+          "前台（英式多用 reception）",
+          "Receptionist"
         ],
         [
           "room service",
@@ -11546,7 +11559,9 @@
         ]
       ],
       "tip": "⚠️三个高频坑：①double room 是「一张大床」，要两张床得说 twin room；②suite 套房读 /swiːt/（和 sweet 同音）；③check in/out 动词分开写，名词连字符 check-in time。实用句：I have a reservation under… 我用…的名字订了房 / Can I leave my luggage here? 行李能先寄存吗？",
-      "related": []
+      "related": [],
+      "wiki": "Hotel",
+      "u": 1795167599235
     },
     {
       "id": "sc_restaurant",
@@ -12258,7 +12273,8 @@
         [
           "departure / arrival",
           "→",
-          "出发 / 到达（车站大屏上的两栏）"
+          "出发 / 到达（车站大屏上的两栏）",
+          "Split-flap display"
         ],
         [
           "station / bus stop",
@@ -12351,7 +12367,9 @@
         ]
       ],
       "tip": "单程往返：美式 one-way/round-trip，英式 single/return。站台英式 platform、美式 track。「转」都用 transfer(换乘)/connection(转机)。退票 refund、改签 change my ticket。时刻表 schedule 英美读音不同：/ˈskedʒuːl/ vs /ˈʃedjuːl/",
-      "related": []
+      "related": [],
+      "wiki": "Train ticket",
+      "u": 1795167599235
     },
     {
       "id": "sc_ticket",
@@ -12508,7 +12526,8 @@
         [
           "wash my hair",
           "→",
-          "洗头（不说 wash my head）"
+          "洗头（不说 wash my head）",
+          "Hair washing"
         ],
         [
           "rinse",
@@ -12553,7 +12572,8 @@
         [
           "drain",
           "→",
-          "下水口、排水（clogged 堵了）"
+          "下水口、排水（clogged 堵了）",
+          "Floor drain"
         ],
         [
           "towel",
@@ -12576,7 +12596,8 @@
         [
           "toiletries",
           "→",
-          "洗漱用品（总称）"
+          "洗漱用品（总称）",
+          "Toiletry bag"
         ],
         [
           "shampoo / conditioner",
@@ -12617,7 +12638,8 @@
         [
           "scrub",
           "→",
-          "搓澡、去角质（搓澡巾 scrub towel）"
+          "搓澡、去角质（搓澡巾 scrub towel）",
+          "Italy towel"
         ]
       ],
       "examples": [
@@ -12635,7 +12657,9 @@
         ]
       ],
       "tip": "⚠️三个常见错：①洗澡是 take/have a shower，**不说 wash a shower**；②洗头说 wash my hair，不说 wash my head；③水龙头英 tap、美 faucet。淋浴 shower vs 泡澡 bath 分清。酒店要东西万能句：Could I get another towel / some shampoo?",
-      "related": []
+      "related": [],
+      "wiki": "Bathing",
+      "u": 1795167599235
     },
     {
       "id": "fruits",
@@ -12849,7 +12873,9 @@
         ]
       ],
       "tip": "买水果实用句：How much per kilo? 一公斤多少钱 / Is this ripe? 这个熟了吗 / Can I try one? 能尝一个吗。状态词：ripe 熟的、unripe 生的、overripe 过熟、fresh 新鲜、in season 当季。⚠️注意 kiwi 在新西兰也指人/鸟，水果全称 kiwifruit",
-      "related": []
+      "related": [],
+      "wiki": "Fruit",
+      "u": 1795167599235
     },
     {
       "id": "flourish",
@@ -21403,17 +21429,20 @@
         [
           "a cup of tea / coffee",
           "cup",
-          "一杯（带把的杯子，多为热饮）"
+          "一杯（带把的杯子，多为热饮）",
+          "Cup"
         ],
         [
           "a glass of water / milk / wine",
           "glass",
-          "一杯（玻璃杯，多为冷饮）"
+          "一杯（玻璃杯，多为冷饮）",
+          "Tumbler (glass)"
         ],
         [
           "a slice of bread / pizza / cheese",
           "slice",
-          "一片"
+          "一片",
+          "Sliced bread"
         ],
         [
           "a pair of shoes / glasses / jeans / scissors",
@@ -21423,17 +21452,20 @@
         [
           "a bottle of water / wine",
           "bottle",
-          "一瓶"
+          "一瓶",
+          "Bottle"
         ],
         [
           "a can / tin of beans / Coke",
           "can",
-          "一罐（tin 偏英式）"
+          "一罐（tin 偏英式）",
+          "Drink can"
         ],
         [
           "a loaf of bread",
           "loaf",
-          "一条（整条面包），复数 loaves"
+          "一条（整条面包），复数 loaves",
+          "Loaf"
         ],
         [
           "a bunch of bananas / flowers / grapes",
@@ -21443,22 +21475,26 @@
         [
           "a sheet of paper",
           "sheet",
-          "一张（薄片状）"
+          "一张（薄片状）",
+          "Paper"
         ],
         [
           "a bowl of rice / soup",
           "bowl",
-          "一碗"
+          "一碗",
+          "Bowl"
         ],
         [
           "a bar of chocolate / soap",
           "bar",
-          "一块（条状）"
+          "一块（条状）",
+          "Chocolate bar"
         ],
         [
           "a box of chocolates / tissues",
           "box",
-          "一盒"
+          "一盒",
+          "Cardboard box"
         ],
         [
           "a packet of crisps / biscuits",
@@ -21468,22 +21504,26 @@
         [
           "a bag of rice / chips",
           "bag",
-          "一袋"
+          "一袋",
+          "Bag"
         ],
         [
           "a spoonful of sugar",
           "spoonful",
-          "一勺"
+          "一勺",
+          "Spoon"
         ],
         [
           "a kilo of apples",
           "kilo",
-          "一公斤"
+          "一公斤",
+          "Weighing scale"
         ],
         [
           "a carton of milk / eggs",
           "carton",
-          "一盒（纸盒装）"
+          "一盒（纸盒装）",
+          "Carton"
         ],
         [
           "two cups of coffee",
@@ -21510,7 +21550,8 @@
           "她买了两条面包和一串香蕉。"
         ]
       ],
-      "tip": "数不清的东西装进容器再数：变复数只变量词。"
+      "tip": "数不清的东西装进容器再数：变复数只变量词。",
+      "u": 1795167599235
     },
     {
       "id": "discourse_markers",
@@ -22300,7 +22341,9 @@
           "退房时间是中午 12 点，不是半夜 12 点。"
         ]
       ],
-      "tip": "过半前用 past，过半后用 to 下一个钟点；half three 是三点半；12 p.m. 中午，12 a.m. 半夜。"
+      "tip": "过半前用 past，过半后用 to 下一个钟点；half three 是三点半；12 p.m. 中午，12 a.m. 半夜。",
+      "wiki": "Clock",
+      "u": 1795167599235
     },
     {
       "id": "units",
@@ -22440,7 +22483,9 @@
           "今天迪拜华氏 95 度，也就是摄氏 35 度。"
         ]
       ],
-      "tip": "英寸 2.5、英尺 30、英里 1.6、磅 0.45；华氏减 32 再除以 1.8 就是摄氏。"
+      "tip": "英寸 2.5、英尺 30、英里 1.6、磅 0.45；华氏减 32 再除以 1.8 就是摄氏。",
+      "wiki": "Tape measure",
+      "u": 1795167599235
     },
     {
       "id": "body_parts",
@@ -22549,7 +22594,8 @@
         [
           "waist / hips",
           "→",
-          "腰（身体最细处）/ 胯部；hips 不是屁股，屁股是 bottom / butt"
+          "腰（身体最细处）/ 胯部；hips 不是屁股，屁股是 bottom / butt",
+          "Waist"
         ],
         [
           "back / lower back",
@@ -22604,7 +22650,9 @@
           "长途飞行后我腰疼。"
         ]
       ],
-      "tip": "中文的「腰」分两种：前面细的是 waist，后面疼的是 lower back；hips 是胯不是屁股。"
+      "tip": "中文的「腰」分两种：前面细的是 waist，后面疼的是 lower back；hips 是胯不是屁股。",
+      "wiki": "Human body",
+      "u": 1795167599235
     },
     {
       "id": "family",
@@ -22744,7 +22792,9 @@
           "她是我同父异母的妹妹。"
         ]
       ],
-      "tip": "英语亲戚只分辈分不分边：uncle、aunt、cousin 一个词管一大片；配偶那边加 -in-law，再婚带来的加 step-。"
+      "tip": "英语亲戚只分辈分不分边：uncle、aunt、cousin 一个词管一大片；配偶那边加 -in-law，再婚带来的加 step-。",
+      "wiki": "Family",
+      "u": 1795167599235
     },
     {
       "id": "weather",
@@ -22757,22 +22807,26 @@
         [
           "sunny / clear",
           "→",
-          "晴天 / 晴朗无云"
+          "晴天 / 晴朗无云",
+          "Sun"
         ],
         [
           "cloudy / overcast",
           "→",
-          "多云 / 阴天（overcast 是整片阴）"
+          "多云 / 阴天（overcast 是整片阴）",
+          "Overcast"
         ],
         [
           "hot / scorching",
           "→",
-          "热 / 酷热、晒得要命"
+          "热 / 酷热、晒得要命",
+          "Heat wave"
         ],
         [
           "humid / muggy",
           "→",
-          "潮湿闷热：吉隆坡日常；不要说 wet（wet 是被淋湿的）"
+          "潮湿闷热：吉隆坡日常；不要说 wet（wet 是被淋湿的）",
+          "Humidity"
         ],
         [
           "humidity",
@@ -22782,17 +22836,20 @@
         [
           "drizzle",
           "→",
-          "毛毛雨"
+          "毛毛雨",
+          "Drizzle"
         ],
         [
           "shower",
           "→",
-          "阵雨：scattered showers 零星阵雨"
+          "阵雨：scattered showers 零星阵雨",
+          "Shower (precipitation)"
         ],
         [
           "downpour",
           "→",
-          "倾盆大雨"
+          "倾盆大雨",
+          "Rain"
         ],
         [
           "It's pouring.",
@@ -22802,42 +22859,50 @@
         [
           "thunderstorm",
           "→",
-          "雷暴：吉隆坡下午常见"
+          "雷暴：吉隆坡下午常见",
+          "Thunderstorm"
         ],
         [
           "thunder / lightning",
           "→",
-          "雷声 / 闪电：lightning 没有 e（lightening 是变亮）"
+          "雷声 / 闪电：lightning 没有 e（lightening 是变亮）",
+          "Lightning"
         ],
         [
           "flash flood",
           "→",
-          "暴雨引发的突发洪水，KL 大雨后常见"
+          "暴雨引发的突发洪水，KL 大雨后常见",
+          "Flash flood"
         ],
         [
           "monsoon",
           "→",
-          "季风、雨季：东北季风约 11–3 月，东海岸雨多浪大"
+          "季风、雨季：东北季风约 11–3 月，东海岸雨多浪大",
+          "Monsoon"
         ],
         [
           "haze",
           "→",
-          "烟霾：印尼等地烧林造成，东南亚多在 6–10 月旱季出现"
+          "烟霾：印尼等地烧林造成，东南亚多在 6–10 月旱季出现",
+          "Haze"
         ],
         [
           "API / AQI",
           "→",
-          "空气污染指数：马来西亚习惯说 API，别处常说 AQI"
+          "空气污染指数：马来西亚习惯说 API，别处常说 AQI",
+          "Air quality index"
         ],
         [
           "smog / fog / mist",
           "→",
-          "城市污染雾霾 / 浓雾 / 薄雾"
+          "城市污染雾霾 / 浓雾 / 薄雾",
+          "Smog"
         ],
         [
           "breeze / windy",
           "→",
-          "微风 / 刮风的"
+          "微风 / 刮风的",
+          "Wind"
         ],
         [
           "cool / chilly",
@@ -22847,27 +22912,32 @@
         [
           "freezing",
           "→",
-          "冷死了；口语常夸张用：It's freezing in here!（空调太冷）"
+          "冷死了；口语常夸张用：It's freezing in here!（空调太冷）",
+          "Frost"
         ],
         [
           "degrees",
           "→",
-          "度：It's 33 degrees. 马来西亚默认摄氏，美国默认华氏"
+          "度：It's 33 degrees. 马来西亚默认摄氏，美国默认华氏",
+          "Thermometer"
         ],
         [
           "feels like",
           "→",
-          "体感温度：33, but it feels like 40."
+          "体感温度：33, but it feels like 40.",
+          "Apparent temperature"
         ],
         [
           "UV index",
           "→",
-          "紫外线指数"
+          "紫外线指数",
+          "Ultraviolet index"
         ],
         [
           "forecast",
           "→",
-          "天气预报：The forecast says rain this afternoon."
+          "天气预报：The forecast says rain this afternoon.",
+          "Weather forecasting"
         ]
       ],
       "examples": [
@@ -22884,7 +22954,9 @@
           "因为烟霾，学校停课了。"
         ]
       ],
-      "tip": "雨按大小排：drizzle < shower < rain < downpour；闷热说 humid，不说 wet。"
+      "tip": "雨按大小排：drizzle < shower < rain < downpour；闷热说 humid，不说 wet。",
+      "wiki": "Weather",
+      "u": 1795167599235
     },
     {
       "id": "emotions",
@@ -23047,32 +23119,38 @@
         [
           "doctor / GP",
           "→",
-          "医生 / 全科医生（general practitioner）"
+          "医生 / 全科医生（general practitioner）",
+          "Physician"
         ],
         [
           "nurse",
           "→",
-          "护士"
+          "护士",
+          "Nurse"
         ],
         [
           "dentist",
           "→",
-          "牙医"
+          "牙医",
+          "Dentist"
         ],
         [
           "teacher / lecturer / professor",
           "→",
-          "老师 / 大学讲师 / 教授：professor 是职称，不是所有大学老师都是"
+          "老师 / 大学讲师 / 教授：professor 是职称，不是所有大学老师都是",
+          "Teacher"
         ],
         [
           "engineer",
           "→",
-          "工程师"
+          "工程师",
+          "Engineer"
         ],
         [
           "software developer / programmer",
           "→",
-          "软件开发 / 程序员"
+          "软件开发 / 程序员",
+          "Programmer"
         ],
         [
           "accountant",
@@ -23082,32 +23160,38 @@
         [
           "lawyer",
           "→",
-          "律师"
+          "律师",
+          "Lawyer"
         ],
         [
           "police officer",
           "→",
-          "警察"
+          "警察",
+          "Police officer"
         ],
         [
           "firefighter",
           "→",
-          "消防员（比 fireman 更通用、中性）"
+          "消防员（比 fireman 更通用、中性）",
+          "Firefighter"
         ],
         [
           "chef / cook",
           "→",
-          "主厨 / 厨师（cook 更普通）"
+          "主厨 / 厨师（cook 更普通）",
+          "Chef"
         ],
         [
           "waiter / waitress / server",
           "→",
-          "服务员（server 不分男女）"
+          "服务员（server 不分男女）",
+          "Waiting staff"
         ],
         [
           "cashier",
           "→",
-          "收银员"
+          "收银员",
+          "Cashier"
         ],
         [
           "shop assistant / sales assistant",
@@ -23117,42 +23201,50 @@
         [
           "receptionist",
           "→",
-          "前台接待"
+          "前台接待",
+          "Receptionist"
         ],
         [
           "driver / taxi driver / Grab driver",
           "→",
-          "司机 / 出租车司机 / Grab 司机"
+          "司机 / 出租车司机 / Grab 司机",
+          "Taxi driver"
         ],
         [
           "pilot / flight attendant",
           "→",
-          "飞行员 / 空乘（现在少说 stewardess）"
+          "飞行员 / 空乘（现在少说 stewardess）",
+          "Aircraft pilot"
         ],
         [
           "tour guide",
           "→",
-          "导游"
+          "导游",
+          "Tour guide"
         ],
         [
           "cleaner / housekeeper",
           "→",
-          "清洁工 / 酒店客房保洁、家政"
+          "清洁工 / 酒店客房保洁、家政",
+          "Housekeeper (domestic worker)"
         ],
         [
           "security guard",
           "→",
-          "保安"
+          "保安",
+          "Security guard"
         ],
         [
           "mechanic",
           "→",
-          "修车师傅、机械师"
+          "修车师傅、机械师",
+          "Mechanic"
         ],
         [
           "hairdresser / barber",
           "→",
-          "理发师、发型师 / 男士理发师"
+          "理发师、发型师 / 男士理发师",
+          "Hairdresser"
         ],
         [
           "freelancer / self-employed",
@@ -23170,7 +23262,9 @@
           "空乘请我们系好安全带。"
         ]
       ],
-      "tip": "问职业说 What do you do?；职业前要加 a / an：I'm an engineer，不说 I'm engineer。"
+      "tip": "问职业说 What do you do?；职业前要加 a / an：I'm an engineer，不说 I'm engineer。",
+      "wiki": "Profession",
+      "u": 1795167599235
     },
     {
       "id": "clothes",
@@ -23321,7 +23415,8 @@
         [
           "baju kurung",
           "→",
-          "马来传统女装：长上衣配长裙"
+          "马来传统女装：长上衣配长裙",
+          "Baju Kurung"
         ]
       ],
       "examples": [
@@ -23334,7 +23429,9 @@
           "不能穿短裤和人字拖进清真寺。"
         ]
       ],
-      "tip": "裤子类（trousers、jeans、shorts、pajamas）都是复数，一条说 a pair of；在英国人面前别把裤子叫 pants。"
+      "tip": "裤子类（trousers、jeans、shorts、pajamas）都是复数，一条说 a pair of；在英国人面前别把裤子叫 pants。",
+      "wiki": "Clothing",
+      "u": 1795167599235
     },
     {
       "id": "cooking",
@@ -23347,82 +23444,98 @@
         [
           "chop",
           "→",
-          "切块、剁"
+          "切块、剁",
+          "Cleaver"
         ],
         [
           "dice",
           "→",
-          "切丁"
+          "切丁",
+          "Brunoise"
         ],
         [
           "slice",
           "→",
-          "切片"
+          "切片",
+          "Mandoline"
         ],
         [
           "mince",
           "→",
-          "剁碎、切末；minced pork 猪肉末"
+          "剁碎、切末；minced pork 猪肉末",
+          "Mincing"
         ],
         [
           "peel",
           "→",
-          "削皮、剥皮"
+          "削皮、剥皮",
+          "Peeler"
         ],
         [
           "grate",
           "→",
-          "擦丝、磨碎（用 grater 擦子）"
+          "擦丝、磨碎（用 grater 擦子）",
+          "Grater"
         ],
         [
           "marinate",
           "→",
-          "腌制入味"
+          "腌制入味",
+          "Marination"
         ],
         [
           "stir-fry",
           "→",
-          "炒（中式大火快炒）"
+          "炒（中式大火快炒）",
+          "Stir frying"
         ],
         [
           "fry / deep-fry",
           "→",
-          "油煎油炸 / 油炸（整个浸在油里）"
+          "油煎油炸 / 油炸（整个浸在油里）",
+          "Deep frying"
         ],
         [
           "pan-fry",
           "→",
-          "煎（少量油）"
+          "煎（少量油）",
+          "Pan frying"
         ],
         [
           "boil",
           "→",
-          "煮沸、水煮"
+          "煮沸、水煮",
+          "Boiling"
         ],
         [
           "simmer",
           "→",
-          "小火慢炖、小火煮"
+          "小火慢炖、小火煮",
+          "Simmering"
         ],
         [
           "steam",
           "→",
-          "蒸"
+          "蒸",
+          "Steaming"
         ],
         [
           "bake / roast",
           "→",
-          "烘焙（面包蛋糕）/ 烤（肉、蔬菜）"
+          "烘焙（面包蛋糕）/ 烤（肉、蔬菜）",
+          "Baking"
         ],
         [
           "grill / barbecue (BBQ)",
           "→",
-          "炙烤 / 烧烤"
+          "炙烤 / 烧烤",
+          "Grilling"
         ],
         [
           "stir",
           "→",
-          "搅拌：stir 只是搅，stir-fry 才是炒"
+          "搅拌：stir 只是搅，stir-fry 才是炒",
+          "Wooden spoon"
         ],
         [
           "wok",
@@ -23483,7 +23596,9 @@
           "鱼蒸十分钟左右。"
         ]
       ],
-      "tip": "刀工看形状：chop 块、slice 片、dice 丁、mince 末；stir 只是搅，stir-fry 才是炒。"
+      "tip": "刀工看形状：chop 块、slice 片、dice 丁、mince 末；stir 只是搅，stir-fry 才是炒。",
+      "wiki": "Kitchen",
+      "u": 1795167599235
     },
     {
       "id": "animals",
@@ -23648,7 +23763,9 @@
           "浴室天花板上有只壁虎。"
         ]
       ],
-      "tip": "活的叫动物名，吃的换个词：pig → pork、cow → beef、sheep → mutton / lamb；chicken、fish 不变。"
+      "tip": "活的叫动物名，吃的换个词：pig → pork、cow → beef、sheep → mutton / lamb；chicken、fish 不变。",
+      "wiki": "Animal",
+      "u": 1795167599235
     },
     {
       "id": "vegetables",
@@ -23817,7 +23934,9 @@
           "在马来西亚，茄子常被叫作 brinjal。"
         ]
       ],
-      "tip": "同一种菜英美马叫法不同：eggplant = aubergine = brinjal，bell pepper = capsicum，spring onion = scallion。"
+      "tip": "同一种菜英美马叫法不同：eggplant = aubergine = brinjal，bell pepper = capsicum，spring onion = scallion。",
+      "wiki": "Vegetable",
+      "u": 1795167599235
     },
     {
       "id": "restaurant",
@@ -23947,7 +24066,9 @@
           "我们能分开付吗？我刷卡。"
         ]
       ],
-      "tip": "点菜 I'll have，打包 to go / takeaway，买单 the bill（美式 check），AA 说 split the bill。"
+      "tip": "点菜 I'll have，打包 to go / takeaway，买单 the bill（美式 check），AA 说 split the bill。",
+      "wiki": "Restaurant",
+      "u": 1795167599235
     },
     {
       "id": "shopping",
@@ -24082,7 +24203,9 @@
           "我想退这个——这是收据。"
         ]
       ],
-      "tip": "on sale 打折，for sale 出售；30% off 是打七折，不是打三折。"
+      "tip": "on sale 打折，for sale 出售；30% off 是打七折，不是打三折。",
+      "wiki": "Shopping",
+      "u": 1795167599235
     },
     {
       "id": "airport",
@@ -24095,7 +24218,8 @@
         [
           "check in (online / at the counter)",
           "→",
-          "值机（网上值机 / 柜台值机；check-in counter 值机柜台）"
+          "值机（网上值机 / 柜台值机；check-in counter 值机柜台）",
+          "Airport check-in"
         ],
         [
           "Passport, please.",
@@ -24105,7 +24229,8 @@
         [
           "boarding pass",
           "→",
-          "登机牌（不说 boarding card 也行，两者英式都用）"
+          "登机牌（不说 boarding card 也行，两者英式都用）",
+          "Boarding pass"
         ],
         [
           "Window or aisle?",
@@ -24120,7 +24245,8 @@
         [
           "carry-on / hand luggage",
           "→",
-          "手提行李（luggage、baggage 不可数：two bags / two pieces of luggage）"
+          "手提行李（luggage、baggage 不可数：two bags / two pieces of luggage）",
+          "Hand luggage"
         ],
         [
           "baggage allowance / overweight",
@@ -24135,7 +24261,8 @@
         [
           "go through security",
           "→",
-          "过安检（security check）"
+          "过安检（security check）",
+          "Airport security"
         ],
         [
           "Please take out your laptop and liquids.",
@@ -24145,7 +24272,8 @@
         [
           "Which gate? / Gate B12",
           "→",
-          "哪个登机口 / B12 登机口（boarding gate）"
+          "哪个登机口 / B12 登机口（boarding gate）",
+          "Gate (airport)"
         ],
         [
           "Boarding starts at 9:20.",
@@ -24175,12 +24303,14 @@
         [
           "departures / arrivals",
           "→",
-          "出发 / 到达（大厅、航班屏幕）"
+          "出发 / 到达（大厅、航班屏幕）",
+          "Flight information display system"
         ],
         [
           "immigration / passport control",
           "→",
-          "入境检查 / 边检（马来西亚可走 autogate 自助通道）"
+          "入境检查 / 边检（马来西亚可走 autogate 自助通道）",
+          "Border control"
         ],
         [
           "What's the purpose of your visit?",
@@ -24200,7 +24330,8 @@
         [
           "baggage claim / carousel",
           "→",
-          "行李提取处 / 行李转盘"
+          "行李提取处 / 行李转盘",
+          "Baggage carousel"
         ],
         [
           "My luggage is missing.",
@@ -24210,7 +24341,8 @@
         [
           "duty-free",
           "→",
-          "免税店"
+          "免税店",
+          "Duty-free shop"
         ]
       ],
       "examples": [
@@ -24227,7 +24359,9 @@
           "过边检时，他们问了我来访的目的。"
         ]
       ],
-      "tip": "出发：check in → security → gate → board；到达：immigration → baggage claim → customs。"
+      "tip": "出发：check in → security → gate → board；到达：immigration → baggage claim → customs。",
+      "wiki": "Airport",
+      "u": 1795167599235
     },
     {
       "id": "doctor",
@@ -24300,22 +24434,26 @@
         [
           "prescription / prescribe",
           "→",
-          "处方 / 开药"
+          "处方 / 开药",
+          "Medical prescription"
         ],
         [
           "pharmacy / pharmacist",
           "→",
-          "药房 / 药剂师（美式 drugstore，英式 chemist）"
+          "药房 / 药剂师（美式 drugstore，英式 chemist）",
+          "Pharmacy (shop)"
         ],
         [
           "over-the-counter (OTC) medicine",
           "→",
-          "非处方药（不用处方直接买）"
+          "非处方药（不用处方直接买）",
+          "Over-the-counter drug"
         ],
         [
           "painkillers / antibiotics / cough syrup",
           "→",
-          "止痛药 / 抗生素 / 止咳糖浆"
+          "止痛药 / 抗生素 / 止咳糖浆",
+          "Tablet (pharmacy)"
         ],
         [
           "Take two tablets three times a day.",
@@ -24362,7 +24500,9 @@
           "这个药需要处方吗，还是可以直接在柜台买？"
         ]
       ],
-      "tip": "症状用 have a ___，部位疼用 ___ hurts；吃药是 take medicine，不是 eat medicine。"
+      "tip": "症状用 have a ___，部位疼用 ___ hurts；吃药是 take medicine，不是 eat medicine。",
+      "wiki": "General practitioner",
+      "u": 1795167599235
     },
     {
       "id": "directions",
@@ -24430,17 +24570,20 @@
         [
           "at the traffic lights",
           "→",
-          "在红绿灯处（英式常用复数 lights）"
+          "在红绿灯处（英式常用复数 lights）",
+          "Traffic light"
         ],
         [
           "crossroads / intersection / junction",
           "→",
-          "十字路口（美式 intersection；T-junction 丁字路口）"
+          "十字路口（美式 intersection；T-junction 丁字路口）",
+          "Intersection (road)"
         ],
         [
           "roundabout",
           "→",
-          "环岛（马来西亚很多）"
+          "环岛（马来西亚很多）",
+          "Roundabout"
         ],
         [
           "Go past the mall.",
@@ -24502,7 +24645,9 @@
           "从车站走过去只要五分钟。"
         ]
       ],
-      "tip": "五分钟路程说 a five-minute walk：连字符里的名词用单数，不加 s。"
+      "tip": "五分钟路程说 a five-minute walk：连字符里的名词用单数，不加 s。",
+      "wiki": "Traffic sign",
+      "u": 1795167599235
     },
     {
       "id": "phone_talk",
@@ -24637,7 +24782,9 @@
           "你到大堂就给我发个消息。"
         ]
       ],
-      "tip": "电话里报名字用 This is ___；挂电话 hang up，回电 call back，发消息 text me。"
+      "tip": "电话里报名字用 This is ___；挂电话 hang up，回电 call back，发消息 text me。",
+      "wiki": "Smartphone",
+      "u": 1795167599235
     },
     {
       "id": "fitness",
@@ -24660,7 +24807,8 @@
         [
           "protein / high-protein",
           "→",
-          "蛋白质 / 高蛋白（protein shake 蛋白奶昔）"
+          "蛋白质 / 高蛋白（protein shake 蛋白奶昔）",
+          "Protein shake"
         ],
         [
           "carbs / low-carb",
@@ -24680,12 +24828,14 @@
         [
           "fiber",
           "→",
-          "膳食纤维（英式拼 fibre）"
+          "膳食纤维（英式拼 fibre）",
+          "Dietary fiber"
         ],
         [
           "portion / serving size",
           "→",
-          "份量 / 每份（营养标签按 per serving 计算）"
+          "份量 / 每份（营养标签按 per serving 计算）",
+          "Nutrition facts label"
         ],
         [
           "cut / on a cut",
@@ -24710,17 +24860,20 @@
         [
           "cardio",
           "→",
-          "有氧（跑步、单车、游泳）"
+          "有氧（跑步、单车、游泳）",
+          "Aerobic exercise"
         ],
         [
           "strength training / lift weights",
           "→",
-          "力量训练 / 举铁"
+          "力量训练 / 举铁",
+          "Strength training"
         ],
         [
           "HIIT",
           "→",
-          "高强度间歇训练（high-intensity interval training）"
+          "高强度间歇训练（high-intensity interval training）",
+          "High-intensity interval training"
         ],
         [
           "reps",
@@ -24740,7 +24893,8 @@
         [
           "intermittent fasting (IF) / 16:8",
           "→",
-          "间歇性断食 / 禁食 16 小时、8 小时内进食"
+          "间歇性断食 / 禁食 16 小时、8 小时内进食",
+          "Fasting"
         ],
         [
           "eating window",
@@ -24782,7 +24936,9 @@
           "我在做 16:8 间歇性断食，进食窗口是中午 12 点到晚上 8 点。"
         ]
       ],
-      "tip": "cut 减脂、bulk 增肌；sets 是组、reps 是下；work out 动词、workout 名词。"
+      "tip": "cut 减脂、bulk 增肌；sets 是组、reps 是下；work out 动词、workout 名词。",
+      "wiki": "Physical fitness",
+      "u": 1795167599235
     },
     {
       "id": "housing",
@@ -24835,17 +24991,20 @@
         [
           "condo / apartment / landed house",
           "→",
-          "带泳池健身房的公寓 / 公寓 / 有地房"
+          "带泳池健身房的公寓 / 公寓 / 有地房",
+          "Condominium"
         ],
         [
           "studio",
           "→",
-          "开间公寓（一室户）"
+          "开间公寓（一室户）",
+          "Studio apartment"
         ],
         [
           "fully furnished / partially furnished / unfurnished",
           "→",
-          "全配家具 / 半配 / 不带家具"
+          "全配家具 / 半配 / 不带家具",
+          "Furniture"
         ],
         [
           "maintenance fee",
@@ -24917,7 +25076,9 @@
           "房东要我们签一年租约。"
         ]
       ],
-      "tip": "landlord 收租、tenant 交租；deposit 是押金，utilities 是水电网杂费。"
+      "tip": "landlord 收租、tenant 交租；deposit 是押金，utilities 是水电网杂费。",
+      "wiki": "Apartment",
+      "u": 1795167599235
     },
     {
       "id": "workplace",
@@ -25070,97 +25231,116 @@
         [
           "China – Chinese – a Chinese person – Chinese",
           "→",
-          "中国：形容词、国民、语言都是 Chinese；普通话 Mandarin，粤语 Cantonese"
+          "中国：形容词、国民、语言都是 Chinese；普通话 Mandarin，粤语 Cantonese",
+          "Flag of China"
         ],
         [
           "Malaysia – Malaysian – a Malaysian – Malay",
           "→",
-          "马来西亚：国籍 Malaysian；Malay 指马来族或马来语（Bahasa Melayu）"
+          "马来西亚：国籍 Malaysian；Malay 指马来族或马来语（Bahasa Melayu）",
+          "Flag of Malaysia"
         ],
         [
           "Japan – Japanese – a Japanese person – Japanese",
           "→",
-          "日本（-ese 结尾单数说 a ___ person 更自然，复数不加 s）"
+          "日本（-ese 结尾单数说 a ___ person 更自然，复数不加 s）",
+          "Flag of Japan"
         ],
         [
           "(South) Korea – Korean – a Korean – Korean",
           "→",
-          "韩国"
+          "韩国",
+          "Flag of South Korea"
         ],
         [
           "the US – American – an American – English",
           "→",
-          "美国：国名要加 the（the USA / the States）"
+          "美国：国名要加 the（the USA / the States）",
+          "Flag of the United States"
         ],
         [
           "the UK – British – a British person / a Brit – English",
           "→",
-          "英国：British 指整个英国，English 只指英格兰"
+          "英国：British 指整个英国，English 只指英格兰",
+          "Flag of the United Kingdom"
         ],
         [
           "Singapore – Singaporean – a Singaporean",
           "→",
-          "新加坡（语言英语、华语、马来语、淡米尔语）"
+          "新加坡（语言英语、华语、马来语、淡米尔语）",
+          "Flag of Singapore"
         ],
         [
           "Thailand – Thai – a Thai – Thai",
           "→",
-          "泰国"
+          "泰国",
+          "Flag of Thailand"
         ],
         [
           "Vietnam – Vietnamese – a Vietnamese person – Vietnamese",
           "→",
-          "越南"
+          "越南",
+          "Flag of Vietnam"
         ],
         [
           "Indonesia – Indonesian – an Indonesian – Indonesian",
           "→",
-          "印尼（印尼语 Bahasa Indonesia）"
+          "印尼（印尼语 Bahasa Indonesia）",
+          "Flag of Indonesia"
         ],
         [
           "the Philippines – Filipino – a Filipino – Filipino, English",
           "→",
-          "菲律宾：国名带 the 拼 Ph，国民拼 F；官方形容词 Philippine（Philippine Airlines）"
+          "菲律宾：国名带 the 拼 Ph，国民拼 F；官方形容词 Philippine（Philippine Airlines）",
+          "Flag of the Philippines"
         ],
         [
           "India – Indian – an Indian – Hindi, English",
           "→",
-          "印度；马来西亚印裔多讲 Tamil 淡米尔语"
+          "印度；马来西亚印裔多讲 Tamil 淡米尔语",
+          "Flag of India"
         ],
         [
           "France – French – a French person – French",
           "→",
-          "法国：不说 a French"
+          "法国：不说 a French",
+          "Flag of France"
         ],
         [
           "Germany – German – a German – German",
           "→",
-          "德国"
+          "德国",
+          "Flag of Germany"
         ],
         [
           "Spain – Spanish – a Spaniard – Spanish",
           "→",
-          "西班牙：国民 Spaniard 是特殊词"
+          "西班牙：国民 Spaniard 是特殊词",
+          "Flag of Spain"
         ],
         [
           "the Netherlands – Dutch – a Dutch person – Dutch",
           "→",
-          "荷兰：形容词是 Dutch，跟国名完全不像"
+          "荷兰：形容词是 Dutch，跟国名完全不像",
+          "Flag of the Netherlands"
         ],
         [
           "Switzerland – Swiss – a Swiss person",
           "→",
-          "瑞士（没有 Swiss 语，说德、法、意语）"
+          "瑞士（没有 Swiss 语，说德、法、意语）",
+          "Flag of Switzerland"
         ],
         [
           "Australia – Australian – an Australian (Aussie)",
           "→",
-          "澳大利亚"
+          "澳大利亚",
+          "Flag of Australia"
         ],
         [
           "New Zealand – a New Zealander (Kiwi)",
           "→",
-          "新西兰"
+          "新西兰",
+          "Flag of New Zealand"
         ],
         [
           "I'm Chinese. / I'm from China.",
@@ -25197,7 +25377,9 @@
           "他是英国人，但不是英格兰人——他来自苏格兰。"
         ]
       ],
-      "tip": "说国籍用形容词：I'm Chinese；-ese 结尾的单数说 a Chinese person，别说 a Chinese。"
+      "tip": "说国籍用形容词：I'm Chinese；-ese 结尾的单数说 a Chinese person，别说 a Chinese。",
+      "wiki": "Flags of the world",
+      "u": 1795167599235
     },
     {
       "id": "holidays",
@@ -25210,42 +25392,50 @@
         [
           "Chinese New Year (CNY) / Lunar New Year",
           "→",
-          "春节（Happy Chinese New Year! 马来西亚常说 Gong Xi Fa Cai）"
+          "春节（Happy Chinese New Year! 马来西亚常说 Gong Xi Fa Cai）",
+          "Chinese New Year"
         ],
         [
           "reunion dinner",
           "→",
-          "除夕团圆饭（on Chinese New Year's Eve）"
+          "除夕团圆饭（on Chinese New Year's Eve）",
+          "Chinese New Year's Eve"
         ],
         [
           "ang pow / red packet",
           "→",
-          "红包（马来西亚叫 ang pow；开斋节发绿包 duit raya）"
+          "红包（马来西亚叫 ang pow；开斋节发绿包 duit raya）",
+          "Red envelope"
         ],
         [
           "Chap Goh Mei / Lantern Festival",
           "→",
-          "元宵节（马来西亚华人叫 Chap Goh Mei 十五暝）"
+          "元宵节（马来西亚华人叫 Chap Goh Mei 十五暝）",
+          "Lantern Festival"
         ],
         [
           "Qingming Festival / Tomb-Sweeping Day",
           "→",
-          "清明节"
+          "清明节",
+          "Qingming Festival"
         ],
         [
           "Dragon Boat Festival",
           "→",
-          "端午节（rice dumplings 粽子，也直接说 zongzi）"
+          "端午节（rice dumplings 粽子，也直接说 zongzi）",
+          "Dragon Boat Festival"
         ],
         [
           "Mid-Autumn Festival",
           "→",
-          "中秋节（mooncake 月饼，lantern 灯笼）"
+          "中秋节（mooncake 月饼，lantern 灯笼）",
+          "Mid-Autumn Festival"
         ],
         [
           "Hari Raya Aidilfitri",
           "→",
-          "开斋节（Selamat Hari Raya! / Eid Mubarak!）"
+          "开斋节（Selamat Hari Raya! / Eid Mubarak!）",
+          "Eid al-Fitr"
         ],
         [
           "Maaf Zahir dan Batin",
@@ -25255,7 +25445,8 @@
         [
           "Ramadan / fasting month",
           "→",
-          "斋月（日落后开斋叫 break fast；Ramadan bazaar 斋月市集）"
+          "斋月（日落后开斋叫 break fast；Ramadan bazaar 斋月市集）",
+          "Ramadan"
         ],
         [
           "open house",
@@ -25265,32 +25456,38 @@
         [
           "Hari Raya Haji / Eid al-Adha",
           "→",
-          "哈芝节 / 宰牲节"
+          "哈芝节 / 宰牲节",
+          "Eid al-Adha"
         ],
         [
           "Deepavali / Diwali",
           "→",
-          "屠妖节 / 排灯节（Happy Deepavali!）"
+          "屠妖节 / 排灯节（Happy Deepavali!）",
+          "Diwali"
         ],
         [
           "Thaipusam",
           "→",
-          "大宝森节（Batu Caves 黑风洞最热闹）"
+          "大宝森节（Batu Caves 黑风洞最热闹）",
+          "Thaipusam"
         ],
         [
           "Wesak Day",
           "→",
-          "卫塞节（佛诞）"
+          "卫塞节（佛诞）",
+          "Vesak"
         ],
         [
           "Merdeka Day / Malaysia Day",
           "→",
-          "马来西亚国庆日 8 月 31 日 / 马来西亚日 9 月 16 日"
+          "马来西亚国庆日 8 月 31 日 / 马来西亚日 9 月 16 日",
+          "Hari Merdeka"
         ],
         [
           "Christmas / Christmas Eve",
           "→",
-          "圣诞节 / 平安夜（Merry Christmas! 英式也说 Happy Christmas!）"
+          "圣诞节 / 平安夜（Merry Christmas! 英式也说 Happy Christmas!）",
+          "Christmas"
         ],
         [
           "Happy holidays! / Season's greetings!",
@@ -25300,22 +25497,26 @@
         [
           "New Year's Eve / New Year's Day",
           "→",
-          "跨年夜 / 元旦（countdown 倒数；Happy New Year!）"
+          "跨年夜 / 元旦（countdown 倒数；Happy New Year!）",
+          "New Year's Eve"
         ],
         [
           "Thanksgiving",
           "→",
-          "感恩节（美国 11 月第四个星期四，吃 turkey 火鸡）"
+          "感恩节（美国 11 月第四个星期四，吃 turkey 火鸡）",
+          "Thanksgiving (United States)"
         ],
         [
           "Halloween",
           "→",
-          "万圣节（10 月 31 日；trick or treat 不给糖就捣蛋，costume 装扮）"
+          "万圣节（10 月 31 日；trick or treat 不给糖就捣蛋，costume 装扮）",
+          "Halloween"
         ],
         [
           "Valentine's Day",
           "→",
-          "情人节（Happy Valentine's Day!）"
+          "情人节（Happy Valentine's Day!）",
+          "Valentine's Day"
         ],
         [
           "public holiday / long weekend",
@@ -25342,7 +25543,9 @@
           "中秋节我们总会吃月饼。"
         ]
       ],
-      "tip": "节日当天用 on（on Christmas Day），整个节期用 at / during（at Christmas, during CNY）。"
+      "tip": "节日当天用 on（on Christmas Day），整个节期用 at / during（at Christmas, during CNY）。",
+      "wiki": "Holiday",
+      "u": 1795167599235
     },
     {
       "id": "vocab_us_uk",
@@ -25355,72 +25558,86 @@
         [
           "apartment (US) / flat (UK)",
           "→",
-          "公寓（马来西亚多说 condo / apartment）"
+          "公寓（马来西亚多说 condo / apartment）",
+          "Apartment"
         ],
         [
           "elevator (US) / lift (UK)",
           "→",
-          "电梯（马来西亚说 lift）"
+          "电梯（马来西亚说 lift）",
+          "Elevator"
         ],
         [
           "truck (US) / lorry (UK)",
           "→",
-          "卡车（马来西亚说 lorry）"
+          "卡车（马来西亚说 lorry）",
+          "Truck"
         ],
         [
           "cookie (US) / biscuit (UK)",
           "→",
-          "饼干（美式 biscuit 是一种松软小面包）"
+          "饼干（美式 biscuit 是一种松软小面包）",
+          "Cookie"
         ],
         [
           "French fries (US) / chips (UK)",
           "→",
-          "薯条（英式 fish and chips 炸鱼薯条）"
+          "薯条（英式 fish and chips 炸鱼薯条）",
+          "French fries"
         ],
         [
           "chips (US) / crisps (UK)",
           "→",
-          "薯片（美式 chips 是薯片，英式 chips 是薯条，最易混）"
+          "薯片（美式 chips 是薯片，英式 chips 是薯条，最易混）",
+          "Potato chip"
         ],
         [
           "line (US) / queue (UK)",
           "→",
-          "排队（stand in line / queue up；马来西亚说 queue）"
+          "排队（stand in line / queue up；马来西亚说 queue）",
+          "Queue area"
         ],
         [
           "vacation (US) / holiday (UK)",
           "→",
-          "度假（美式 holiday 多指法定节日）"
+          "度假（美式 holiday 多指法定节日）",
+          "Vacation"
         ],
         [
           "gas (US) / petrol (UK)",
           "→",
-          "汽油（gas station / petrol station；马来西亚说 petrol）"
+          "汽油（gas station / petrol station；马来西亚说 petrol）",
+          "Filling station"
         ],
         [
           "trash, garbage (US) / rubbish (UK)",
           "→",
-          "垃圾（trash can / rubbish bin）"
+          "垃圾（trash can / rubbish bin）",
+          "Waste container"
         ],
         [
           "subway (US) / underground, the Tube (UK)",
           "→",
-          "地铁（吉隆坡说 LRT / MRT）"
+          "地铁（吉隆坡说 LRT / MRT）",
+          "Rapid transit"
         ],
         [
           "sidewalk (US) / pavement (UK)",
           "→",
-          "人行道"
+          "人行道",
+          "Sidewalk"
         ],
         [
           "parking lot (US) / car park (UK)",
           "→",
-          "停车场（马来西亚说 car park）"
+          "停车场（马来西亚说 car park）",
+          "Parking lot"
         ],
         [
           "cell phone (US) / mobile (UK)",
           "→",
-          "手机（马来西亚口语 handphone、HP）"
+          "手机（马来西亚口语 handphone、HP）",
+          "Mobile phone"
         ],
         [
           "check (US) / bill (UK)",
@@ -25430,37 +25647,44 @@
         [
           "first floor (US) / ground floor (UK)",
           "→",
-          "一楼（英式 first floor 是二楼；马来西亚商场按英式标 G 层）"
+          "一楼（英式 first floor 是二楼；马来西亚商场按英式标 G 层）",
+          "Storey"
         ],
         [
           "restroom, bathroom (US) / toilet, loo (UK)",
           "→",
-          "厕所（马来西亚直接说 toilet）"
+          "厕所（马来西亚直接说 toilet）",
+          "Public toilet"
         ],
         [
           "pants (US) / trousers (UK)",
           "→",
-          "长裤（英式 pants 是内裤，别说错）"
+          "长裤（英式 pants 是内裤，别说错）",
+          "Trousers"
         ],
         [
           "candy (US) / sweets (UK)",
           "→",
-          "糖果"
+          "糖果",
+          "Candy"
         ],
         [
           "soccer (US) / football (UK)",
           "→",
-          "足球（美式 football 是美式橄榄球）"
+          "足球（美式 football 是美式橄榄球）",
+          "Association football"
         ],
         [
           "movie theater (US) / cinema (UK)",
           "→",
-          "电影院（movie / film 都指电影）"
+          "电影院（movie / film 都指电影）",
+          "Movie theater"
         ],
         [
           "zip code (US) / postcode (UK)",
           "→",
-          "邮编"
+          "邮编",
+          "Postal code"
         ],
         [
           "math (US) / maths (UK)",
@@ -25487,7 +25711,8 @@
           "坐电梯到一楼（G 层），停车场在你左手边。"
         ]
       ],
-      "tip": "马来西亚英语跟英式走：lift、lorry、car park、queue、petrol、rubbish。"
+      "tip": "马来西亚英语跟英式走：lift、lorry、car park、queue、petrol、rubbish。",
+      "u": 1795167599235
     },
     {
       "id": "internet_slang",
@@ -25670,7 +25895,8 @@
         [
           "PE",
           "→",
-          "体育课（physical education）"
+          "体育课（physical education）",
+          "Physical education"
         ],
         [
           "art / music",
@@ -25700,12 +25926,14 @@
         [
           "kindergarten / primary school / secondary school",
           "→",
-          "幼儿园 / 小学 / 中学（美式 elementary / middle / high school）"
+          "幼儿园 / 小学 / 中学（美式 elementary / middle / high school）",
+          "Kindergarten"
         ],
         [
           "university / college",
           "→",
-          "大学（美式口语 go to college 也指上大学）"
+          "大学（美式口语 go to college 也指上大学）",
+          "University"
         ],
         [
           "undergraduate / postgraduate",
@@ -25725,7 +25953,8 @@
         [
           "take an exam / pass / fail",
           "→",
-          "参加考试 / 及格 / 挂科（不说 join an exam）"
+          "参加考试 / 及格 / 挂科（不说 join an exam）",
+          "Test (assessment)"
         ],
         [
           "grade / mark / GPA",
@@ -25735,7 +25964,8 @@
         [
           "homework / assignment",
           "→",
-          "作业（homework 不可数，不说 homeworks）"
+          "作业（homework 不可数，不说 homeworks）",
+          "Homework"
         ],
         [
           "tuition",
@@ -25750,7 +25980,8 @@
         [
           "graduate from",
           "→",
-          "毕业于（I graduated from university in 2018.，from 不能省）"
+          "毕业于（I graduated from university in 2018.，from 不能省）",
+          "Graduation"
         ],
         [
           "SPM / UEC",
@@ -25772,7 +26003,9 @@
           "她去年大学毕业，现在在读硕士。"
         ]
       ],
-      "tip": "学科名小写（maths, history），语言类大写（Chinese, English）；毕业于说 graduate from。"
+      "tip": "学科名小写（maths, history），语言类大写（Chinese, English）；毕业于说 graduate from。",
+      "wiki": "Classroom",
+      "u": 1795167599235
     },
     {
       "id": "sports",
@@ -25785,37 +26018,44 @@
         [
           "play football / basketball / badminton",
           "→",
-          "球类运动用 play，前面不加 the"
+          "球类运动用 play，前面不加 the",
+          "Badminton"
         ],
         [
           "go swimming / running / hiking / cycling",
           "→",
-          "-ing 类运动用 go"
+          "-ing 类运动用 go",
+          "Swimming (sport)"
         ],
         [
           "do yoga / pilates / boxing",
           "→",
-          "练习类运动用 do"
+          "练习类运动用 do",
+          "Yoga"
         ],
         [
           "squat",
           "→",
-          "深蹲"
+          "深蹲",
+          "Squat (exercise)"
         ],
         [
           "lunge",
           "→",
-          "弓步蹲"
+          "弓步蹲",
+          "Lunge (exercise)"
         ],
         [
           "deadlift",
           "→",
-          "硬拉"
+          "硬拉",
+          "Deadlift"
         ],
         [
           "bench press",
           "→",
-          "卧推"
+          "卧推",
+          "Bench press"
         ],
         [
           "push-up (US) / press-up (UK)",
@@ -25825,32 +26065,38 @@
         [
           "pull-up / chin-up",
           "→",
-          "引体向上（正握 / 反握）"
+          "引体向上（正握 / 反握）",
+          "Pull-up (exercise)"
         ],
         [
           "plank",
           "→",
-          "平板支撑（hold a plank for one minute）"
+          "平板支撑（hold a plank for one minute）",
+          "Plank (exercise)"
         ],
         [
           "sit-up / crunch",
           "→",
-          "仰卧起坐 / 卷腹"
+          "仰卧起坐 / 卷腹",
+          "Sit-up"
         ],
         [
           "burpee",
           "→",
-          "波比跳"
+          "波比跳",
+          "Burpee (exercise)"
         ],
         [
           "jumping jacks",
           "→",
-          "开合跳"
+          "开合跳",
+          "Jumping jack"
         ],
         [
           "shoulder press",
           "→",
-          "肩推"
+          "肩推",
+          "Overhead press"
         ],
         [
           "bicep curl",
@@ -25860,7 +26106,8 @@
         [
           "lat pulldown",
           "→",
-          "高位下拉"
+          "高位下拉",
+          "Pulldown exercise"
         ],
         [
           "row (seated row / bent-over row)",
@@ -25875,17 +26122,20 @@
         [
           "stretch",
           "→",
-          "拉伸"
+          "拉伸",
+          "Stretching"
         ],
         [
           "treadmill / elliptical / rowing machine",
           "→",
-          "跑步机 / 椭圆机 / 划船机"
+          "跑步机 / 椭圆机 / 划船机",
+          "Treadmill"
         ],
         [
           "dumbbell / barbell / kettlebell",
           "→",
-          "哑铃 / 杠铃 / 壶铃"
+          "哑铃 / 杠铃 / 壶铃",
+          "Dumbbell"
         ],
         [
           "leg day / upper body / core",
@@ -25895,7 +26145,8 @@
         [
           "personal trainer (PT)",
           "→",
-          "私教"
+          "私教",
+          "Personal trainer"
         ]
       ],
       "examples": [
@@ -25912,7 +26163,3253 @@
           "你能坚持两分钟平板支撑吗？"
         ]
       ],
-      "tip": "球类用 play，-ing 类用 go，练习类用 do：play tennis, go running, do yoga。"
+      "tip": "球类用 play，-ing 类用 go，练习类用 do：play tennis, go running, do yoga。",
+      "wiki": "Sport",
+      "u": 1795167599235
+    },
+    {
+      "id": "phrasal_particles",
+      "type": "pattern",
+      "word": "短语动词按小品词：up / out / off / on / down / away / back / over",
+      "zh": "同一个小品词在不同短语动词里意思相近，记住核心画面就能猜出大半",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "up",
+          "→",
+          "向上；完全、到底：pick up 捡起/接人，give up 放弃，eat up 吃光，clean up 打扫干净"
+        ],
+        [
+          "up（增加 / 出现）",
+          "→",
+          "turn up 调大/出现，speed up 加速，come up 被提起，show up 现身"
+        ],
+        [
+          "out",
+          "→",
+          "向外；用完、消失：go out 出去，run out (of) 用完，sold out 售罄，work out 健身/算出"
+        ],
+        [
+          "out（弄清、完整）",
+          "→",
+          "find out 查明，figure out 想明白，fill out 填好表，check out 退房/看看"
+        ],
+        [
+          "off",
+          "→",
+          "离开、断开：take off 起飞/脱下，turn off 关掉，get off 下车，set off 出发，day off 休息日"
+        ],
+        [
+          "off（取消、减少）",
+          "→",
+          "call off 取消，put off 推迟，pay off 还清，show off 炫耀，20% off 打八折"
+        ],
+        [
+          "on",
+          "→",
+          "接触、开启、继续：turn on 打开，put on 穿上，get on 上车，go on 继续，hold on 等一下，carry on 坚持"
+        ],
+        [
+          "down",
+          "→",
+          "向下；减少、记下、停住：sit down 坐下，slow down 减速，turn down 调小/拒绝，write down 记下，break down 坏掉，calm down 冷静"
+        ],
+        [
+          "away",
+          "→",
+          "离开、消失：go away 走开，throw away 扔掉，give away 送掉/泄露，put away 收起来，pass away 去世"
+        ],
+        [
+          "back",
+          "→",
+          "回到原处、回应：come back 回来，call back 回电，pay back 还钱，give back 归还，get back to sb 回复某人"
+        ],
+        [
+          "over",
+          "→",
+          "越过、从头到尾、转交：come over 过来坐坐，think over 仔细考虑，take over 接管，get over 走出（病/失恋），hand over 交出，start over 重来"
+        ],
+        [
+          "in",
+          "→",
+          "进入、提交：check in 入住/值机，fill in 填写，hand in 交作业，drop in 顺路拜访，give in 屈服"
+        ],
+        [
+          "around",
+          "→",
+          "四处、随意：look around 四处看看，hang around 闲逛，turn around 转身"
+        ],
+        [
+          "through",
+          "→",
+          "穿过、完成：go through 经历/仔细检查，get through 熬过/电话接通，look through 翻阅"
+        ],
+        [
+          "可分：宾语可放中间",
+          "→",
+          "turn off the light = turn the light off；代词必须夹中间：turn it off ✓，turn off it ✗"
+        ],
+        [
+          "不可分：宾语永远在后",
+          "→",
+          "look after the kids、get on the bus、look for my keys：look after them ✓，look them after ✗"
+        ],
+        [
+          "一词多义",
+          "→",
+          "take off 起飞/脱衣/突然走红；pick up 捡起/接人/学会（语言）/好转，靠上下文判断"
+        ],
+        [
+          "规律",
+          "→",
+          "先记小品词的画面（up 到底、out 向外用完、off 断开、down 向下减少、back 回来），再猜整个短语"
+        ]
+      ],
+      "examples": [
+        [
+          "We've {run out of} milk. Can you {pick up} some on your way home?",
+          "牛奶喝完了，你回家路上能顺便买点吗？"
+        ],
+        [
+          "Please {turn it off} before you leave.",
+          "走之前请把它关掉。"
+        ],
+        [
+          "The concert was {called off} because of the storm.",
+          "音乐会因为暴风雨取消了。"
+        ]
+      ],
+      "tip": "up 到底、out 用完、off 断开/取消、on 开启/继续、down 减少、away 离开、back 回来、over 重来；代词一定夹中间：turn it off",
+      "u": 1795167599235
+    },
+    {
+      "id": "verb_to_doing",
+      "type": "pattern",
+      "word": "动词后接 to do 还是 doing",
+      "zh": "有的动词只接 to do，有的只接 doing，还有几个两种都行但意思不同",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "want / hope / plan / decide + to do",
+          "→",
+          "想要、希望、打算、决定：都指「还没发生、要去做」"
+        ],
+        [
+          "agree / refuse / promise / offer + to do",
+          "→",
+          "答应、拒绝、承诺、主动提出：He offered to help."
+        ],
+        [
+          "learn / manage / fail / afford + to do",
+          "→",
+          "学会、设法做成、没能、负担得起：I can't afford to buy it."
+        ],
+        [
+          "need / expect / seem / pretend + to do",
+          "→",
+          "需要、预计、似乎、假装"
+        ],
+        [
+          "enjoy / finish / mind / avoid + doing",
+          "→",
+          "喜欢、做完、介意、避免：enjoy swimming，不说 enjoy to swim ✗"
+        ],
+        [
+          "keep / practise / suggest / consider + doing",
+          "→",
+          "一直、练习、建议、考虑：I suggest going early. 不说 suggest to go ✗"
+        ],
+        [
+          "miss / risk / imagine / can't help + doing",
+          "→",
+          "错过、冒险、想象、忍不住：I can't help laughing."
+        ],
+        [
+          "look forward to / be used to / give up + doing",
+          "→",
+          "这里的 to 是介词，后面接 doing：look forward to seeing you ✓"
+        ],
+        [
+          "like / love / hate / prefer / start / begin",
+          "→",
+          "两种都行，意思基本一样：I like swimming = I like to swim"
+        ],
+        [
+          "stop doing",
+          "→",
+          "停止正在做的事：stop smoking 戒烟"
+        ],
+        [
+          "stop to do",
+          "→",
+          "停下来去做另一件事：stop to smoke 停下来抽根烟"
+        ],
+        [
+          "remember doing",
+          "→",
+          "记得做过（过去）：I remember locking the door. 我记得锁过门"
+        ],
+        [
+          "remember to do",
+          "→",
+          "记得要去做（未来）：Remember to lock the door. 别忘了锁门"
+        ],
+        [
+          "forget doing",
+          "→",
+          "忘了做过：I'll never forget meeting you. 永远忘不了遇见你"
+        ],
+        [
+          "forget to do",
+          "→",
+          "忘了去做：I forgot to bring my charger. 忘带充电器"
+        ],
+        [
+          "try doing",
+          "→",
+          "试试这个办法：Try restarting your phone. 试试重启手机"
+        ],
+        [
+          "try to do",
+          "→",
+          "努力设法做（有难度）：I'm trying to lose weight. 我在努力减肥"
+        ],
+        [
+          "regret doing / regret to do",
+          "→",
+          "后悔做过 / 遗憾地通知：We regret to inform you that…"
+        ],
+        [
+          "make / let / help sb do",
+          "→",
+          "使役动词后接原形不带 to：Let me go. ✓ Let me to go ✗；help 两种都行"
+        ],
+        [
+          "规律",
+          "→",
+          "to do 偏「将来、目标、要去做」，doing 偏「正在做、已经做过、事情本身」"
+        ]
+      ],
+      "examples": [
+        [
+          "I {stopped drinking} bubble tea last month.",
+          "我上个月戒了奶茶。"
+        ],
+        [
+          "Did you {remember to book} the hotel?",
+          "你记得订酒店了吗？"
+        ],
+        [
+          "{Try turning} it off and on again.",
+          "试试关掉再打开。"
+        ]
+      ],
+      "tip": "to 指向将来（remember to do 记得去做），-ing 回看过去（remember doing 记得做过）；stop/forget/try 同理",
+      "u": 1795167599235
+    },
+    {
+      "id": "used_to",
+      "type": "pattern",
+      "word": "used to do / be used to doing / get used to",
+      "zh": "长得像但意思完全不同：以前常常 vs 已经习惯 vs 渐渐习惯",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "used to do",
+          "→",
+          "过去常常做（现在不了）：I used to smoke. 我以前抽烟"
+        ],
+        [
+          "didn't use to do",
+          "→",
+          "否定去掉 d：I didn't use to like coffee. 我以前不爱喝咖啡"
+        ],
+        [
+          "Did you use to…?",
+          "→",
+          "疑问也去掉 d：Did you use to live here? 你以前住这儿吗？"
+        ],
+        [
+          "There used to be…",
+          "→",
+          "这里以前有……：There used to be a cinema here."
+        ],
+        [
+          "be used to + doing / 名词",
+          "→",
+          "已经习惯（状态）：I'm used to the heat. 我习惯了这里的热"
+        ],
+        [
+          "get used to + doing / 名词",
+          "→",
+          "渐渐习惯（过程）：You'll get used to it. 你会习惯的"
+        ],
+        [
+          "I'm not used to…",
+          "→",
+          "我还不习惯：I'm not used to driving on the left. 还不习惯靠左开车"
+        ],
+        [
+          "It takes time to get used to…",
+          "→",
+          "要花点时间才能适应……"
+        ],
+        [
+          "be used to do",
+          "→",
+          "被用来做（被动，use 本义）：A knife is used to cut things."
+        ],
+        [
+          "be used for + doing / 名词",
+          "→",
+          "被用于：This room is used for storage. 这间房用来放东西"
+        ],
+        [
+          "would do（过去习惯）",
+          "→",
+          "也能说过去反复的动作：We would go to the beach every summer.；但不能表状态：I would live here ✗"
+        ],
+        [
+          "读音",
+          "→",
+          "used to 读 /ˈjuːstə/，s 是清音，d 不单独读出"
+        ],
+        [
+          "常错 ✗",
+          "→",
+          "I'm used to get up early ✗ → I'm used to getting up early ✓（to 是介词）"
+        ],
+        [
+          "常错 ✗",
+          "→",
+          "I use to live in China ✗ → I used to live in China ✓（肯定句一定有 d）"
+        ]
+      ],
+      "examples": [
+        [
+          "I {used to} eat rice three times a day, but now I'm {used to} eating less.",
+          "我以前一天吃三顿米饭，现在已经习惯少吃了。"
+        ],
+        [
+          "It took me a year to {get used to} the heat in KL.",
+          "我花了一年才适应吉隆坡的炎热。"
+        ]
+      ],
+      "tip": "used to + 原形 = 以前常常；be / get used to + doing = 习惯了 / 渐渐习惯（这个 to 是介词）",
+      "u": 1795167599235
+    },
+    {
+      "id": "confusing_words",
+      "type": "pattern",
+      "word": "易混词：affect / effect、borrow / lend、bring / take…",
+      "zh": "拼写或意思相近、中国人常用错的词对",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "affect (v.)",
+          "→",
+          "影响：Stress affects my sleep. 压力影响睡眠"
+        ],
+        [
+          "effect (n.)",
+          "→",
+          "效果、影响：side effects 副作用；have an effect on 对……有影响"
+        ],
+        [
+          "borrow",
+          "→",
+          "借入（从别人那拿来）：Can I borrow your pen?"
+        ],
+        [
+          "lend",
+          "→",
+          "借出（给别人）：Can you lend me your pen? 不说 borrow me ✗"
+        ],
+        [
+          "bring",
+          "→",
+          "带来（朝说话人这边）：Bring your passport tomorrow."
+        ],
+        [
+          "take",
+          "→",
+          "带走（离开说话人）：Take an umbrella with you."
+        ],
+        [
+          "rise (rose, risen)",
+          "→",
+          "自己升起，不接宾语：Prices are rising. The sun rises."
+        ],
+        [
+          "raise (raised, raised)",
+          "→",
+          "举起、提高、养育，要接宾语：raise your hand / raise prices / raise kids"
+        ],
+        [
+          "lie (lay, lain)",
+          "→",
+          "躺：lie down 躺下（说谎 lie - lied - lied 是另一个词）"
+        ],
+        [
+          "lay (laid, laid)",
+          "→",
+          "放下、下蛋，要接宾语：lay the baby on the bed；注意 lay 也是 lie 的过去式"
+        ],
+        [
+          "lose /luːz/",
+          "→",
+          "丢失、输、减掉：lose weight 减肥、lose my keys"
+        ],
+        [
+          "loose /luːs/",
+          "→",
+          "松的：These pants are loose now. 裤子变松了"
+        ],
+        [
+          "advice (n.) /s/",
+          "→",
+          "建议，不可数：a piece of advice，不说 an advice ✗"
+        ],
+        [
+          "advise (v.) /z/",
+          "→",
+          "劝告、建议：I advise you to rest."
+        ],
+        [
+          "accept",
+          "→",
+          "接受：accept an offer / We accept cards."
+        ],
+        [
+          "except",
+          "→",
+          "除了……之外：everyone except me"
+        ],
+        [
+          "quiet / quite",
+          "→",
+          "安静的 / 相当：It's quite quiet here. 这里挺安静"
+        ],
+        [
+          "dessert / desert",
+          "→",
+          "甜点（双 s，想 sweet stuff 多吃一份）/ 沙漠"
+        ],
+        [
+          "fun / funny",
+          "→",
+          "好玩的（体验）/ 好笑的、古怪的：The trip was fun. 别说 funny"
+        ],
+        [
+          "economic / economical",
+          "→",
+          "与经济有关的 / 省钱的、划算的：an economical car"
+        ],
+        [
+          "customer / costumer",
+          "→",
+          "顾客 / 戏服设计师：costumer 是常见错拼"
+        ],
+        [
+          "规律",
+          "→",
+          "affect 是 Action 动作（动词），effect 是 End result 结果（名词）；advice / practice 的 c 是名词，advise 的 s 是动词"
+        ]
+      ],
+      "examples": [
+        [
+          "Can I {borrow} your charger? — Sure, I'll {lend} you mine.",
+          "能借一下你的充电器吗？——行，我的借你。"
+        ],
+        [
+          "I've {lost} 5 kg, so my jeans are {loose} now.",
+          "我瘦了 5 公斤，牛仔裤都松了。"
+        ],
+        [
+          "Lack of sleep can {affect} your weight loss.",
+          "睡眠不足会影响减脂。"
+        ]
+      ],
+      "tip": "借入 borrow、借出 lend；来 bring、去 take；自己升 rise、把它举 raise；丢 lose 一个 o，松 loose 两个 o",
+      "u": 1795167599235
+    },
+    {
+      "id": "homophones",
+      "type": "pattern",
+      "word": "同音或近音词：there / their / they're…",
+      "zh": "读音一样或很像、拼写和意思不同，写作时最容易错",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "there",
+          "→",
+          "那里；there is / are 有：Put it over there."
+        ],
+        [
+          "their",
+          "→",
+          "他们的：their car"
+        ],
+        [
+          "they're",
+          "→",
+          "= they are：They're late."
+        ],
+        [
+          "your",
+          "→",
+          "你的：your phone"
+        ],
+        [
+          "you're",
+          "→",
+          "= you are：You're right."
+        ],
+        [
+          "its",
+          "→",
+          "它的（没有撇号）：The cat licked its paw."
+        ],
+        [
+          "it's",
+          "→",
+          "= it is / it has：It's hot. It's been a long day."
+        ],
+        [
+          "to",
+          "→",
+          "到、向；不定式：go to KL / want to eat"
+        ],
+        [
+          "too",
+          "→",
+          "也；太：Me too. / too expensive"
+        ],
+        [
+          "two",
+          "→",
+          "二"
+        ],
+        [
+          "then",
+          "→",
+          "然后、那时：First wash it, then cut it."
+        ],
+        [
+          "than",
+          "→",
+          "比（放在比较级后）：taller than me"
+        ],
+        [
+          "whose",
+          "→",
+          "谁的：Whose bag is this?"
+        ],
+        [
+          "who's",
+          "→",
+          "= who is / who has：Who's coming?"
+        ],
+        [
+          "weather",
+          "→",
+          "天气：The weather is hot."
+        ],
+        [
+          "whether",
+          "→",
+          "是否：I don't know whether it'll rain."
+        ],
+        [
+          "hear / here",
+          "→",
+          "听见 / 这里"
+        ],
+        [
+          "know / no",
+          "→",
+          "知道 / 不"
+        ],
+        [
+          "write / right",
+          "→",
+          "写 / 右边、正确"
+        ],
+        [
+          "buy / by / bye",
+          "→",
+          "买 / 被、在旁边 / 再见"
+        ],
+        [
+          "meet / meat",
+          "→",
+          "见面 / 肉"
+        ],
+        [
+          "week / weak",
+          "→",
+          "星期 / 虚弱的"
+        ],
+        [
+          "规律",
+          "→",
+          "带撇号的都是缩写：it's = it is、you're = you are、who's = who is；能换成全写才用撇号"
+        ]
+      ],
+      "examples": [
+        [
+          "{They're} leaving {their} bags over {there}.",
+          "他们把包放在那边。"
+        ],
+        [
+          "{It's} raining, and the dog wants {its} dinner.",
+          "下雨了，狗等着吃晚饭。"
+        ],
+        [
+          "The hotel was nicer {than} I expected, and cheaper {too}.",
+          "酒店比我预想的好，而且也更便宜。"
+        ]
+      ],
+      "tip": "有撇号 = 缩写，能换成 it is / you are / they are / who is 才用；物主词 its / your / their / whose 一律没撇号",
+      "u": 1795167599235
+    },
+    {
+      "id": "synonyms",
+      "type": "pattern",
+      "word": "近义词辨析：look / see / watch、big / large / huge…",
+      "zh": "意思相近但用法有别的常用词",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "see",
+          "→",
+          "看见（自然进入眼睛）：I saw him at the mall."
+        ],
+        [
+          "look (at)",
+          "→",
+          "主动朝某处看，后面要加 at：Look at this!"
+        ],
+        [
+          "watch",
+          "→",
+          "持续看会动的东西：watch TV / a movie / a match"
+        ],
+        [
+          "hear",
+          "→",
+          "听见（声音自己传来）：Can you hear me?"
+        ],
+        [
+          "listen (to)",
+          "→",
+          "主动去听，后面要加 to：listen to music"
+        ],
+        [
+          "big",
+          "→",
+          "大，最口语、最通用：a big house"
+        ],
+        [
+          "large",
+          "→",
+          "大，稍正式，多说尺寸和数量：a large coffee / a large number of"
+        ],
+        [
+          "huge",
+          "→",
+          "巨大，比 big 夸张：a huge mistake"
+        ],
+        [
+          "small",
+          "→",
+          "小，客观描述：a small room；S 码 = small"
+        ],
+        [
+          "little",
+          "→",
+          "小，带感情、可爱：a little girl；a little 还表示「一点点」"
+        ],
+        [
+          "tiny",
+          "→",
+          "极小：a tiny apartment"
+        ],
+        [
+          "start",
+          "→",
+          "开始，最常用，也能说机器：start the car"
+        ],
+        [
+          "begin",
+          "→",
+          "开始，稍正式，不能说机器：The show begins at 8."
+        ],
+        [
+          "job",
+          "→",
+          "一份工作（可数）：I got a new job."
+        ],
+        [
+          "work",
+          "→",
+          "工作（不可数）、上班：a lot of work / go to work；不说 a work ✗"
+        ],
+        [
+          "travel",
+          "→",
+          "旅行（泛指，多作动词）：I love to travel."
+        ],
+        [
+          "trip",
+          "→",
+          "一次出行（去了再回）：a business trip / a day trip"
+        ],
+        [
+          "journey",
+          "→",
+          "一段路程（从 A 到 B 的过程）：a long train journey"
+        ],
+        [
+          "tour",
+          "→",
+          "有路线的参观游览：a city tour / a guided tour"
+        ],
+        [
+          "规律",
+          "→",
+          "see / hear 是被动接收，look / listen 是主动去做，watch 是持续盯着动的东西"
+        ]
+      ],
+      "examples": [
+        [
+          "I {looked} everywhere but didn't {see} my keys.",
+          "我到处找了，就是没看见钥匙。"
+        ],
+        [
+          "How was your {trip} to Penang? — Great, but the bus {journey} was long.",
+          "槟城之行怎么样？——很棒，就是坐大巴路上很久。"
+        ],
+        [
+          "I have a lot of {work} today, but I love my {job}.",
+          "我今天活很多，但我喜欢我的工作。"
+        ]
+      ],
+      "tip": "see 看见、look 去看、watch 盯着看；hear 听见、listen 去听；一份 job，一堆 work",
+      "u": 1795167599235
+    },
+    {
+      "id": "preposition_collocations",
+      "type": "pattern",
+      "word": "介词搭配：interested in、good at、afraid of…",
+      "zh": "形容词、动词后面跟哪个介词是固定的，要整块记",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "interested in",
+          "→",
+          "对……感兴趣：interested in cooking"
+        ],
+        [
+          "good at / bad at",
+          "→",
+          "擅长 / 不擅长：good at English（不说 good in ✗）"
+        ],
+        [
+          "afraid of / scared of",
+          "→",
+          "害怕：afraid of dogs"
+        ],
+        [
+          "proud of",
+          "→",
+          "为……骄傲"
+        ],
+        [
+          "tired of",
+          "→",
+          "厌倦（tired from 是因……而累）"
+        ],
+        [
+          "full of",
+          "→",
+          "充满：full of people"
+        ],
+        [
+          "depend on / rely on",
+          "→",
+          "取决于 / 依靠：It depends on the weather."
+        ],
+        [
+          "focus on / concentrate on",
+          "→",
+          "专注于"
+        ],
+        [
+          "responsible for",
+          "→",
+          "负责：responsible for marketing"
+        ],
+        [
+          "famous for / known for",
+          "→",
+          "以……出名"
+        ],
+        [
+          "sorry for / sorry about",
+          "→",
+          "对……抱歉：sorry for being late"
+        ],
+        [
+          "different from",
+          "→",
+          "和……不同（美式也说 different than）"
+        ],
+        [
+          "similar to",
+          "→",
+          "和……相似"
+        ],
+        [
+          "married to",
+          "→",
+          "和……结婚：She's married to a doctor.（不说 married with ✗）"
+        ],
+        [
+          "arrive at",
+          "→",
+          "到达具体地点：arrive at the airport / at the hotel"
+        ],
+        [
+          "arrive in",
+          "→",
+          "到达城市、国家：arrive in KL / in Japan；不说 arrive to ✗"
+        ],
+        [
+          "listen to / reply to / belong to",
+          "→",
+          "听 / 回复 / 属于：reply to an email"
+        ],
+        [
+          "wait for / look for / pay for",
+          "→",
+          "等 / 找 / 付钱：I'll pay for dinner."
+        ],
+        [
+          "worried about / excited about",
+          "→",
+          "担心 / 期待"
+        ],
+        [
+          "allergic to",
+          "→",
+          "对……过敏：allergic to peanuts"
+        ],
+        [
+          "discuss / enter / marry / reach",
+          "→",
+          "这些动词直接接宾语：discuss the plan ✓ discuss about ✗；marry him ✓ marry with him ✗"
+        ],
+        [
+          "规律",
+          "→",
+          "介词跟着前面的词走，没道理可讲：把 interested in 当成一个词来背"
+        ]
+      ],
+      "examples": [
+        [
+          "Penang is {famous for} its street food.",
+          "槟城以街头小吃出名。"
+        ],
+        [
+          "Whether we go {depends on} the weather.",
+          "去不去要看天气。"
+        ],
+        [
+          "We'll {arrive in} Tokyo at 6 and {arrive at} the hotel by 8.",
+          "我们 6 点到东京，8 点前到酒店。"
+        ]
+      ],
+      "tip": "背词带上介词：interested in、good at、afraid of、depend on、married to；discuss、marry 后面什么都不加",
+      "u": 1795167599235
+    },
+    {
+      "id": "collocations",
+      "type": "pattern",
+      "word": "常见固定搭配：heavy rain、strong coffee、take a photo…",
+      "zh": "英文里哪些词习惯搭在一起，不能照中文逐字翻",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "heavy rain / heavy traffic",
+          "→",
+          "大雨 / 交通拥堵（不说 big rain ✗）"
+        ],
+        [
+          "strong coffee / weak tea",
+          "→",
+          "浓咖啡 / 淡茶（不说 thick coffee ✗）"
+        ],
+        [
+          "strong wind",
+          "→",
+          "大风（不说 big wind ✗）"
+        ],
+        [
+          "high price / low price",
+          "→",
+          "价格高 / 低（不说 expensive price ✗）"
+        ],
+        [
+          "take a photo / take a picture",
+          "→",
+          "拍照"
+        ],
+        [
+          "take a shower / take a break",
+          "→",
+          "洗澡 / 休息一下（英式也说 have a shower）"
+        ],
+        [
+          "take medicine",
+          "→",
+          "吃药（不说 eat medicine ✗）"
+        ],
+        [
+          "catch a cold / catch the flu",
+          "→",
+          "感冒 / 得流感"
+        ],
+        [
+          "catch a bus / catch a flight",
+          "→",
+          "赶上公交 / 航班"
+        ],
+        [
+          "pay attention (to)",
+          "→",
+          "注意"
+        ],
+        [
+          "pay a visit",
+          "→",
+          "拜访：pay a visit to my parents"
+        ],
+        [
+          "have a good time / have fun",
+          "→",
+          "玩得开心"
+        ],
+        [
+          "have lunch / have a drink",
+          "→",
+          "吃午饭 / 喝一杯（have 比 eat 更自然）"
+        ],
+        [
+          "keep a secret / keep a promise",
+          "→",
+          "保密 / 守信"
+        ],
+        [
+          "break a promise / break the rules",
+          "→",
+          "违背承诺 / 违反规定"
+        ],
+        [
+          "save time / save money",
+          "→",
+          "省时间 / 省钱"
+        ],
+        [
+          "waste time / waste money",
+          "→",
+          "浪费时间 / 浪费钱"
+        ],
+        [
+          "lose weight / gain weight / put on weight",
+          "→",
+          "减重 / 增重 / 长胖"
+        ],
+        [
+          "burn calories / burn fat",
+          "→",
+          "燃烧卡路里 / 脂肪"
+        ],
+        [
+          "tell a lie / tell the truth",
+          "→",
+          "说谎 / 说实话（不说 say a lie ✗）"
+        ],
+        [
+          "fast food / a quick shower",
+          "→",
+          "快餐 / 快速冲个澡：fast 和 quick 不能随便换"
+        ],
+        [
+          "规律",
+          "→",
+          "搭配是习惯不是逻辑：中文「大雨」「浓咖啡」「吃药」都要换成英文自己的说法"
+        ]
+      ],
+      "examples": [
+        [
+          "There was {heavy traffic} because of the {heavy rain}.",
+          "因为下大雨，路上很堵。"
+        ],
+        [
+          "Could you {take a photo} of us?",
+          "能帮我们拍张照吗？"
+        ],
+        [
+          "{Pay attention to} portion sizes if you want to {lose weight}.",
+          "想减重的话要注意分量。"
+        ]
+      ],
+      "tip": "大雨 heavy rain、浓咖啡 strong coffee、吃药 take medicine、感冒 catch a cold：整块记，别逐字翻",
+      "u": 1795167599235
+    },
+    {
+      "id": "tag_questions",
+      "type": "pattern",
+      "word": "反义疑问句和简短回应：isn't it? / So do I / Me neither",
+      "zh": "句尾加个小问句求认同；跟别人说「我也是 / 我也不」的各种说法",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "It's hot, isn't it?",
+          "→",
+          "肯定句 + 否定尾巴：好热啊，是吧？"
+        ],
+        [
+          "You don't eat pork, do you?",
+          "→",
+          "否定句 + 肯定尾巴"
+        ],
+        [
+          "You like durian, don't you?",
+          "→",
+          "实义动词借 do / does / did"
+        ],
+        [
+          "She went home, didn't she?",
+          "→",
+          "过去时用 didn't"
+        ],
+        [
+          "You've been to Japan, haven't you?",
+          "→",
+          "完成时用 have / has"
+        ],
+        [
+          "I'm late, aren't I?",
+          "→",
+          "I am 的尾巴特殊：aren't I"
+        ],
+        [
+          "Let's go, shall we?",
+          "→",
+          "Let's 开头用 shall we"
+        ],
+        [
+          "Pass me the salt, will you?",
+          "→",
+          "祈使句用 will you / could you"
+        ],
+        [
+          "升调 ↗ / 降调 ↘",
+          "→",
+          "升调是真的在问；降调是只想对方附和"
+        ],
+        [
+          "Yes / No 怎么答",
+          "→",
+          "只看事实：You don't eat pork, do you? — No, I don't.（对，我不吃）中国人常答反"
+        ],
+        [
+          "So do I. / So am I.",
+          "→",
+          "我也是（回应肯定句，助动词跟原句）：I love coffee. — So do I."
+        ],
+        [
+          "Neither do I. / Nor do I.",
+          "→",
+          "我也不（回应否定句）：I don't smoke. — Neither do I."
+        ],
+        [
+          "Me too.",
+          "→",
+          "口语「我也是」，只回应肯定句"
+        ],
+        [
+          "Me neither.",
+          "→",
+          "口语「我也不」，回应否定句；别说 Me too ✗"
+        ],
+        [
+          "I do too. / I don't either.",
+          "→",
+          "句尾的「也」：肯定句用 too，否定句用 either"
+        ],
+        [
+          "I can too. / I can't either.",
+          "→",
+          "助动词跟着原句走：原句用 can，回答也用 can"
+        ],
+        [
+          "Have you? / Do you?",
+          "→",
+          "表示惊讶的简短回应：I've quit sugar. — Have you? Wow!"
+        ],
+        [
+          "规律",
+          "→",
+          "前肯后否、前否后肯；So / Neither + 助动词 + 主语（倒装）"
+        ]
+      ],
+      "examples": [
+        [
+          "The food here is great, {isn't it}?",
+          "这里的菜很好吃，对吧？"
+        ],
+        [
+          "I don't drink alcohol. — {Neither do I}.",
+          "我不喝酒。——我也不喝。"
+        ],
+        [
+          "You haven't eaten yet, {have you}? — {No, I haven't}.",
+          "你还没吃吧？——对，还没吃。"
+        ]
+      ],
+      "tip": "尾巴和前句反着来；肯定接 So do I / Me too，否定接 Neither do I / Me neither；回答 yes/no 只看事实",
+      "u": 1795167599235
+    },
+    {
+      "id": "relative_clauses",
+      "type": "pattern",
+      "word": "定语从句 who / which / that / whose / where / when",
+      "zh": "用关系词把一句话接在名词后面，相当于中文的「……的」",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "who",
+          "→",
+          "指人，作主语或宾语：the man who lives next door"
+        ],
+        [
+          "whom",
+          "→",
+          "指人作宾语（正式）：the person to whom I spoke；口语用 who 或直接省略"
+        ],
+        [
+          "which",
+          "→",
+          "指物：the phone which I bought"
+        ],
+        [
+          "that",
+          "→",
+          "人和物都行（只用于不带逗号的从句）：the book that I read"
+        ],
+        [
+          "whose",
+          "→",
+          "……的（人或物的所属）：the girl whose dad is a chef"
+        ],
+        [
+          "where",
+          "→",
+          "地点 = in / at which：the hotel where we stayed"
+        ],
+        [
+          "when",
+          "→",
+          "时间：the day when we met"
+        ],
+        [
+          "why",
+          "→",
+          "原因：the reason why I left"
+        ],
+        [
+          "省略关系词",
+          "→",
+          "作宾语时可省：the food (that) I ordered；作主语不能省：the man who called ✓"
+        ],
+        [
+          "不带逗号（限制性）",
+          "→",
+          "My brother who lives in KL… 暗示我有几个哥哥，说的是住吉隆坡那个"
+        ],
+        [
+          "带逗号（补充说明）",
+          "→",
+          "My brother, who lives in KL, … 只有一个哥哥，顺带补充；这里不能用 that"
+        ],
+        [
+          ", which 指整句",
+          "→",
+          "He was late, which made me angry. which 指「他迟到」这件事"
+        ],
+        [
+          "介词 + which",
+          "→",
+          "the house in which I grew up = the house (that) I grew up in"
+        ],
+        [
+          "常错 ✗",
+          "→",
+          "the man who he called me ✗ → the man who called me ✓（不要再重复代词）"
+        ],
+        [
+          "常错 ✗",
+          "→",
+          "the place where I visited ✗ → the place (that) I visited ✓（visit 后要宾语，用 that / which）"
+        ],
+        [
+          "规律",
+          "→",
+          "中文把修饰放名词前（我买的手机），英文放名词后（the phone I bought）"
+        ]
+      ],
+      "examples": [
+        [
+          "The stall {where} we had laksa is closed today.",
+          "我们吃叻沙的那个摊今天没开。"
+        ],
+        [
+          "I have a friend {whose} sister works at KLCC.",
+          "我有个朋友，她姐姐在 KLCC 上班。"
+        ],
+        [
+          "The bag {(that)} I bought online never arrived.",
+          "我网上买的包一直没到。"
+        ]
+      ],
+      "tip": "人 who、物 which、都行 that、谁的 whose、地点 where、时间 when；有逗号不能用 that，作宾语可以省",
+      "u": 1795167599235
+    },
+    {
+      "id": "perfect_vs_past",
+      "type": "pattern",
+      "word": "现在完成时 vs 一般过去时",
+      "zh": "有具体过去时间用过去时；说经历、持续到现在、对现在有影响用完成时",
+      "tag": "语法规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "一般过去时 did",
+          "→",
+          "过去确定时间发生、已经结束：I went to Japan last year."
+        ],
+        [
+          "现在完成时 have done",
+          "→",
+          "过去发生、跟现在有关，不说具体时间：I've been to Japan."
+        ],
+        [
+          "yesterday / last week / in 2020 / ago",
+          "→",
+          "有明确的过去时间 → 只能用过去时：I saw it two days ago."
+        ],
+        [
+          "ago",
+          "→",
+          "……以前，放在时间段后面，配过去时：three years ago；不说 before three years ✗"
+        ],
+        [
+          "for + 时间段",
+          "→",
+          "持续了多久：I've lived here for five years."
+        ],
+        [
+          "since + 起点",
+          "→",
+          "自从：I've lived here since 2021 / since I moved."
+        ],
+        [
+          "How long have you…?",
+          "→",
+          "问持续多久用完成时：How long have you worked here?"
+        ],
+        [
+          "already",
+          "→",
+          "已经（多用于肯定句，放中间）：I've already eaten."
+        ],
+        [
+          "yet",
+          "→",
+          "还没 / 已经……了吗（否定和疑问句，放句尾）：Have you eaten yet? I haven't finished yet."
+        ],
+        [
+          "just",
+          "→",
+          "刚刚：I've just arrived.（美式口语也常说 I just arrived.）"
+        ],
+        [
+          "ever",
+          "→",
+          "曾经（疑问句）：Have you ever tried durian?"
+        ],
+        [
+          "never",
+          "→",
+          "从来没有：I've never been to Europe."
+        ],
+        [
+          "been to vs gone to",
+          "→",
+          "He has been to Bali. 去过（已回来）；He has gone to Bali. 去了（还在那）"
+        ],
+        [
+          "so far / recently / lately",
+          "→",
+          "到目前为止 / 最近，常配完成时"
+        ],
+        [
+          "When…? 问句",
+          "→",
+          "问具体时间用过去时：When did you arrive? 不说 When have you arrived ✗"
+        ],
+        [
+          "I've lost 3 kg.",
+          "→",
+          "强调结果在现在（我现在轻了 3 公斤）"
+        ],
+        [
+          "I lost 3 kg last month.",
+          "→",
+          "讲的是上个月那件事"
+        ],
+        [
+          "规律",
+          "→",
+          "看有没有具体过去时间：有 → 过去时；没有、强调经历或到现在的结果 → 完成时"
+        ]
+      ],
+      "examples": [
+        [
+          "{Have} you {ever} tried durian? — Yes, I {tried} it {last week}.",
+          "你吃过榴莲吗？——吃过，上周吃的。"
+        ],
+        [
+          "I've lived in KL {for} three years, {since} 2023.",
+          "我在吉隆坡住了三年，从 2023 年开始。"
+        ],
+        [
+          "I {haven't} had dinner {yet}.",
+          "我还没吃晚饭。"
+        ]
+      ],
+      "tip": "看到 ago / yesterday / last… 就用过去时；看到 for / since / ever / never / yet / already 多用完成时",
+      "u": 1795167599235
+    },
+    {
+      "id": "antonyms",
+      "type": "pattern",
+      "word": "常见反义词对",
+      "zh": "成对记更快；一个词有几个意思就有几个反义词",
+      "tag": "主题词汇",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "hot ↔ cold",
+          "→",
+          "热 ↔ 冷；中间是 warm 暖、cool 凉"
+        ],
+        [
+          "new ↔ old / young ↔ old",
+          "→",
+          "新 ↔ 旧（东西）/ 年轻 ↔ 老（人）"
+        ],
+        [
+          "long ↔ short / tall ↔ short",
+          "→",
+          "长 ↔ 短 / 高 ↔ 矮：short 一词两用"
+        ],
+        [
+          "high ↔ low",
+          "→",
+          "高 ↔ 低（价格、温度、山）：high price 价格高"
+        ],
+        [
+          "big ↔ small",
+          "→",
+          "大 ↔ 小"
+        ],
+        [
+          "fast ↔ slow",
+          "→",
+          "快 ↔ 慢"
+        ],
+        [
+          "early ↔ late",
+          "→",
+          "早 ↔ 晚、迟到"
+        ],
+        [
+          "cheap ↔ expensive",
+          "→",
+          "便宜 ↔ 贵（说东西；说价格用 low / high）"
+        ],
+        [
+          "full ↔ empty / full ↔ hungry",
+          "→",
+          "满 ↔ 空 / 饱 ↔ 饿：I'm full. 我吃饱了"
+        ],
+        [
+          "hard ↔ soft / hard ↔ easy",
+          "→",
+          "硬 ↔ 软 / 难 ↔ 容易"
+        ],
+        [
+          "heavy ↔ light / dark ↔ light",
+          "→",
+          "重 ↔ 轻 / 深、暗 ↔ 浅、亮：light blue 浅蓝"
+        ],
+        [
+          "thick ↔ thin / fat ↔ thin",
+          "→",
+          "厚 ↔ 薄 / 胖 ↔ 瘦（说人用 slim 更礼貌）"
+        ],
+        [
+          "wet ↔ dry",
+          "→",
+          "湿 ↔ 干"
+        ],
+        [
+          "clean ↔ dirty",
+          "→",
+          "干净 ↔ 脏"
+        ],
+        [
+          "open ↔ closed",
+          "→",
+          "开着 ↔ 关着：The shop is closed.（不说 is close ✗）"
+        ],
+        [
+          "loud ↔ quiet",
+          "→",
+          "大声 ↔ 安静"
+        ],
+        [
+          "safe ↔ dangerous",
+          "→",
+          "安全 ↔ 危险"
+        ],
+        [
+          "same ↔ different",
+          "→",
+          "相同 ↔ 不同"
+        ],
+        [
+          "push ↔ pull",
+          "→",
+          "推 ↔ 拉（门上常见 PUSH / PULL）"
+        ],
+        [
+          "buy ↔ sell",
+          "→",
+          "买 ↔ 卖"
+        ],
+        [
+          "win ↔ lose",
+          "→",
+          "赢 ↔ 输"
+        ],
+        [
+          "remember ↔ forget",
+          "→",
+          "记得 ↔ 忘记"
+        ],
+        [
+          "arrive ↔ leave / depart",
+          "→",
+          "到达 ↔ 离开、出发：机场 Arrivals 到达、Departures 出发"
+        ],
+        [
+          "规律",
+          "→",
+          "先看词在句子里的意思再找反义词；很多反义词靠加 un- / in- / dis- 构成：happy ↔ unhappy"
+        ]
+      ],
+      "examples": [
+        [
+          "The bag is {light}, but the box is really {heavy}.",
+          "包很轻，箱子却很重。"
+        ],
+        [
+          "Is the shop {open}? — No, it's {closed} on Mondays.",
+          "店开着吗？——没有，周一不开门。"
+        ]
+      ],
+      "tip": "short 对 long 也对 tall，light 对 heavy 也对 dark，old 对 new 也对 young：先看意思再找反义",
+      "u": 1795167599235
+    },
+    {
+      "id": "nato_alphabet",
+      "type": "pattern",
+      "word": "字母拼读法 NATO：Alpha, Bravo, Charlie…",
+      "zh": "打电话报名字、订单号、车牌时，用固定单词代表字母，避免听错",
+      "tag": "口语规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "A Alpha · B Bravo",
+          "→",
+          "Alpha 读 /ˈælfə/，Bravo 读 /ˈbrɑːvoʊ/"
+        ],
+        [
+          "C Charlie · D Delta",
+          "→",
+          "Charlie 读 /ˈtʃɑːrli/"
+        ],
+        [
+          "E Echo · F Foxtrot",
+          "→",
+          "Echo 读 /ˈekoʊ/"
+        ],
+        [
+          "G Golf · H Hotel",
+          "→",
+          "Hotel 重音在后：/hoʊˈtel/"
+        ],
+        [
+          "I India · J Juliett",
+          "→",
+          "Juliett 官方拼法两个 t"
+        ],
+        [
+          "K Kilo · L Lima",
+          "→",
+          "Lima 读 /ˈliːmə/（利马）"
+        ],
+        [
+          "M Mike · N November",
+          "→",
+          "M / N 电话里最容易混，一定要用代号"
+        ],
+        [
+          "O Oscar · P Papa",
+          "→",
+          "Papa 重音在后：/pəˈpɑː/"
+        ],
+        [
+          "Q Quebec · R Romeo",
+          "→",
+          "Quebec 读 /kəˈbek/"
+        ],
+        [
+          "S Sierra · T Tango",
+          "→",
+          "Sierra 读 /siˈerə/"
+        ],
+        [
+          "U Uniform · V Victor",
+          "→",
+          "V 和 B 容易混：V for Victor"
+        ],
+        [
+          "W Whiskey · X X-ray",
+          "→",
+          "X-ray 读 /ˈeksreɪ/"
+        ],
+        [
+          "Y Yankee · Z Zulu",
+          "→",
+          "Z 美式读 /ziː/，英式和马来西亚读 /zed/"
+        ],
+        [
+          "B for Bravo / B as in Boy",
+          "→",
+          "日常也可以随便找词：M for Mary、N for Nancy"
+        ],
+        [
+          "Can you spell that, please?",
+          "→",
+          "能拼一下吗？"
+        ],
+        [
+          "double L / triple 7",
+          "→",
+          "连续相同：L-I-double-N = LINN；777 = triple seven"
+        ],
+        [
+          "zero / oh",
+          "→",
+          "数字 0 读 zero 或 oh：订单号里要确认是字母 O 还是数字 0"
+        ],
+        [
+          "capital / small letter",
+          "→",
+          "大写 / 小写字母；邮箱里 dot 点、at @、dash 横线 -、underscore 下划线 _"
+        ],
+        [
+          "规律",
+          "→",
+          "B / D / P / T / V、M / N、F / S 在电话里最容易听错，用代号说"
+        ]
+      ],
+      "examples": [
+        [
+          "My surname is Lin: L for {Lima}, I for {India}, N for {November}.",
+          "我姓林：L 是 Lima，I 是 India，N 是 November。"
+        ],
+        [
+          "Is that M for {Mike} or N for {November}?",
+          "是 Mike 的 M，还是 November 的 N？"
+        ],
+        [
+          "The booking code is K-7-{double} Z.",
+          "订单号是 K、7、两个 Z。"
+        ]
+      ],
+      "tip": "电话报字母用代号：Alpha Bravo Charlie Delta…；M 是 Mike、N 是 November，最常混的两个",
+      "u": 1795167599235
+    },
+    {
+      "id": "abbreviations",
+      "type": "pattern",
+      "word": "常见书面缩写：e.g.、i.e.、etc.、RSVP…",
+      "zh": "文章、表格、菜单、邀请函里常见的缩写和读法",
+      "tag": "口语规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "e.g.",
+          "→",
+          "for example 例如（拉丁文 exempli gratia）：fruits, e.g. mangoes and bananas"
+        ],
+        [
+          "i.e.",
+          "→",
+          "that is 也就是说（拉丁文 id est）：后面是精确解释，不是举例"
+        ],
+        [
+          "etc.",
+          "→",
+          "and so on 等等（et cetera）；前面用了 e.g. 就别再加 etc."
+        ],
+        [
+          "vs.",
+          "→",
+          "versus 对阵、对比：Malaysia vs. Thailand"
+        ],
+        [
+          "approx.",
+          "→",
+          "approximately 大约：approx. 2 km"
+        ],
+        [
+          "No.",
+          "→",
+          "number 编号：No. 5（来自拉丁文 numero）"
+        ],
+        [
+          "incl. / excl.",
+          "→",
+          "including / excluding 含 / 不含：RM50 incl. tax"
+        ],
+        [
+          "Mr",
+          "→",
+          "Mister 先生（任何男性）"
+        ],
+        [
+          "Mrs",
+          "→",
+          "/ˈmɪsɪz/ 太太（已婚女性）"
+        ],
+        [
+          "Ms",
+          "→",
+          "/mɪz/ 女士（不提婚否，最安全）"
+        ],
+        [
+          "Miss",
+          "→",
+          "小姐（未婚，也用来叫女老师、女服务员）"
+        ],
+        [
+          "Dr",
+          "→",
+          "Doctor 医生 / 博士"
+        ],
+        [
+          "Mr. 还是 Mr",
+          "→",
+          "美式带点 Mr. Dr.，英式和马来西亚常不带点"
+        ],
+        [
+          "a.m. / p.m.",
+          "→",
+          "上午 / 下午：12 p.m. 是中午，12 a.m. 是午夜"
+        ],
+        [
+          "P.S.",
+          "→",
+          "postscript 附言（信尾补一句）"
+        ],
+        [
+          "RSVP",
+          "→",
+          "请回复是否出席（法语 répondez s'il vous plaît）"
+        ],
+        [
+          "FAQ",
+          "→",
+          "frequently asked questions 常见问题"
+        ],
+        [
+          "N/A",
+          "→",
+          "not applicable / not available 不适用、无：表格不适用就填 N/A"
+        ],
+        [
+          "min. / max.",
+          "→",
+          "minimum / maximum 最少 / 最多"
+        ],
+        [
+          "hr / hrs / sec",
+          "→",
+          "hour(s) / second(s) 小时 / 秒"
+        ],
+        [
+          "St / Rd / Ave",
+          "→",
+          "Street / Road / Avenue 街 / 路 / 大道；马来西亚地址 Jln = Jalan 路"
+        ],
+        [
+          "DIY",
+          "→",
+          "do it yourself 自己动手做"
+        ],
+        [
+          "规律",
+          "→",
+          "e.g. 是举几个例子（还有别的），i.e. 是给唯一的精确说明"
+        ]
+      ],
+      "examples": [
+        [
+          "Bring some snacks, {e.g.} nuts or fruit.",
+          "带点零食，比如坚果或水果。"
+        ],
+        [
+          "The price is RM120 {incl.} tax.",
+          "价格 RM120，含税。"
+        ],
+        [
+          "Please {RSVP} by Friday.",
+          "请在周五前回复是否出席。"
+        ]
+      ],
+      "tip": "e.g. = for example 举例，i.e. = that is 换句话说；Ms 不问婚否最安全",
+      "u": 1795167599235
+    },
+    {
+      "id": "email_phrases",
+      "type": "pattern",
+      "word": "邮件和消息的开头结尾",
+      "zh": "从正式到随意的开头、寒暄、请求、结尾，正式程度前后要一致",
+      "tag": "场景表达",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "Hi Sarah, / Hello Sarah,",
+          "→",
+          "最常用的开头，同事朋友都行"
+        ],
+        [
+          "Dear Mr Tan, / Dear Ms Lee,",
+          "→",
+          "正式开头：Mr / Ms 后面接姓，不接名（Dear Mr John ✗）"
+        ],
+        [
+          "Dear Sir or Madam, / To whom it may concern,",
+          "→",
+          "不知道收件人是谁（很正式）"
+        ],
+        [
+          "Hey! / Hey guys,",
+          "→",
+          "很随意，只对熟人"
+        ],
+        [
+          "Hope you're well. / Hope you're doing well.",
+          "→",
+          "开场寒暄"
+        ],
+        [
+          "I'm writing to ask about…",
+          "→",
+          "我写信是想问……（开门见山说来意）"
+        ],
+        [
+          "Just a quick note to…",
+          "→",
+          "简单说一下……"
+        ],
+        [
+          "Thanks for your email. / Thanks for getting back to me.",
+          "→",
+          "谢谢来信 / 谢谢回复"
+        ],
+        [
+          "Sorry for the late reply.",
+          "→",
+          "抱歉回复晚了"
+        ],
+        [
+          "Please find attached… / I've attached…",
+          "→",
+          "附件是……（前者正式，后者自然）"
+        ],
+        [
+          "Could you please…?",
+          "→",
+          "请问能否……"
+        ],
+        [
+          "Please let me know if you have any questions.",
+          "→",
+          "有问题请告诉我"
+        ],
+        [
+          "Thanks in advance.",
+          "→",
+          "先谢了（请人帮忙时）"
+        ],
+        [
+          "Looking forward to hearing from you.",
+          "→",
+          "期待你的回复（to 后接 -ing）"
+        ],
+        [
+          "Best regards, / Kind regards,",
+          "→",
+          "正式结尾，最安全"
+        ],
+        [
+          "Best, / Thanks, / Many thanks,",
+          "→",
+          "半正式结尾"
+        ],
+        [
+          "Yours sincerely, / Yours faithfully,",
+          "→",
+          "英式非常正式：知道对方名字用 sincerely，不知道用 faithfully"
+        ],
+        [
+          "Cheers,",
+          "→",
+          "英式、澳式随意结尾，相当于「谢啦」"
+        ],
+        [
+          "Talk soon, / See you,",
+          "→",
+          "朋友之间的结尾"
+        ],
+        [
+          "x / xx",
+          "→",
+          "亲友消息结尾的「亲亲」，对同事别用"
+        ],
+        [
+          "规律",
+          "→",
+          "Dear 开头配 Best regards，Hi 开头配 Thanks / Cheers；称呼和结尾后面都用逗号"
+        ]
+      ],
+      "examples": [
+        [
+          "{Hope you're well}. I'm writing to ask about the room booking.",
+          "希望你一切都好。我写信是想问一下订房的事。"
+        ],
+        [
+          "{Looking forward to} hearing from you.",
+          "期待你的回复。"
+        ],
+        [
+          "{Thanks in advance} for your help!",
+          "先谢谢你的帮忙！"
+        ]
+      ],
+      "tip": "开头 Hi / Dear，寒暄 Hope you're well，结尾 Best regards / Cheers；Looking forward to + -ing",
+      "u": 1795167599235
+    },
+    {
+      "id": "math_symbols",
+      "type": "pattern",
+      "word": "数学符号和读法",
+      "zh": "加减乘除、大于小于、平方、百分号、度数等符号的英文读法",
+      "tag": "数字规律",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "+",
+          "→",
+          "plus 加：2 + 3 = 5 读 two plus three equals five"
+        ],
+        [
+          "−",
+          "→",
+          "minus 减；负数 −5 读 minus five / negative five"
+        ],
+        [
+          "×",
+          "→",
+          "times / multiplied by 乘：3 × 4 读 three times four"
+        ],
+        [
+          "÷",
+          "→",
+          "divided by 除：10 ÷ 2 读 ten divided by two"
+        ],
+        [
+          "=",
+          "→",
+          "equals / is：Two and two is four."
+        ],
+        [
+          "≈",
+          "→",
+          "is approximately equal to 约等于"
+        ],
+        [
+          "≠",
+          "→",
+          "does not equal 不等于"
+        ],
+        [
+          ">",
+          "→",
+          "is greater than / is more than 大于"
+        ],
+        [
+          "<",
+          "→",
+          "is less than 小于"
+        ],
+        [
+          "≥ / ≤",
+          "→",
+          "greater than or equal to / less than or equal to 大于等于 / 小于等于"
+        ],
+        [
+          "x²",
+          "→",
+          "x squared 平方；20 m² 读 twenty square metres"
+        ],
+        [
+          "x³",
+          "→",
+          "x cubed 立方；x⁴ 读 x to the power of four"
+        ],
+        [
+          "√",
+          "→",
+          "square root 平方根：√9 读 the square root of nine"
+        ],
+        [
+          "%",
+          "→",
+          "percent 百分之：15% 读 fifteen percent（percent 不加 s）"
+        ],
+        [
+          "°",
+          "→",
+          "degree(s) 度：90° 直角；30°C 读 thirty degrees Celsius"
+        ],
+        [
+          "( )",
+          "→",
+          "brackets（英）/ parentheses（美）括号"
+        ],
+        [
+          "/",
+          "→",
+          "slash 斜杠；单位里读 per：km/h 读 kilometres per hour"
+        ],
+        [
+          "±",
+          "→",
+          "plus or minus 正负、上下浮动"
+        ],
+        [
+          "π / ∞",
+          "→",
+          "pi /paɪ/ 圆周率 / infinity 无穷大"
+        ],
+        [
+          "#",
+          "→",
+          "hash（英）/ pound sign（美）；电话按键也叫 hash key"
+        ],
+        [
+          "*",
+          "→",
+          "asterisk /ˈæstərɪsk/ 星号；电话按键说 star"
+        ],
+        [
+          "规律",
+          "→",
+          "plus / minus / times 直接夹在数字中间；乘除完整说法要带 by：multiplied by、divided by"
+        ]
+      ],
+      "examples": [
+        [
+          "Twelve {divided by} four {equals} three.",
+          "十二除以四等于三。"
+        ],
+        [
+          "The room is 5 by 4 metres, so it's 20 {square metres}.",
+          "房间 5 米乘 4 米，就是 20 平方米。"
+        ],
+        [
+          "Press {star}, then {hash}.",
+          "先按星号，再按井号。"
+        ]
+      ],
+      "tip": "加 plus、减 minus、乘 times、除 divided by、等于 equals；平方 squared、立方 cubed",
+      "u": 1795167599235
+    },
+    {
+      "id": "shapes_directions",
+      "type": "pattern",
+      "word": "形状和方位方向",
+      "zh": "基本形状、东南西北、上下内外等位置词",
+      "tag": "主题词汇",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "circle / round",
+          "→",
+          "圆形（名词）/ 圆的（形容词）",
+          "Circle"
+        ],
+        [
+          "square",
+          "→",
+          "正方形；也指广场：Merdeka Square 独立广场",
+          "Square"
+        ],
+        [
+          "rectangle / rectangular",
+          "→",
+          "长方形 / 长方形的",
+          "Rectangle"
+        ],
+        [
+          "triangle",
+          "→",
+          "三角形",
+          "Triangle"
+        ],
+        [
+          "oval",
+          "→",
+          "椭圆形",
+          "Oval"
+        ],
+        [
+          "diamond",
+          "→",
+          "菱形（也指钻石）；数学上叫 rhombus",
+          "Rhombus"
+        ],
+        [
+          "cube / sphere / cylinder",
+          "→",
+          "立方体 / 球体 / 圆柱体"
+        ],
+        [
+          "north / south / east / west",
+          "→",
+          "北 / 南 / 东 / 西",
+          "Compass rose"
+        ],
+        [
+          "north-east / south-west",
+          "→",
+          "东北 / 西南：英文南北在前，跟中文「东北」顺序相反"
+        ],
+        [
+          "northern / southern / eastern / western",
+          "→",
+          "北部的 / 南部的……：southern Thailand 泰国南部"
+        ],
+        [
+          "clockwise / anticlockwise",
+          "→",
+          "顺时针 / 逆时针（美式 counterclockwise）"
+        ],
+        [
+          "upstairs / downstairs",
+          "→",
+          "楼上 / 楼下：go upstairs，不说 go to upstairs ✗"
+        ],
+        [
+          "top / bottom / middle",
+          "→",
+          "顶部 / 底部 / 中间：at the top of the page"
+        ],
+        [
+          "inside / outside",
+          "→",
+          "里面 / 外面"
+        ],
+        [
+          "above / below",
+          "→",
+          "在……上方 / 下方（不接触）：the clock above the door"
+        ],
+        [
+          "on top of / under",
+          "→",
+          "在……顶上（接触）/ 在……下面"
+        ],
+        [
+          "in the corner / on the corner",
+          "→",
+          "在房间角落里 / 在街角"
+        ],
+        [
+          "left-hand side / right-hand side",
+          "→",
+          "左手边 / 右手边：Malaysia drives on the left."
+        ],
+        [
+          "in front of / at the back",
+          "→",
+          "在……前面 / 在后面：sit at the back 坐后排"
+        ],
+        [
+          "horizontal / vertical",
+          "→",
+          "水平的 / 竖直的"
+        ],
+        [
+          "straight / curved",
+          "→",
+          "直的 / 弯的"
+        ],
+        [
+          "规律",
+          "→",
+          "形容词多加 -ar / -al / -ern：circular、rectangular、vertical、northern"
+        ]
+      ],
+      "examples": [
+        [
+          "Cut the bread into {triangles}.",
+          "把面包切成三角形。"
+        ],
+        [
+          "The gym is {upstairs}, on the {left-hand side}.",
+          "健身房在楼上，左手边。"
+        ],
+        [
+          "Kuantan is {east} of KL, and Melaka is to the {south}.",
+          "关丹在吉隆坡东边，马六甲在南边。"
+        ]
+      ],
+      "tip": "中文先东西后南北（东北），英文先南北后东西（north-east）；upstairs 前不加 to",
+      "u": 1795167599235
+    },
+    {
+      "id": "household",
+      "type": "pattern",
+      "word": "家居物品和房间",
+      "zh": "房间名和家里常见家具家电、清洁用品",
+      "tag": "主题词汇",
+      "date": "2026-11-20",
+      "wiki": "Living room",
+      "forms": [
+        [
+          "living room",
+          "→",
+          "客厅",
+          "Living room"
+        ],
+        [
+          "bedroom",
+          "→",
+          "卧室",
+          "Bedroom"
+        ],
+        [
+          "kitchen",
+          "→",
+          "厨房",
+          "Kitchen"
+        ],
+        [
+          "bathroom / toilet",
+          "→",
+          "浴室 / 厕所：在马来西亚和英国直接问 Where's the toilet? 很正常",
+          "Bathroom"
+        ],
+        [
+          "balcony",
+          "→",
+          "阳台",
+          "Balcony"
+        ],
+        [
+          "sofa / couch",
+          "→",
+          "沙发",
+          "Couch"
+        ],
+        [
+          "mattress / pillow",
+          "→",
+          "床垫 / 枕头",
+          "Mattress"
+        ],
+        [
+          "blanket / bedsheet",
+          "→",
+          "毯子、被子 / 床单",
+          "Blanket"
+        ],
+        [
+          "wardrobe / closet",
+          "→",
+          "衣柜（英式 / 美式）",
+          "Closet"
+        ],
+        [
+          "curtain",
+          "→",
+          "窗帘",
+          "Curtain"
+        ],
+        [
+          "fridge / refrigerator",
+          "→",
+          "冰箱（口语多说 fridge）",
+          "Refrigerator"
+        ],
+        [
+          "microwave",
+          "→",
+          "微波炉",
+          "Microwave oven"
+        ],
+        [
+          "washing machine",
+          "→",
+          "洗衣机",
+          "Washing machine"
+        ],
+        [
+          "air conditioner / aircon",
+          "→",
+          "空调：马来西亚口语说 aircon",
+          "Air conditioning"
+        ],
+        [
+          "ceiling fan",
+          "→",
+          "吊扇",
+          "Ceiling fan"
+        ],
+        [
+          "water heater",
+          "→",
+          "热水器：洗澡前要先开 water heater",
+          "Water heating"
+        ],
+        [
+          "water dispenser / water filter",
+          "→",
+          "饮水机 / 净水器",
+          "Water dispenser"
+        ],
+        [
+          "mirror",
+          "→",
+          "镜子",
+          "Mirror"
+        ],
+        [
+          "broom / mop",
+          "→",
+          "扫帚 / 拖把",
+          "Mop"
+        ],
+        [
+          "vacuum cleaner",
+          "→",
+          "吸尘器；动词 vacuum the floor",
+          "Vacuum cleaner"
+        ],
+        [
+          "clothes hanger",
+          "→",
+          "衣架；晾衣架叫 drying rack",
+          "Clothes hanger"
+        ],
+        [
+          "rubbish bin / trash can",
+          "→",
+          "垃圾桶（英式 / 美式）",
+          "Waste container"
+        ],
+        [
+          "light switch / socket",
+          "→",
+          "电灯开关 / 插座（美式 outlet）",
+          "Light switch"
+        ],
+        [
+          "规律",
+          "→",
+          "房间多是「用途 + room」：living room、dining room、bedroom、bathroom、storeroom"
+        ]
+      ],
+      "examples": [
+        [
+          "The {washing machine} is on the {balcony}.",
+          "洗衣机在阳台上。"
+        ],
+        [
+          "Can you turn on the {ceiling fan}? The {aircon} is too cold.",
+          "能开一下吊扇吗？空调太冷了。"
+        ]
+      ],
+      "tip": "房间 = 用途 + room；冰箱 fridge、空调 aircon、吊扇 ceiling fan、热水器 water heater",
+      "u": 1795167599235
+    },
+    {
+      "id": "tech",
+      "type": "pattern",
+      "word": "电子产品和电脑手机操作",
+      "zh": "常见设备、配件和点、滑、下载、登录等操作说法",
+      "tag": "主题词汇",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "charger / charging cable",
+          "→",
+          "充电器 / 充电线",
+          "Battery charger"
+        ],
+        [
+          "power bank",
+          "→",
+          "充电宝",
+          "Power bank"
+        ],
+        [
+          "plug / socket / adapter",
+          "→",
+          "插头 / 插座 / 转换插头：马来西亚用英式三脚插头",
+          "AC power plugs and sockets"
+        ],
+        [
+          "earphones / earbuds / headphones",
+          "→",
+          "入耳式耳机 / 无线耳塞 / 头戴式耳机",
+          "Headphones"
+        ],
+        [
+          "laptop / tablet",
+          "→",
+          "笔记本电脑 / 平板",
+          "Laptop"
+        ],
+        [
+          "keyboard / mouse",
+          "→",
+          "键盘 / 鼠标",
+          "Computer keyboard"
+        ],
+        [
+          "Wi-Fi password",
+          "→",
+          "Wi-Fi 密码：What's the Wi-Fi password? Wi-Fi 读 /ˈwaɪfaɪ/"
+        ],
+        [
+          "hotspot / mobile data",
+          "→",
+          "热点 / 流量：Can you turn on your hotspot?"
+        ],
+        [
+          "click / double-click / right-click",
+          "→",
+          "单击 / 双击 / 右键（电脑）"
+        ],
+        [
+          "tap / swipe / scroll",
+          "→",
+          "点 / 滑 / 上下滚动（手机）：swipe left 向左滑"
+        ],
+        [
+          "download / upload",
+          "→",
+          "下载 / 上传"
+        ],
+        [
+          "install / uninstall",
+          "→",
+          "安装 / 卸载"
+        ],
+        [
+          "update",
+          "→",
+          "更新：The app needs an update."
+        ],
+        [
+          "restart",
+          "→",
+          "重启；万能办法 turn it off and on again"
+        ],
+        [
+          "screenshot",
+          "→",
+          "截图：take a screenshot；也可作动词 screenshot it"
+        ],
+        [
+          "log in / log out",
+          "→",
+          "登录 / 退出（动词分开写，名词 login 连写）"
+        ],
+        [
+          "sign up",
+          "→",
+          "注册：Sign up with your email."
+        ],
+        [
+          "password / verification code",
+          "→",
+          "密码 / 验证码（也叫 OTP）"
+        ],
+        [
+          "copy / paste / delete",
+          "→",
+          "复制 / 粘贴 / 删除"
+        ],
+        [
+          "save / back up",
+          "→",
+          "保存 / 备份（名词 backup 连写）"
+        ],
+        [
+          "frozen / keeps crashing",
+          "→",
+          "卡死了 / 一直闪退：My phone is frozen."
+        ],
+        [
+          "low battery / fully charged",
+          "→",
+          "电量低 / 充满了"
+        ],
+        [
+          "规律",
+          "→",
+          "短语动词分开写是动词（log in、back up、sign up），连起来是名词（login、backup、sign-up）"
+        ]
+      ],
+      "examples": [
+        [
+          "Can I borrow your {power bank}? My phone's on {low battery}.",
+          "能借一下充电宝吗？我手机快没电了。"
+        ],
+        [
+          "Try to {log out} and {log in} again.",
+          "试试退出再重新登录。"
+        ],
+        [
+          "Just {take a screenshot} and send it to me.",
+          "截个图发给我就行。"
+        ]
+      ],
+      "tip": "电脑 click、手机 tap / swipe；分开写是动作 log in、back up，连写是名词 login、backup",
+      "u": 1795167599235
+    },
+    {
+      "id": "malaysian_food",
+      "type": "pattern",
+      "word": "马来西亚和东南亚美食的英文说法",
+      "zh": "大马常见小吃和饮料，英文菜单里多直接用马来语、福建话或粤语音译",
+      "tag": "主题词汇",
+      "date": "2026-11-20",
+      "wiki": "Nasi lemak",
+      "forms": [
+        [
+          "nasi lemak",
+          "→",
+          "椰浆饭：椰浆煮的米饭配参巴辣酱、江鱼仔、花生、鸡蛋，国民早餐",
+          "Nasi lemak"
+        ],
+        [
+          "char kway teow",
+          "→",
+          "炒粿条：大火炒扁米粉，配虾、血蛤、豆芽，槟城最出名",
+          "Char kway teow"
+        ],
+        [
+          "roti canai",
+          "→",
+          "印度煎饼：酥脆面饼蘸咖喱，嘛嘛档经典早餐",
+          "Roti canai"
+        ],
+        [
+          "satay",
+          "→",
+          "沙爹：炭烤鸡肉或牛肉串，蘸花生酱",
+          "Satay"
+        ],
+        [
+          "laksa",
+          "→",
+          "叻沙：辣汤米粉；curry laksa 咖喱叻沙，asam laksa 槟城酸辣叻沙",
+          "Laksa"
+        ],
+        [
+          "nasi kandar",
+          "→",
+          "槟城印度穆斯林饭：白饭淋上好几种咖喱",
+          "Nasi kandar"
+        ],
+        [
+          "bak kut teh",
+          "→",
+          "肉骨茶：药材炖猪排骨汤，巴生最有名",
+          "Bak kut teh"
+        ],
+        [
+          "chicken rice",
+          "→",
+          "海南鸡饭：白切或烧鸡配鸡油饭",
+          "Hainanese chicken rice"
+        ],
+        [
+          "wantan mee",
+          "→",
+          "云吞面：干捞或汤，配叉烧和云吞",
+          "Wonton noodles"
+        ],
+        [
+          "mee goreng",
+          "→",
+          "炒面：马来语 mee 面、goreng 炒；mamak 版偏甜辣",
+          "Mee goreng"
+        ],
+        [
+          "nasi goreng",
+          "→",
+          "炒饭：nasi 饭 + goreng 炒",
+          "Nasi goreng"
+        ],
+        [
+          "rendang",
+          "→",
+          "仁当：椰浆和香料慢炖的牛肉或鸡肉，偏干",
+          "Rendang"
+        ],
+        [
+          "sambal",
+          "→",
+          "参巴辣椒酱：辣椒、虾膏等炒成，很多菜都配",
+          "Sambal"
+        ],
+        [
+          "popiah",
+          "→",
+          "薄饼：面皮包沙葛丝等，不油炸的春卷",
+          "Popiah"
+        ],
+        [
+          "kaya toast",
+          "→",
+          "咖椰吐司：椰子蛋酱 + 黄油夹吐司，常配半生熟蛋",
+          "Kaya toast"
+        ],
+        [
+          "apam balik",
+          "→",
+          "曼煎糕：夹花生碎、砂糖、玉米的厚煎饼",
+          "Apam balik"
+        ],
+        [
+          "teh tarik",
+          "→",
+          "拉茶：加炼乳的红茶，来回拉出泡沫",
+          "Teh tarik"
+        ],
+        [
+          "kopi",
+          "→",
+          "南洋咖啡：传统咖啡店 kopitiam 里的咖啡，默认加炼乳",
+          "Kopitiam"
+        ],
+        [
+          "durian",
+          "→",
+          "榴莲，「水果之王」：很多酒店、地铁和巴士禁止携带",
+          "Durian"
+        ],
+        [
+          "cendol",
+          "→",
+          "煎蕊：刨冰加椰浆、椰糖浆和绿色粉条",
+          "Cendol"
+        ],
+        [
+          "ais kacang / ABC",
+          "→",
+          "红豆冰：刨冰加红豆、玉米、果冻和糖浆",
+          "Ais kacang"
+        ],
+        [
+          "mamak",
+          "→",
+          "嘛嘛档：印度穆斯林开的大排档，很多 24 小时营业",
+          "Mamak stall"
+        ],
+        [
+          "规律",
+          "→",
+          "马来语 nasi 饭、mee 面、goreng 炒、ayam 鸡、ikan 鱼、telur 蛋、ais 冰：拆开就能看懂菜单"
+        ]
+      ],
+      "examples": [
+        [
+          "I'll have a {nasi lemak} with fried chicken and a {teh tarik}, please.",
+          "我要一份椰浆饭配炸鸡，再来一杯拉茶。"
+        ],
+        [
+          "Let's go to the {mamak} for some {roti canai}.",
+          "我们去嘛嘛档吃印度煎饼吧。"
+        ],
+        [
+          "No {durian} allowed in the hotel.",
+          "酒店里禁止带榴莲。"
+        ]
+      ],
+      "tip": "nasi 饭、mee 面、goreng 炒、ayam 鸡：nasi goreng ayam 就是鸡肉炒饭",
+      "u": 1795167599235
+    },
+    {
+      "id": "drinks_order",
+      "type": "pattern",
+      "word": "咖啡奶茶点单",
+      "zh": "咖啡店、奶茶店和本地 kopitiam 点饮料：品种、冷热、甜度、冰量、换奶、打包",
+      "tag": "场景表达",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "espresso",
+          "→",
+          "意式浓缩，小小一杯",
+          "Espresso"
+        ],
+        [
+          "americano",
+          "→",
+          "美式：浓缩 + 热水",
+          "Caffè Americano"
+        ],
+        [
+          "latte",
+          "→",
+          "拿铁：浓缩 + 大量热牛奶",
+          "Latte"
+        ],
+        [
+          "cappuccino / flat white",
+          "→",
+          "卡布奇诺（奶泡厚）/ 澳白（奶泡薄、咖啡味更浓）",
+          "Cappuccino"
+        ],
+        [
+          "mocha",
+          "→",
+          "摩卡：加了巧克力",
+          "Caffè mocha"
+        ],
+        [
+          "hot / iced",
+          "→",
+          "热的 / 冰的：an iced latte（不说 ice latte）"
+        ],
+        [
+          "small / medium / large",
+          "→",
+          "小 / 中 / 大杯；星巴克说 tall / grande / venti"
+        ],
+        [
+          "less sugar / half sugar / no sugar",
+          "→",
+          "少糖 / 半糖 / 无糖；奶茶店也说 25% / 50% sugar"
+        ],
+        [
+          "less ice / no ice",
+          "→",
+          "少冰 / 去冰"
+        ],
+        [
+          "oat milk / soy milk / skim milk",
+          "→",
+          "燕麦奶 / 豆奶 / 脱脂奶：Can I have it with oat milk?",
+          "Oat milk"
+        ],
+        [
+          "an extra shot",
+          "→",
+          "加一份浓缩"
+        ],
+        [
+          "whipped cream / syrup",
+          "→",
+          "奶油顶 / 糖浆：no syrup 不加糖浆"
+        ],
+        [
+          "pearls / boba",
+          "→",
+          "珍珠：bubble tea with pearls",
+          "Bubble tea"
+        ],
+        [
+          "kopi / teh",
+          "→",
+          "kopitiam 里的咖啡 / 茶：默认加炼乳，很甜"
+        ],
+        [
+          "kopi O / teh O",
+          "→",
+          "加糖不加奶的黑咖啡 / 红茶"
+        ],
+        [
+          "kopi C / teh C",
+          "→",
+          "加淡奶（evaporated milk）和糖"
+        ],
+        [
+          "kosong",
+          "→",
+          "马来语「零」：kopi O kosong = 黑咖啡不加糖，减脂首选"
+        ],
+        [
+          "kurang manis",
+          "→",
+          "马来语「少甜」：teh tarik kurang manis 拉茶少甜"
+        ],
+        [
+          "ais / peng",
+          "→",
+          "冰的：teh ais = teh peng 冰奶茶（peng 是华人口语）"
+        ],
+        [
+          "takeaway / to go / bungkus",
+          "→",
+          "打包：英式 takeaway、美式 to go、马来语 bungkus"
+        ],
+        [
+          "Can I get a …?",
+          "→",
+          "点单句型：Can I get a large iced americano, no sugar?"
+        ],
+        [
+          "规律",
+          "→",
+          "点单顺序：大小 → 冷热 → 饮品 → 调整（甜度、冰量、换奶）"
+        ]
+      ],
+      "examples": [
+        [
+          "Can I get a large {iced} latte with {oat milk}, {less sugar}?",
+          "我要一杯大杯冰拿铁，换燕麦奶，少糖。"
+        ],
+        [
+          "One {kopi O kosong}, {bungkus}.",
+          "一杯黑咖啡不加糖，打包。"
+        ],
+        [
+          "Teh tarik {kurang manis}, please.",
+          "拉茶少甜，谢谢。"
+        ]
+      ],
+      "tip": "O = 不加奶、C = 加淡奶、kosong = 不加糖、kurang manis = 少甜、ais = 冰、bungkus = 打包",
+      "u": 1795167599235
+    },
+    {
+      "id": "meat_seafood",
+      "type": "pattern",
+      "word": "肉类部位、海鲜和调料",
+      "zh": "买菜点菜常用的肉类部位、海鲜名和调味料",
+      "tag": "主题词汇",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "chicken breast",
+          "→",
+          "鸡胸肉：高蛋白低脂，减脂首选",
+          "Chicken breast"
+        ],
+        [
+          "chicken thigh / drumstick",
+          "→",
+          "鸡腿肉（大腿）/ 鸡小腿（棒棒腿）"
+        ],
+        [
+          "chicken wing",
+          "→",
+          "鸡翅",
+          "Buffalo wing"
+        ],
+        [
+          "skinless / boneless",
+          "→",
+          "去皮 / 去骨：boneless skinless chicken thigh"
+        ],
+        [
+          "minced meat / ground beef",
+          "→",
+          "肉末（英式 minced / 美式 ground）",
+          "Ground meat"
+        ],
+        [
+          "beef brisket",
+          "→",
+          "牛腩",
+          "Brisket"
+        ],
+        [
+          "steak / sirloin / ribeye",
+          "→",
+          "牛排 / 西冷 / 肉眼",
+          "Steak"
+        ],
+        [
+          "pork belly",
+          "→",
+          "五花肉",
+          "Pork belly"
+        ],
+        [
+          "spare ribs",
+          "→",
+          "猪排骨",
+          "Spare ribs"
+        ],
+        [
+          "lamb / mutton",
+          "→",
+          "羔羊肉 / 成年羊肉（马来西亚菜单的 mutton 常指山羊肉）",
+          "Lamb and mutton"
+        ],
+        [
+          "lean / fatty",
+          "→",
+          "瘦的 / 肥的：lean meat 瘦肉"
+        ],
+        [
+          "prawn / shrimp",
+          "→",
+          "虾：英式大的叫 prawn，美式都叫 shrimp",
+          "Prawn"
+        ],
+        [
+          "squid / octopus",
+          "→",
+          "鱿鱼 / 章鱼",
+          "Squid as food"
+        ],
+        [
+          "crab",
+          "→",
+          "螃蟹",
+          "Crab"
+        ],
+        [
+          "oyster / clam / mussel",
+          "→",
+          "生蚝 / 蛤蜊、啦啦 / 青口",
+          "Oyster"
+        ],
+        [
+          "salmon / tuna / cod",
+          "→",
+          "三文鱼 / 金枪鱼 / 鳕鱼",
+          "Salmon as food"
+        ],
+        [
+          "fillet",
+          "→",
+          "去骨肉片、鱼柳：salmon fillet，英式读 /ˈfɪlɪt/，美式 /fɪˈleɪ/"
+        ],
+        [
+          "soy sauce / dark soy sauce",
+          "→",
+          "生抽（也叫 light soy sauce）/ 老抽",
+          "Soy sauce"
+        ],
+        [
+          "oyster sauce",
+          "→",
+          "蚝油",
+          "Oyster sauce"
+        ],
+        [
+          "sesame oil / vinegar",
+          "→",
+          "麻油、香油 / 醋",
+          "Sesame oil"
+        ],
+        [
+          "pepper",
+          "→",
+          "胡椒；也指甜椒 bell pepper，看上下文",
+          "Black pepper"
+        ],
+        [
+          "MSG",
+          "→",
+          "味精：No MSG, please.",
+          "Monosodium glutamate"
+        ],
+        [
+          "belacan / shrimp paste",
+          "→",
+          "峇拉煎、虾膏：做参巴的关键",
+          "Shrimp paste"
+        ],
+        [
+          "规律",
+          "→",
+          "动物和肉名不同：pig → pork、cow → beef、sheep → lamb / mutton、calf → veal；chicken 和 fish 不变"
+        ]
+      ],
+      "examples": [
+        [
+          "I'd like 500 grams of {skinless} {chicken breast}, please.",
+          "我要 500 克去皮鸡胸肉。"
+        ],
+        [
+          "Less {soy sauce} and no {MSG}, please.",
+          "少放酱油，不要味精。"
+        ]
+      ],
+      "tip": "猪肉 pork、牛肉 beef、羊肉 lamb / mutton；鸡胸 breast、鸡腿 thigh、鸡翅 wing",
+      "u": 1795167599235
+    },
+    {
+      "id": "banking",
+      "type": "pattern",
+      "word": "银行和钱",
+      "zh": "存取款、转账、余额、汇率、分期、电子钱包等常用说法",
+      "tag": "场景表达",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "bank account / savings account",
+          "→",
+          "银行账户 / 储蓄账户"
+        ],
+        [
+          "open an account / close an account",
+          "→",
+          "开户 / 销户"
+        ],
+        [
+          "deposit",
+          "→",
+          "存款（动词和名词）：deposit cash；租房语境指押金"
+        ],
+        [
+          "withdraw / withdrawal",
+          "→",
+          "取款（动词 / 名词）：withdraw RM200"
+        ],
+        [
+          "ATM / cash machine",
+          "→",
+          "取款机：马来西亚常说 ATM machine"
+        ],
+        [
+          "transfer",
+          "→",
+          "转账：transfer money to my account；马来西亚常用 DuitNow"
+        ],
+        [
+          "balance",
+          "→",
+          "余额：check my balance"
+        ],
+        [
+          "bank statement",
+          "→",
+          "银行流水、对账单：租房、办签证常要"
+        ],
+        [
+          "exchange rate",
+          "→",
+          "汇率：What's the exchange rate today?"
+        ],
+        [
+          "money changer",
+          "→",
+          "换汇点：马来西亚商场里的 money changer 汇率常比银行好"
+        ],
+        [
+          "interest / interest rate",
+          "→",
+          "利息 / 利率"
+        ],
+        [
+          "loan / mortgage",
+          "→",
+          "贷款 / 房贷"
+        ],
+        [
+          "bill / pay the bills",
+          "→",
+          "账单（水电费、信用卡账单）；美式 bill 也指纸币"
+        ],
+        [
+          "installment",
+          "→",
+          "分期付款（英式拼 instalment）：pay in 12 monthly installments"
+        ],
+        [
+          "debit card / credit card",
+          "→",
+          "借记卡 / 信用卡"
+        ],
+        [
+          "PIN",
+          "→",
+          "银行卡密码：Enter your PIN."
+        ],
+        [
+          "e-wallet",
+          "→",
+          "电子钱包：Touch 'n Go eWallet、GrabPay"
+        ],
+        [
+          "top up / reload",
+          "→",
+          "充值：top up my e-wallet；马来西亚也说 reload"
+        ],
+        [
+          "fee / charge",
+          "→",
+          "手续费：Is there a fee for this?"
+        ],
+        [
+          "cash / change / coins / notes",
+          "→",
+          "现金 / 零钱、找零 / 硬币 / 纸币（美式 bills）"
+        ],
+        [
+          "due date / overdue",
+          "→",
+          "到期日 / 逾期"
+        ],
+        [
+          "scam / fraud",
+          "→",
+          "诈骗：Never share your OTP — it could be a scam."
+        ],
+        [
+          "规律",
+          "→",
+          "存 deposit、取 withdraw、转 transfer、剩 balance：四个词覆盖八成银行场景"
+        ]
+      ],
+      "examples": [
+        [
+          "I need to {withdraw} some cash before we go.",
+          "出发前我要取点现金。"
+        ],
+        [
+          "Can you {transfer} the money to my account?",
+          "你能把钱转到我账户吗？"
+        ],
+        [
+          "What's the {exchange rate} for yen today?",
+          "今天日元汇率是多少？"
+        ]
+      ],
+      "tip": "存 deposit、取 withdraw、转 transfer、余额 balance、汇率 exchange rate、分期 installment",
+      "u": 1795167599235
+    },
+    {
+      "id": "emergencies",
+      "type": "pattern",
+      "word": "自然灾害和紧急情况",
+      "zh": "灾害名称、急救电话、撤离和急救的常用说法",
+      "tag": "主题词汇",
+      "date": "2026-11-20",
+      "forms": [
+        [
+          "flood / flash flood",
+          "→",
+          "洪水 / 暴雨引发的突发洪水（吉隆坡大雨后常见）",
+          "Flash flood"
+        ],
+        [
+          "landslide",
+          "→",
+          "山体滑坡",
+          "Landslide"
+        ],
+        [
+          "earthquake",
+          "→",
+          "地震",
+          "Earthquake"
+        ],
+        [
+          "tsunami",
+          "→",
+          "海啸",
+          "Tsunami"
+        ],
+        [
+          "typhoon / hurricane",
+          "→",
+          "台风（西太平洋）/ 飓风（大西洋）：同一种热带气旋，地区不同叫法不同",
+          "Tropical cyclone"
+        ],
+        [
+          "thunderstorm / lightning",
+          "→",
+          "雷暴 / 闪电",
+          "Lightning"
+        ],
+        [
+          "haze",
+          "→",
+          "烟霾：印尼等地烧芭时东南亚常见，看 API 空气指数",
+          "Southeast Asian haze"
+        ],
+        [
+          "fire / wildfire",
+          "→",
+          "火灾 / 山火",
+          "Wildfire"
+        ],
+        [
+          "Help! / Fire!",
+          "→",
+          "大喊：救命！/ 着火了！"
+        ],
+        [
+          "call 999 / 911 / 112",
+          "→",
+          "马来西亚 999（手机拨 112 也会转接），美国和加拿大 911，欧盟 112"
+        ],
+        [
+          "ambulance",
+          "→",
+          "救护车",
+          "Ambulance"
+        ],
+        [
+          "fire engine",
+          "→",
+          "消防车（美式 fire truck）",
+          "Fire engine"
+        ],
+        [
+          "emergency exit",
+          "→",
+          "紧急出口",
+          "Emergency exit"
+        ],
+        [
+          "fire extinguisher",
+          "→",
+          "灭火器",
+          "Fire extinguisher"
+        ],
+        [
+          "evacuate / evacuation",
+          "→",
+          "撤离：Please evacuate the building."
+        ],
+        [
+          "first aid / first-aid kit",
+          "→",
+          "急救 / 急救箱",
+          "First aid kit"
+        ],
+        [
+          "CPR",
+          "→",
+          "心肺复苏",
+          "Cardiopulmonary resuscitation"
+        ],
+        [
+          "injured / bleeding / unconscious",
+          "→",
+          "受伤 / 流血 / 昏迷"
+        ],
+        [
+          "power outage / blackout",
+          "→",
+          "停电",
+          "Power outage"
+        ],
+        [
+          "It's an emergency.",
+          "→",
+          "情况紧急"
+        ],
+        [
+          "Is anyone hurt?",
+          "→",
+          "有人受伤吗？"
+        ],
+        [
+          "Stay calm. / Stay away from…",
+          "→",
+          "保持冷静 / 远离……"
+        ],
+        [
+          "What's your location?",
+          "→",
+          "接线员先问地点：说清路名、楼名、附近地标"
+        ],
+        [
+          "规律",
+          "→",
+          "打急救电话按顺序说：what 发生了什么、where 在哪、how many 几人受伤"
+        ]
+      ],
+      "examples": [
+        [
+          "Call {999}! There's been an accident.",
+          "快打 999！出车祸了。"
+        ],
+        [
+          "The road is closed because of a {flash flood}.",
+          "道路因突发洪水封闭了。"
+        ],
+        [
+          "Where's the nearest {emergency exit}?",
+          "最近的紧急出口在哪？"
+        ]
+      ],
+      "tip": "马来西亚急救 999、美国 911、欧盟 112；报警先说 what、where、how many",
+      "u": 1795167599235
     }
   ],
   "progress": {
@@ -25936,7 +29433,7 @@
     "v_bone": "known",
     "v_happen": "known",
     "v_pump": "known",
-    "v_cuz": "learning",
+    "v_cuz": "known",
     "v_skip": "known",
     "v_stereotypes": "learning",
     "rock": "known",
@@ -25948,7 +29445,8 @@
     "pool": "known",
     "pub": "known",
     "bar": "known",
-    "skyscraper": "known"
+    "skyscraper": "known",
+    "v_ball": "known"
   },
   "deleted": [
     "u_1782668109496_exc6",

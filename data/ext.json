@@ -1,5 +1,5 @@
 {
-  "ver": 1795111299796,
+  "ver": 1795166393841,
   "items": {
     "saved|applause": {
       "v": "Applause",
@@ -907,10 +907,6 @@
     },
     "saved|wrist": {
       "v": "wrist",
-      "at": 1795083714909
-    },
-    "saved|cuz": {
-      "v": "cuz",
       "at": 1795083714909
     },
     "saved|dedicated": {
@@ -5552,10 +5548,6 @@
       "v": "known",
       "at": 1795108386495
     },
-    "saved|ball": {
-      "v": "ball",
-      "at": 1795109335524
-    },
     "marks|shooter": {
       "v": "ignore",
       "at": 1795110929838
@@ -5897,6 +5889,14 @@
         "o": 0
       },
       "at": 1795111299834
+    },
+    "marks|ball": {
+      "v": "known",
+      "at": 1795166393548
+    },
+    "marks|cuz": {
+      "v": "known",
+      "at": 1795166393548
     }
   }
 }
