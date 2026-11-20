@@ -217,10 +217,14 @@
   .panel .row{display:flex;gap:10px}
   .panel .row>div{flex:1}
   .primary{background:var(--jade);color:var(--paper);border:0;font-family:inherit;font-weight:700;font-size:14px;padding:12px;border-radius:12px;cursor:pointer;margin-top:14px;width:100%}
-  .exp-btns{display:flex;flex-direction:column;gap:9px}
-  .exp-btns button{font-family:inherit;text-align:left;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:13px 14px;cursor:pointer;color:var(--ink)}
-  .exp-btns button b{display:block;font-size:14px}
-  .exp-btns button span{font-size:12px;color:var(--muted)}
+  /* 导出（⚙ 设置弹窗，export.js） */
+  .exp-fmts{display:flex;flex-direction:column;gap:6px}
+  .exp-fmt{display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:9px 12px;cursor:pointer}
+  .exp-fmt input{grid-row:span 2;accent-color:var(--ui-pur,#9C3FD0)}.exp-fmt b{font-size:14px}.exp-fmt span{font-size:12px;color:var(--muted)}.exp-fmt.on{border-color:var(--ui-pur,#9C3FD0)}
+  .exp-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}.exp-row>span:first-child{min-width:56px}
+  .exp-seg{display:inline-flex;gap:4px}.exp-seg button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--paper-2);color:var(--ink);border-radius:999px;padding:4px 12px;cursor:pointer}.exp-seg button.on{background:var(--ui-pur,#9C3FD0);border-color:var(--ui-pur,#9C3FD0);color:#fff}
+  .exp-ck{display:inline-flex;align-items:center;gap:5px;color:var(--ink)}.exp-ck input{accent-color:var(--ui-pur,#9C3FD0)}
+  .exp-go{display:flex;align-items:center;gap:10px;margin-top:14px}.exp-go span{font-size:12.5px;color:var(--muted)}
   .voicebox label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
   .hubstats{display:flex;gap:8px}
   .hubstats .hs{flex:1;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
@@ -228,9 +232,6 @@
   .hubstats .hs span{font-size:12px;color:var(--muted)}
   #voice-sel{width:100%;font-family:inherit;font-size:14px;padding:10px 11px;border:1px solid var(--line);border-radius:12px;background:var(--paper-2);color:var(--ink)}
   .vrow{display:flex;gap:8px;margin-top:10px;align-items:center}
-  .speedseg{display:flex;gap:6px;flex:1}
-  .speedseg button{flex:1;background:var(--paper-2);border:1px solid var(--line);color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;padding:9px 0;border-radius:12px;cursor:pointer}
-  .speedseg button.on{background:var(--jade);border-color:var(--jade);color:var(--paper)}
   .vtest{background:var(--accent);color:#fff;border:0;font-family:inherit;font-weight:700;font-size:13px;padding:9px 16px;border-radius:12px;cursor:pointer;white-space:nowrap}
   .vhint{font-size:12px;color:var(--muted);line-height:1.5;margin:10px 0 0}
   .bulk-btn{flex:1;font-family:inherit;font-size:13px;font-weight:600;padding:11px;border-radius:12px;cursor:pointer;border:1px solid var(--line);background:var(--paper-2);color:var(--ink)}
@@ -449,24 +450,15 @@
     <div class="sp-hd"><h3>⚙ 设置</h3><button type="button" id="sp-close" title="关闭">✕</button></div>
     <h3>🔊 朗读设置</h3>
     <div class="voicebox">
-      <label>语音（选一个你喜欢的）</label>
+      <label>语音（选一个你喜欢的；练习里没有原声的句子、列表里点 🔊 都用它念；速度在练习右上角调）</label>
       <select id="voice-sel"><option>加载中…</option></select>
       <div class="vrow">
-        <div class="speedseg" id="speed-seg">
-          <button data-r="0.7">🐢 慢速</button>
-          <button data-r="0.95" class="on">正常</button>
-        </div>
         <button id="voice-test" class="vtest">▶ 试听</button>
       </div>
       <p class="vhint">朗读用手机自带语音。想要更自然的声音，可到手机「设置 → 辅助功能/语言 → 文字转语音」里下载“增强/高质量”英语语音包，回来就能在上面选到。</p>
     </div>
     <h3 style="margin-top:20px">📤 导出</h3>
-    <p class="vhint">生词本每 6 小时自动备份到 GitHub，不用靠导出备份；想拿到 Anki、Excel 里用时再导出。</p>
-    <div class="exp-btns">
-      <button id="e-anki"><b>📇 Anki 卡片格式 (.txt)</b><span>正面单词，背面意思+例句，可直接导入 Anki 背诵</span></button>
-      <button id="e-csv"><b>📊 表格 (.csv)</b><span>Excel / Google Sheets 打开，整理复习</span></button>
-      <button id="e-copy"><b>📋 复制成文字</b><span>复制全部，粘贴到备忘录或微信</span></button>
-    </div>
+    <div id="exp-box"></div>
   </div>
 </div>
 </div><!-- /view-en -->
@@ -806,9 +798,8 @@
 
     /* 设置页 */
     .panel{padding:14px}
-    .speedseg button,.vtest,.bulk-btn{min-height:44px}
+    .vtest,.bulk-btn{min-height:44px}
     .vtest{padding:0 16px}
-    .exp-btns button{min-height:56px}
     #pending-box span{overflow-wrap:anywhere;max-width:100%}
 
     /* toast：原来最宽只有半屏，长文案会被挤成多行 */
@@ -1157,32 +1148,6 @@ function renderList(){
 }
 
 /* ===== export ===== */
-function plain(){
-  return words.map(w=>{
-    let s=`【${w.word}】${w.phon||""}\n意思：${w.zh}`;
-    if(w.forms)s+="\n变形："+w.forms.map(f=>`${f[0]}(${f[1]}) ${f[2]}`).join("；");
-    if(w.examples)s+="\n例句："+w.examples.map(e=>`${e[0].replace(/[{}]/g,"")} —— ${e[1]}`).join("\n     ");
-    if(w.tip)s+="\n记忆："+w.tip;
-    return s;
-  }).join("\n\n──────────\n\n");
-}
-function anki(){
-  return words.map(w=>{
-    const back=[w.zh,(w.forms||[]).map(f=>`${f[0]} (${f[1]}) ${f[2]}`).join("<br>"),(w.examples||[]).map(e=>e[0].replace(/[{}]/g,"")+" — "+e[1]).join("<br>"),w.tip?"🧠 "+w.tip:""].filter(Boolean).join("<br><br>");
-    return w.word+"\t"+back.replace(/\t/g,"  ");
-  }).join("\n");
-}
-function csv(){
-  function esc(v){v=v||"";return '"'+v.split('"').join('""')+'"';}
-  function strip(s){return s.split("{").join("").split("}").join("");}
-  var rows=[["word","phonetic","meaning","forms","examples","memory_tip","tag","date"]];
-  words.forEach(function(w){
-    var forms=(w.forms||[]).map(function(f){return f[0]+"("+f[1]+")="+f[2];}).join("; ");
-    var exs=(w.examples||[]).map(function(e){return strip(e[0])+" / "+e[1];}).join(" | ");
-    rows.push([w.word,w.phon||"",w.zh,forms,exs,w.tip||"",w.tag||"",w.date||""].map(esc));
-  });
-  return rows.map(function(r){return r.join(",");}).join("\n");
-}
 function download(name,text,type){
   const b=new Blob([type==="csv"?"\uFEFF"+text:text],{type:type==="csv"?"text/csv;charset=utf-8":"text/plain;charset=utf-8"});
   const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
@@ -1333,23 +1298,12 @@ function handleHash(){
 }
 window.addEventListener("hashchange",handleHash);
 
-document.getElementById("e-anki").onclick=()=>{download("vocab_anki.txt",anki(),"txt");toast("Anki 文件已下载");};
-document.getElementById("e-csv").onclick=()=>{download("vocab.csv",csv(),"csv");toast("CSV 已下载");};
-document.getElementById("e-copy").onclick=async()=>{
-  try{await navigator.clipboard.writeText(plain());toast("已复制全部单词");}
-  catch{download("vocab.txt",plain(),"txt");toast("已下载为文本");}
-};
-
 // voice settings
 document.getElementById("voice-sel").onchange=e=>{
   chosenVoice=voices[e.target.value]||null;
   state.voice=chosenVoice?chosenVoice.name:null;save(state);
   speak("Hi! How does this sound?");
 };
-document.querySelectorAll("#speed-seg button").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll("#speed-seg button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
-  state.rate=parseFloat(b.dataset.r);save(state);
-});
 document.getElementById("voice-test").onclick=()=>speak("I'd like the green curry, not too spicy please.");
 if(window.speechSynthesis){window.speechSynthesis.onvoiceschanged=loadVoices;loadVoices();setTimeout(loadVoices,300);}
 
@@ -1361,7 +1315,6 @@ refresh(); // show seed words immediately, no waiting on storage
     rowImgCache=state.rowimgcache||{};Object.keys(rowImgCache).forEach(k=>{if(rowImgCache[k]==="pending")delete rowImgCache[k];});
     refresh();
     if(state.sort){sortBy=state.sort;const ss=document.getElementById("sort-sel");if(ss)ss.value=sortBy;renderList();}
-    if(state.rate){document.querySelectorAll("#speed-seg button").forEach(b=>b.classList.toggle("on",parseFloat(b.dataset.r)===state.rate));}
     loadVoices();
   }
   var collect=document.documentElement.classList.contains('collect-mode');
@@ -1552,6 +1505,7 @@ refresh(); // show seed words immediately, no waiting on storage
 <script src="watch.js?v=13"></script>
 <script src="channels.js?v=3"></script>
 <script src="pump.js?v=22"></script>
+<script src="export.js?v=1"></script>
 <script src="saved-web.js?v=5"></script>
 </body>
 </html>
