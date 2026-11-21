@@ -124,9 +124,14 @@
   .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
   .hero-lead{min-width:0}
   /* 👤 当前用户（家人各用各的生词本） */
+  /* 👤 家人切换：在最上面那条导航的右边（手机：一级标签右边；电脑：贴右上角） */
+  #apptabs button.who{flex:0 0 auto;margin:0 0 0 8px;max-width:110px;min-height:36px;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;color:var(--ui-ink-2);background:var(--ui-surface-2);border:1px solid var(--ui-line-2)}
+  #apptabs button.who:hover{color:var(--ui-ink)}
+  #apptabs button.who b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+  @media (min-width:1024px){#apptabs button.who{position:absolute;right:32px;top:50%;transform:translateY(-50%);margin:0;max-width:180px}}
   .who{display:inline-flex;align-items:center;gap:5px;margin:8px 0 0;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink-2);border-radius:999px;padding:4px 11px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;max-width:100%}
   .who:hover{border-color:var(--ui-pur);color:var(--ui-ink)}.who b{color:var(--ui-ink);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:12em}
-  .who-menu{position:fixed;z-index:9600;min-width:200px;max-width:calc(100vw - 32px);background:var(--ui-surface);border:1px solid var(--ui-line-2);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.45);padding:6px;display:none}
+  .who-menu{position:fixed;z-index:9600;min-width:200px;max-width:min(320px,calc(100vw - 32px));background:var(--ui-surface);border:1px solid var(--ui-line-2);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.45);padding:6px;display:none}
   .who-menu.on{display:block}
   .who-menu button{display:flex;width:100%;align-items:center;gap:8px;border:0;background:transparent;color:var(--ui-ink-2);font:inherit;font-size:14px;text-align:left;padding:10px 12px;border-radius:10px;cursor:pointer;min-height:40px}
   .who-menu button:hover{background:var(--ui-surface-2);color:var(--ui-ink)}.who-menu button.on{color:var(--ui-pur-text);font-weight:700}
@@ -470,6 +475,7 @@
     <button id="l1-en" class="on" type="button">📚 英语</button>
     <button id="l1-life" type="button">🏡 生活</button>
   </div>
+  <button class="who" id="who" type="button" title="家人各用各的生词本：点这里切换">👤 <b id="who-name">…</b> ▾</button>
 </div>
 <div id="subtabs">
   <div class="subgrp on" data-l1="en">
@@ -495,7 +501,6 @@
       <div class="hero-lead">
         <p class="eyebrow">Pocket Vocabulary</p>
         <h1>英语生词本</h1>
-        <button class="who" id="who" type="button" title="家人各用各的生词本：点这里切换">👤 <b id="who-name">…</b> ▾</button>
         <p class="lede">随手收词 · 精修词条 · 间隔练习<br>一本会长大的生词本</p>
       </div>
       <div class="ring" id="mastery-ring">
