@@ -536,7 +536,7 @@ async function stt(req, env) {
 }
 
 // GET /api/tts?t=英文句子&v=声音 → audio/mpeg：口语页的 AI 真人语音（Workers AI @cf/deepgram/aura-1，每 1,000 个字母约 1,364 neurons）
-//   v 只能是 TTS_VOICES 里的；t 最长 400 个字母。生成过的放进 Cloudflare 缓存（同一句不重复花额度）。
+//   v 只能是 TTS_VOICES 里的；t 最长 1500 个字母。生成过的放进 Cloudflare 缓存（同一句不重复花额度）。
 //   固定句子由 GitHub Actions（.github/workflows/tts.yml）每天用剩下的额度预先生成成 web/tts/*.mp3，网页优先播那些静态文件；这里只给 AI 回复、随机数字这类每次不同的句子用。
 const TTS_VOICES = ["asteria", "luna", "stella", "athena", "hera", "orion", "arcas", "perseus", "angus", "orpheus", "helios", "zeus"];
 async function tts(req, env, u, ctx) {
@@ -544,7 +544,7 @@ async function tts(req, env, u, ctx) {
   if (req.method !== "GET") return json({ ok: false, error: "method" }, 405);
   if (!env.AI) return json({ ok: false, error: "noai" }, 503);
   const t = String(u.searchParams.get("t") || "").replace(/\s+/g, " ").trim(), v = u.searchParams.get("v") || "asteria";
-  if (!t || t.length > 400 || !/[a-z]/i.test(t)) return json({ ok: false, error: "text" }, 400);
+  if (!t || t.length > 1500 || !/[a-z]/i.test(t)) return json({ ok: false, error: "text" }, 400);
   if (!TTS_VOICES.includes(v)) return json({ ok: false, error: "voice" }, 400);
   const key = new Request("https://tts.cache/" + v + "?t=" + encodeURIComponent(t)), cache = typeof caches !== "undefined" ? caches.default : null;
   try { const hit = cache && await cache.match(key); if (hit) return hit; } catch (e) {}

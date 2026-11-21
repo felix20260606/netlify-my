@@ -1,0 +1,31 @@
+# 口语页的 AI 真人语音：每天把 web/speak-data.js 里还没生成的英文句子生成一批 mp3（web/tts/），有新文件就提交，Cloudflare Pages 跟着部署。
+# 一次最多 6000 个字母（约 8,200 neurons）；Workers AI 免费额度每天 1 万 neurons，00:00 UTC（吉隆坡早上 8 点）重置。
+# 选在 22:30 UTC（吉隆坡早上 6:30）跑：用的是这一天快结束时剩下的额度，重置后白天练习不受影响。额度不够时生成到报错就停，第二天接着做。
+# 全部生成完以后每天跑一次只做检查（不花额度）；以后 speak-data.js 加了新句子会自动补上。也可以在 Actions 页面点「Run workflow」手动多跑一批。
+name: 生成口语 AI 语音
+on:
+  schedule:
+    - cron: "30 22 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: tts
+jobs:
+  tts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: 生成一批
+        run: node tools/gen-tts.mjs
+      - name: 有新文件就提交
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/tts
+          if git diff --cached --quiet; then echo "没有新语音"; exit 0; fi
+          git commit -m "口语 AI 语音：新生成一批 $(TZ=Asia/Shanghai date '+%F %H:%M')"
+          git pull --rebase
+          git push
