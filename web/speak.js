@@ -130,7 +130,10 @@
   function ttsKey(voice, text) { const s = voice + "|" + clean(text); let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, "0"); }
   function ttsLoad() {
     if (!ttsLoading) ttsLoading = fetch("tts/index.json?h=" + Math.floor(Date.now() / 3.6e6)).then(r => r.ok ? r.json() : null).catch(() => null)
-      .then(j => { TTSM = { voices: (j && j.voices) || { "": "asteria", A: "orion" }, done: new Set((j && j.done) || []), todo: new Set((j && j.todo) || []) }; });
+      .then(j => { // 读不到清单（刚部署时可能拿到首页）就先用系统语音，30 秒后再试，免得把固定句子都拿去现场生成
+        if (j && Array.isArray(j.done)) TTSM = { voices: j.voices || { "": "asteria", A: "orion" }, done: new Set(j.done), todo: new Set(j.todo || []) };
+        else setTimeout(() => { ttsLoading = null; }, 30000);
+      });
     return ttsLoading;
   }
   function sysSay(t, o, my) {
