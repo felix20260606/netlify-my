@@ -37,7 +37,7 @@
 // 五、例句 /api/sent?w=单词（网站「🔊 练习」用：像 PhrasePump 一样每次换几句例句听）
 //   → { ok, w, items:[{en, zh}] }，来自 Tatoeba 例句库（只要 14 个词以内、带中文翻译、确实包含这个词的），在 KV 里缓存 30 天（"s/单词"）
 //   GET ?pump=数量 → 随机的额外句子（5–12 个词、带中文），练习名额没用完时补满（同 PhrasePump 的「pump」），不缓存
-// 七、查词 /api/dict、抓文章 /api/readurl、AI 写作评分 /api/ai、语音转文字 /api/stt：见各自函数上面的说明
+// 七、查词 /api/dict、抓文章 /api/readurl、AI 写作评分 /api/ai、语音转文字 /api/stt、AI 语音 /api/tts：见各自函数上面的说明
 //   生词本回收站：GET /api/vocab?trash=1 → { items:[{e 词条, at 删除时间}] }（30 天，按人分开）；POST {untrash:id} 从回收站拿掉
 const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab", EXT_PATH = "/api/ext", EXT_KEY = "ext", MEDIA_PATH = "/api/media", SENT_PATH = "/api/sent";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
@@ -535,8 +535,33 @@ async function stt(req, env) {
   } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
 }
 
+// GET /api/tts?t=英文句子&v=声音 → audio/mpeg：口语页的 AI 真人语音（Workers AI @cf/deepgram/aura-1，每 1,000 个字母约 1,364 neurons）
+//   v 只能是 TTS_VOICES 里的；t 最长 400 个字母。生成过的放进 Cloudflare 缓存（同一句不重复花额度）。
+//   固定句子由 GitHub Actions（.github/workflows/tts.yml）每天用剩下的额度预先生成成 web/tts/*.mp3，网页优先播那些静态文件；这里只给 AI 回复、随机数字这类每次不同的句子用。
+const TTS_VOICES = ["asteria", "luna", "stella", "athena", "hera", "orion", "arcas", "perseus", "angus", "orpheus", "helios", "zeus"];
+async function tts(req, env, u, ctx) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  if (req.method !== "GET") return json({ ok: false, error: "method" }, 405);
+  if (!env.AI) return json({ ok: false, error: "noai" }, 503);
+  const t = String(u.searchParams.get("t") || "").replace(/\s+/g, " ").trim(), v = u.searchParams.get("v") || "asteria";
+  if (!t || t.length > 400 || !/[a-z]/i.test(t)) return json({ ok: false, error: "text" }, 400);
+  if (!TTS_VOICES.includes(v)) return json({ ok: false, error: "voice" }, 400);
+  const key = new Request("https://tts.cache/" + v + "?t=" + encodeURIComponent(t)), cache = typeof caches !== "undefined" ? caches.default : null;
+  try { const hit = cache && await cache.match(key); if (hit) return hit; } catch (e) {}
+  try {
+    let r = await env.AI.run("@cf/deepgram/aura-1", { text: t, speaker: v, encoding: "mp3" });
+    let body = r;
+    if (r && typeof r === "object" && !(r instanceof ReadableStream) && !(r instanceof ArrayBuffer) && !ArrayBuffer.isView(r) && r.audio) { const b = atob(r.audio), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); body = a; }
+    const buf = await new Response(body).arrayBuffer();
+    if (buf.byteLength < 200) return json({ ok: false, error: "empty audio" }, 502);
+    const res = new Response(buf, { headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=31536000, immutable", "access-control-allow-origin": "*" } });
+    if (cache) { const put = cache.put(key, res.clone()).catch(() => {}); if (ctx && ctx.waitUntil) ctx.waitUntil(put); else await put; }
+    return res;
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 502); }
+}
+
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const u = new URL(req.url);
     if (API_PATHS.includes(u.pathname)) return cap(req, env, u);
     if (u.pathname === VOCAB_PATH) return vocab(req, env);
@@ -549,6 +574,7 @@ export default {
     if (u.pathname === "/api/readurl") return readurl(req, env, u);
     if (u.pathname === "/api/ai") return ai(req, env);
     if (u.pathname === "/api/stt") return stt(req, env);
+    if (u.pathname === "/api/tts") return tts(req, env, u, ctx);
     return env.ASSETS.fetch(req);
   }
 };
