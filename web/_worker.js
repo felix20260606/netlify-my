@@ -743,13 +743,49 @@ function examClean(o, mode, text) {
   out.notes = (o.notes || []).map(gap).filter(Boolean).slice(0, 6); out.mcq = (o.mcq || []).map(mcq(3)).filter(Boolean).slice(0, 4);
   return out.notes.length >= 3 && out.notes.length + out.mcq.length >= 7 ? out : null;
 }
+// ---------- 雅思听力 Section 1 / 3 风格的对话（exam.js「🎙 雅思对话」）：POST /api/ai {task:"ieltsscript", sec:1|3, done:[做过的 id], fresh}
+// AI 写一段两个人的对话（A 男声 orion、B 女声 luna，网页逐句用 /api/tts 读）：Section 1 = 生活场景（订房、报名…，里面有拼写的名字、电话、日期、价格、地址），
+// Section 3 = 学术讨论（两个学生 / 学生和导师）。存进 KV「ix/<sec>/<id>」当题库（不过期），家里人共用：先给一套没做过的，都做过了（或 fresh）才让 AI 写新的
+// 出题照常走 task:"exam"（mode listening，kind s1 / s3 让题目偏表格填空 / 观点选择）
+const IELTS_TOPICS = {
+  1: ["booking a hotel room for a family trip", "joining a gym", "registering for a library card", "renting a flat near the city centre", "hiring a car for a weekend", "reserving a table for a birthday dinner", "reporting lost property at a train station", "enrolling in an evening cooking course", "booking a guided city tour", "making a dentist appointment", "changing a mobile phone plan", "arranging a removal company to move house", "signing up as a volunteer at a community festival", "ordering a birthday cake from a bakery", "booking swimming lessons for a child"],
+  3: ["two students planning a group presentation about urban gardens", "a student and tutor discussing feedback on a dissertation about online learning", "two students choosing a topic for a marketing case study", "students comparing research methods for a survey on sleep habits", "two students discussing a field trip report on coastal erosion", "a tutor helping a student plan an essay about renewable energy", "two students reviewing a lecture on animal behaviour", "students dividing tasks for a project on recycling in their university"],
+};
+const ieltsSys = sec => `You write realistic scripts for IELTS Listening practice. Write ONE ${sec === 1 ? "Section 1 conversation: an everyday social situation between two people (one asks for information, the other provides it)" : "Section 3 conversation: an academic discussion between two speakers (students, or a student and a tutor), with opinions, agreement, disagreement and decisions"}.
+Speaker A is a man, speaker B is a woman. Give each a first name. 380-480 words, 16-28 turns, natural spoken English with hesitations and self-corrections.
+${sec === 1 ? "Include details that IELTS tests: a surname said normally and then spelled with hyphens (e.g. \"It's Thompson, T-H-O-M-P-S-O-N\"), a phone number, a date, a price, a street address or postcode, and at least one distractor (a detail that is first said and then changed)." : "Include at least three clear opinions or decisions, reasons for them, and at least two distractors (an idea first suggested then rejected)."}
+Write numbers the way they are spoken but keep digits for phone numbers, prices, dates and times (e.g. "£45", "07700 900 123", "15th March", "9.30").
+Reply with ONLY one JSON object, no markdown:
+{"title":"short English title","scene_zh":"一句中文说明场景","lines":[{"who":"A","name":"Tom","t":"what he says"},{"who":"B","name":"Sarah","t":"..."}]}`;
+function ieltsClean(o) {
+  if (!isObj(o) || !Array.isArray(o.lines)) return null;
+  const lines = o.lines.filter(l => isObj(l) && (l.who === "A" || l.who === "B") && typeof l.t === "string" && /[a-z]/i.test(l.t)).map(l => ({ who: l.who, name: clip(l.name || (l.who === "A" ? "Man" : "Woman"), 20).trim(), t: clip(l.t, 600).replace(/\s+/g, " ").trim() }));
+  const words = lines.reduce((n, l) => n + l.t.split(" ").length, 0);
+  return lines.length >= 12 && words >= 250 && words <= 1000 ? { title: clip(o.title || "IELTS Listening", 120), scene_zh: clip(o.scene_zh, 120), lines } : null;
+}
+async function ieltsScript(env, b) {
+  const sec = +b.sec === 3 ? 3 : 1, kv = env.CAPTIONS, pre = "ix/" + sec + "/";
+  if (kv && !b.fresh) {
+    const done = new Set((Array.isArray(b.done) ? b.done : []).map(String)), L = (await kv.list({ prefix: pre })).keys.map(k => k.name.slice(pre.length)).filter(id => !done.has(id));
+    if (L.length) { const x = await kv.get(pre + L[0], "json"); if (x) return json(Object.assign({ ok: true, cached: true, left: L.length - 1 }, x)); }
+  }
+  const T = IELTS_TOPICS[sec], topic = T[Math.floor(Math.random() * T.length)];
+  let got = null;
+  const r = await aiJson(env, [{ role: "system", content: ieltsSys(sec) }, { role: "user", content: "Topic: " + topic }], o => !!(got = ieltsClean(o)), 2400);
+  if (!r.ok || !got) return json({ ok: false, error: r.error || "bad output" }, 502);
+  const x = Object.assign({ id: Date.now().toString(36), sec, topic, at: Date.now() }, got);
+  if (kv) await kv.put(pre + x.id, JSON.stringify(x));
+  return json(Object.assign({ ok: true, left: 0 }, x));
+}
 async function examGen(env, b) {
   const mode = b.mode === "listening" ? "listening" : "reading", text = clip(b.text, 9000).trim();
   if (text.split(/\s+/).length < 150) return json({ ok: false, error: "too short" }, 400);
-  const kv = env.CAPTIONS, ck = "x/" + (await sha(mode + "|" + text)).slice(0, 32);
+  const kv = env.CAPTIONS, ck = "x/" + (await sha(mode + "|" + (b.kind || "") + "|" + text)).slice(0, 32);
   if (kv && !b.again) { const hit = await kv.get(ck, "json"); if (hit) return json(Object.assign({ ok: true, cached: true }, hit)); }
   let got = null;
-  const r = await aiJson(env, [{ role: "system", content: mode === "reading" ? EXAM_READ_SYS : EXAM_LISTEN_SYS }, { role: "user", content: (b.title ? "Title: " + clip(b.title, 200) + "\n\n" : "") + text }], o => !!(got = examClean(o, mode, text)), 2600);
+  const hint = mode === "listening" && b.kind === "s1" ? "\nThis is an IELTS Section 1 conversation: make the notes a form to complete (names spelled in the script, numbers, dates, prices, addresses). Answers must be copied exactly from the transcript; for a spelled name use the name as normally written."
+    : mode === "listening" && b.kind === "s3" ? "\nThis is an IELTS Section 3 academic discussion: focus the multiple-choice questions on opinions, reasons and decisions, and the notes on key facts." : "";
+  const r = await aiJson(env, [{ role: "system", content: (mode === "reading" ? EXAM_READ_SYS : EXAM_LISTEN_SYS) + hint }, { role: "user", content: (b.title ? "Title: " + clip(b.title, 200) + "\n\n" : "") + text }], o => !!(got = examClean(o, mode, text)), 2600);
   if (!r.ok || !got) return json({ ok: false, error: r.error || "bad output" }, 502);
   got.model = r.model; if (kv) await kv.put(ck, JSON.stringify(got), { expirationTtl: 60 * 86400 });
   return json(Object.assign({ ok: true }, got));
@@ -796,6 +832,7 @@ async function ai(req, env) {
       return json(r, r.ok ? 200 : 502);
     }
     if (b.task === "exam") return examGen(env, b);
+    if (b.task === "ieltsscript") return ieltsScript(env, b);
     if (b.task === "coach") {
       const r = await aiJson(env, [{ role: "system", content: COACH_SYS }, { role: "user", content: clip(b.text, 3000) }], o => Array.isArray(o.days) && o.days.length, 2000);
       return json(r, r.ok ? 200 : 502);

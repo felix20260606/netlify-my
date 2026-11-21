@@ -3,6 +3,9 @@
      AI 按雅思 Academic Reading 出 13 题：5 道 TRUE / FALSE / NOT GIVEN、3 道「哪一段讲了…」、3 道摘要填空（原文里 1–3 个词）、2 道四选一；限时 20 分钟（真考 3 篇 60 分钟）
    - 🎧 听力：材料 = BBC Learning English 的节目原声和文稿（/api/sme：6 分钟英语、慢速对话）；AI 出 10 题：6 道笔记填空、4 道三选一，按听到的顺序；
      先给 30 秒看题，然后原声只放一遍（「练习模式」可以拖动、重放）；放完或点「交卷」打分
+   - 🎙 雅思对话（听力的另外两种材料）：AI 写的 Section 1 生活对话（订房、报名…：拼名字、电话、日期、价格、地址）/ Section 3 学术讨论，
+     POST /api/ai {task:"ieltsscript", sec, done}（后台存成题库，先给没做过的）；A 男声 orion、B 女声 luna，逐句用 /api/tts 读（看题的 30 秒里先把每句的声音预取好）
+     选哪种材料记在本机「exam:lsrc」（bbc | s1 | s3）
    - 出题：POST /api/ai {task:"exam", mode, text, title}（后台检查每道题、填空答案确实在原文里；同一篇出过的题存 KV，再做不花额度）
    - 打分：按答对比例换算成 40 题的原始分，再按雅思官方的原始分 → 分数对照表给一个估分（只有一篇 / 一段，仅供参考）
    - 做错的题收进「❌ 错题本」（errbook.js 的 window.ERR）；成绩存本机「exam:hist」（最多 50 次），同步到后台 /api/mine k=exam
@@ -57,7 +60,10 @@
   window.examSections = sections; // 测试用
 
   /* ---------- 状态 ---------- */
-  const S = { mode: "reading", view: "home", src: null, busy: "", err: "", Q: null, ans: {}, t0: 0, left: 0, res: null, practice: false, phase: "" };
+  const LSRC = { bbc: "📻 BBC 节目", s1: "🎙 Section 1 生活对话", s3: "🎙 Section 3 学术讨论" };
+  const VOICE = { A: "orion", B: "luna" };
+  const ttsUrl = l => "/api/tts?v=" + (VOICE[l.who] || "asteria") + "&t=" + encodeURIComponent(String(l.t).replace(/[{}]/g, "").replace(/\s+/g, " ").trim());
+  const S = { lsrc: LG("exam:lsrc", "bbc") in LSRC ? LG("exam:lsrc", "bbc") : "bbc", mode: "reading", view: "home", src: null, busy: "", err: "", Q: null, ans: {}, t0: 0, left: 0, res: null, practice: false, phase: "" };
   let root = null, timer = 0, audio = null;
   const CSS = `
   #exam{max-width:860px;margin:0 auto;color:var(--ui-ink);font-family:var(--ui-font);overflow-wrap:anywhere}
@@ -134,22 +140,33 @@
     } catch (e) { S.err = "节目没取到：" + (e.message || e); }
     S.busy = ""; draw();
   }
+  async function loadScript(fresh) {
+    const sec = S.lsrc === "s3" ? 3 : 1;
+    S.busy = fresh ? "AI 在写一段新的雅思对话（半分钟左右）…" : "取一段雅思对话…"; S.err = ""; draw();
+    try {
+      const done = hist().filter(x => /^i:/.test(x.src || "")).map(x => x.src.slice(2));
+      const j = await getJson("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "ieltsscript", sec, done, fresh: !!fresh }) });
+      if (!j || !j.ok || !(j.lines || []).length) throw new Error(j && j.error === "noai" ? "AI 没开" : "AI 没写好，再试一次（也可能今天的免费额度用完了）");
+      S.src = { kind: "ai", sec, id: "i:" + j.id, title: (sec === 1 ? "Section 1 · " : "Section 3 · ") + j.title, scene: j.scene_zh || "", lines: j.lines.map(l => ({ who: l.who, name: l.name, t: l.t })), left: j.left || 0, words: j.lines.reduce((n, l) => n + words(l.t), 0) };
+    } catch (e) { S.err = e.message || String(e); }
+    S.busy = ""; draw();
+  }
   async function gen(again) {
     if (!S.src) return;
     S.busy = "AI 在出题（第一次要半分钟左右）…"; S.err = ""; draw();
-    const text = S.mode === "reading" ? S.src.secs.map(s => s.L + " " + s.t).join("\n\n") : S.src.lines.map(l => (l.who || "Speaker") + ": " + l.t).join("\n");
+    const text = S.mode === "reading" ? S.src.secs.map(s => s.L + " " + s.t).join("\n\n") : S.src.lines.map(l => (l.name || l.who || "Speaker") + ": " + l.t).join("\n");
     try {
-      const j = await getJson("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "exam", mode: S.mode, text, title: S.src.title, again: !!again }) });
+      const j = await getJson("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "exam", mode: S.mode, text, title: S.src.title, again: !!again, kind: S.src.kind === "ai" ? "s" + S.src.sec : "" }) });
       if (!j || !j.ok) throw new Error(j && j.error === "noai" ? "AI 没开" : j && j.error === "too short" ? "材料太短" : "AI 没出好题，再点一次试试（也可能今天的免费额度用完了）");
       S.Q = j; S.ans = {}; S.res = null; S.view = "do"; S.t0 = Date.now();
       if (S.mode === "reading") { S.left = 20 * 60; tick(); }
-      else { S.phase = "read"; S.left = 30; tick(); }
+      else { S.phase = "read"; S.left = 30; tick(); prefetch(); }
     } catch (e) { S.err = e.message || String(e); }
     S.busy = ""; draw();
   }
 
   /* ---------- 计时、放音 ---------- */
-  function stopAll() { clearInterval(timer); timer = 0; if (audio) { try { audio.pause(); } catch (e) {} } }
+  function stopAll() { clearInterval(timer); timer = 0; pre++; if (audio) { try { audio.onended = null; audio.onerror = null; audio.pause(); } catch (e) {} } }
   function tick() {
     clearInterval(timer);
     timer = setInterval(() => {
@@ -162,13 +179,33 @@
   }
   function paintTime() {
     const el = root && root.querySelector(".ex-bar .tm"); if (!el) return;
-    if (S.mode === "listening" && S.phase === "play" && audio) { el.textContent = "🔊 " + mmss(audio.currentTime || 0) + " / " + mmss(audio.duration || 0); el.classList.remove("low"); return; }
+    if (S.mode === "listening" && S.phase === "play" && audio) { el.textContent = S.src.kind === "ai" ? "🔊 第 " + Math.min(li + 1, S.src.lines.length) + " / " + S.src.lines.length + " 句" : "🔊 " + mmss(audio.currentTime || 0) + " / " + mmss(audio.duration || 0); el.classList.remove("low"); return; }
     el.textContent = (S.phase === "read" ? "看题 " : "⏱ ") + mmss(S.left); el.classList.toggle("low", S.left <= (S.phase === "read" ? 5 : 120));
+  }
+  // AI 对话：看题时先把每句的声音生成好（同一句后台有缓存，浏览器也会缓存），开放时就不卡
+  let pre = 0;
+  function prefetch() {
+    if (!S.src || S.src.kind !== "ai") return; const my = ++pre, L = S.src.lines.slice(); let i = 0;
+    const next = () => { if (my !== pre || i >= L.length) return; fetch(ttsUrl(L[i++])).then(r => r.blob()).catch(() => {}).then(next); };
+    next(); next(); next();
+  }
+  let li = 0;
+  function playLine() {
+    if (!audio || S.view !== "do") return;
+    const L = S.src.lines; if (li >= L.length) { S.phase = "end"; draw(); return; }
+    audio.src = ttsUrl(L[li]); audio.playbackRate = 1; audio.play().catch(() => tip("点一下「▶ 开始放」"));
+    paintTime();
   }
   function startAudio() {
     S.phase = "play";
     try { if (window.TTS) TTS.stop(); if (window.videoCore && videoCore.pause) videoCore.pause(); document.querySelectorAll("audio,video").forEach(a => { if (a !== audio) try { a.pause(); } catch (e) {} }); } catch (e) {}
     if (!audio) { audio = new Audio(); audio.preload = "auto"; }
+    if (S.src.kind === "ai") {
+      li = 0; audio.onended = () => { li++; setTimeout(playLine, 450); }; audio.onerror = () => { li++; setTimeout(playLine, 200); };
+      audio.onplaying = () => { if (S.view === "do" && !S.practice && root && root.querySelector('[data-a="resume"]')) { collect(); draw(); } };
+      playLine(); draw(); return;
+    }
+    audio.onerror = null;
     audio.src = S.src.mp3; audio.currentTime = 0; audio.onplaying = () => { if (S.view === "do" && !S.practice && root && root.querySelector('[data-a="resume"]')) { collect(); draw(); } };
     audio.onended = () => { if (S.view === "do" && S.mode === "listening") { S.phase = "end"; draw(); } };
     audio.play().catch(() => tip("点一下页面上的「▶ 开始放」"));
@@ -195,19 +232,21 @@
     draw(); window.scrollTo(0, 0);
   }
   // 听力：答案在文稿哪一句
-  function lineOf(q) { if (S.mode !== "listening" || q.type !== "gap") return ""; const a = norm(q.a); const l = (S.src.lines || []).find(x => (" " + norm(x.t) + " ").includes(" " + a + " ")); return l ? (l.who ? l.who + "：" : "") + l.t : ""; }
+  function lineOf(q) { if (S.mode !== "listening" || q.type !== "gap") return ""; const a = norm(q.a); const l = (S.src.lines || []).find(x => (" " + norm(x.t) + " ").includes(" " + a + " ")); return l ? (l.name || l.who ? (l.name || l.who) + "：" : "") + l.t : ""; }
 
   /* ---------- 画界面 ---------- */
   function homeHtml() {
     const H = hist().filter(x => x.mode === S.mode), isR = S.mode === "reading";
     let s = "<h2>" + (isR ? "📄 雅思阅读模考" : "🎧 雅思听力模考") + "</h2><div class=\"ex-sub\">" + (isR
       ? "用今天的真实新闻当文章，AI 按雅思 Academic Reading 出 13 题（判断对错 / 段落信息 / 摘要填空 / 选择），限时 20 分钟。交卷后按雅思原始分对照表估分，做错的自动进「❌ 错题本」。"
-      : "用 BBC Learning English 的节目原声，AI 按雅思听力出 10 题（笔记填空 / 选择），先给 30 秒看题，原声只放一遍，和真考一样。做错的自动进「❌ 错题本」。") + "</div>";
+      : "材料三选一：BBC 节目原声（像 Section 2 / 4 的独白、访谈），或者 AI 写的雅思 Section 1 生活对话（拼名字、电话、日期、地址——最容易丢分）/ Section 3 学术讨论，两种 AI 真人声来读。出 10 题（填空 / 选择），先给 30 秒看题，只放一遍，和真考一样。做错的自动进「❌ 错题本」。") + "</div>";
+    if (!isR) s += '<div class="ex-ch" style="margin:0 0 12px">' + Object.keys(LSRC).map(k => '<button data-lsrc="' + k + '" class="' + (S.lsrc === k ? "on" : "") + '">' + LSRC[k] + "</button>").join("") + "</div>";
     if (S.err) s += '<div class="ex-err">' + esc(S.err) + "</div>";
     if (S.busy) s += '<div class="ex-box">' + esc(S.busy) + "</div>";
-    else if (S.src && S.src.kind === (isR ? "news" : "sme")) {
-      s += '<div class="ex-box ex-src"><small>' + (isR ? "今天的文章" + (S.src.from ? " · " + esc(S.src.from) : "") : "这期节目") + "</small><b>" + esc(S.src.title) + "</b><small>" + S.src.words + " 词" + (isR ? " · 分成 " + S.src.secs.length + " 段" : " · 约 6 分钟") + "</small>" +
-        '<div class="ex-row"><button class="ui-btn pri" data-a="start">开始' + (isR ? "（20 分钟）" : "") + "</button>" + (isR ? "" : '<label style="font-size:13.5px;color:var(--ui-ink-2)"><input type="checkbox" data-a="prac"' + (S.practice ? " checked" : "") + "> 练习模式（可以暂停、重放）</label>") + '<span class="sp"></span><button class="ui-btn" data-a="other">🎲 换一' + (isR ? "篇" : "期") + "</button></div></div>";
+    else if (S.src && S.src.kind === (isR ? "news" : S.lsrc === "bbc" ? "sme" : "ai") && (S.src.kind !== "ai" || S.src.sec === (S.lsrc === "s3" ? 3 : 1))) {
+      const ai = S.src.kind === "ai";
+      s += '<div class="ex-box ex-src"><small>' + (isR ? "今天的文章" + (S.src.from ? " · " + esc(S.src.from) : "") : ai ? "雅思对话 · " + esc(S.src.scene) : "这期节目") + "</small><b>" + esc(S.src.title) + "</b><small>" + S.src.words + " 词" + (isR ? " · 分成 " + S.src.secs.length + " 段" : ai ? " · 约 " + Math.max(2, Math.round(S.src.words / 150)) + " 分钟 · 题库里还有 " + S.src.left + " 套没做过" : " · 约 6 分钟") + "</small>" +
+        '<div class="ex-row"><button class="ui-btn pri" data-a="start">开始' + (isR ? "（20 分钟）" : "") + "</button>" + (isR ? "" : '<label style="font-size:13.5px;color:var(--ui-ink-2)"><input type="checkbox" data-a="prac"' + (S.practice ? " checked" : "") + "> 练习模式（可以暂停、重放）</label>") + '<span class="sp"></span>' + (S.src.kind === "ai" ? '<button class="ui-btn" data-a="fresh" title="让 AI 现写一段（每段约 3,000 neurons 的朗读额度）">✨ 写一段新的</button>' : '<button class="ui-btn" data-a="other">🎲 换一' + (isR ? "篇" : "期") + "</button>") + "</div></div>";
     } else s += '<div class="ex-box">准备材料…</div>';
     if (S.pick) s += S.pick;
     if (H.length) s += '<div class="ex-box"><h3>📈 我的成绩（最近 ' + Math.min(H.length, 20) + " 次）</h3>" + H.slice(0, 20).map(x => '<div class="ex-h"><b>' + x.band + "</b><span>" + esc(x.title || "") + "<small><br>" + new Date(x.at).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" }) + " · 答对 " + x.got + " / " + x.n + " · 用时 " + mmss(x.secs || 0) + "</small></span></div>").join("") + "</div>";
@@ -236,7 +275,7 @@
     const isR = S.mode === "reading";
     let bar = '<div class="ex-bar"><span class="tm"></span><span class="sp"></span>';
     if (!isR && S.phase === "read") bar += '<button class="ui-btn" data-a="play">▶ 现在就放</button>';
-    if (!isR && S.phase === "play" && S.practice) bar += '<button class="ui-btn" data-a="back5">⏪ 5 秒</button><button class="ui-btn" data-a="pause">⏯</button>';
+    if (!isR && S.phase === "play" && S.practice) bar += '<button class="ui-btn" data-a="back5">' + (S.src.kind === "ai" ? "⏪ 这句再听" : "⏪ 5 秒") + '</button><button class="ui-btn" data-a="pause">⏯</button>';
     if (!isR && S.phase === "play" && audio && audio.paused && !S.practice) bar += '<button class="ui-btn" data-a="resume">▶ 开始放</button>';
     bar += '<button class="ui-btn pri" data-a="submit">交卷</button><button class="ui-btn" data-a="quit" title="不交卷，回到开头">✕</button></div>';
     if (isR) return bar + '<div class="ex-grid two">' + passHtml() + "<div>" + qsHtml(false) + "</div></div>";
@@ -248,7 +287,7 @@
       '<div class="ex-row"><button class="ui-btn pri" data-a="home">再做一套</button>' + (R.n - R.got ? '<button class="ui-btn" data-a="errbook">去错题本复习</button>' : "") + '<button class="ui-btn" data-a="redo">同一篇重做</button></div></div>';
     s += qsHtml(true);
     if (isR) s += passHtml();
-    else s += '<div class="ex-box"><h3>📜 文稿（绿色是答案）</h3><div class="ex-tr">' + S.src.lines.map(l => { let t = esc(l.t); qlist(S.Q).filter(q => q.type === "gap").forEach(q => { const re = new RegExp("\\b(" + esc(q.a).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")\\b", "i"); t = t.replace(re, "<mark>$1</mark>"); }); return "<div>" + (l.who ? "<b>" + esc(l.who) + "</b>：" : "") + t + "</div>"; }).join("") + "</div></div>";
+    else s += '<div class="ex-box"><h3>📜 文稿（绿色是答案）</h3><div class="ex-tr">' + S.src.lines.map(l => { let t = esc(l.t); qlist(S.Q).filter(q => q.type === "gap").forEach(q => { const re = new RegExp("\\b(" + esc(q.a).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")\\b", "i"); t = t.replace(re, "<mark>$1</mark>"); }); return "<div>" + (l.name || l.who ? "<b>" + esc(l.name || l.who) + "</b>：" : "") + t + "</div>"; }).join("") + "</div></div>";
     return s;
   }
   function draw() {
@@ -270,6 +309,7 @@
   }
   async function firstSource() {
     if (S.mode === "reading") { if (!S.src || S.src.kind !== "news") await loadNews(); return; }
+    if (S.lsrc !== "bbc") { if (!(S.src && S.src.kind === "ai" && S.src.sec === (S.lsrc === "s3" ? 3 : 1))) await loadScript(false); return; }
     if (S.src && S.src.kind === "sme") return;
     S.busy = "取节目…"; draw();
     const L = await loadEpList(), done = new Set(hist().map(x => x.src)), x = L.find(e => e.s === "sme" && !done.has("l:" + e.id)) || L[0];
@@ -283,12 +323,14 @@
     if (b.dataset.k && S.view === "do") { collect(); const q = qlist(S.Q).find(x => x.k === b.dataset.k); if (!q) return; S.ans[q.k] = b.dataset.n != null ? +b.dataset.n : b.dataset.v; b.parentNode.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); return; } // 不整页重画：免得左边文章滚动位置、输入框焦点丢掉
     if (b.dataset.pk != null) { const x = S.src.list[+b.dataset.pk]; S.pick = ""; loadNews(x.u); return; }
     if (b.dataset.ep != null) { const x = EPL[+b.dataset.ep]; S.pick = ""; loadEp(x.id); return; }
+    if (b.dataset.lsrc) { if (S.busy) return; S.lsrc = b.dataset.lsrc; LS("exam:lsrc", S.lsrc); S.pick = ""; S.err = ""; draw(); return firstSource(); }
+    if (a === "fresh") return loadScript(true);
     if (a === "start") return gen(false);
     if (a === "other") return pickOther();
     if (a === "play") { clearInterval(timer); timer = 0; startAudio(); tick(); return; }
     if (a === "resume" && audio) { audio.play().catch(() => {}); return draw(); }
     if (a === "pause" && audio) { audio.paused ? audio.play() : audio.pause(); return; }
-    if (a === "back5" && audio) { audio.currentTime = Math.max(0, audio.currentTime - 5); return; }
+    if (a === "back5" && audio) { if (S.src.kind === "ai") { li = Math.max(0, li - (audio.currentTime < 1.5 ? 1 : 0)); playLine(); } else audio.currentTime = Math.max(0, audio.currentTime - 5); return; }
     if (a === "submit") return submit(false);
     if (a === "quit") { if (!confirm("不交卷了？这次的答案不保存。")) return; stopAll(); S.view = "home"; S.Q = null; return draw(); }
     if (a === "home") { S.view = "home"; S.Q = null; S.res = null; S.src = null; draw(); return firstSource(); }

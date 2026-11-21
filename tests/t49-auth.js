@@ -85,6 +85,19 @@ const path = require("path");
   r = await call("/api/ai", "POST", { task: "exam", mode: "listening", text: tr });
   ok(r.j.ok && r.j.notes.length === 4 && r.j.mcq.length === 3, "listening clean " + JSON.stringify(r.j).slice(0, 200));
 
+  // ---- 雅思对话（Section 1 / 3）：检查、存题库、先给没做过的 ----
+  const turn = (w, i) => ({ who: i % 2 ? "B" : "A", name: i % 2 ? "Sarah" : "Tom", t: "Well I would like to book a room for " + (i + 2) + " nights please and my surname is Thompson, T-H-O-M-P-S-O-N, okay." });
+  aiOut = { title: "Hotel booking", scene_zh: "订酒店", lines: Array.from({ length: 16 }, turn).concat([{ who: "C", t: "bad speaker" }]) };
+  let calls0 = aiCalls;
+  r = await call("/api/ai", "POST", { task: "ieltsscript", sec: 1 });
+  ok(r.j.ok && r.j.lines.length === 16 && r.j.lines[0].name === "Tom" && r.j.id && r.j.sec === 1 && aiCalls === calls0 + 1, "script " + JSON.stringify(r.j).slice(0, 200));
+  const sid = r.j.id; ok(kv.has("ix/1/" + sid), "stored in bank");
+  r = await call("/api/ai", "POST", { task: "ieltsscript", sec: 1 }); ok(r.j.ok && r.j.cached && r.j.id === sid && aiCalls === calls0 + 1, "bank reused");
+  await new Promise(res => setTimeout(res, 5));
+  r = await call("/api/ai", "POST", { task: "ieltsscript", sec: 1, done: [sid] }); ok(r.j.ok && !r.j.cached && r.j.id !== sid, "done → new one");
+  r = await call("/api/ai", "POST", { task: "ieltsscript", sec: 3 }); ok(r.j.ok && r.j.sec === 3 && kv.has("ix/3/" + r.j.id), "section 3 separate bank");
+  aiOut = { title: "x", lines: [{ who: "A", t: "too short" }] }; r = await call("/api/ai", "POST", { task: "ieltsscript", sec: 1, fresh: true }); ok(r.status === 502, "short script rejected");
+
   console.log(fail ? fail + " FAILED" : "t49 auth + exam: all passed");
   process.exit(fail ? 1 : 0);
 })();

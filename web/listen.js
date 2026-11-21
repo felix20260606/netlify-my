@@ -6,6 +6,9 @@
      「📰 在阅读里打开文稿」= 用阅读页打开（按水平上色、点词查词、译文）
    - 播放中切到别的页面：播放器变成底部悬浮条继续播（↩ 回到节目 / ✕ 关掉）；同一个 <audio> 元素在页面和悬浮条之间挪，不会断
    - 听完（播放到 90% 以上，或点「✓ 听完了」）记进 sme:done {期号: 时间}，同步到后台 /api/mine k=sme；「📅 每日」的「听」今天听完一期就自动打勾
+   - 🎯 逐句精听：每句单独播、慢放、听写对答案、🎙 跟读打分；「🔁 自动连播」每句放 N 遍、停几秒再下一句；快捷键 空格 / ← → / R / S
+   - 记住听到哪（sme:pos {期号: {t 秒, at}}，同步到 /api/mine k=sme 的 "pos:期号"）：再打开从断点接着听；听完就清掉
+   - 手机锁屏 / 耳机：Media Session（标题、封面、播放暂停、快进快退 10 秒；精听时「上一首 / 下一首」= 上一句 / 下一句）
    依赖 index.html：window.enShow、window.vocabAddWord、toast；read.js 的 window.readingOpen；watch.js 的 window.videoCore.pause（两边不同时放） */
 (function () {
   "use strict";
@@ -83,7 +86,37 @@
     if (window.enShow) window.enShow("listen", "sme");
     ser = serOf(id); LS("sme:s", ser); if (!(EP && EP.id === id && view === "ep")) openEp(id); else { draw(); window.scrollTo(0, 0); }
   }
-  AU.addEventListener("loadedmetadata", () => { AU.playbackRate = rate; });
+  // ---------- 记住听到哪 ----------
+  const fmt = t => { t = Math.max(0, Math.round(t || 0)); return Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0"); };
+  const POS = () => LG("sme:pos", {}) || {};
+  let posT = 0;
+  function savePos(sync) {
+    const id = AU.dataset.id; if (!id || !AU.duration || (DK[id] && DK[id].sents)) return; // 精听时的跳来跳去不算
+    const P = POS(), t = AU.currentTime, at = Date.now();
+    if (t < 15 || t > AU.duration - 20 || AU.ended) { if (!P[id]) return; delete P[id]; LS("sme:pos", P); if (sync) putPos(id, null, at); return; }
+    P[id] = { t: Math.round(t), at }; LS("sme:pos", P); if (sync) putPos(id, P[id].t, at);
+  }
+  function putPos(id, t, at) { const ch = { ["pos:" + id]: t == null ? { del: 1, at } : { v: t, at } }; fetch("/api/mine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ k: "sme", changes: ch }) }).catch(() => {}); }
+  window.addEventListener("pagehide", () => { if (AU.dataset.id && !AU.paused) savePos(false); });
+  AU.addEventListener("loadedmetadata", () => {
+    AU.playbackRate = rate;
+    const p = POS()[AU.dataset.id]; // 从断点接着听（精听已经定好位置的不动）
+    if (p && AU.currentTime < 1 && !(DK[AU.dataset.id] && DK[AU.dataset.id].sents) && p.t > 15 && p.t < AU.duration - 20) { AU.currentTime = p.t; tip("⏯ 从 " + fmt(p.t) + " 接着听（上次听到这里）"); }
+  });
+  AU.addEventListener("pause", () => savePos(true));
+  AU.addEventListener("ended", () => savePos(true));
+  AU.addEventListener("timeupdate", () => { if (Date.now() - posT > 5000) { posT = Date.now(); savePos(false); } });
+  // ---------- 手机锁屏 / 耳机控制（Media Session） ----------
+  function msSet() {
+    const M = navigator.mediaSession; if (!M || !AU.dataset.id) return;
+    const id = AU.dataset.id, m = meta(id), ep = EPS[id] || {};
+    try { M.metadata = new MediaMetadata({ title: ep.title || m.t || auTitle, artist: "BBC Learning English", album: SM[serOf(id)][2], artwork: m.img ? [{ src: m.img, sizes: "624x351", type: "image/jpeg" }] : [] }); } catch (e) {}
+    const dk = () => EP && EP.id === id && DK[id] && DK[id].sents && view === "ep";
+    const H = { play: () => AU.play().catch(() => {}), pause: () => AU.pause(), seekbackward: () => { AU.currentTime = Math.max(0, AU.currentTime - 10); }, seekforward: () => { AU.currentTime = Math.min(AU.duration || 1e9, AU.currentTime + 10); },
+      previoustrack: () => dk() ? dkGo(-1) : (AU.currentTime = Math.max(0, AU.currentTime - 10)), nexttrack: () => dk() ? dkGo(1) : (AU.currentTime = Math.min(AU.duration || 1e9, AU.currentTime + 10)) };
+    for (const k in H) try { M.setActionHandler(k, H[k]); } catch (e) {}
+  }
+  AU.addEventListener("play", msSet);
   AU.addEventListener("play", () => { flClosed = false; try { if (window.TTS && TTS.stop) TTS.stop(); speechSynthesis.cancel(); } catch (e) {} try { if (window.videoCore && videoCore.pause) videoCore.pause(); } catch (e) {} sync(); });
   AU.addEventListener("pause", () => sync());
   AU.addEventListener("timeupdate", () => { if (AU.duration && AU.currentTime / AU.duration > 0.9 && AU.dataset.id) markDone(AU.dataset.id); });
@@ -100,7 +133,13 @@
   let pulled = false;
   function pull() {
     if (pulled) return; pulled = true;
-    fetch("/api/mine?k=sme").then(r => r.json()).then(j => { if (!j || !j.ok) return; const D = done(); let ch = false; for (const id in j.items || {}) { const x = j.items[id]; if (!x.del && +x.v > (+D[id] || 0)) { D[id] = +x.v; ch = true; } } if (ch) { LS("sme:done", D); draw(); } }).catch(() => {});
+    fetch("/api/mine?k=sme").then(r => r.json()).then(j => { if (!j || !j.ok) return; const D = done(); let ch = false; const P = POS(); let pc = false;
+      for (const id in j.items || {}) {
+        const x = j.items[id];
+        if (id.startsWith("pos:")) { const e = id.slice(4); if (+x.at > (+(P[e] || {}).at || 0)) { if (x.del) { if (P[e]) { delete P[e]; pc = true; } } else { P[e] = { t: +x.v, at: +x.at }; pc = true; } } continue; } // 听到哪：新的为准
+        if (!x.del && +x.v > (+D[id] || 0)) { D[id] = +x.v; ch = true; }
+      }
+      if (pc) LS("sme:pos", P); if (ch || pc) { if (ch) LS("sme:done", D); draw(); } }).catch(() => {});
   }
 
   function loadList(s) {
@@ -163,18 +202,73 @@
     } catch (e) { d.err = e.message || String(e); }
     d.busy = false; if (EP && EP.id === id) draw();
   }
-  function dkPlay(slow) {
+  // 播这一句；放完调 done(true)，被手动暂停 / 换句调 done(false)
+  let segDone = null;
+  function dkPlay(slow, done) {
     const d = EP && DK[EP.id], x = d && d.sents && d.sents[d.i]; if (!x) return;
-    if (AU.dataset.id !== EP.id) { AU.src = EP.mp3; AU.dataset.id = EP.id; }
-    clearInterval(segT); AU.playbackRate = slow ? 0.75 : rate; AU.currentTime = x.s; segEnd = x.e;
+    if (AU.dataset.id !== EP.id) { AU.src = EP.mp3; AU.dataset.id = EP.id; auTitle = SM[serOf(EP.id)][1] + " · " + EP.title; }
+    const prev = segDone; segDone = null; if (prev) prev(false);
+    recStop(true); clearInterval(segT); AU.playbackRate = slow ? 0.75 : rate; AU.currentTime = x.s; segEnd = x.e; segDone = done || null;
     AU.play().catch(() => {});
-    segT = setInterval(() => { if (AU.paused || AU.currentTime >= segEnd) { clearInterval(segT); if (!AU.paused) AU.pause(); AU.playbackRate = rate; } }, 60);
+    segT = setInterval(() => {
+      const end = AU.currentTime >= segEnd; if (!AU.paused && !end) return;
+      clearInterval(segT); if (!AU.paused) AU.pause(); AU.playbackRate = rate;
+      const f = segDone; segDone = null; if (f) f(end);
+    }, 60);
+  }
+  // 🔁 自动连播：每句放 reps 遍，每遍之间停 gap 秒，放完自动下一句；手动点任何精听按钮或暂停就停
+  let autoTok = 0;
+  function autoStop() { autoTok++; const d = EP && DK[EP.id]; if (d && d.auto) { d.auto = false; draw(); } }
+  function autoRun() {
+    const d = EP && DK[EP.id]; if (!d || !d.sents) return; const my = ++autoTok, reps = +LG("sme:dkreps", 2) || 2, gap = +LG("sme:dkgap", 2) || 2;
+    d.auto = true; let k = 0;
+    const step = () => {
+      if (my !== autoTok) return;
+      dkPlay(false, ok => {
+        if (my !== autoTok) return; if (!ok) { d.auto = false; autoTok++; draw(); return; }
+        setTimeout(() => {
+          if (my !== autoTok) return;
+          if (++k < reps) return step();
+          if (d.i >= d.sents.length - 1) { d.auto = false; draw(); tip("🎉 这期全部句子放完了"); return; }
+          k = 0; d.i++; d.typed = ""; d.res = null; d.rec = null; draw(); step();
+        }, gap * 1000);
+      });
+    };
+    draw(); step();
+  }
+  // 🎙 跟读：录这一句（最长 = 句子时长 × 2 + 3 秒），转文字（/api/stt，不行用浏览器语音识别）后逐词打分
+  let rec = null;
+  function recStop(cancel) { if (!rec) return; const r = rec; rec = null; r.cancel = !!cancel; clearTimeout(r.t); try { if (r.sr) r.sr.stop(); } catch (e) {} try { if (r.mr && r.mr.state !== "inactive") r.mr.stop(); else r.stream.getTracks().forEach(t => t.stop()); } catch (e) {} }
+  async function recStart() {
+    const d = EP && DK[EP.id], x = d && d.sents && d.sents[d.i]; if (!x) return;
+    if (rec) { recStop(false); return; }
+    autoTok++; d.auto = false; AU.pause();
+    let stream; try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch (e) { tip("没拿到麦克风：请在浏览器地址栏允许使用麦克风"); return; }
+    const r = rec = { stream, chunks: [], srText: "", id: EP.id, i: d.i }, SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    try { r.mr = new MediaRecorder(stream); r.mr.ondataavailable = e => { if (e.data && e.data.size) r.chunks.push(e.data); }; r.mr.onstop = () => { stream.getTracks().forEach(t => t.stop()); if (!r.cancel) recDone(r); }; r.mr.start(); } catch (e) { r.mr = null; }
+    if (SR) try { const sr = r.sr = new SR(); sr.lang = "en-US"; sr.continuous = true; sr.onresult = e => { r.srText = [...e.results].map(y => y[0].transcript).join(" "); }; sr.onerror = () => {}; sr.start(); } catch (e) { r.sr = null; }
+    if (!r.mr && !r.sr) { stream.getTracks().forEach(t => t.stop()); rec = null; tip("这个浏览器不能录音"); return; }
+    d.rec = { on: true }; draw();
+    r.t = setTimeout(() => { if (rec === r) recStop(false); }, Math.min(30, (x.e - x.s) * 2 + 3) * 1000);
+  }
+  async function recDone(r) {
+    const d = DK[r.id]; if (!d) return; const x = d.sents[r.i]; d.rec = { busy: true }; if (EP && EP.id === r.id) draw();
+    const blob = r.chunks.length ? new Blob(r.chunks, { type: r.chunks[0].type || "audio/webm" }) : null; let text = "";
+    if (blob) try { const j = await (await fetch("/api/stt", { method: "POST", headers: { "Content-Type": blob.type }, body: blob })).json(); if (j && j.ok) text = j.text || ""; } catch (e) {}
+    if (!text) { await new Promise(res => setTimeout(res, 500)); text = r.srText; }
+    const a = ntok(x.t), hit = lcsHit(a, ntok(text));
+    d.rec = { said: text, hit, score: a.length ? hit.filter(Boolean).length / a.length : 0, url: blob ? URL.createObjectURL(blob) : "", i: r.i };
+    if (EP && EP.id === r.id) draw();
+  }
+  function lcsHit(a, b) {
+    const n = a.length, m = b.length, M = m + 1, T = new Uint16Array((n + 1) * (m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) T[i * M + j] = a[i] === b[j] ? T[(i + 1) * M + j + 1] + 1 : Math.max(T[(i + 1) * M + j], T[i * M + j + 1]);
+    const hit = new Array(n).fill(false); let i = 0, j = 0; while (i < n && j < m) { if (a[i] === b[j]) { hit[i] = true; i++; j++; } else if (T[(i + 1) * M + j] >= T[i * M + j + 1]) i++; else j++; }
+    return hit;
   }
   function dkCheck() {
     const d = EP && DK[EP.id], x = d && d.sents && d.sents[d.i]; if (!x) return;
-    const a = ntok(x.t), b = ntok(d.typed), n = a.length, m = b.length, M = m + 1, T = new Uint16Array((n + 1) * (m + 1));
-    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) T[i * M + j] = a[i] === b[j] ? T[(i + 1) * M + j + 1] + 1 : Math.max(T[(i + 1) * M + j], T[i * M + j + 1]);
-    const hit = new Array(n).fill(false); let i = 0, j = 0; while (i < n && j < m) { if (a[i] === b[j]) { hit[i] = true; i++; j++; } else if (T[(i + 1) * M + j] >= T[i * M + j + 1]) i++; else j++; }
+    const a = ntok(x.t), hit = lcsHit(a, ntok(d.typed)), n = a.length;
     d.res = { hit, score: n ? hit.filter(Boolean).length / n : 0 }; d.show = true;
     if (d.res.score < 0.8 && window.ERR) { const miss = a.filter((w, k) => !hit[k]); window.ERR.add([{ src: "listen", kind: "say", q: "精听时没听出来：听一遍，再跟着读", ctx: x.t, right: x.t, why: "没听出来的词：" + miss.slice(0, 12).join(", ") + "（出自 " + EP.title + "）" }], true); }
   }
@@ -190,19 +284,24 @@
     if (R) { let k = 0; shown = toks.map(w => { const n = ntok(w).length; if (!n) return esc(w); const ok = R.hit.slice(k, k + n).every(Boolean); k += n; return '<span class="' + (ok ? "h" : "m") + '">' + esc(w) + "</span>"; }).join(" "); }
     s += '<div class="dk-n">第 ' + (d.i + 1) + " / " + d.sents.length + " 句" + (x.who ? " · " + esc(x.who) : "") + "</div>";
     s += '<div class="dk-t' + (d.show ? "" : " hid") + '">' + (d.show ? shown + (Z && (Z.lines || [])[x.li] ? '<span class="zh">' + esc(Z.lines[x.li]) + "</span>" : "") : "（先别看原文：听几遍，把听到的写下来）") + "</div>";
-    s += '<div class="dk-b"><button class="ui-btn" data-a="dk-prev" title="上一句（←）">⏮</button><button class="ui-btn pri" data-a="dk-play" title="播放这句（空格）">▶ 这句</button><button class="ui-btn" data-a="dk-slow">🐢 慢放</button><button class="ui-btn" data-a="dk-next" title="下一句（→）">⏭</button><button class="ui-btn" data-a="dk-show">' + (d.show ? "🙈 藏起原文" : "👀 看原文") + "</button></div>";
+    const RC = d.rec && (d.rec.i == null || d.rec.i === d.i) ? d.rec : null, reps = +LG("sme:dkreps", 2) || 2, gap = +LG("sme:dkgap", 2) || 2;
+    s += '<div class="dk-b"><button class="ui-btn" data-a="dk-prev" title="上一句（←）">⏮</button><button class="ui-btn pri" data-a="dk-play" title="播放这句（空格；R 重放）">▶ 这句</button><button class="ui-btn" data-a="dk-slow" title="慢放（S）">🐢 慢放</button><button class="ui-btn" data-a="dk-next" title="下一句（→）">⏭</button><button class="ui-btn" data-a="dk-show">' + (d.show ? "🙈 藏起原文" : "👀 看原文") + '</button><button class="ui-btn' + (RC && RC.on ? " on" : "") + '" data-a="dk-rec" title="跟着读这一句，逐词打分">' + (RC && RC.on ? "⏹ 读完了" : RC && RC.busy ? "打分中…" : "🎙 跟读") + "</button></div>";
+    s += '<div class="dk-b" style="font-size:13px;color:var(--ui-muted);align-items:center"><button class="ui-btn' + (d.auto ? " on" : "") + '" data-a="dk-auto">' + (d.auto ? "⏸ 停止连播" : "🔁 自动连播") + "</button>每句 " + [1, 2, 3].map(n => '<button class="ui-btn' + (reps === n ? " on" : "") + '" data-reps="' + n + '">' + n + " 遍</button>").join("") + " 停 " + [1, 2, 4].map(n => '<button class="ui-btn' + (gap === n ? " on" : "") + '" data-gap="' + n + '">' + n + " 秒</button>").join("") + "</div>";
+    if (RC && RC.hit) { let k = 0; const sh = toks.map(w => { const n = ntok(w).length; if (!n) return esc(w); const ok = RC.hit.slice(k, k + n).every(Boolean); k += n; return '<span class="' + (ok ? "h" : "m") + '">' + esc(w) + "</span>"; }).join(" "); s += '<div class="dk-sc" style="margin:0 0 10px">🎙 跟读 <b>' + Math.round(RC.score * 100) + "%</b>" + (RC.score >= 0.9 ? " 👍" : " 红色的没读出来") + (RC.url ? ' <button class="ui-btn" data-a="dk-me">▶ 听我读的</button>' : "") + '<div class="dk-t" style="font-size:15.5px;margin:6px 0 0">' + sh + "</div>" + (RC.said ? '<div style="color:var(--ui-muted);font-size:13px">识别到：' + esc(RC.said) + "</div>" : "") + "</div>"; }
+    s += '<div style="color:var(--ui-muted);font-size:12px;margin:-4px 0 8px">快捷键：空格 播放这句 · ← → 上一句 / 下一句 · R 重放 · S 慢放；手机锁屏、耳机的「上一首 / 下一首」也能换句</div>';
     s += '<div class="dk-in"><input id="dk-in" placeholder="听写：把这句写下来，回车对答案" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(d.typed) + '"><button class="ui-btn" data-a="dk-check">对答案</button></div>';
     if (R) s += '<div class="dk-sc">听对 <b>' + Math.round(R.score * 100) + "%</b>" + (R.score >= 0.95 ? " 🎉 全对" : R.score >= 0.8 ? " 不错，红色的再听一遍" : " 红色的词没听出来，点 🐢 慢放多听几遍（已收进错题本）") + "</div>";
     return s + "</div>";
   }
-  function dkGo(di) { const d = EP && DK[EP.id]; if (!d || !d.sents) return; d.i = Math.max(0, Math.min(d.sents.length - 1, d.i + di)); d.typed = ""; d.res = null; d.show = false; draw(); dkPlay(false); const el = root.querySelector(".sm-dk"); if (el && el.getBoundingClientRect().top < 60) el.scrollIntoView({ block: "start" }); }
+  function dkGo(di) { const d = EP && DK[EP.id]; if (!d || !d.sents) return; if (d.auto) { autoTok++; d.auto = false; } d.i = Math.max(0, Math.min(d.sents.length - 1, d.i + di)); d.typed = ""; d.res = null; d.rec = null; d.show = false; draw(); dkPlay(false); const el = root.querySelector(".sm-dk"); if (el && el.getBoundingClientRect().top < 60) el.scrollIntoView({ block: "start" }); }
 
   function homeHtml() {
     const D = done(), L = LISTS[ser];
     if (!L) return '<div class="sm-empty">正在取节目列表…</div>';
     if (!L.length) return '<div class="sm-empty">节目列表没取到，过一会儿再试</div>';
     const n0 = L[0], fresh = L.find(x => !D[x.id]) || n0;
-    const it = x => '<div class="sm-it" data-ep="' + esc(x.id) + '"><img src="' + esc(x.img) + '" alt="" loading="lazy"><div class="t"><b>' + esc(x.t) + "</b><span>" + esc(x.d) + (D[x.id] ? ' · <em class="ok">✓ 听过</em>' : "") + "</span></div></div>";
+    const PP = POS();
+    const it = x => '<div class="sm-it" data-ep="' + esc(x.id) + '"><img src="' + esc(x.img) + '" alt="" loading="lazy"><div class="t"><b>' + esc(x.t) + "</b><span>" + esc(x.d) + (D[x.id] ? ' · <em class="ok">✓ 听过</em>' : PP[x.id] ? " · ⏯ 听到 " + fmt(PP[x.id].t) : "") + "</span></div></div>";
     return '<div class="sm-new" data-ep="' + esc(fresh.id) + '"><img src="' + esc(fresh.img) + '" alt=""><div><small>' + (fresh === n0 ? "🆕 最新一期" : "👉 还没听的最新一期") + " · " + esc(fresh.d) + "</small><b>" + esc(fresh.t) + "</b><p>" + esc(fresh.p) + "</p></div></div>" +
       '<div class="sm-grid">' + L.slice(0, 40).map(it).join("") + "</div>";
   }
@@ -242,13 +341,21 @@
     const mo = new MutationObserver(() => sync());
     mo.observe(root, { attributes: true, attributeFilter: ["class"] }); mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-en", "data-mode"] });
     const ven = document.getElementById("view-en"); if (ven) mo.observe(ven, { attributes: true, attributeFilter: ["class", "style"] });
+    document.addEventListener("keydown", e => { // 精听快捷键：节目页看得见、不在输入框里
+      const d = EP && DK[EP.id]; if (!d || !d.sents || view !== "ep" || !root.classList.contains("on") || !root.getClientRects().length) return;
+      const tg = e.target; if (e.metaKey || e.ctrlKey || e.altKey || (tg && (tg.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName)))) return;
+      const k = e.key; if (k === " " || k === "Spacebar" || k === "r" || k === "R") { e.preventDefault(); if (d.auto) autoStop(); dkPlay(false); }
+      else if (k === "s" || k === "S") { e.preventDefault(); if (d.auto) autoStop(); dkPlay(true); }
+      else if (k === "ArrowLeft") { e.preventDefault(); dkGo(-1); } else if (k === "ArrowRight") { e.preventDefault(); dkGo(1); }
+    });
     root.addEventListener("input", e => { if (e.target.id === "dk-in" && EP && DK[EP.id]) DK[EP.id].typed = e.target.value; });
     root.addEventListener("keydown", e => {
       const d = EP && DK[EP.id]; if (!d || !d.sents || view !== "ep") return;
       if (e.target.id === "dk-in") { if (e.key === "Enter") { e.preventDefault(); d.typed = e.target.value; if (!d.typed.trim()) return dkPlay(false); dkCheck(); draw(); const i = root.querySelector("#dk-in"); if (i) i.focus(); } return; }
     });
     root.addEventListener("click", e => {
-      const t = e.target, sv = t.closest("[data-ser]"); if (sv) { ser = sv.dataset.ser; LS("sme:s", ser); view = "home"; loadList(ser); draw(); return; }
+      const t = e.target, rp = t.closest("[data-reps],[data-gap]"); if (rp) { if (rp.dataset.reps) LS("sme:dkreps", +rp.dataset.reps); else LS("sme:dkgap", +rp.dataset.gap); draw(); return; }
+      const sv = t.closest("[data-ser]"); if (sv) { ser = sv.dataset.ser; LS("sme:s", ser); view = "home"; loadList(ser); draw(); return; }
       const epEl = t.closest("[data-ep]"); if (epEl) { openEp(epEl.dataset.ep); return; }
       const r = t.closest("[data-rate]"); if (r) { rate = +r.dataset.rate; LS("sme:rate", rate); AU.playbackRate = rate; root.querySelectorAll("[data-rate]").forEach(x => x.classList.toggle("on", x === r)); return; }
       const ad = t.closest("[data-add]"); if (ad && EP) { const v = EP.vocab[+ad.dataset.add], w = String(v[0]).replace(/\s*\(.*?\)\s*/g, " ").trim(), re = new RegExp("\\b" + w.split(/\s+/)[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), line = (EP.lines || []).find(l => re.test(l.t)); if (window.vocabAddWord) { ad.disabled = true; window.vocabAddWord(w, v[2] || (line ? line.t : "")).then(ok => { ad.textContent = ok ? "✓ 已加" : "已在本里"; }); } return; }
@@ -257,8 +364,12 @@
       if (a === "dk" && EP && !EP.err) { dkLoad(EP.id); return; }
       if (/^dk-/.test(a) && EP && DK[EP.id] && DK[EP.id].sents) {
         const d = DK[EP.id], inp = root.querySelector("#dk-in"); if (inp) d.typed = inp.value;
-        if (a === "dk-play") return dkPlay(false);
-        if (a === "dk-slow") return dkPlay(true);
+        if (a !== "dk-auto" && d.auto) { autoTok++; d.auto = false; }
+        if (a === "dk-auto") { if (d.auto) autoStop(); else autoRun(); return; }
+        if (a === "dk-rec") return recStart();
+        if (a === "dk-me") { if (d.rec && d.rec.url) { AU.pause(); new Audio(d.rec.url).play().catch(() => {}); } return; }
+        if (a === "dk-play") { draw(); return dkPlay(false); }
+        if (a === "dk-slow") { draw(); return dkPlay(true); }
         if (a === "dk-prev") return dkGo(-1);
         if (a === "dk-next") return dkGo(1);
         if (a === "dk-show") { d.show = !d.show; draw(); return; }
