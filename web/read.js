@@ -383,12 +383,12 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
   const nday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // 和后台同一个「今天」（吉隆坡 / 北京时间）
   const hashU = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); };
   const newsId = n => "n:" + hashU(n.url || n.title || "");
-  let NEWS = null, newsBusy = false, newsErr = "", newsList = false, newsTried = [];
+  let NEWS = null, newsBusy = false, newsErr = "", newsList = false, newsTried = [], newsOpenAfter = false;
   function newsLoad(force) {
     const c = LG("reading:news", null);
     if (!force && c && c.date === nday() && c.text) { NEWS = c; return; }
     if (newsBusy) return; newsBusy = true; newsErr = ""; paintNews();
-    fetch("/api/news?d=" + nday()).then(r => r.json()).then(j => { newsBusy = false; if (j && j.ok && j.text) { NEWS = j; LS("reading:news", j); } else newsErr = "今天的新闻还没取到，过一会儿再试"; paintNews(); })
+    fetch("/api/news?d=" + nday()).then(r => r.json()).then(j => { newsBusy = false; if (j && j.ok && j.text) { NEWS = j; LS("reading:news", j); } else newsErr = "今天的新闻还没取到，过一会儿再试"; paintNews(); if (NEWS && newsOpenAfter && view === "home") newsRead(); newsOpenAfter = false; })
       .catch(() => { newsBusy = false; newsErr = "今天的新闻没取到（网络问题）"; paintNews(); });
   }
   function newsHtml() {
@@ -419,7 +419,7 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
     for (let k = 0; k < 3 && L.length; k++) { const x = L.splice(Math.floor(Math.random() * L.length), 1)[0]; newsTried.push(x.u); if (await newsFetch(x)) return; }
   }
   const newsRead = () => { if (NEWS) openDoc(NEWS.text, NEWS.title, newsId(NEWS)); };
-  window.readingNews = () => { newsLoad(); if (NEWS) newsRead(); }; // 「📅 每日一练」的「读」可以直接打开今天这篇
+  window.readingNews = () => { newsLoad(); if (NEWS) newsRead(); else newsOpenAfter = true; }; // 还没取到：取到后自动打开 // 「📅 每日一练」的「读」可以直接打开今天这篇
 
   function drawHome() {
     const L = docs();
