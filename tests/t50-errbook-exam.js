@@ -66,6 +66,9 @@ let fail = 0; const ok = (c, m) => { if (!c) { fail++; console.log("FAIL", m); }
   ok(T[2].s > T[1].s && T[3].s > T[2].s && T[1].e <= T[2].s + 0.15 && T[3].e > T[3].s, "monotonic " + JSON.stringify(T.map(x => [x.s, x.e])));
   const T2 = ctx.smeAlignTimes(sents.concat([{ who: "", t: "Zzz qqq.", li: 2 }, { who: "", t: "It is.", li: 2 }]), Wt.concat([["it", 9, 9.3], ["is", 9.4, 9.6]]));
   ok(T2[4].s > T2[3].s && T2[4].s < T2[5].s, "unmatched sentence interpolated " + JSON.stringify(T2.map(x => x.s)));
+  // 🎵 文稿跟着语音：现在放到第几句
+  const I = ctx.smeIdxAt;
+  ok(I(T, 0) === -1 && I(T, T[0].s) === 0 && I(T, T[1].s + 0.1) === 1 && I(T, T[3].s + 100) === 3, "idxAt " + [I(T, 0), I(T, T[0].s), I(T, T[1].s + 0.1), I(T, 999)]);
 }
 console.log(fail ? fail + " FAILED" : "t50 errbook + exam + 精听: all passed");
 process.exit(fail ? 1 : 0);
