@@ -83,7 +83,7 @@ const path = require("path");
   const tr = Array.from({ length: 40 }, (_, i) => (i % 2 ? "Neil: " : "Beth: ") + "Today we talk about sleep and the number " + (i + 7) + " because scientists in Oslo found something interesting.").join("\n");
   aiOut = { notes: [{ s: "Scientists were based in ____.", a: "Oslo" }, { s: "Topic: ____", a: "sleep" }, { s: "Number ____", a: "12" }, { s: "Bad ____", a: "Paris" }, { s: "They found something ____.", a: "interesting" }], mcq: [{ q: "Who?", opts: ["Neil", "Beth", "Both"], ans: 2 }, { q: "x", opts: ["a", "b", "c"], ans: 1 }, { q: "y", opts: ["a", "b", "c"], ans: 0 }, { q: "z", opts: ["a", "b", "c", "d"], ans: 0 }] };
   r = await call("/api/ai", "POST", { task: "exam", mode: "listening", text: tr });
-  ok(r.j.ok && r.j.notes.length === 4 && r.j.mcq.length === 3, "listening clean " + JSON.stringify(r.j).slice(0, 200));
+  ok(r.j.ok && r.j.notes.length === 4 && r.j.mcq.length === 4, "listening clean " + JSON.stringify(r.j).slice(0, 200));
 
   // ---- 雅思对话（Section 1 / 3）：检查、存题库、先给没做过的 ----
   const turn = (w, i) => ({ who: i % 2 ? "B" : "A", name: i % 2 ? "Sarah" : "Tom", t: "Well I would like to book a room for " + (i + 2) + " nights please and my surname is Thompson, T-H-O-M-P-S-O-N, okay." });

@@ -650,7 +650,7 @@ async function sme(req, env, u) {
 // ---------- AI（Cloudflare Workers AI，免费额度每天 1 万 neurons；要在 Pages 项目「设置 → 绑定」里加 Workers AI，变量名 AI）----------
 // POST /api/ai {task:"write", type:t1|t2|mail|free, prompt, text} → { ok, band:{TR,CC,LR,GRA,overall}, summary_zh, strengths_zh:[], improve_zh:[], rewrite }；没开 AI 时 { ok:false, error:"noai" }
 // POST /api/stt（请求体就是录音文件）→ { ok, text }：跟读打分用（Whisper 语音转文字）
-const AI_MODELS = ["@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"];
+const AI_MODELS = ["@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-4-scout-17b-16e-instruct"]; // 备用：原来的 llama-3.1-8b-instruct 2026-05-30 下线了
 const WRITE_SYS = `You are a strict, experienced IELTS writing examiner. Assess the candidate's answer using the official IELTS Writing band descriptors (Task Response / Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy). Use half bands (e.g. 6.5). Be realistic: most learner essays score 5.0-7.0; penalise answers under the word limit or off topic.
 Reply with ONLY one JSON object, no markdown, exactly in this shape:
 {"band":{"TR":0,"CC":0,"LR":0,"GRA":0,"overall":0},"summary_zh":"2-3 sentences in Simplified Chinese","strengths_zh":["..."],"improve_zh":["specific, actionable advice in Simplified Chinese; quote the original phrase and give a better English version"],"rewrite":"an improved version of the whole answer in English, same ideas and similar length, band 8 level"}
@@ -740,7 +740,7 @@ function examClean(o, mode, text) {
     out.tfng = (o.tfng || []).map(tf).filter(Boolean).slice(0, 5); out.match = (o.match || []).map(mt).filter(Boolean).slice(0, 3); out.gaps = (o.gaps || []).map(gap).filter(Boolean).slice(0, 3); out.mcq = (o.mcq || []).map(mcq(4)).filter(Boolean).slice(0, 2); out.letters = L;
     return out.tfng.length >= 3 && out.tfng.length + out.match.length + out.gaps.length + out.mcq.length >= 9 ? out : null;
   }
-  out.notes = (o.notes || []).map(gap).filter(Boolean).slice(0, 6); out.mcq = (o.mcq || []).map(mcq(3)).filter(Boolean).slice(0, 4);
+  out.notes = (o.notes || []).map(gap).filter(Boolean).slice(0, 6); out.mcq = (o.mcq || []).map(x => mcq(3)(x) || mcq(4)(x)).filter(Boolean).slice(0, 4);
   return out.notes.length >= 3 && out.notes.length + out.mcq.length >= 7 ? out : null;
 }
 // ---------- 雅思听力 Section 1 / 3 风格的对话（exam.js「🎙 雅思对话」）：POST /api/ai {task:"ieltsscript", sec:1|3, done:[做过的 id], fresh}
@@ -782,11 +782,14 @@ async function examGen(env, b) {
   if (text.split(/\s+/).length < 150) return json({ ok: false, error: "too short" }, 400);
   const kv = env.CAPTIONS, ck = "x/" + (await sha(mode + "|" + (b.kind || "") + "|" + text)).slice(0, 32);
   if (kv && !b.again) { const hit = await kv.get(ck, "json"); if (hit) return json(Object.assign({ ok: true, cached: true }, hit)); }
-  let got = null;
+  let got = null, last = null;
   const hint = mode === "listening" && b.kind === "s1" ? "\nThis is an IELTS Section 1 conversation: make the notes a form to complete (names spelled in the script, numbers, dates, prices, addresses). Answers must be copied exactly from the transcript; for a spelled name use the name as normally written."
     : mode === "listening" && b.kind === "s3" ? "\nThis is an IELTS Section 3 academic discussion: focus the multiple-choice questions on opinions, reasons and decisions, and the notes on key facts." : "";
-  const r = await aiJson(env, [{ role: "system", content: (mode === "reading" ? EXAM_READ_SYS : EXAM_LISTEN_SYS) + hint }, { role: "user", content: (b.title ? "Title: " + clip(b.title, 200) + "\n\n" : "") + text }], o => !!(got = examClean(o, mode, text)), 2600);
-  if (!r.ok || !got) return json({ ok: false, error: r.error || "bad output" }, 502);
+  const r = await aiJson(env, [{ role: "system", content: (mode === "reading" ? EXAM_READ_SYS : EXAM_LISTEN_SYS) + hint }, { role: "user", content: (b.title ? "Title: " + clip(b.title, 200) + "\n\n" : "") + text }], o => { last = o; return !!(got = examClean(o, mode, text)); }, 2600);
+  if (!r.ok || !got) { // 说清楚哪里不合格，方便查
+    const n = k => Array.isArray(last && last[k]) ? last[k].length : 0, T = " " + exNorm(text) + " ", miss = ((last && (last.notes || last.gaps)) || []).filter(x => x && x.a && !T.includes(" " + exNorm(x.a) + " ")).map(x => x.a).slice(0, 4);
+    return json({ ok: false, error: r.error || "bad output", detail: last ? Object.keys(last).map(k => k + ":" + n(k)).join(" ") + (miss.length ? " | 答案不在原文：" + miss.join(", ") : "") : "" }, 502);
+  }
   got.model = r.model; if (kv) await kv.put(ck, JSON.stringify(got), { expirationTtl: 60 * 86400 });
   return json(Object.assign({ ok: true }, got));
 }
