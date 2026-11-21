@@ -95,7 +95,8 @@
 
   let root = null, D = null, loading = null;
   let sec = LG("speak:sec", ""); if (!SECS.some(s => s[0] === sec)) sec = "";
-  let opt = Object.assign({ rate: 1, zh: true, voice: "ai" }, LG("speak:opt", {}));
+  let opt = Object.assign({ rate: 1, zh: true }, LG("speak:opt", {}));
+  if (opt.voice) { if (opt.voice === "sys" && window.TTS) TTS.setMode("sys"); delete opt.voice; } // 声音开关搬到全站共用的 tts:mode
   let done = LG("speak:done", {});
   if (!sec) sec = Object.keys(done).length ? "daily" : "start"; // 第一次来：先进「🌱 入门」
   let view = null; // 打开的条目：{t:"dialog"|"func"|"pair"|"conn"|"topic"|"sgrp", id}
@@ -108,7 +109,6 @@
   const isDone = k => !!done[k];
 
   function loadData() {
-    ttsLoad();
     if (window.SPEAK_DATA) { D = window.SPEAK_DATA; return Promise.resolve(); }
     if (!loading) loading = new Promise(res => { const s = document.createElement("script"); s.src = "speak-data.js?v=" + V; s.onload = s.onerror = res; document.head.append(s); }).then(() => { D = window.SPEAK_DATA || null; });
     return loading;
@@ -123,19 +123,8 @@
     const other = L.find(v => (!main || v.name !== main.name) && /en[-_]US/i.test(v.lang)) || L.find(v => !main || v.name !== main.name);
     return other || main;
   }
-  // AI 真人语音（opt.voice === "ai"，默认）：固定句子播预先生成的 tts/<编号>.mp3（tools/gen-tts.mjs，不花额度）；
-  // 还没生成的固定句子先用系统语音；AI 回复、随机数字这类不在名单里的句子现场生成（/api/tts，Workers AI aura-1）；播不了就退回系统语音
-  let TTSM = null, ttsLoading = null, player = null;
+  // AI 真人声交给全站共用的 tts.js（window.TTS）：固定句子播预先生成的 /tts/*.mp3，其它现场生成，播不了退回 sysSay（系统语音）
   const clean = t => String(t).replace(/[{}]/g, "").replace(/\s+/g, " ").trim();
-  function ttsKey(voice, text) { const s = voice + "|" + clean(text); let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, "0"); }
-  function ttsLoad() {
-    if (!ttsLoading) ttsLoading = fetch("tts/index.json?h=" + Math.floor(Date.now() / 3.6e6)).then(r => r.ok ? r.json() : null).catch(() => null)
-      .then(j => { // 读不到清单（刚部署时可能拿到首页）就先用系统语音，30 秒后再试，免得把固定句子都拿去现场生成
-        if (j && Array.isArray(j.done)) TTSM = { voices: j.voices || { "": "asteria", A: "orion" }, done: new Set(j.done), todo: new Set(j.todo || []) };
-        else setTimeout(() => { ttsLoading = null; }, 30000);
-      });
-    return ttsLoading;
-  }
   function sysSay(t, o, my) {
     try {
       speechSynthesis.cancel();
@@ -148,27 +137,12 @@
   }
   function say(text, o) {
     o = o || {}; const my = ++sayId, t = clean(text);
-    if (player) { try { player.pause(); } catch (e) {} player = null; }
+    if (window.TTS) TTS.stop();
     try { speechSynthesis.cancel(); } catch (e) {}
-    if (opt.voice !== "sys") {
-      if (!TTSM) ttsLoad();
-      else {
-        const v = TTSM.voices[o.who === "A" ? "A" : ""] || "asteria", k = ttsKey(v, t);
-        const src = TTSM.done.has(k) ? "tts/" + k + ".mp3" : !TTSM.todo.has(k) && t.length <= 1500 && /[a-z]/i.test(t) ? "/api/tts?v=" + v + "&t=" + encodeURIComponent(t) : "";
-        if (src) {
-          const a = new Audio(src); player = a; let fell = false;
-          const back = () => { if (fell || my !== sayId) return; fell = true; player = null; sysSay(t, o, my); };
-          try { a.preservesPitch = true; a.playbackRate = (o.rate || opt.rate) * (o.slow ? 0.75 : 1); } catch (e) {}
-          a.onended = () => { if (my === sayId) { player = null; if (o.end) o.end(); } };
-          a.onerror = back;
-          const pr = a.play(); if (pr && pr.catch) pr.catch(back);
-          return;
-        }
-      }
-    }
+    if (window.TTS && TTS.play(t, { who: o.who, rate: (o.rate || opt.rate) * (o.slow ? 0.75 : 1), end: () => { if (my === sayId && o.end) o.end(); }, fallback: () => { if (my === sayId) sysSay(t, o, my); } })) return;
     sysSay(t, o, my);
   }
-  function hush() { sayId++; if (player) { try { player.pause(); } catch (e) {} player = null; } try { speechSynthesis.cancel(); } catch (e) {} }
+  function hush() { sayId++; if (window.TTS) TTS.stop(); try { speechSynthesis.cancel(); } catch (e) {} }
 
   /* ---------- 录音和打分（同「🔊 练习」的跟读卡） ---------- */
   const toks = t => String(t || "").toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9'\s-]+/g, " ").split(/[\s-]+/).map(x => x.replace(/^'+|'+$/g, "")).filter(Boolean);
@@ -256,7 +230,7 @@
     const n = counts();
     return '<div class="sk-hd"><h1>🗣 口语</h1><p>每天 15 分钟：听 → 跟读 → 角色扮演 → 自己说。点 🔊 听，点 🎙 录音跟读，会标出读对、读漏的词。</p><div class="sp">' +
       '<span class="sk-seg" title="朗读速度"><button data-rate="0.8" class="' + (opt.rate < .95 ? "on" : "") + '">慢</button><button data-rate="1" class="' + (opt.rate >= .95 && opt.rate < 1.1 ? "on" : "") + '">正常</button><button data-rate="1.15" class="' + (opt.rate >= 1.1 ? "on" : "") + '">快</button></span>' +
-      '<span class="sk-seg" title="朗读声音：AI 真人语音（Workers AI）或这台设备自带的语音"><button data-voice="ai" class="' + (opt.voice !== "sys" ? "on" : "") + '">AI 真人声</button><button data-voice="sys" class="' + (opt.voice === "sys" ? "on" : "") + '">系统声</button></span>' +
+      '<span class="sk-seg" title="朗读声音：AI 真人语音（Workers AI）或这台设备自带的语音"><button data-voice="ai" class="' + (!window.TTS || TTS.mode() !== "sys" ? "on" : "") + '">AI 真人声</button><button data-voice="sys" class="' + (window.TTS && TTS.mode() === "sys" ? "on" : "") + '">系统声</button></span>' +
       '<span class="sk-seg" title="显示中文"><button data-zh="1" class="' + (opt.zh ? "on" : "") + '">中文</button><button data-zh="0" class="' + (!opt.zh ? "on" : "") + '">隐藏</button></span></div></div>' +
       '<div class="sk-chips">' + SECS.map(([k, t]) => '<button data-sec="' + k + '" class="' + (sec === k && !view ? "on" : sec === k ? "on" : "") + '">' + t + (n[k] === "" ? "" : "<b>" + (n[k] || 0) + "</b>") + "</button>").join("") + "</div>" + (view ? "" : statBar());
   }
@@ -883,7 +857,7 @@
       }
       const ad = t.closest("[data-add]"); if (ad) { if (window.vocabAddWord) window.vocabAddWord(ad.dataset.add, ad.dataset.sent || ""); else tip("生词本还没加载好"); return; }
       const sc = t.closest("[data-sec]"); if (sc) { stopAll(); sec = sc.dataset.sec; view = null; LS("speak:sec", sec); draw(); return; }
-      const vc = t.closest("[data-voice]"); if (vc) { opt.voice = vc.dataset.voice; LS("speak:opt", opt); hush(); draw(); if (opt.voice !== "sys") ttsLoad().then(() => say("Hi! This is the voice you will hear.")); return; }
+      const vc = t.closest("[data-voice]"); if (vc) { hush(); if (window.TTS) TTS.setMode(vc.dataset.voice); draw(); if (vc.dataset.voice !== "sys" && window.TTS) TTS.load().then(() => say("Hi! This is the voice you will hear.")); return; }
       const rt = t.closest("[data-rate]"); if (rt) { opt.rate = +rt.dataset.rate; LS("speak:opt", opt); draw(); return; }
       const zh = t.closest("[data-zh]"); if (zh) { opt.zh = zh.dataset.zh === "1"; LS("speak:opt", opt); draw(); return; }
       const sg = t.closest("[data-sg]"); if (sg) { stopAll(); shadowGroup = +sg.dataset.sg; draw(); return; }

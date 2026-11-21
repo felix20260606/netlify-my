@@ -408,6 +408,7 @@
   }
 </style>
 <link rel="stylesheet" href="theme.css">
+<script src="tts.js?v=1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -1176,7 +1177,13 @@
     if(t===t.toUpperCase()&&/[A-Z]{3}/.test(t))t=t.toLowerCase().replace(/\b[a-z]/g,function(c){return c.toUpperCase();});
     return t.replace(/(\d+)\s?g\b/gi,'$1 grams').replace(/(\d+)\s?ml\b/gi,'$1 millilitres').replace(/(\d+)\s?kg\b/gi,'$1 kilograms');
   }
+  // 英文先用 AI 真人声（tts.js），马来文和 AI 播不了时用系统语音
   function speak(en,ms,rate){
+    if(window.TTS&&en&&TTS.play(tidy(en),{rate:rate&&rate<0.8?0.75:1,end:function(){if(ms)sysSpeak('',ms,rate);},fallback:function(){sysSpeak(en,ms,rate);}}))return;
+    sysSpeak(en,ms,rate);
+  }
+  function sysSpeak(en,ms,rate){
+    if(window.TTS)TTS.stop();
     if(!synth){return;}
     synth.cancel();
     var q=[];

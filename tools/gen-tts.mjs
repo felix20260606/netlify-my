@@ -1,9 +1,10 @@
-// 口语页的 AI 真人语音：把 web/speak-data.js 里固定的英文句子预先生成成 web/tts/<编号>.mp3，网页优先播这些静态文件（不花额度）。
-// 编号 = FNV-1a 32 位（"声音|句子"），网页 web/speak.js 的 ttsKey() 用同一个算法。
+// 全站 AI 真人语音：把固定的英文预先生成成 web/tts/<编号>.mp3，网页（web/tts.js）优先播这些静态文件（不花额度）。
+// 内容：口语 web/speak-data.js 的句子、生词本（线上 /api/vocab，主人和每个家人）的词 + 例句 + 相关词、雅思笔记 web/ielts-notes.html 的 data-say。
+// 编号 = FNV-1a 32 位（"声音|句子"），web/tts.js 的 key() 用同一个算法。
 // 每次最多生成 TTS_BUDGET 个字母（默认 6000，约 8,200 neurons，Workers AI 免费额度每天 1 万），接口报错（额度用完等）就停下，下次接着做。
 // 用法：node tools/gen-tts.mjs            生成一批并更新 web/tts/index.json
 //       node tools/gen-tts.mjs --dry      只统计：一共多少句、多少字母、还剩多少没生成
-// GitHub Actions（.github/workflows/tts.yml）每天跑一次，直到全部生成完；以后改了 speak-data.js 也会自动补上新句子。
+// GitHub Actions（.github/workflows/tts.yml）每天跑一次，直到全部生成完；以后新加的生词、改了 speak-data.js 也会自动补上。
 import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
@@ -20,11 +21,13 @@ export const clean = t => String(t).replace(/[{}]/g, "").replace(/\s+/g, " ").tr
 export function ttsKey(voice, text) { const s = voice + "|" + clean(text); let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, "0"); }
 
 // 按页面实际朗读的字段收集句子（顺序 = 生成的先后：新手先用到的排前面）
-export function collect(D) {
+export function collect(D, vocab = [], notes = []) {
   const L = [], seen = new Set();
   const add = (t, who) => { t = clean(t || ""); if (!t || !/[a-z]/i.test(t) || /[一-鿿]/.test(t) || t.length > 1500) return; const v = VOICES[who === "A" ? "A" : ""], k = ttsKey(v, t); if (seen.has(k)) return; seen.add(k); L.push({ k, v, t }); };
   const st = D.starter || {};
   (st.rescue || []).forEach(x => add(x.en)); (st.intro || []).forEach(x => add(x.en));
+  vocab.forEach(t => add(t)); // 生词本每天练，排在前面
+  notes.forEach(t => add(t));
   (D.dialogs || []).forEach(d => (d.lines || []).forEach(l => { add(l.en, l.who); if (l.who === "A") add(l.en); })); // 角色扮演里 A 也可能用默认声音读
   (D.quick || []).forEach(x => { add(x.q); add(x.a); });
   const P = D.pron || {};
@@ -39,6 +42,31 @@ export function collect(D) {
   return L;
 }
 
+// 生词本：词（列表里 🔊 读的 word）、例句（examples[i][0]）、相关词（related[i][0]）；主人 + 家人
+async function loadVocab() {
+  const base = API.replace(/\/api\/tts$/, ""), out = [];
+  let ids = [""];
+  try { const u = await (await fetch(base + "/api/users")).json(); if (u && u.ok && Array.isArray(u.users)) ids = u.users.map(x => x.id || ""); } catch (e) {}
+  for (const id of ids) {
+    try {
+      const j = await (await fetch(base + "/api/vocab" + (id ? "?u=" + encodeURIComponent(id) : ""))).json();
+      for (const e of (j && j.custom) || []) {
+        if (typeof e.word === "string") out.push(e.word);
+        (e.examples || []).forEach(x => out.push(Array.isArray(x) ? x[0] : typeof x === "string" ? x : x && x.en));
+        (e.related || []).forEach(x => out.push(Array.isArray(x) ? x[0] : x && x.w));
+      }
+    } catch (e) { console.log("生词本读取失败", id || "主人", e.message); }
+  }
+  return out.filter(x => typeof x === "string");
+}
+// 雅思笔记页：每个 🔊 按钮的 data-say
+function loadNotes() {
+  const html = fs.readFileSync(path.join(ROOT, "web/ielts-notes.html"), "utf8"), out = [];
+  const dec = s => s.replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
+  for (const m of html.matchAll(/data-say="([^"]*)"/g)) out.push(dec(m[1]));
+  return out;
+}
+
 function loadData() {
   const ctx = { window: {} }; vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(path.join(ROOT, "web/speak-data.js"), "utf8"), ctx);
@@ -46,7 +74,7 @@ function loadData() {
 }
 
 async function main() {
-  const L = collect(loadData());
+  const L = collect(loadData(), await loadVocab(), loadNotes());
   fs.mkdirSync(OUT, { recursive: true });
   const have = new Set(fs.readdirSync(OUT).filter(f => f.endsWith(".mp3")).map(f => f.slice(0, -4)));
   const todo = L.filter(x => !have.has(x.k));

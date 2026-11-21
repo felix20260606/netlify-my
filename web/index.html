@@ -504,12 +504,12 @@
     <div class="sp-hd"><h3>⚙ 设置</h3><button type="button" id="sp-close" title="关闭">✕</button></div>
     <h3>🔊 朗读设置</h3>
     <div class="voicebox">
-      <label>语音（选一个你喜欢的；练习里没有原声的句子、列表里点 🔊 都用它念；速度在练习右上角调）</label>
+      <label>语音（默认「🤖 AI 真人声」；练习里没有原声的句子、列表、语法、口语里点 🔊 都用它念；速度在练习右上角调）</label>
       <select id="voice-sel"><option>加载中…</option></select>
       <div class="vrow">
         <button id="voice-test" class="vtest">▶ 试听</button>
       </div>
-      <p class="vhint">朗读用手机自带语音。想要更自然的声音，可到手机「设置 → 辅助功能/语言 → 文字转语音」里下载“增强/高质量”英语语音包，回来就能在上面选到。</p>
+      <p class="vhint">🤖 AI 真人声是 Cloudflare Workers AI 的 Deepgram Aura 语音，接近真人；还没生成好的句子、AI 额度用完时会自动改用下面选的手机自带语音。选一个手机自带的语音就全部改用它。</p>
     </div>
     <h3 style="margin-top:20px">📤 导出</h3>
     <div id="exp-box"></div>
@@ -1172,19 +1172,30 @@ function loadVoices(){
   voices=enVoices();
   const sel=document.getElementById("voice-sel");
   if(!sel)return;
-  if(!voices.length){sel.innerHTML='<option>此设备暂无英语语音</option>';return;}
-  sel.innerHTML=voices.map((v,i)=>`<option value="${i}">${v.name.replace(/^(Microsoft|Google)\s/,"")} · ${v.lang}</option>`).join("");
+  const ai='<option value="ai">🤖 AI 真人声（推荐）</option>';
+  if(!voices.length){sel.innerHTML=ai+'<option value="none">此设备暂无英语语音</option>';sel.value=window.TTS&&TTS.mode()==="sys"?"none":"ai";return;}
+  sel.innerHTML=ai+voices.map((v,i)=>`<option value="${i}">${v.name.replace(/^(Microsoft|Google)\s/,"")} · ${v.lang}</option>`).join("");
   let idx=state.voice?voices.findIndex(v=>v.name===state.voice):-1;
   if(idx<0)idx=bestVoiceIndex();
   if(idx>=0){sel.value=idx;chosenVoice=voices[idx];}
+  if(window.TTS&&TTS.mode()!=="sys")sel.value="ai";
 }
-function speak(text){
+// 全站朗读入口：先交给 AI 真人声（tts.js），播不了再用系统语音；o.rate 是相对正常速度的倍数（练习页的慢速用）
+function speak(text,o){
+  o=o||{};
+  if(window.TTS&&TTS.play(text,{rate:o.rate||1,end:o.end,fallback:()=>sysSpeak(text,o)}))return;
+  sysSpeak(text,o);
+}
+function sysSpeak(text,o){
+  o=o||{};
   try{
+    if(window.TTS)TTS.stop();
     if(!("speechSynthesis" in window)){toast("此环境不支持朗读，可在手机浏览器打开");return;}
     window.speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);
     if(chosenVoice){u.voice=chosenVoice;u.lang=chosenVoice.lang;}else{u.lang="en-US";}
-    u.rate=state.rate||0.95;u.pitch=1;
+    u.rate=(state.rate||0.95)*(o.rate||1);u.pitch=1;
+    if(o.end){u.onend=()=>o.end();u.onerror=()=>o.end(true);}
     window.speechSynthesis.speak(u);
   }catch(e){toast("朗读失败");}
 }
@@ -1505,7 +1516,10 @@ window.addEventListener("hashchange",handleHash);
 
 // voice settings
 document.getElementById("voice-sel").onchange=e=>{
-  chosenVoice=voices[e.target.value]||null;
+  const v=e.target.value;
+  if(v==="ai"){if(window.TTS){TTS.setMode("ai");TTS.load().then(()=>speak("Hi! How does this sound?"));}return;}
+  if(window.TTS)TTS.setMode("sys");
+  chosenVoice=voices[v]||null;
   state.voice=chosenVoice?chosenVoice.name:null;save(state);
   speak("Hi! How does this sound?");
 };
@@ -1722,11 +1736,12 @@ refresh(); // show seed words immediately, no waiting on storage
   if(document.readyState==='complete')sw(first);else window.addEventListener('load',function(){sw(first);}); // 等 write.js 加载完
 })();
 </script>
+<script src="tts.js?v=1"></script>
 <script src="watch.js?v=13"></script>
 <script src="channels.js?v=3"></script>
-<script src="pump.js?v=25"></script>
-<script src="speak.js?v=8"></script>
-<script src="read.js?v=4"></script>
+<script src="pump.js?v=26"></script>
+<script src="speak.js?v=9"></script>
+<script src="read.js?v=5"></script>
 <script src="write.js?v=1"></script>
 <script src="stats.js?v=1"></script>
 <script>

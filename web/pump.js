@@ -382,8 +382,8 @@
     try { await fetch("/api/ext", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ changes: { ["saved|" + w]: { v: w, at: Date.now() } } }) }); } catch (e) {}
     if (!silent) toast("已收进生词本：" + w);
   }
-  const sayText = t => { try { if (opt.speed === 1 || !("speechSynthesis" in window)) return speak(t); speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); if (typeof chosenVoice !== "undefined" && chosenVoice) { u.voice = chosenVoice; u.lang = chosenVoice.lang; } else u.lang = "en-US"; u.rate = ((state && state.rate) || 0.95) * opt.speed; speechSynthesis.speak(u); } catch (e) {} };
-  const say = c => { try { if (player) { player.pause(); player = null; } const m = medOf(c); if (m && m.aud) { try { speechSynthesis.cancel(); } catch (e) {} player = new Audio(m.aud); player.playbackRate = opt.speed; player.play().catch(() => sayText(plain(c.s.en))); return; } sayText(plain(c.s.en)); } catch (e) {} };
+  const sayText = t => { try { speak(t, { rate: opt.speed }); } catch (e) {} }; // speak() 在 index.html：先 AI 真人声（tts.js），不行再系统语音
+  const say = c => { try { if (window.TTS) TTS.stop(); if (player) { player.pause(); player = null; } const m = medOf(c); if (m && m.aud) { try { speechSynthesis.cancel(); } catch (e) {} player = new Audio(m.aud); player.playbackRate = opt.speed; player.play().catch(() => sayText(plain(c.s.en))); return; } sayText(plain(c.s.en)); } catch (e) {} };
   const imgs = c => { const m = medOf(c), L = m ? [m.img, m.img2].filter(Boolean) : []; return L.length ? '<div class="pp-img">' + L.map(u => '<img src="' + esc(u) + '" alt="">').join("") + "</div>" : ""; };
   function show() {
     if (at >= cards.length) return finish();
@@ -493,7 +493,7 @@
   const lab2 = { known: "已知", learn: "学习", skip: "跳过（不学习）" };
   function flip(c) { if (c.flip) return; c.flip = true; show(); if (c.s.en) say(c); } // 翻开认词卡，顺便念一下
   function reveal(c) { if (c.k !== "listen") return; c.rev = Math.min(2, c.rev + 1); show(); }
-  const stopAudio = () => { try { speechSynthesis.cancel(); if (player) player.pause(); } catch (e) {} recStop(true); };
+  const stopAudio = () => { try { if (window.TTS) TTS.stop(); speechSynthesis.cancel(); if (player) player.pause(); } catch (e) {} recStop(true); };
   function enter() { // 进入当前卡：重新盖上，非测验卡自动播放（同 PhrasePump：换卡时 blur 回到 HIDE_BOTH、测验回到 SHOW_GAP）
     const c = cards[at]; if (!c) return finish(); c.rev = 0; c.spoken = true; c.medSaid = !!medOf(c);
     if (c.k === "recall") c.flip = c.done ? c.flip : false;

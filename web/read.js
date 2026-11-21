@@ -406,7 +406,7 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
   function stopAll() { if (!tts) return; clearTimeout(tts.t); tts = null; try { speechSynthesis.cancel(); } catch (e) {} hiSent(-1); syncTts(); }
   function readAll(from) {
     if (!("speechSynthesis" in window)) { tip("此环境不支持朗读，可在手机浏览器打开"); return; }
-    stopAll(); const run = {}; tts = run; syncTts();
+    stopAll(); if (window.TTS) TTS.stop(); const run = {}; tts = run; syncTts(); // 全文朗读用系统语音（整篇用 AI 声音太费额度）；点单句才用 AI 真人声
     const step = i => {
       if (tts !== run) return;
       if (i >= P.sents.length || !root.classList.contains("on") || view !== "read") { stopAll(); if (i >= P.sents.length) tip("读完了"); return; }

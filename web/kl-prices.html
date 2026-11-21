@@ -248,6 +248,7 @@ footer b{color:var(--ink)}
 }
 /* ==== /电脑端布局 ==== */
 </style><link rel="stylesheet" href="theme.css">
+<script src="tts.js?v=1"></script>
 </head><body>
 <div class="hero"><div class="hin">
   <a class="back" href="jianzhi-kl.html">&#8592; &#127857; 配餐买菜-吉隆坡</a>
@@ -552,7 +553,8 @@ $id('plbAdd').onclick=function(){setQ(plbI,1);cardState();render();toast('已加
 $id('plbSay').onclick=function(){var t=this.getAttribute('data-t')||'';if(!window.speechSynthesis){toast('此浏览器不支持朗读');return;}
   t=t.replace(/&/g,' and ');if(t===t.toUpperCase())t=t.toLowerCase().replace(/\b[a-z]/g,function(c){return c.toUpperCase();});
   t=t.replace(/(\d+)\s?g\b/gi,'$1 grams').replace(/(\d+)\s?ml\b/gi,'$1 millilitres');
-  speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='en-GB';u.rate=.85;var v=speechSynthesis.getVoices().filter(function(x){return /^en/i.test(x.lang);});if(v.length)u.voice=v[0];speechSynthesis.speak(u);};
+  var sys=function(){if(window.TTS)TTS.stop();speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='en-GB';u.rate=.85;var v=speechSynthesis.getVoices().filter(function(x){return /^en/i.test(x.lang);});if(v.length)u.voice=v[0];speechSynthesis.speak(u);};
+  if(window.TTS&&TTS.play(t,{fallback:sys}))return; sys();}; // 先用 AI 真人声（tts.js）
 $id('plbClose').onclick=function(){$id('plb').classList.remove('on');};
 $id('plb').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
 $id('rlbClose').onclick=function(){$id('rlb').classList.remove('on');};

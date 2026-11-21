@@ -638,6 +638,7 @@ h1 .cn {
 /* ==== /电脑端布局 ==== */
 </style>
 <link rel="stylesheet" href="theme.css">
+<script src="tts.js?v=1"></script>
 </head>
 <body>
   <header>
@@ -1320,7 +1321,7 @@ h1 .cn {
       const select = document.getElementById('voiceSelect');
       if (!select) return;
       const prevChoice = selectedVoiceName || localStorage.getItem(VOICE_STORAGE_KEY);
-      select.innerHTML = '';
+      select.innerHTML = '<option value="__ai">🤖 AI 真人声（推荐）</option>';
       cachedVoices.forEach((v, i) => {
         const opt = document.createElement('option');
         opt.value = v.name;
@@ -1330,6 +1331,7 @@ h1 .cn {
       const match = cachedVoices.find(v => v.name === prevChoice);
       selectedVoiceName = match ? match.name : (cachedVoices[0] && cachedVoices[0].name);
       if (selectedVoiceName) select.value = selectedVoiceName;
+      if (window.TTS && TTS.mode() !== 'sys') select.value = '__ai';
 
       const hint = document.getElementById('voiceHint');
       if (hint) {
@@ -1339,7 +1341,13 @@ h1 .cn {
       }
     }
 
+    // 先用 AI 真人声（tts.js，下拉框第一项），选了别的声音或 AI 播不了时用系统语音
     function speakText(text) {
+      if (window.TTS && TTS.play(text, { rate: selectedRate, fallback: () => sysSpeakText(text) })) return;
+      sysSpeakText(text);
+    }
+    function sysSpeakText(text) {
+      if (window.TTS) TTS.stop();
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
@@ -1368,6 +1376,8 @@ h1 .cn {
     const voiceSelectEl = document.getElementById('voiceSelect');
     if (voiceSelectEl) {
       voiceSelectEl.addEventListener('change', () => {
+        if (voiceSelectEl.value === '__ai') { if (window.TTS) TTS.setMode('ai'); return; }
+        if (window.TTS) TTS.setMode('sys');
         selectedVoiceName = voiceSelectEl.value;
         localStorage.setItem(VOICE_STORAGE_KEY, selectedVoiceName);
       });
