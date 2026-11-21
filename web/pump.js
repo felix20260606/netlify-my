@@ -91,6 +91,7 @@
   .pp-go{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
   .pp-go button{background:var(--jade);color:#fff;border:0;font:inherit;font-weight:800;font-size:16px;border-radius:12px;padding:0 22px;min-height:46px;cursor:pointer}.pp-go button:disabled{opacity:.4;cursor:default}.pp-go span{color:var(--muted);font-size:13px}
   .pp-only{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}.pp-only small{color:var(--muted);font-size:12.5px}
+  .pp-hard .hw{flex-basis:100%;text-align:center;color:var(--muted);font-size:12.5px}
   .pp-only button{border:1px solid var(--ui-line-2,var(--line));background:var(--ui-surface-2,var(--paper-2));color:var(--ui-ink,var(--ink));font:inherit;font-weight:700;font-size:14px;border-radius:10px;padding:0 14px;min-height:40px;cursor:pointer}.pp-only button:hover{border-color:var(--ui-pur,var(--jade))}.pp-only button:disabled{opacity:.4;cursor:default}
   .pp-next{margin-top:16px;font-size:13px;color:var(--muted)}.pp-next b{color:var(--ink)}
   .pp-q{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.pp-q span{font-size:13px;color:#9a6512;border:1px solid #ecd2a0;background:#FFF8EA;border-radius:5px;padding:0 6px;line-height:1.6}
@@ -217,6 +218,10 @@
     return Object.assign({ quiz: 0, recall: opt.recall || !listen ? 1 : 0, listen }, ex);
   }
   const nCards = w => { const x = spec(w); return x.quiz + x.recall + x.listen + (x.dict || 0) + (x.shadow || 0) + (x.gfill || 0); };
+  // 🔥 难词：忘过 2 次以上（r.f），或者练了 3 轮以上半衰期还不到 3 天的（以前没记 f 的旧数据靠这条）；已掌握的不算。最难的在前
+  let hardOnly = false;
+  const isHard = r => !!r && !!r.at && ((r.f || 0) >= 2 || ((r.n || 0) >= 3 && (r.h || 0) < 3));
+  function hardOf(L, S) { return L.filter(w => w.status !== "known" && isHard(S[w.id])).sort((a, b) => ((S[b.id].f || 0) - (S[a.id].f || 0)) || ((S[a.id].h || 0) - (S[b.id].h || 0))); }
   function plan() {
     const S = srs(), now = Date.now(), tagOf = w => (EXT && EXT.tags[String(w.word).toLowerCase().trim()]) || "", mode = modeOf();
     const P = (typeof words !== "undefined" ? words : []).filter(usable).filter(w => !opt.tags.length || opt.tags.includes(tagOf(w))), live = P.filter(w => w.status !== "known");
@@ -232,12 +237,15 @@
     const N = opt.num, queue = []; let rem = N, newSlots = Math.round(N * opt.newPct / 100);
     const fits = c => c <= rem || rem / c >= 0.5;
     const fill = (L, kind, isNew) => { for (const w of L) { if (rem <= 0 || (isNew && newSlots <= 0)) return; const c = nCards(w); if (!c) continue; if (!fits(c) || (isNew && c > newSlots && newSlots / c < 0.5)) return; queue.push({ w, kind, c }); rem -= c; if (isNew) newSlots -= c; } };
-    if (mode !== "none") fill(due, "due");
-    newSlots = Math.min(newSlots, Math.max(0, rem));
-    if (mode !== "none") fill(fresh, "new", true);
-    fill(sugg, "sugg", true);
-    if (mode !== "none") fill(early, "early");
-    const pump = opt.listen && rem > 0 && (queue.length || mode !== "none") ? rem : 0; // 额外句子：只在「练习」开着时补
+    if (hardOnly) fill(hardOf(live, S), "due"); // 「只练难词」：只排难词，不加新词、建议、额外句子
+    else {
+      if (mode !== "none") fill(due, "due");
+      newSlots = Math.min(newSlots, Math.max(0, rem));
+      if (mode !== "none") fill(fresh, "new", true);
+      fill(sugg, "sugg", true);
+      if (mode !== "none") fill(early, "early");
+    }
+    const pump = !hardOnly && opt.listen && rem > 0 && (queue.length || mode !== "none") ? rem : 0; // 额外句子：只在「练习」开着时补
     return { P, live, due, fresh, pool, queue, list: queue.map(q => q.w), pump, n: N - Math.max(0, rem) + pump, extra: queue.some(q => q.kind === "early") || pump > 0, mode };
   }
   // 一个词条的例句：词条自带的 examples（{目标词} 标出位置）；没有就用词条本身
@@ -280,6 +288,7 @@
       (() => { const all = VS ? words.filter(w => (w.type || "word") !== "pattern") : p.P.filter(w => !w.sg), kn = VS ? VS.known : all.filter(w => w.status === "known").length, lr = all.filter(w => mastery(S[w.id], w) < 1 && S[w.id]), avg = lr.length ? lr.reduce((a, w) => a + mastery(S[w.id], w), 0) / lr.length : 0, tot = all.length ? kn / all.length : 0;
         return '<div class="pp-master" title="半衰期到 42 天（至少 6 周都很可能记得）算已掌握"><div class="h"><span>🏆 已掌握</span><b>' + pcent(tot) + "%</b><small>" + kn + " / " + all.length + " 个</small></div>" + mbar(tot, true) + (lr.length ? '<div class="h2">学习中的 ' + lr.length + " 个词平均掌握进度 <b>" + pcent(avg) + "%</b></div>" + mbar(avg) : "") + "</div>"; })() +
       '<div class="pp-go"><button id="pp-start"' + (n ? "" : " disabled") + ">开始练习</button><span>" + (n ? n + " 张卡片" : p.mode === "none" ? (opt.sugg ? "测验、练习都关了：只练建议，现在没有建议" : "测验、练习、建议都关了，没有可练的") : "现在没有要练的") + "</span></div>" +
+      (() => { const H = hardOf(p.P.filter(w => !w.sg), S); return H.length ? '<div class="pp-only pp-hard"><small>🔥 难词 ' + H.length + ' 个</small><button id="pp-hard" title="' + esc(H.slice(0, 30).map(w => w.word).join(" · ")) + '">只练难词</button><span class="hw">' + H.slice(0, 6).map(w => esc(w.word)).join(" · ") + (H.length > 6 ? " …" : "") + "</span></div>" : ""; })() +
       '<div class="pp-only"><small>只练一种：</small><button id="pp-only-shadow"' + (p.queue.length ? "" : " disabled") + ' title="听一句，自己读一遍，录音转文字，标出读对、读漏的词">🎙 跟读</button><button id="pp-only-dict"' + (p.queue.length ? "" : " disabled") + ' title="只放声音，把整句打出来，逐词对错">✍️ 听写</button></div>' +
       (p.queue.length ? '<div class="pp-next"><b>接下来</b> · 你的队列，然后是推荐' + '<div class="pp-q">' + p.queue.slice(0, 12).map(q => { const r = S[q.w.id]; const m = mastery(r, q.w); return "<span" + (q.kind === "sugg" ? ' class="sg" title="推荐：从看过的视频里来的新词"' : ' title="掌握进度 ' + pcent(m) + "%" + (r && r.at ? " · 现在记得 " + pcent(rNow(r)) + "%" : " · 新词") + '"') + ">" + esc(q.w.word) + (q.kind === "sugg" ? "" : " <i>" + pcent(m) + "%</i>" + mbar(m)) + "</span>"; }).join("") + "</div></div>" : "") + "</div>" +
       '<div class="pp-opt"><h4>会话' + (JSON.stringify(Object.keys(DEF).map(k => opt[k])) !== JSON.stringify(Object.keys(DEF).map(k => DEF[k])) ? '<a id="pp-reset" href="javascript:void 0">重置</a>' : "") + "</h4>" +
@@ -300,6 +309,7 @@
     root.querySelector("#pp-start").onclick = () => { lastSum = ""; start(); };
     root.querySelector("#pp-only-shadow").onclick = () => { lastSum = ""; start("shadow"); };
     root.querySelector("#pp-only-dict").onclick = () => { lastSum = ""; start("dict"); };
+    const hb = root.querySelector("#pp-hard"); if (hb) hb.onclick = () => { lastSum = ""; start(null, true); };
     root.querySelector("#pp-gear").onclick = () => window.openVocabSettings && window.openVocabSettings();
     const sx = root.querySelector("#pp-sumx"); if (sx) sx.onclick = () => { lastSum = ""; home(); };
     root.querySelector("#pp-quiz").onchange = e => { opt.quiz = e.target.checked; LS("pump:opt", opt); home(); }; // 关了「测验」：只听不考
@@ -316,8 +326,8 @@
       LS("pump:opt", opt); home(); });
   }
   // only = "shadow" / "dict"：只练跟读 / 只练听写（练习页左边的快捷按钮），这一轮每个词只出这一种卡
-  function start(only) {
-    const p = plan(); if (!p.queue.length) return; const S = srs(); cards = []; at = 0; bad = 0; playing = true;
+  function start(only, hard) {
+    hardOnly = !!hard; const p = plan(); hardOnly = false; if (!p.queue.length) { if (hard) toast("现在没有难词 👍"); return; } const S = srs(); cards = []; at = 0; bad = 0; playing = true;
     medMap().then(() => { prefetch(0); const c = cards[at]; if (c && playing) medFor(c.w).then(() => { if (playing && cards[at] === c && medOf(c)) show(); }); }); // 原声截图在后台取，取到之前先用朗读；取到了重画当前卡片
     p.list.forEach(w => {
       const r = S[w.id], wasNew = !r, x0 = seen(r), sp = spec(w), base = { w, wasNew, x0, m0: mastery(r, w), rev: 0 }; // x0：这一轮开始前练过几轮；m0：开始前的掌握进度
@@ -356,7 +366,7 @@
       Object.assign(r, { e: m.map(x => +x.toFixed(4)), h: +h.toFixed(3), at: now, due: now + ebDecay(m, DUE_R) * DAY, b: levelOf(h) });
       if (h >= KNOWN_H) { const was = state.progress[id] === "known"; state.progress[id] = "known"; if (!was) { c.w.justKnown = true; toast("🏆 「" + c.w.word + "」已掌握！"); } }
     };
-    if (!ok && !lapsed) upd(0);                                  // 忘了：马上按「忘了」更新（半衰期变短）
+    if (!ok && !lapsed) { r.f = (r.f || 0) + 1; upd(0); }        // 忘了：马上按「忘了」更新（半衰期变短）；f = 一共忘过几次（🔥 难词用）
     const nL = cards.filter(x => x.w.id === id && x.k === "listen").length; // 这一轮被动听了几张
     if (ok && c.last && !lapsed) { upd(1); r.x = (c.x0 || 0) + nL; } // 这一轮都对：按「记得」更新
     else if (c.last && lapsed) r.x = (c.x0 || 0) + nL;
@@ -605,6 +615,9 @@
     e.preventDefault();
   });
   window.pumpShow = () => { if (!playing) home(); };
+  // 🔥 难词（「📅 每日」的难词、每周小结用）：[{id, word, zh, f 忘过几次, n 练过几轮, h 半衰期天数}]
+  window.pumpHard = () => { const S = srs(); return hardOf((typeof words !== "undefined" ? words : []).filter(w => w && w.word), S).map(w => ({ id: w.id, word: w.word, zh: w.zh || "", f: S[w.id].f || 0, n: S[w.id].n || 0, h: S[w.id].h || 0 })); };
+  window.pumpStartHard = () => { if (!root) return false; if (playing) return false; lastSum = ""; start(null, true); return true; };
   window.pumpCards = () => cards.map(c => (c.w.pump ? "额外句子" : c.w.sg ? "建议" : { quiz: "填空", listen: "听力", recall: "认词", dict: "听写", shadow: "跟读", gfill: "语法填空" }[c.k])); // 检查用：这一组每张卡是什么
   window.pumpRefresh = () => { if (root && root.classList.contains("on") && !playing) home(); };
   function init() {

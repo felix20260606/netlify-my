@@ -37,7 +37,7 @@
 // 五、例句 /api/sent?w=单词（网站「🔊 练习」用：像 PhrasePump 一样每次换几句例句听）
 //   → { ok, w, items:[{en, zh}] }，来自 Tatoeba 例句库（只要 14 个词以内、带中文翻译、确实包含这个词的），在 KV 里缓存 30 天（"s/单词"）
 //   GET ?pump=数量 → 随机的额外句子（5–12 个词、带中文），练习名额没用完时补满（同 PhrasePump 的「pump」），不缓存
-// 七、查词 /api/dict、抓文章 /api/readurl、今日新闻 /api/news、AI 写作评分 /api/ai、语音转文字 /api/stt、AI 语音 /api/tts：见各自函数上面的说明
+// 七、查词 /api/dict、抓文章 /api/readurl、今日新闻 /api/news、每日听力 /api/sme、AI 写作评分 /api/ai、语音转文字 /api/stt、AI 语音 /api/tts：见各自函数上面的说明
 //   生词本回收站：GET /api/vocab?trash=1 → { items:[{e 词条, at 删除时间}] }（30 天，按人分开）；POST {untrash:id} 从回收站拿掉
 const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab", EXT_PATH = "/api/ext", EXT_KEY = "ext", MEDIA_PATH = "/api/media", SENT_PATH = "/api/sent";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
@@ -318,7 +318,7 @@ async function sent(req, env, u) {
 // ---------- 个人的学习资料 /api/mine（按人分开，换设备也在）：阅读的文章、作文批改历史、词汇量测试 ----------
 // GET  ?k=reading|writing|vtest → { ok, items:{ id:{v, at} | {del:1, at} } }（删除记号保留 60 天）
 // POST {k, changes:{ id:{v,at}|{del:1,at} }} → 同一项以 at 新的为准，返回合并后的 { ok, items }
-const MINE_K = /^(reading|writing|vtest|speak)$/; // speak：口语页的练习记录、每日打卡、AI 陪练记录、录音存档索引（speak.js）
+const MINE_K = /^(reading|writing|vtest|speak|daily|sme)$/; // daily：「📅 每日」的设置、手动打勾、每天完成几项；sme：「📻 6 分钟英语」听过哪几期 // speak：口语页的练习记录、每日打卡、AI 陪练记录、录音存档索引（speak.js）
 async function mine(req, env, u) {
   if (req.method === "OPTIONS") return json({ ok: true });
   const kv = env.CAPTIONS; if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
@@ -455,6 +455,55 @@ async function news(req, env, u) {
   return json(out);
 }
 
+// ---------- 每日听力 /api/sme：BBC Learning English「6 Minute English」（「🎧 听 → 📻 6 分钟英语」）----------
+// GET /api/sme → { ok, list:[{id, t 标题, d 日期, p 一句简介, img}] }：今年和去年的节目目录（新的在前），KV「sme/list」存 12 小时
+// GET /api/sme?ep=6-minute-english_2026/ep-261119 → { ok, id, title, mp3, intro, q:[问题, 选项…], vocab:[[词, 英文解释]], lines:[{who, t}] }：KV「sme/ep/…」存 90 天
+function smeLines(h) {
+  const dec = s => s.replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&#x27;|&rsquo;|&lsquo;/g, "'").replace(/&ldquo;|&rdquo;/g, '"').replace(/&mdash;/g, "—").replace(/&ndash;/g, "–").replace(/&hellip;/g, "…").replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n));
+  return dec(h.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, "").replace(/<strong>([^<]{1,40})<\/strong>\s*<br\s*\/?>/gi, "\n@@$1\n").replace(/<br\s*\/?>/gi, "\n").replace(/<\/(p|h\d|li|div|dt|dd)>/gi, "\n").replace(/<[^>]+>/g, "")).split("\n").map(s => s.replace(/\s+/g, " ").trim()).filter(Boolean);
+}
+function smeParse(html) {
+  const L0 = smeLines(html), L = L0.map(s => s.replace(/^@@/, "")), at = (re, from) => { for (let i = from || 0; i < L.length; i++) if (re.test(L[i])) return i; return -1; };
+  const og = (html.match(/<meta property="og:title" content="([^"]*)"/) || [])[1] || "";
+  const mp3 = (html.match(/href="(https:\/\/downloads\.bbc\.co\.uk\/[^"]+\.mp3)"/) || [])[1] || "";
+  const iI = at(/^Introduction$/i), iQ = at(/^This week'?s question$/i), iV = at(/^Vocabulary$/i), iT = at(/^TRANSCRIPT$/), iN = iT < 0 ? -1 : at(/^(Next|Latest|Download|Previous|Episode \d+|Take the quiz)/i, iT + 1);
+  const seg = (a, b) => (a < 0 ? [] : L.slice(a + 1, b > a ? b : a + 40));
+  const intro = seg(iI, iQ > iI ? iQ : iV).join(" ");
+  const q = seg(iQ, iV).filter(s => !/^Listen to the programme/i.test(s));
+  const V = seg(iV, iT), vocab = []; for (let i = 0; i + 1 < V.length; i += 2) vocab.push([V[i], V[i + 1]]);
+  const T = iT < 0 ? [] : L0.slice(iT + 1, iN > iT ? iN : L.length).filter(s => !/^(@@)?Note: This is not a word-for-word transcript/i.test(s));
+  const lines = []; let who = "";
+  for (let i = 0; i < T.length; i++) { const s = T[i]; if (/^@@/.test(s)) { who = s.slice(2).trim(); continue; } lines.push({ who, t: s }); }
+  return { title: og.split(" / ").pop().trim(), mp3, intro, q, vocab, lines };
+}
+function smeIndex(html) {
+  const out = [], seen = new Set(), re = /<a\s+href="\/learningenglish\/english\/features\/(6-minute-english_\d{4}\/ep-\d{6})"><img src="([^"]+)"[\s\S]*?<h2><a\s+href="[^"]+">([^<]+)<\/a><\/h2>[\s\S]*?<h3>([\s\S]*?)<\/h3>\s*<p>([^<]*)<\/p>/g;
+  const dec = s => s.replace(/&amp;/g, "&").replace(/&#39;|&rsquo;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
+  let m; while ((m = re.exec(html))) { if (seen.has(m[1])) continue; seen.add(m[1]); const d = (m[4].match(/(\d{1,2} \w{3} \d{4})/) || [])[1] || ""; out.push({ id: m[1], img: m[2], t: dec(m[3]), d, p: dec(m[5]) }); }
+  return out;
+}
+async function sme(req, env, u) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  const UA = { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36", "Accept": "text/html" };
+  const BASE = "https://www.bbc.co.uk/learningenglish/english/features/", ep = u.searchParams.get("ep") || "", fresh = !!u.searchParams.get("fresh");
+  if (ep) {
+    if (!/^6-minute-english_\d{4}\/ep-\d{6}$/.test(ep)) return json({ ok: false, error: "bad ep" }, 400);
+    const key = "sme/ep/" + ep; if (!fresh) { const c = await env.CAPTIONS.get(key, "json"); if (c) return json(c); }
+    try {
+      const r = await fetch(BASE + ep, { headers: UA }); if (!r.ok) return json({ ok: false, error: "http " + r.status }, 502);
+      const x = smeParse(await r.text()); if (x.lines.length < 6) return json({ ok: false, error: "no transcript" }, 502);
+      const out = { ok: true, id: ep, url: BASE + ep, ...x }; await env.CAPTIONS.put(key, JSON.stringify(out), { expirationTtl: 90 * 86400 }); return json(out);
+    } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 502); }
+  }
+  if (!fresh) { const c = await env.CAPTIONS.get("sme/list", "json"); if (c) return json(c); }
+  const y = +newsDay().slice(0, 4), seen = new Set(), list = [];
+  for (const yy of [y, y - 1]) {
+    try { const r = await fetch(BASE + "6-minute-english_" + yy, { headers: UA }); if (r.ok) for (const i of smeIndex(await r.text())) if (!seen.has(i.id)) { seen.add(i.id); list.push(i); } } catch (e) {}
+  }
+  if (!list.length) return json({ ok: false, error: "no list" }, 502);
+  const out = { ok: true, list: list.slice(0, 120) }; await env.CAPTIONS.put("sme/list", JSON.stringify(out), { expirationTtl: 12 * 3600 }); return json(out);
+}
+
 // ---------- AI（Cloudflare Workers AI，免费额度每天 1 万 neurons；要在 Pages 项目「设置 → 绑定」里加 Workers AI，变量名 AI）----------
 // POST /api/ai {task:"write", type:t1|t2|mail|free, prompt, text} → { ok, band:{TR,CC,LR,GRA,overall}, summary_zh, strengths_zh:[], improve_zh:[], rewrite }；没开 AI 时 { ok:false, error:"noai" }
 // POST /api/stt（请求体就是录音文件）→ { ok, text }：跟读打分用（Whisper 语音转文字）
@@ -497,6 +546,13 @@ rescue (救命句：听不懂/想不起时的 40 句), intro (自我介绍 12 �
 Reply with ONLY one JSON object, no markdown:
 {"level_zh":"一句话判断他现在的水平","advice_zh":"2-3 句最重要的建议","days":[{"day":1,"title":"今天的主题","steps":[{"do_zh":"具体做什么、做多久","sec":"rescue"}]}],"encourage_zh":"一句鼓励"}
 In "do_zh" write plain Chinese for the learner (never write the section keys like rescue/dialog in the text; the button shows the section). Exactly 7 days, 2-4 steps each, about 15-20 minutes a day, start easy (listen and repeat) and build up to talking with the AI and topics.`;
+// 「📰 今日新闻」的 AI 简化版 + 读后小测：POST /api/ai {task:"newsimp", url, title, text} → { ok, simple, summary_zh, quiz:[{q, opts, ans, why_zh}], words:[{en, zh}] }；
+// 同一篇（按网址）存 KV「news/simp/哈希」7 天，全家共用，一篇只花一次额度
+const NEWSIMP_SYS = `You are an expert ESL materials writer. The reader is a Chinese native speaker at about CEFR B1 who lives in Kuala Lumpur.
+Rewrite the news article for them: 250-350 words, CEFR B1 English, short clear sentences, explain or replace rare words, keep all key facts, names and numbers correct, neutral tone. Separate paragraphs with a blank line.
+Then write 4 multiple-choice comprehension questions about the article (in English, 3 options each, only one correct) and pick 6-8 useful words or phrases from the ORIGINAL article that a B1 learner probably does not know.
+Reply with ONLY one JSON object, no markdown:
+{"simple":"the rewritten article","summary_zh":"两句简体中文概括","quiz":[{"q":"question","opts":["A","B","C"],"ans":0,"why_zh":"简体中文：为什么"}],"words":[{"en":"word or phrase as used in the article","zh":"中文意思"}]}`;
 async function aiJson(env, msgs, ok, maxTok) {
   let last = "";
   for (const m of AI_MODELS) {
@@ -517,6 +573,14 @@ async function ai(req, env) {
   if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
   try {
     const b = await req.json(), text = String(b.text || "").split(/\s+/).slice(0, 1500).join(" ").slice(0, 10000), prompt = String(b.prompt || "").slice(0, 3000);
+    if (b.task === "newsimp") {
+      const t = String(b.text || "").split(/\s+/).slice(0, 1300).join(" "), title = clip(b.title, 300); if (t.split(" ").length < 80) return json({ ok: false, error: "bad body" }, 400);
+      let hh = 2166136261; const hs = String(b.url || title || t.slice(0, 200)); for (let i = 0; i < hs.length; i++) { hh ^= hs.charCodeAt(i); hh = Math.imul(hh, 16777619); }
+      const key = "news/simp/" + (hh >>> 0).toString(36), c = env.CAPTIONS && !b.fresh ? await env.CAPTIONS.get(key, "json") : null; if (c) return json(Object.assign(c, { cached: 1 }));
+      const r = await aiJson(env, [{ role: "system", content: NEWSIMP_SYS }, { role: "user", content: "Title: " + title + "\n\n" + t }], o => typeof o.simple === "string" && o.simple.split(/\s+/).length > 80 && Array.isArray(o.quiz), 2600);
+      if (r.ok) { r.quiz = (r.quiz || []).filter(q => q && q.q && Array.isArray(q.opts) && q.opts.length >= 2 && +q.ans >= 0 && +q.ans < q.opts.length).slice(0, 5); r.words = (Array.isArray(r.words) ? r.words : []).filter(w => w && w.en).slice(0, 10); if (env.CAPTIONS) await env.CAPTIONS.put(key, JSON.stringify(r), { expirationTtl: 7 * 86400 }); }
+      return json(r, r.ok ? 200 : 502);
+    }
     // 口语：chat（陪练回一句）、chatsum（聊完总结）、speak（话题回答点评）
     if (b.task === "chat" || b.task === "chatsum") {
       const H = (Array.isArray(b.history) ? b.history : []).slice(-16).map(x => ({ role: x && x.role === "assistant" ? "assistant" : "user", content: clip(x && x.content, 500) })).filter(x => x.content.trim());
@@ -622,6 +686,7 @@ export default {
     if (u.pathname === "/api/mine") return mine(req, env, u);
     if (u.pathname === "/api/readurl") return readurl(req, env, u);
     if (u.pathname === "/api/news") return news(req, env, u);
+    if (u.pathname === "/api/sme") return sme(req, env, u);
     if (u.pathname === "/api/ai") return ai(req, env);
     if (u.pathname === "/api/stt") return stt(req, env);
     if (u.pathname === "/api/tts") return tts(req, env, u, ctx);

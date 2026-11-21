@@ -18,7 +18,7 @@
     return of.call(this,u,o);
   };
   if(navigator.sendBeacon){var ob=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=function(u,d){try{var x=new URL(String(u),location.href);if(x.origin===location.origin&&API.test(x.pathname)){x.searchParams.set("u",id);u=x.pathname+x.search;}}catch(e){}return ob(u,d);};}
-  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|pump:log|wt:meta|reading:docs|reading:tr|speak:done|speak:log|speak:days|reading:lv|writing:draft|writing:history|writing:lang|vocab:test|remind:time|daily:opt|daily:check|daily:days|mine:seen:reading|mine:seen:writing|mine:seen:vtest)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
+  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|pump:log|wt:meta|reading:docs|reading:tr|speak:done|speak:log|speak:days|reading:lv|writing:draft|writing:history|writing:lang|vocab:test|remind:time|daily:opt|daily:check|daily:days|daily:sat|daily:sent|daily:wkseen|sme:done|mine:seen:reading|mine:seen:writing|mine:seen:vtest)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
   var k=function(t,key){var ls=null;try{ls=window.localStorage;}catch(e){}return t===ls&&MINE.test(String(key))?key+"@"+id:key;};
   S.getItem=function(key){return g.call(this,k(this,key));};
   S.setItem=function(key,v){return st.call(this,k(this,key),v);};
@@ -470,6 +470,7 @@
       <button data-mode="list" class="on">📖 列表</button>
       <button data-mode="grammar" class="mx">📐 语法</button>
       <button data-mode="writing" class="mx">📝 写作批改</button>
+      <button data-mode="sme" class="mx">📻 6 分钟英语</button>
     </div>
   </div>
 </header>
@@ -523,6 +524,7 @@
   <!-- 📐 语法：常用语法、句型、拼写构词、发音等速查（见 grammar.js） -->
   <div id="grammar"></div>
   <div id="reading"></div>
+  <div id="sme"></div>
   <div id="stats"></div>
 
 
@@ -1363,6 +1365,7 @@ document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
   document.getElementById("savedbox").classList.toggle("on",m==="saved"); if(m==="saved")savedShow();
   document.getElementById("grammar").classList.toggle("on",m==="grammar"); if(m==="grammar"&&window.grammarShow)grammarShow();
   document.getElementById("reading").classList.toggle("on",m==="reading"); if(m==="reading"&&window.readingShow)readingShow();
+  {const sm=document.getElementById("sme"); if(sm){sm.classList.toggle("on",m==="sme"); if(m==="sme"&&window.smeShow)smeShow();}}
   document.getElementById("stats").classList.toggle("on",m==="stats"); if(m==="stats"&&window.statsShow)statsShow();
   const wv=document.getElementById("ielts-write-view"); if(wv){wv.style.display=m==="writing"?"block":"none"; if(m==="writing"&&window.writingShow&&!wv.dataset.on){wv.dataset.on="1";writingShow(wv);}}
   try{localStorage.setItem("vocab_mode",m);}catch(e){}
@@ -1684,7 +1687,7 @@ refresh(); // show seed words immediately, no waiting on storage
   var tListen=document.getElementById('tab-listen'),tRead=document.getElementById('tab-read'),tWrite=document.getElementById('tab-write');
   var L2_OWNER={daily:'en',notebook:'en',listen:'en',speak:'en',read:'en',write:'en',ielts:'en',fat:'life',trip:'life'};
   var EN_PAGE={notebook:'vocab',listen:'listen',read:'read',write:'write'};
-  var SECS={listen:[['video','🎬 视频'],['practice','🎧 听力练习']],write:[['writing','📝 写作批改'],['grammar','📐 语法']]};
+  var SECS={listen:[['sme','📻 6 分钟英语'],['video','🎬 视频'],['practice','🎧 听力练习']],write:[['writing','📝 写作批改'],['grammar','📐 语法']]};
   var VOCAB_MODES=/^(stats|pump|saved|list)$/, CUR='', busy=false;
   function getSub(w){var d=SECS[w][0][0];try{var v=localStorage.getItem('en_sub_'+w);if(SECS[w].some(function(x){return x[0]===v;}))return v;}catch(e){}return d;}
   function clickMode(m){var b=document.querySelector('.modes button[data-mode="'+m+'"]');if(b&&!b.classList.contains('on'))b.click();}
@@ -1746,7 +1749,7 @@ refresh(); // show seed words immediately, no waiting on storage
       if(which==='notebook'){if(!VOCAB_MODES.test(root.getAttribute('data-mode')||'')){var lm='list';try{lm=localStorage.getItem('vocab_mode_v')||'list';}catch(e){}clickMode(VOCAB_MODES.test(lm)?lm:'list');}}
       else if(which==='read')clickMode('reading');
       else if(which==='write')clickMode(sub==='grammar'?'grammar':'writing');
-      else if(which==='listen'){if(wantVideo){if(window.videoCore)videoCore.enter();else window.__wantVideo=1;}else clickMode('pump');}
+      else if(which==='listen'){if(wantVideo){if(window.videoCore)videoCore.enter();else window.__wantVideo=1;}else clickMode(sub==='sme'?'sme':'pump');}
     }finally{busy=false;}
     try{localStorage.setItem('vocab_tab',which);}catch(e){}
   }
@@ -1756,6 +1759,7 @@ refresh(); // show seed words immediately, no waiting on storage
     if(busy||!EN_PAGE[CUR]||root.classList.contains('show-video')){if(CUR==='notebook'&&VOCAB_MODES.test(m)){try{localStorage.setItem('vocab_mode_v',m);}catch(e){}}return;}
     if(VOCAB_MODES.test(m)&&!(m==='pump'&&CUR==='listen')){try{localStorage.setItem('vocab_mode_v',m);}catch(e){}} // 「📖 词汇」记住上次的模式（听力练习不算）
     if(m==='reading'){if(CUR!=='read')show('read');return;}
+    if(m==='sme'){if(CUR!=='listen'||getSub('listen')!=='sme')show('listen','sme');return;}
     if(m==='grammar'||m==='writing'){var sb=m==='grammar'?'grammar':'writing';if(CUR!=='write'||getSub('write')!==sb)show('write',sb);return;}
     if(m==='pump'&&CUR==='listen')return;
     if(CUR!=='notebook')show('notebook');
@@ -1826,10 +1830,12 @@ refresh(); // show seed words immediately, no waiting on storage
 <script src="tts.js?v=1"></script>
 <script src="watch.js?v=14"></script>
 <script src="channels.js?v=3"></script>
-<script src="pump.js?v=27"></script>
+<script src="pump.js?v=28"></script>
 <script src="speak.js?v=9"></script>
-<script src="daily.js?v=4"></script>
-<script src="read.js?v=7"></script>
+<script src="daily.js?v=5"></script>
+<script src="read.js?v=8"></script>
+<script src="listen.js?v=1"></script>
+<script src="import.js?v=1"></script>
 <script src="write.js?v=1"></script>
 <script src="stats.js?v=1"></script>
 <script>

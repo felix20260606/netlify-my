@@ -161,6 +161,10 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
   .ra-news .tt{display:block;margin:6px 0 4px;font-size:19px;line-height:1.4;color:var(--ui-ink);cursor:pointer}.ra-news .pv{color:var(--ui-ink-2);font-size:14px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .ra-news .mt{margin-top:6px;font-size:12.5px;color:var(--ui-muted)}.ra-news .mt .ok{color:var(--ui-green,#3fb37f);font-weight:700}
   .ra-news a.src{color:var(--ui-muted);font-size:13px;text-decoration:none;margin-left:auto}.ra-news a.src:hover{color:var(--ui-ink)}
+  .ra-quiz{margin:18px 0 6px;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:14px;padding:14px 16px}.ra-quiz h3{margin:0 0 4px;font-size:17px}.ra-quiz .sm{color:var(--ui-muted);font-size:13px;margin-bottom:8px}
+  .ra-qq{margin:12px 0 0}.ra-qq b{display:block;font-size:15px;line-height:1.5;margin-bottom:6px}.ra-qq button{display:block;width:100%;text-align:left;margin:5px 0;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);border-radius:10px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+  .ra-qq button.ok{border-color:var(--ui-green,#3fb37f);background:color-mix(in srgb,var(--ui-green,#3fb37f) 18%,transparent)}.ra-qq button.bad{border-color:var(--ui-red);background:color-mix(in srgb,var(--ui-red) 15%,transparent)}.ra-qq .why{font-size:13px;color:var(--ui-ink-2);margin-top:4px}
+  .ra-kw{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ra-kw span{border:1px solid var(--ui-line-2);border-radius:999px;padding:4px 10px;font-size:13.5px}.ra-kw span small{color:var(--ui-muted);margin-left:4px}
   .ra-nl{margin-top:10px;border-top:1px solid var(--ui-line);padding-top:6px}.ra-nl button{display:flex;gap:8px;width:100%;text-align:left;border:0;background:transparent;color:var(--ui-ink-2);font:inherit;font-size:14px;line-height:1.45;padding:7px 2px;cursor:pointer;border-radius:8px}
   .ra-nl button:hover{color:var(--ui-ink);background:var(--ui-surface-2)}.ra-nl button em{flex:0 0 auto;font-style:normal;font-size:11.5px;color:var(--ui-muted);padding-top:2px;min-width:56px}
   .ra-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:2px 0 12px}.ra-bar .sp{flex:1 1 auto}
@@ -399,7 +403,7 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
     return '<div class="ra-news"><div class="hd">📰 今日新闻<small>每天一篇热点 · ' + esc(NEWS.src || "") + (when ? " · " + esc(when) : "") + "</small></div>" +
       '<b class="tt" data-a="news">' + esc(NEWS.title) + '</b><div class="pv">' + esc(first) + "</div>" +
       '<div class="mt">' + w + " 词 · 约 " + Math.max(1, Math.round(w / WPM)) + " 分钟" + (d ? ' · <span class="ok">' + (pc >= 90 ? "✓ 读完了" : "读到 " + pc + "%") + "</span>" : "") + "</div>" +
-      '<div class="ra-row"><button class="ui-btn pri" data-a="news">' + (d ? "继续读 →" : "开始阅读 →") + '</button><button class="ui-btn" data-a="news-alt">🎲 换一篇</button>' +
+      '<div class="ra-row"><button class="ui-btn pri" data-a="news">' + (d ? "继续读 →" : "开始阅读 →") + '</button><button class="ui-btn" data-a="news-simp" title="AI 改写成 B1 难度（250–350 词），附 4 道理解题和文中生词；全家共用一份">' + (simpOf(NEWS) ? "✨ 读简单版" : simpBusy ? "✨ AI 改写中…" : "✨ 简单版 + 小测") + '</button><button class="ui-btn" data-a="news-alt">🎲 换一篇</button>' +
       ((NEWS.list || []).length ? '<button class="ui-btn" data-a="news-list">其它头条 ' + (newsList ? "▴" : "▾") + "</button>" : "") +
       (NEWS.url ? '<a class="src" href="' + esc(NEWS.url) + '" target="_blank" rel="noopener">原文 ↗</a>' : "") + "</div>" +
       (newsList ? '<div class="ra-nl">' + (NEWS.list || []).map((x, i) => '<button data-a="news-pick" data-i="' + i + '"><em>' + esc(x.s) + "</em><span>" + esc(x.t) + "</span></button>").join("") + "</div>" : "") + "</div>";
@@ -419,6 +423,31 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
     for (let k = 0; k < 3 && L.length; k++) { const x = L.splice(Math.floor(Math.random() * L.length), 1)[0]; newsTried.push(x.u); if (await newsFetch(x)) return; }
   }
   const newsRead = () => { if (NEWS) openDoc(NEWS.text, NEWS.title, newsId(NEWS)); };
+  // ✨ 简单版 + 读后小测（/api/ai task newsimp）：结果按文章 id 存本机「reading:newsq」（最多 20 篇）；简单版作为一篇文章打开（id 后面加 ":s"）
+  let simpBusy = false;
+  const simpAll = () => LG("reading:newsq", {}) || {};
+  const simpOf = n => n && simpAll()[newsId(n)];
+  const baseId = id => String(id || "").replace(/:s$/, "");
+  async function newsSimp() {
+    if (!NEWS) return; const have = simpOf(NEWS); if (have) { openDoc(have.simple, "（简单版）" + NEWS.title, newsId(NEWS) + ":s"); return; }
+    if (simpBusy) return; simpBusy = true; paintNews(); tip("AI 正在改写成简单版，大约半分钟…");
+    let j = null; try { const r = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "newsimp", url: NEWS.url, title: NEWS.title, text: NEWS.text }) }); j = await r.json(); } catch (e) { j = null; }
+    simpBusy = false;
+    if (!(j && j.ok && j.simple)) { paintNews(); tip(j && j.error === "noai" ? "AI 没开（Workers AI 绑定），用不了简单版" : "AI 改写失败了，过一会儿再试（可能今天的免费额度用完了）"); return; }
+    const A = simpAll(), id = newsId(NEWS); A[id] = { simple: j.simple, summary_zh: j.summary_zh || "", quiz: j.quiz || [], words: j.words || [], at: Date.now() };
+    const ks = Object.keys(A).sort((a, b) => (A[b].at || 0) - (A[a].at || 0)); ks.slice(20).forEach(k => delete A[k]); LS("reading:newsq", A);
+    paintNews(); if (view === "home") openDoc(j.simple, "（简单版）" + NEWS.title, id + ":s");
+  }
+  let quizPick = {};
+  function quizHtml() { // 新闻文章（原文或简单版）读到底下：读后小测 + 文中生词
+    const Q = doc && /^n:/.test(doc.id) && simpAll()[baseId(doc.id)]; if (!Q) return "";
+    const isS = /:s$/.test(doc.id), qs = (Q.quiz || []).map((q, qi) => { const pk = quizPick[doc.id + qi]; return '<div class="ra-qq"><b>' + (qi + 1) + ". " + esc(q.q) + "</b>" + q.opts.map((o, oi) => '<button data-a="qz" data-q="' + qi + '" data-o="' + oi + '" class="' + (pk == null ? "" : oi === +q.ans ? "ok" : oi === pk ? "bad" : "") + '">' + String.fromCharCode(65 + oi) + ". " + esc(o) + "</button>").join("") + (pk != null ? '<div class="why">' + (pk === +q.ans ? "✅ 对了。" : "❌ 正确答案是 " + String.fromCharCode(65 + +q.ans) + "。") + esc(q.why_zh || "") + "</div>" : "") + "</div>"; }).join("");
+    const n = (Q.quiz || []).length, got = (Q.quiz || []).filter((q, qi) => quizPick[doc.id + qi] === +q.ans).length, done = (Q.quiz || []).every((q, qi) => quizPick[doc.id + qi] != null);
+    return '<div class="ra-quiz"><h3>🧩 读后小测</h3><div class="sm">' + esc(Q.summary_zh || "") + (done ? "　<b>答对 " + got + " / " + n + "</b>" : "") + "</div>" + qs +
+      ((Q.words || []).length ? '<h3 style="margin-top:16px">🆕 原文里的生词</h3><div class="ra-kw">' + Q.words.map(w => "<span>" + esc(w.en) + "<small>" + esc(w.zh || "") + "</small></span>").join("") + '</div><div class="ra-row"><button class="ui-btn" data-a="kw-add">＋ 全部加入生词本</button></div>' : "") +
+      '<div class="ra-row"><button class="ui-btn" data-a="sw">' + (isS ? "📰 看原文" : "✨ 看简单版") + "</button></div></div>";
+  }
+  window.readingOpen = (text, title, id) => { init(); if (!root) return; openDoc(text, title, id); }; // 别的页面（📻 6 分钟英语的文稿）在阅读里打开一篇
   window.readingNews = () => { newsLoad(); if (NEWS) newsRead(); else newsOpenAfter = true; }; // 还没取到：取到后自动打开 // 「📅 每日一练」的「读」可以直接打开今天这篇
 
   function drawHome() {
@@ -442,7 +471,7 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
     root.classList.toggle("tr-on", trOn);
     root.innerHTML = '<div class="ra-bar"><button class="ui-btn" data-a="home">← 文章列表</button><span class="sp"></span><button class="ui-btn" data-a="link" title="复制这篇文章的直达链接">🔗 链接</button><button class="ui-btn' + (trOn ? " on" : "") + '" data-a="tr" title="显示 / 隐藏每段的中文译文">文 译文' + (trOn ? "：显示" : "：隐藏") + '</button><button class="ui-btn pri" data-a="all">' + (tts ? "⏹ 停止朗读" : "▶ 全文朗读") + "</button></div>" +
       '<h1 class="ra-title">' + esc(doc.title) + "</h1>" + trHtml("t", "ra-ttr") + '<div class="ra-stats" id="ra-stats">' + statsHtml() + "</div>" +
-      '<div class="ra-body" id="ra-body">' + body + '</div><div class="ra-end"><button class="ui-btn" data-a="home">读完了，回到文章列表</button></div>' +
+      '<div class="ra-body" id="ra-body">' + body + "</div>" + quizHtml() + '<div class="ra-end"><button class="ui-btn" data-a="home">读完了，回到文章列表</button></div>' +
       '<button id="ra-fab" data-a="all">⏹ 停止朗读</button>';
     syncTts(); fillTr();
   }
@@ -569,6 +598,10 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
       if (a === "open") { const d = docs().find(x => x.id === b.dataset.id); if (d) openDoc(d.text, d.title, d.id); return; }
       if (a === "news") { newsRead(); return; }
       if (a === "news-alt") { newsAlt(); return; }
+      if (a === "news-simp") { newsSimp(); return; }
+      if (a === "qz") { const k = doc.id + b.dataset.q; if (quizPick[k] == null) { quizPick[k] = +b.dataset.o; const y = window.scrollY; drawRead(); window.scrollTo(0, y); } return; }
+      if (a === "kw-add") { const Q = simpAll()[baseId(doc.id)]; if (!Q || !window.vocabAddWord) return; b.disabled = true; b.textContent = "加入中…"; (async () => { let n = 0; for (const w of Q.words || []) { const sent = P.sents.find(x => x.toLowerCase().includes(String(w.en).toLowerCase())) || ""; try { if (await window.vocabAddWord(w.en, sent)) n++; } catch (e) {} } b.textContent = "已加入 " + n + " 个"; })(); return; }
+      if (a === "sw") { const Q = simpAll()[baseId(doc.id)], bid = baseId(doc.id); if (!Q) return; if (/:s$/.test(doc.id)) { const d = docs().find(x => x.id === bid); if (d) openDoc(d.text, d.title, d.id); else if (NEWS && newsId(NEWS) === bid) newsRead(); } else openDoc(Q.simple, "（简单版）" + doc.title, bid + ":s"); return; }
       if (a === "news-list") { newsList = !newsList; paintNews(); return; }
       if (a === "news-retry") { newsLoad(true); return; }
       if (a === "news-pick") { const x = NEWS && NEWS.list && NEWS.list[+b.dataset.i]; if (x) newsFetch(x).then(ok => { if (ok) newsRead(); }); return; }
