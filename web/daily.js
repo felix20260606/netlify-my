@@ -3,7 +3,7 @@
        🔤 背单词：pump:log[今天].n（「🔊 练习」每做一张卡 +1）≥ 目标张数
        🎧 听：「🔊 练习」里今天做了 10 张听力 / 听写卡（pump:log[今天].ls），或口语「🎬 原声跟读」今天练过一条（speak:done 里 v: 开头的时间是今天）；用别的方式听过可以手动打勾
        🗣 说：口语「📅 每日一练」今天打卡（speak:days[今天]）
-       📖 读：「📰 阅读」今天打开过一篇（reading:docs 里 at 是今天）
+       📖 读：「📰 阅读」今天打开过一篇（reading:docs 里 at 是今天）；「去练」直接打开阅读页最上面的「📰 今日新闻」
        ✍️ 写：「📝 写作批改」今天批改过一篇（writing:history 里 at 是今天）
    - 本机存：daily:opt（开哪几项、单词目标）、daily:check（手动打勾，按天）、daily:days（每天完成几项 / 共几项，算连续天数和 7 天小格子）
    - 去练了某项之后，页面左下角有「📅 每日一练 2/5」小按钮，点一下回来 */
@@ -30,6 +30,7 @@
     click($("l1-en")); click($("tab-speak"));
     let n = 0; const t = setInterval(() => { const b = document.querySelector('#view-speak [data-sec="' + sec + '"]'); if (b) { if (!b.classList.contains("on")) b.click(); clearInterval(t); } else if (++n > 30) clearInterval(t); }, 100);
   }
+  function toNews() { toNotebook("reading"); setTimeout(() => { if (window.readingNews) window.readingNews(); }, 60); }
   function toWrite() { click($("l1-en")); click($("tab-ielts")); setTimeout(() => click($("ielts-t-write")), 0); }
 
   // ---------- 今天的任务 ----------
@@ -45,7 +46,7 @@
       { id: "word", ic: "🔤", t: "背单词", sub: "在「🔊 练习」里复习、学新词，做满 " + o.word + " 张卡", prog: Math.min(pn, o.word) + " / " + o.word + " 张", pct: pn / o.word, auto: pn >= o.word, go: () => toNotebook("pump"), min: Math.round(o.word / 2) },
       { id: "listen", ic: "🎧", t: "听", sub: "「🔊 练习」里做 10 张听力 / 听写卡，或者去口语「🎬 原声跟读」听一段真人原声并跟读；看了英文视频也可以自己打勾", prog: [ls ? "听力卡 " + Math.min(ls, 10) + " / 10" : "", vToday ? "原声 " + vToday + " 条" : ""].filter(Boolean).join(" · "), pct: vToday ? 1 : ls / 10, auto: vToday > 0 || ls >= 10, go: () => toSpeak("clip"), min: 5 },
       { id: "speak", ic: "🗣", t: "说", sub: "口语「📅 每日一练」：1 段情景对话 + 跟读 5 句 + 说 1 个话题", prog: sday ? "今天已打卡" : slog ? "今天练了 " + slog + " 次，还没打卡" : "", pct: sday ? 1 : Math.min(.9, slog / 7), auto: sday, go: () => toSpeak("daily"), min: 15 },
-      { id: "read", ic: "📖", t: "读", sub: "在「📰 阅读」里读一篇短文（自带文章，或者粘贴网址、文字），点不认识的词查意思、收进生词本", prog: rd.length ? "今天读了：" + rd.map(d => d.title).slice(0, 2).join("、") : "", pct: rd.length ? 1 : 0, auto: rd.length > 0, go: () => toNotebook("reading"), min: 10 },
+      { id: "read", ic: "📖", t: "读", sub: "读「📰 今日新闻」（每天一篇 BBC / Guardian 热点），或者阅读里任意一篇；点不认识的词查意思、收进生词本", prog: rd.length ? "今天读了：" + rd.map(d => d.title).slice(0, 2).join("、") : "", pct: rd.length ? 1 : 0, auto: rd.length > 0, go: toNews, min: 10 },
       { id: "write", ic: "✍️", t: "写", sub: "在「📝 写作批改」写一段（用今天背的词写 3–5 句也行），交给它批改", prog: wr.length ? "今天批改了 " + wr.length + " 篇" : "", pct: wr.length ? 1 : 0, auto: wr.length > 0, go: toWrite, min: 10 },
     ].filter(x => o.on[x.id]);
     L.forEach(x => { x.man = !!man[x.id]; x.ok = x.auto || x.man; });
@@ -119,7 +120,7 @@
   }
   function go(id) {
     const x = tasks().find(t => t.id === id) || { id }; went = true;
-    ({ word: () => toNotebook("pump"), listen: () => toSpeak("clip"), speak: () => toSpeak("daily"), read: () => toNotebook("reading"), write: toWrite })[id]();
+    ({ word: () => toNotebook("pump"), listen: () => toSpeak("clip"), speak: () => toSpeak("daily"), read: toNews, write: toWrite })[id]();
     paintBack();
     try { window.scrollTo(0, 0); } catch (e) {}
     return x;

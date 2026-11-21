@@ -37,7 +37,7 @@
 // 五、例句 /api/sent?w=单词（网站「🔊 练习」用：像 PhrasePump 一样每次换几句例句听）
 //   → { ok, w, items:[{en, zh}] }，来自 Tatoeba 例句库（只要 14 个词以内、带中文翻译、确实包含这个词的），在 KV 里缓存 30 天（"s/单词"）
 //   GET ?pump=数量 → 随机的额外句子（5–12 个词、带中文），练习名额没用完时补满（同 PhrasePump 的「pump」），不缓存
-// 七、查词 /api/dict、抓文章 /api/readurl、AI 写作评分 /api/ai、语音转文字 /api/stt、AI 语音 /api/tts：见各自函数上面的说明
+// 七、查词 /api/dict、抓文章 /api/readurl、今日新闻 /api/news、AI 写作评分 /api/ai、语音转文字 /api/stt、AI 语音 /api/tts：见各自函数上面的说明
 //   生词本回收站：GET /api/vocab?trash=1 → { items:[{e 词条, at 删除时间}] }（30 天，按人分开）；POST {untrash:id} 从回收站拿掉
 const API_PATHS = ["/api/cap"], VOCAB_PATH = "/api/vocab", VOCAB_KEY = "vocab", EXT_PATH = "/api/ext", EXT_KEY = "ext", MEDIA_PATH = "/api/media", SENT_PATH = "/api/sent";
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type,x-key", "access-control-allow-methods": "GET,POST,DELETE,OPTIONS" } });
@@ -383,12 +383,17 @@ async function dict(req, env, u) {
 // ---------- 抓文章正文 /api/readurl?url=… （「📰 阅读」用）→ { ok, title, text }：只取标题和正文段落（p、h1–h3、li、blockquote），不存 ----------
 async function readurl(req, env, u) {
   if (req.method === "OPTIONS") return json({ ok: true });
-  let t; try { t = new URL(u.searchParams.get("url") || ""); } catch (e) { return json({ ok: false, error: "bad url" }, 400); }
-  if (!/^https?:$/.test(t.protocol)) return json({ ok: false, error: "bad url" }, 400);
+  const x = await extractArticle(u.searchParams.get("url") || "");
+  return x.ok ? json(x) : json({ ok: false, error: x.error }, x.status || 500);
+}
+// 抓网页、抽出标题和正文 → {ok, title, text, url} 或 {ok:false, error, status}（/api/readurl 和 /api/news 共用）
+async function extractArticle(url) {
+  let t; try { t = new URL(url); } catch (e) { return { ok: false, error: "bad url", status: 400 }; }
+  if (!/^https?:$/.test(t.protocol)) return { ok: false, error: "bad url", status: 400 };
   try {
     const r = await fetch(t.toString(), { headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36", "Accept": "text/html" }, redirect: "follow" });
-    if (!r.ok) return json({ ok: false, error: "http " + r.status }, 502);
-    if (!/html/i.test(r.headers.get("content-type") || "")) return json({ ok: false, error: "not html" }, 415);
+    if (!r.ok) return { ok: false, error: "http " + r.status, status: 502 };
+    if (!/html/i.test(r.headers.get("content-type") || "")) return { ok: false, error: "not html", status: 415 };
     let title = "", og = "", skip = 0, cur = null; const blocks = [];
     const B = { element(el) { if (skip) return; cur = { t: el.tagName, s: "" }; blocks.push(cur); el.onEndTag(() => { cur = null; }); }, text(x) { if (cur && !skip) cur.s += x.text; } };
     const SK = { element(el) { skip++; el.onEndTag(() => { skip--; }); } };
@@ -399,11 +404,55 @@ async function readurl(req, env, u) {
       .on("p,h1,h2,h3,li,blockquote", B)
       .transform(r).arrayBuffer();
     const dec = s => s.replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&#x27;|&rsquo;|&lsquo;/g, "'").replace(/&ldquo;|&rdquo;/g, '"').replace(/&mdash;/g, "—").replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n)).replace(/\s+/g, " ").trim();
-    const paras = blocks.map(b => ({ t: b.t, s: dec(b.s) })).filter(b => b.s && (b.t[0] === "h" || b.s.split(" ").length >= (b.t === "li" ? 6 : 5)));
+    const paras = blocks.map(b => ({ t: b.t, s: dec(b.s) })).filter(b => b.s && !/<iframe|^Embed\b/i.test(b.s) && (b.t[0] === "h" || b.s.split(" ").length >= (b.t === "li" ? 6 : 5)));
     const text = paras.map(b => b.s).join("\n\n").slice(0, 60000);
-    if (text.split(/\s+/).length < 40) return json({ ok: false, error: "no article text" }, 422);
-    return json({ ok: true, title: dec(og || title).slice(0, 200), text, url: t.toString() });
-  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+    if (text.split(/\s+/).length < 40) return { ok: false, error: "no article text", status: 422 };
+    return { ok: true, title: dec(og || title).slice(0, 200), text, url: t.toString() };
+  } catch (e) { return { ok: false, error: String(e && e.message || e), status: 500 }; }
+}
+
+// ---------- 今日新闻 /api/news?d=YYYY-MM-DD （「📰 阅读」顶部「每天一篇」）→ { ok, date, src, url, title, text, words, pub, list:[{t, u, s, p}] } ----------
+// 从 BBC / Guardian / NPR 的 RSS 取最近两天的头条，按日期「随机」排（同一天大家拿到同一篇），挑第一篇能抓到 250–1500 词正文的；
+// 结果存 KV「news/日期」3 天（不分家人）。list 是当天其它头条（「换一篇」「其它头条」用，前端再走 /api/readurl 抓正文）。?fresh=1 不用缓存重新挑
+const NEWS_FEEDS = [
+  ["BBC", "https://feeds.bbci.co.uk/news/world/rss.xml"], ["BBC", "https://feeds.bbci.co.uk/news/rss.xml"],
+  ["BBC", "https://feeds.bbci.co.uk/news/technology/rss.xml"], ["BBC", "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml"],
+  ["Guardian", "https://www.theguardian.com/world/rss"], ["Guardian", "https://www.theguardian.com/science/rss"], ["Guardian", "https://www.theguardian.com/technology/rss"],
+  ["NPR", "https://feeds.npr.org/1001/rss.xml"],
+];
+function rssItems(xml, src) {
+  const dec = s => String(s || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&apos;|&#x27;/g, "'").replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n)).replace(/\s+/g, " ").trim();
+  const tag = (x, n) => { const m = x.match(new RegExp("<" + n + "(?:\\s[^>]*)?>([\\s\\S]*?)</" + n + ">")); return m ? dec(m[1]) : ""; };
+  return (xml.match(/<item[\s>][\s\S]*?<\/item>/g) || []).map(x => {
+    let u = tag(x, "link"); if (src === "BBC") u = u.replace(/\?.*$/, "");
+    return { t: tag(x, "title"), u, s: src, p: Date.parse(tag(x, "pubDate")) || 0 };
+  }).filter(i => i.t && /^https:\/\//.test(i.u) && !/\/(videos?|live|sounds|av|audio|gallery|picture|in-pictures|ng-interactive)\//.test(i.u));
+}
+const newsDay = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+async function news(req, env, u) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(u.searchParams.get("d") || "") ? u.searchParams.get("d") : newsDay(), key = "news/" + d;
+  if (!u.searchParams.get("fresh")) { const c = await env.CAPTIONS.get(key, "json"); if (c) return json(c); }
+  const UA = { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36" };
+  const got = await Promise.all(NEWS_FEEDS.map(([s, f]) => fetch(f, { headers: UA }).then(r => (r.ok ? r.text() : "")).then(x => rssItems(x, s)).catch(() => [])));
+  const now = Date.now(), seen = new Set(); let all = [];
+  for (const L of got) for (const i of L) { const k = i.t.toLowerCase(); if (seen.has(k) || seen.has(i.u)) continue; seen.add(k); seen.add(i.u); all.push(i); }
+  const within = h => all.filter(i => i.p && now - i.p < h * 3600e3), r2 = within(48); all = r2.length >= 8 ? r2 : within(7 * 24); // 最近两天的；太少就放宽到一周，更旧的不要
+  const h = s => { let x = 2166136261; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; };
+  all.sort((a, b) => h(d + a.u) - h(d + b.u));
+  if (!all.length) return json({ ok: false, error: "no feeds" }, 502);
+  let pick = null;
+  for (const i of all.slice(0, 8)) {
+    const x = await extractArticle(i.u); if (!x.ok) continue;
+    const n = x.text.split(/\s+/).length; if (n < 250) continue;
+    let text = x.text.replace(/^[^\n]{0,200}\n\n/, m => (/[.!?"”]\s*$/.test(m.trim()) ? m : "")); // 第一段是标题（没有句号）就去掉，免得读两遍
+    if (n > 1500) { const P = text.split("\n\n"), out = []; let c = 0; for (const p of P) { if (c > 1200) break; out.push(p); c += p.split(/\s+/).length; } text = out.join("\n\n"); }
+    pick = { src: i.s, url: i.u, title: i.t || x.title, text, words: text.split(/\s+/).length, pub: i.p }; break;
+  }
+  if (!pick) return json({ ok: false, error: "no article" }, 502);
+  const out = { ok: true, date: d, ...pick, list: all.filter(i => i.u !== pick.url).slice(0, 15).map(({ t, u, s, p }) => ({ t, u, s, p })) };
+  await env.CAPTIONS.put(key, JSON.stringify(out), { expirationTtl: 3 * 86400 });
+  return json(out);
 }
 
 // ---------- AI（Cloudflare Workers AI，免费额度每天 1 万 neurons；要在 Pages 项目「设置 → 绑定」里加 Workers AI，变量名 AI）----------
@@ -572,6 +621,7 @@ export default {
     if (u.pathname === "/api/dict") return dict(req, env, u);
     if (u.pathname === "/api/mine") return mine(req, env, u);
     if (u.pathname === "/api/readurl") return readurl(req, env, u);
+    if (u.pathname === "/api/news") return news(req, env, u);
     if (u.pathname === "/api/ai") return ai(req, env);
     if (u.pathname === "/api/stt") return stt(req, env);
     if (u.pathname === "/api/tts") return tts(req, env, u, ctx);

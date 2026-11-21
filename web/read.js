@@ -7,7 +7,9 @@
    - 译文：阅读栏「译文」按钮显示 / 隐藏每段下面的中文（记在本机「reading:trOn」）；按段翻译（浏览器直接调谷歌翻译，失败退到 MyMemory），
      译好的存在本机「reading:tr」（{文章 id: {段号: 中文, t: 标题中文}}，只留「我的文章」里还在的），再打开不用重新翻
    依赖 index.html 的全局：words / speak / toast；生词本加词用 window.vocabAddWord(word, sentence)
-   依赖后台：GET /api/readurl?url=… → {ok, title, text}；GET /api/dict?w=… → {ok, word, phon, zh, en, examples:[[en, zh]]}；
+   - 📰 今日新闻（首页最上面，每天一篇）：GET /api/news?d=今天 → 后台从 BBC / Guardian / NPR 的头条里按日期挑一篇（同一天家里人拿到同一篇），
+     本机记在「reading:news」；「🎲 换一篇」「其它头条」从当天的头条列表里另抓一篇（/api/readurl）；读过的进「我的文章」（id = "n:" + 网址哈希）
+   依赖后台：GET /api/readurl?url=… → {ok, title, text}；GET /api/news?d=… → {ok, date, src, url, title, text, words, list}；GET /api/dict?w=… → {ok, word, phon, zh, en, examples:[[en, zh]]}；
             GET /api/ext（只读，取插件设置里的词汇水平，和 watch.js 同一个接口） */
 (function () {
   "use strict";
@@ -154,6 +156,13 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
   .ra-it .del{flex:0 0 auto;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-muted);border-radius:9px;height:32px;padding:0 10px;font:inherit;font-size:13px;cursor:pointer}.ra-it .del:hover{color:var(--ui-red);border-color:var(--ui-red-line)}
   .ra-it>i{font-style:normal;font-size:22px;color:var(--ui-muted)}
   .ra-empty{color:var(--ui-muted);font-size:14px;padding:14px 2px}
+  .ra-news{background:linear-gradient(135deg,color-mix(in srgb,var(--ui-pur) 16%,var(--ui-surface)),var(--ui-surface));border:1px solid color-mix(in srgb,var(--ui-pur) 40%,var(--ui-line));border-radius:16px;padding:14px 16px;margin-bottom:14px}
+  .ra-news .hd{font-size:13px;font-weight:800;color:var(--ui-pur-text);letter-spacing:.02em}.ra-news .hd small{margin-left:6px;font-weight:500;color:var(--ui-muted)}
+  .ra-news .tt{display:block;margin:6px 0 4px;font-size:19px;line-height:1.4;color:var(--ui-ink);cursor:pointer}.ra-news .pv{color:var(--ui-ink-2);font-size:14px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .ra-news .mt{margin-top:6px;font-size:12.5px;color:var(--ui-muted)}.ra-news .mt .ok{color:var(--ui-green,#3fb37f);font-weight:700}
+  .ra-news a.src{color:var(--ui-muted);font-size:13px;text-decoration:none;margin-left:auto}.ra-news a.src:hover{color:var(--ui-ink)}
+  .ra-nl{margin-top:10px;border-top:1px solid var(--ui-line);padding-top:6px}.ra-nl button{display:flex;gap:8px;width:100%;text-align:left;border:0;background:transparent;color:var(--ui-ink-2);font:inherit;font-size:14px;line-height:1.45;padding:7px 2px;cursor:pointer;border-radius:8px}
+  .ra-nl button:hover{color:var(--ui-ink);background:var(--ui-surface-2)}.ra-nl button em{flex:0 0 auto;font-style:normal;font-size:11.5px;color:var(--ui-muted);padding-top:2px;min-width:56px}
   .ra-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:2px 0 12px}.ra-bar .sp{flex:1 1 auto}
   .ra-title{margin:4px 0 10px;font-size:26px;line-height:1.35;color:var(--ui-ink)}
   .ra-stats{background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:14px;padding:12px 14px;margin-bottom:18px}
@@ -370,12 +379,56 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
 
   /* ---------- 画页面 ---------- */
   const fmtAt = t => { const d = new Date(t), n = new Date(); if (isNaN(d)) return ""; const hm = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); return d.toDateString() === n.toDateString() ? "今天 " + hm : d.getMonth() + 1 + "月" + d.getDate() + "日" + (d.getFullYear() !== n.getFullYear() ? "（" + d.getFullYear() + "）" : ""); };
+  /* ---------- 📰 今日新闻 ---------- */
+  const nday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // 和后台同一个「今天」（吉隆坡 / 北京时间）
+  const hashU = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); };
+  const newsId = n => "n:" + hashU(n.url || n.title || "");
+  let NEWS = null, newsBusy = false, newsErr = "", newsList = false, newsTried = [];
+  function newsLoad(force) {
+    const c = LG("reading:news", null);
+    if (!force && c && c.date === nday() && c.text) { NEWS = c; return; }
+    if (newsBusy) return; newsBusy = true; newsErr = ""; paintNews();
+    fetch("/api/news?d=" + nday()).then(r => r.json()).then(j => { newsBusy = false; if (j && j.ok && j.text) { NEWS = j; LS("reading:news", j); } else newsErr = "今天的新闻还没取到，过一会儿再试"; paintNews(); })
+      .catch(() => { newsBusy = false; newsErr = "今天的新闻没取到（网络问题）"; paintNews(); });
+  }
+  function newsHtml() {
+    if (!NEWS) return '<div class="ra-news"><div class="hd">📰 今日新闻</div><div class="mt">' + (newsBusy ? "正在挑今天的热点新闻…" : esc(newsErr || "")) + (newsErr ? ' <button class="ui-btn" data-a="news-retry">重试</button>' : "") + "</div></div>";
+    const d = docs().find(x => x.id === newsId(NEWS)), p = d ? parse(d.text) : null, n = p ? p.sents.length : 0, pc = d && n > 1 ? Math.min(100, Math.round(((d.pos || 0) / (n - 1)) * 100)) : 0;
+    const first = splitSents(splitParas(NEWS.text)[0] || "")[0] || "", w = NEWS.words || wordCount(NEWS.text);
+    const when = NEWS.pub ? fmtAt(NEWS.pub) : "";
+    return '<div class="ra-news"><div class="hd">📰 今日新闻<small>每天一篇热点 · ' + esc(NEWS.src || "") + (when ? " · " + esc(when) : "") + "</small></div>" +
+      '<b class="tt" data-a="news">' + esc(NEWS.title) + '</b><div class="pv">' + esc(first) + "</div>" +
+      '<div class="mt">' + w + " 词 · 约 " + Math.max(1, Math.round(w / WPM)) + " 分钟" + (d ? ' · <span class="ok">' + (pc >= 90 ? "✓ 读完了" : "读到 " + pc + "%") + "</span>" : "") + "</div>" +
+      '<div class="ra-row"><button class="ui-btn pri" data-a="news">' + (d ? "继续读 →" : "开始阅读 →") + '</button><button class="ui-btn" data-a="news-alt">🎲 换一篇</button>' +
+      ((NEWS.list || []).length ? '<button class="ui-btn" data-a="news-list">其它头条 ' + (newsList ? "▴" : "▾") + "</button>" : "") +
+      (NEWS.url ? '<a class="src" href="' + esc(NEWS.url) + '" target="_blank" rel="noopener">原文 ↗</a>' : "") + "</div>" +
+      (newsList ? '<div class="ra-nl">' + (NEWS.list || []).map((x, i) => '<button data-a="news-pick" data-i="' + i + '"><em>' + esc(x.s) + "</em><span>" + esc(x.t) + "</span></button>").join("") + "</div>" : "") + "</div>";
+  }
+  function paintNews() { const el = root && root.querySelector("#ra-newsbox"); if (el) el.innerHTML = newsHtml(); }
+  async function newsFetch(x) { // 抓当天列表里的另一篇，成了就换成「今日新闻」
+    if (fetching) return false; fetching = true; tip("正在抓取：" + x.t);
+    let j = null; try { const r = await fetch("/api/readurl?url=" + encodeURIComponent(x.u)); j = await r.json(); } catch (e) { j = null; }
+    fetching = false;
+    if (!(j && j.ok && j.text && wordCount(j.text) >= 120)) { tip("这篇抓不到正文，换一篇试试"); return false; }
+    const text = j.text.replace(/^[^\n]{0,200}\n\n/, m => (/[.!?"”]\s*$/.test(m.trim()) ? m : "")); // 第一段是标题就去掉
+    NEWS = Object.assign({}, NEWS, { src: x.s, url: x.u, title: x.t || j.title, text, words: wordCount(text), pub: x.p, list: (NEWS.list || []).filter(y => y.u !== x.u).concat(NEWS.url ? [{ t: NEWS.title, u: NEWS.url, s: NEWS.src, p: NEWS.pub }] : []) });
+    LS("reading:news", NEWS); newsList = false; paintNews(); return true;
+  }
+  async function newsAlt() {
+    const L = (NEWS && NEWS.list || []).filter(x => !newsTried.includes(x.u)); if (!L.length) { newsTried = []; tip("今天的头条都换过一遍了"); return; }
+    for (let k = 0; k < 3 && L.length; k++) { const x = L.splice(Math.floor(Math.random() * L.length), 1)[0]; newsTried.push(x.u); if (await newsFetch(x)) return; }
+  }
+  const newsRead = () => { if (NEWS) openDoc(NEWS.text, NEWS.title, newsId(NEWS)); };
+  window.readingNews = () => { newsLoad(); if (NEWS) newsRead(); }; // 「📅 每日一练」的「读」可以直接打开今天这篇
+
   function drawHome() {
     const L = docs();
     const mine = L.length ? '<div class="ra-grid">' + L.map(d => { const p = parse(d.text), n = p.sents.length, pc = n > 1 ? Math.round(((d.pos || 0) / (n - 1)) * 100) : 0;
       return '<div class="ra-it" data-a="open" data-id="' + esc(d.id) + '"><div class="t"><b>' + esc(d.title || "未命名文章") + "</b><span>" + esc(fmtAt(d.at)) + " · " + wordCount(d.text) + " 词" + (pc > 0 ? " · 读到 " + Math.min(100, pc) + "%" : "") + '</span></div><button class="del" data-a="del" data-id="' + esc(d.id) + '">删除</button><i>›</i></div>'; }).join("") + "</div>"
       : '<div class="ra-empty">还没有读过的文章。粘贴一篇，或者先读下面的示例。</div>';
+    newsLoad();
     root.innerHTML = '<div class="ra-head"><h2>📰 阅读</h2><span>粘贴英文文章或网址，点词查词，一键加入生词本</span></div>' +
+      '<div id="ra-newsbox">' + newsHtml() + "</div>" +
       '<div class="ra-card"><textarea id="ra-text" placeholder="把英文文章粘贴到这里…（直接粘贴网址也行）">' + esc(draft) + "</textarea>" +
       '<div class="ra-row"><input id="ra-url" inputmode="url" placeholder="或者填文章网址 https://…" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(urlDraft) + '"><button class="ui-btn" data-a="url">抓取</button></div>' +
       '<div class="ra-msg' + (msgOk ? " ok" : "") + '" id="ra-msg">' + esc(msg) + '</div><div class="ra-row end"><button class="ui-btn pri" data-a="go">开始阅读 →</button></div></div>' +
@@ -514,6 +567,11 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
       const b = t.closest("[data-a]"); if (!b) return; const a = b.dataset.a;
       if (a === "del") { e.stopPropagation(); const L = docs(), d = L.find(x => x.id === b.dataset.id); if (!d || !confirm("删除「" + (d.title || "这篇文章") + "」？只删这台设备上的记录。")) return; saveDocs(L.filter(x => x.id !== d.id)); if (doc && doc.id === d.id) doc = null; draw(); return; }
       if (a === "open") { const d = docs().find(x => x.id === b.dataset.id); if (d) openDoc(d.text, d.title, d.id); return; }
+      if (a === "news") { newsRead(); return; }
+      if (a === "news-alt") { newsAlt(); return; }
+      if (a === "news-list") { newsList = !newsList; paintNews(); return; }
+      if (a === "news-retry") { newsLoad(true); return; }
+      if (a === "news-pick") { const x = NEWS && NEWS.list && NEWS.list[+b.dataset.i]; if (x) newsFetch(x).then(ok => { if (ok) newsRead(); }); return; }
       if (a === "sample") { const s = SAMPLES.find(x => x.id === b.dataset.id); if (s) openDoc(s.text, s.title, s.id); return; }
       if (a === "url") { urlDraft = (root.querySelector("#ra-url") || {}).value || ""; fromUrl(urlDraft); return; }
       if (a === "go") {
