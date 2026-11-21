@@ -11,7 +11,7 @@
 | `web/` | 网站，部署到 <https://ruilearning-my.pages.dev>（生词本、🎬 视频、减脂、旅游等；后台接口 `_worker.js`）。本地说明见 `web/README.txt`。全站界面统一用 `web/theme.css`（深色 + 紫色，和插件同一套配色） |
 | `extension/` | 浏览器插件「双语字幕 · 生词收集」（图标为 BAN）（Manifest V3，Chrome / Brave / Edge） |
 | `web/vs/` | 插件和网站共用的上色、语法、句型、注释模块（`bash tools/sync-shared.sh` 从 `extension/` 复制，别直接改） |
-| `tools/` | 小工具：`sync-shared.sh`（同步共用模块）、`update-channels.py`（更新频道地图）、`gen-tts.mjs`（生成口语 AI 语音） |
+| `tools/` | 小工具：`sync-shared.sh`（同步共用模块）、`update-channels.py`（更新频道地图）、`gen-tts.mjs`（预先生成全站 AI 真人语音） |
 | `site/` | 书签小工具的源码 `bookmarklet.src.js` 和安装页 `install-bookmarklet.html` |
 | `tests/` | Playwright 回归测试脚本（加载插件 + 模拟的 YouTube 页面） |
 | `data/` | 自动备份：`vocab.json`（生词本）、`captions/`（视频字幕），由 `.github/workflows/backup-vocab.yml` 每 6 小时更新 |
@@ -582,9 +582,13 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 每周   → 📼 我的录音看分数曲线；考雅思做一次 🎓 模拟考
 ```
 
-朗读默认用 AI 真人声（Workers AI Deepgram Aura，页头可切回系统声）：固定句子由 GitHub Actions 每天预先生成一批 `web/tts/*.mp3`（`tools/gen-tts.mjs`），AI 回复现场生成（`/api/tts`），没生成或出错时用系统语音。
+朗读默认用 AI 真人声（Workers AI Deepgram Aura；全站一样，见下面「AI 真人语音」）。
 
 每句话都是 🔊 听 → 🐢 慢速 → 🎙 跟读（说完点 ⏹）→ 看读对 / 漏读的词和百分比 → ▶ 回放。要允许浏览器用麦克风；打分先用后台 Workers AI 转文字，不行再用浏览器自带的语音识别（Brave 不行）。练习记录、聊天记录、录音存云端，按家人分开。每一栏的用法、7 天计划、数据存在哪见 `流程说明.md`「口语：怎么用（流程）」。
+
+### AI 真人语音
+
+网站所有 🔊（生词本、练习、语法、阅读点单句、口语、雅思笔记、减脂、价格页）默认用 AI 真人声（Workers AI Deepgram Aura-1），代码 `web/tts.js`：预先生成好的固定内容播 `web/tts/*.mp3`（不花额度）→ 还没生成的固定内容先用系统语音 → 其它句子现场请求 `/api/tts` → 都不行再用系统语音。练习里有视频原声的卡片仍先放原声；阅读「全文朗读」用系统语音。切换：练习右上角 ⚙「朗读语音」（或口语页头）。固定内容（口语句子、生词本的词和例句、雅思笔记，约 16 万个字母）由 GitHub Actions（`.github/workflows/tts.yml` + `tools/gen-tts.mjs`）每天生成一批，免费额度下约 4 周做完，之后每天补新生词。细节和额度见 `流程说明.md`「AI 真人语音（全站朗读）」。
 
 ### 生词怎么同步
 
