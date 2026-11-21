@@ -859,7 +859,8 @@
     /* 导航：触摸区域 */
     #apptabs button{min-height:44px}
     .subgrp{gap:2px;height:100%;justify-content:flex-start}
-    .subgrp button{height:42px;min-width:0;padding:0 8px;font-size:13.5px}
+    .subgrp button{height:42px;min-width:0;padding:0 4px;font-size:13px}
+    #subtabs{padding-left:calc(8px + var(--sal,0px));padding-right:calc(8px + var(--sar,0px))}
     .modes button{min-height:44px;padding:0;white-space:nowrap}
     .modes{display:grid;grid-template-columns:repeat(4,1fr)} /* 4 个模式：统计 / 练习 / 已保存 / 列表，手机上一行 */
     .cats button{min-height:44px}
@@ -1752,8 +1753,8 @@ refresh(); // show seed words immediately, no waiting on storage
   window.enShow=show;
   // 生词本的模式按钮被点了（包括每日一练、统计页、#article 链接直接点模式按钮跳过来）：上面的标签跟着变
   window.enSync=function(m){
-    if(VOCAB_MODES.test(m)){try{localStorage.setItem('vocab_mode_v',m);}catch(e){}}
-    if(busy||!EN_PAGE[CUR]||root.classList.contains('show-video'))return;
+    if(busy||!EN_PAGE[CUR]||root.classList.contains('show-video')){if(CUR==='notebook'&&VOCAB_MODES.test(m)){try{localStorage.setItem('vocab_mode_v',m);}catch(e){}}return;}
+    if(VOCAB_MODES.test(m)&&!(m==='pump'&&CUR==='listen')){try{localStorage.setItem('vocab_mode_v',m);}catch(e){}} // 「📖 词汇」记住上次的模式（听力练习不算）
     if(m==='reading'){if(CUR!=='read')show('read');return;}
     if(m==='grammar'||m==='writing'){var sb=m==='grammar'?'grammar':'writing';if(CUR!=='write'||getSub('write')!==sb)show('write',sb);return;}
     if(m==='pump'&&CUR==='listen')return;
