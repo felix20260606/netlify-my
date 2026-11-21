@@ -1,7 +1,7 @@
 /* 📅 每日一练（英语 → 第一个标签）：把每天该做的「词 · 听 · 说 · 读 · 写」排成一张清单，点「去练」直接跳到那个模块，做完自动打勾
    - 自动打勾用各模块自己记的数据（不另外记）：
        🔤 背单词：pump:log[今天].n（「🔊 练习」每做一张卡 +1）≥ 目标张数
-       🎧 听：口语「🎬 原声跟读」今天练过一条（speak:done 里 v: 开头的时间是今天）；用别的方式听过可以手动打勾
+       🎧 听：「🔊 练习」里今天做了 10 张听力 / 听写卡（pump:log[今天].ls），或口语「🎬 原声跟读」今天练过一条（speak:done 里 v: 开头的时间是今天）；用别的方式听过可以手动打勾
        🗣 说：口语「📅 每日一练」今天打卡（speak:days[今天]）
        📖 读：「📰 阅读」今天打开过一篇（reading:docs 里 at 是今天）
        ✍️ 写：「📝 写作批改」今天批改过一篇（writing:history 里 at 是今天）
@@ -35,7 +35,7 @@
   // ---------- 今天的任务 ----------
   function tasks() {
     const o = opt(), today = lday();
-    const plog = (LG("pump:log", {})[today] || {}), pn = +plog.n || 0;
+    const plog = (LG("pump:log", {})[today] || {}), pn = +plog.n || 0, ls = +plog.ls || 0;
     const sdone = LG("speak:done", {}), vToday = Object.keys(sdone).filter(k => /^v:/.test(k) && isToday(sdone[k])).length;
     const sday = !!LG("speak:days", {})[kday()], slog = +(LG("speak:log", {})[kday()] || 0);
     const docs = LG("reading:docs", []), rd = (Array.isArray(docs) ? docs : []).filter(d => isToday(d.at));
@@ -43,7 +43,7 @@
     const man = (LG("daily:check", {})[today]) || {};
     const L = [
       { id: "word", ic: "🔤", t: "背单词", sub: "在「🔊 练习」里复习、学新词，做满 " + o.word + " 张卡", prog: Math.min(pn, o.word) + " / " + o.word + " 张", pct: pn / o.word, auto: pn >= o.word, go: () => toNotebook("pump"), min: Math.round(o.word / 2) },
-      { id: "listen", ic: "🎧", t: "听", sub: "去口语「🎬 原声跟读」听一段真人原声并跟读；在「🔊 练习」里开了「听写」、或者看了英文视频，也可以自己打勾", prog: vToday ? "今天听了 " + vToday + " 条原声" : "", pct: vToday ? 1 : 0, auto: vToday > 0, go: () => toSpeak("clip"), min: 5 },
+      { id: "listen", ic: "🎧", t: "听", sub: "「🔊 练习」里做 10 张听力 / 听写卡，或者去口语「🎬 原声跟读」听一段真人原声并跟读；看了英文视频也可以自己打勾", prog: [ls ? "听力卡 " + Math.min(ls, 10) + " / 10" : "", vToday ? "原声 " + vToday + " 条" : ""].filter(Boolean).join(" · "), pct: vToday ? 1 : ls / 10, auto: vToday > 0 || ls >= 10, go: () => toSpeak("clip"), min: 5 },
       { id: "speak", ic: "🗣", t: "说", sub: "口语「📅 每日一练」：1 段情景对话 + 跟读 5 句 + 说 1 个话题", prog: sday ? "今天已打卡" : slog ? "今天练了 " + slog + " 次，还没打卡" : "", pct: sday ? 1 : Math.min(.9, slog / 7), auto: sday, go: () => toSpeak("daily"), min: 15 },
       { id: "read", ic: "📖", t: "读", sub: "在「📰 阅读」里读一篇短文（自带文章，或者粘贴网址、文字），点不认识的词查意思、收进生词本", prog: rd.length ? "今天读了：" + rd.map(d => d.title).slice(0, 2).join("、") : "", pct: rd.length ? 1 : 0, auto: rd.length > 0, go: () => toNotebook("reading"), min: 10 },
       { id: "write", ic: "✍️", t: "写", sub: "在「📝 写作批改」写一段（用今天背的词写 3–5 句也行），交给它批改", prog: wr.length ? "今天批改了 " + wr.length + " 篇" : "", pct: wr.length ? 1 : 0, auto: wr.length > 0, go: toWrite, min: 10 },

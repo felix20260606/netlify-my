@@ -18,7 +18,7 @@
     return of.call(this,u,o);
   };
   if(navigator.sendBeacon){var ob=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=function(u,d){try{var x=new URL(String(u),location.href);if(x.origin===location.origin&&API.test(x.pathname)){x.searchParams.set("u",id);u=x.pathname+x.search;}}catch(e){}return ob(u,d);};}
-  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|pump:log|wt:meta|reading:docs|reading:tr|speak:done|speak:log|speak:days|reading:lv|writing:draft|writing:history|writing:lang|vocab:test|remind:time|mine:seen:reading|mine:seen:writing|mine:seen:vtest)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
+  var MINE=/^(vocab_state_v1|pump:opt|pump:heard|pump:day|pump:log|wt:meta|reading:docs|reading:tr|speak:done|speak:log|speak:days|reading:lv|writing:draft|writing:history|writing:lang|vocab:test|remind:time|daily:opt|daily:check|daily:days|mine:seen:reading|mine:seen:writing|mine:seen:vtest)$/,S=Storage.prototype,g=S.getItem,st=S.setItem,rm=S.removeItem;
   var k=function(t,key){var ls=null;try{ls=window.localStorage;}catch(e){}return t===ls&&MINE.test(String(key))?key+"@"+id:key;};
   S.getItem=function(key){return g.call(this,k(this,key));};
   S.setItem=function(key,v){return st.call(this,k(this,key),v);};
@@ -408,6 +408,7 @@
 </div>
 <div id="subtabs">
   <div class="subgrp on" data-l1="en">
+    <button id="tab-daily" type="button">📅 每日一练</button>
     <button id="tab-notebook" class="on" type="button">📖 生词本</button>
     <button id="tab-speak" type="button">🗣 口语</button>
     <button id="tab-ielts" type="button">🎓 雅思</button>
@@ -644,6 +645,7 @@
 </style>
 <!-- 🗣 口语：情景对话、常用表达、发音、跟读、话题（见 speak.js，内容在 speak-data.js） -->
 <div id="view-speak"></div>
+<div id="view-daily"></div>
 <div id="view-ielts">
 <div id="ielts-subnav">
   <div class="seg-wrap">
@@ -1568,7 +1570,7 @@ refresh(); // show seed words immediately, no waiting on storage
   ];
 
   var l1En=document.getElementById('l1-en'),l1Life=document.getElementById('l1-life');
-  var tNb=document.getElementById('tab-notebook'),tFat=document.getElementById('tab-fat'),tTrip=document.getElementById('tab-trip'),tIelts=document.getElementById('tab-ielts'),tSpeak=document.getElementById('tab-speak');
+  var tNb=document.getElementById('tab-notebook'),tFat=document.getElementById('tab-fat'),tTrip=document.getElementById('tab-trip'),tIelts=document.getElementById('tab-ielts'),tSpeak=document.getElementById('tab-speak'),tDaily=document.getElementById('tab-daily');
   var fr=document.getElementById('fatframe'),tf=document.getElementById('tripframe');
   var fatKl=document.getElementById('fat-kl'),fatLy=document.getElementById('fat-ly'),fatBkk=document.getElementById('fat-bkk'),fat14d=document.getElementById('fat-14d'),fatX10=document.getElementById('fat-x10'),fatWrap=document.getElementById('fat-wrap'),fatNav=document.getElementById('fat-nav'),fatCalc=document.getElementById('fat-calc');
   var FAT_FILES={nav:'fat-nav.html',calc:'jianzhi-calc.html',wrap:'jianzhi-wrap.html',x10:'jianzhi-exec10.html','14d':'jianzhi-14day.html',kl:'jianzhi-kl.html',ly:'jianzhi-linyi.html',bkk:'jianzhi-plan.html'};
@@ -1638,7 +1640,7 @@ refresh(); // show seed words immediately, no waiting on storage
     if(fr)fr.setAttribute('src',FAT_FILES[r]||FAT_FILES.wrap);
     try{localStorage.setItem('fat_region',r);}catch(e){}
   }
-  var L2_OWNER={notebook:'en',speak:'en',ielts:'en',fat:'life',trip:'life'};
+  var L2_OWNER={daily:'en',notebook:'en',speak:'en',ielts:'en',fat:'life',trip:'life'};
   function show(which){
     var l1=L2_OWNER[which]||'en';
     L2_OF[l1]=which;
@@ -1650,11 +1652,13 @@ refresh(); // show seed words immediately, no waiting on storage
     tNb.classList.toggle('on',which==='notebook');
     if(tIelts)tIelts.classList.toggle('on',which==='ielts');
     if(tSpeak)tSpeak.classList.toggle('on',which==='speak');
+    if(tDaily)tDaily.classList.toggle('on',which==='daily');
     tFat.classList.toggle('on',which==='fat');
     tTrip.classList.toggle('on',which==='trip');
     // 内容区切换
-    root.classList.remove('show-fat','show-trip','show-ielts','show-speak');
+    root.classList.remove('show-fat','show-trip','show-ielts','show-speak','show-daily');
     if(which!=='speak'&&window.speakHide)speakHide();
+    if(which!=='daily'&&window.dailyHide)dailyHide();
     if(which==='fat'){
       root.classList.add('show-fat');
       if(!fatLoaded){fatLoaded=true;
@@ -1672,6 +1676,9 @@ refresh(); // show seed words immediately, no waiting on storage
     }else if(which==='speak'){
       root.classList.add('show-speak');
       if(window.speakShow)speakShow();
+    }else if(which==='daily'){
+      root.classList.add('show-daily');
+      if(window.dailyShow)dailyShow();
     }
     try{localStorage.setItem('vocab_tab',which);}catch(e){}
   }
@@ -1690,6 +1697,7 @@ refresh(); // show seed words immediately, no waiting on storage
   tNb.onclick=function(){show('notebook');};
   if(tIelts)tIelts.onclick=function(){show('ielts');};
   if(tSpeak)tSpeak.onclick=function(){show('speak');};
+  if(tDaily)tDaily.onclick=function(){show('daily');};
   tFat.onclick=function(){show('fat');};
   if(fatNav)fatNav.onclick=function(){setFatRegion('nav');};
   if(fatCalc)fatCalc.onclick=function(){setFatRegion('calc');};
@@ -1703,8 +1711,9 @@ refresh(); // show seed words immediately, no waiting on storage
   tTrip.onclick=function(){show('trip');};
   var saved='';try{saved=localStorage.getItem('vocab_tab')||'';}catch(e){}
   if(saved==='xsaved'||saved==='xreview'){try{localStorage.setItem('vocab_mode',saved==='xsaved'?'saved':'pump');localStorage.setItem('vocab_tab','notebook');}catch(e){} saved='notebook';} // 以前的「已保存 / 复习」入口已并进生词本
-  try{if(new URLSearchParams(location.search).get('go')==='speak')saved='speak';}catch(e){} // 直达链接 ?go=speak
-  if((saved==='fat'||saved==='trip'||saved==='ielts'||saved==='speak')&&!root.classList.contains('collect-mode'))show(saved);
+  var g='';try{g=new URLSearchParams(location.search).get('go');if(g==='speak'||g==='daily')saved=g;}catch(e){} // 直达链接 ?go=speak / ?go=daily
+  if(!saved&&!g&&!/^#article\//.test(location.hash))saved='daily'; // 第一次来（没存过标签）：先进「📅 每日一练」
+  if((saved==='fat'||saved==='trip'||saved==='ielts'||saved==='speak'||saved==='daily')&&!root.classList.contains('collect-mode'))show(saved);
 })();
 
 /* ===== 雅思页内二级：基本常识 / 笔记(ielts-notes.html) ===== */
@@ -1739,8 +1748,9 @@ refresh(); // show seed words immediately, no waiting on storage
 <script src="tts.js?v=1"></script>
 <script src="watch.js?v=13"></script>
 <script src="channels.js?v=3"></script>
-<script src="pump.js?v=26"></script>
+<script src="pump.js?v=27"></script>
 <script src="speak.js?v=9"></script>
+<script src="daily.js?v=2"></script>
 <script src="read.js?v=5"></script>
 <script src="write.js?v=1"></script>
 <script src="stats.js?v=1"></script>

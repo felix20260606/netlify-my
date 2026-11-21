@@ -182,7 +182,7 @@
   const dayLevel = () => LEVELS_DAY.filter(l => l.p <= day.n).pop();
   const emoji = () => dayLevel().e;
   const dayBar = () => { const l = dayLevel(); return '<div class="pp-bar" title="0 张 😭 · 1–49 😢 · 50–99 🙂 · 100–199 😎💯 · 200 以上 🐢👑"><i style="width:' + Math.min(100, l.min + (day.n - l.p) * l.per) + "%;background:" + l.bg + '"></i></div>'; };
-  const countCard = c => { if (c && !c.counted) { c.counted = true; day.n++; LS("pump:day", day); logDay({ n: 1, sec: spent() }); } }; // 按「下一个」离开一张卡时算练了一张（同 PhrasePump）
+  const countCard = c => { if (c && !c.counted) { c.counted = true; day.n++; LS("pump:day", day); logDay(Object.assign({ n: 1, sec: spent() }, c.k === "listen" || c.k === "dict" ? { ls: 1 } : {})); } }; // 按「下一个」离开一张卡时算练了一张（同 PhrasePump）；听力、听写卡另记 ls（「📅 每日一练」的「听」用）
   // ---------- 每天的练习记录（「📊 统计」用）：本机 pump:log + /api/ext 的 "stat|日期"（换设备也在）----------
   // { "YYYY-MM-DD"（本地日期）: { n 卡片数, ok 记得, fail 忘了, nw 新词, sec 用时秒 } }
   const lday = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
