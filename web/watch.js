@@ -35,7 +35,7 @@
   const css = `
   #view-video{display:none;padding-top:calc(56px + env(safe-area-inset-top,0px))}
   html.show-video #view-video{display:block}
-  html.show-video #view-en,html.show-video #view-fat,html.show-video #view-trip,html.show-video #view-ielts,html.show-video #view-ext,html.show-video #subtabs{display:none!important}
+  html.show-video #view-en,html.show-video #view-fat,html.show-video #view-trip,html.show-video #view-ielts,html.show-video #view-ext,html.show-video #view-speak,html.show-video #view-daily{display:none!important}
   html.show-video body{padding-bottom:0}
   #apptabs .seg-wrap.three{max-width:460px}
   #view-video .wrap{max-width:620px;margin:0 auto;padding:0 14px}
@@ -359,18 +359,15 @@
     document.body.append(mask, sheet);
     listEl = $("#wt-list"); subEl = $("#wt-sub");
 
-    // 一级标签：和「英语 / 生活」并列
-    const H = document.documentElement, btn = document.createElement("button"); btn.id = "l1-video"; btn.type = "button"; btn.textContent = "🎬 视频";
-    const l1en = seg.querySelector("#l1-en"); if (l1en) l1en.after(btn); else seg.append(btn); // 顺序：英语 · 视频 · 生活
-    seg.classList.add("three");
-    const leave = () => { if (!H.classList.contains("show-video")) return; H.classList.remove("show-video", "wt-playing"); btn.classList.remove("on"); LS.set("wt:tab", 0); try { player && player.pauseVideo && player.pauseVideo(); } catch (e) {} };
-    seg.querySelectorAll("button").forEach(b => { if (b !== btn) b.addEventListener("click", leave); });
-    enter = () => {
-      seg.querySelectorAll("button").forEach(x => x.classList.remove("on")); btn.classList.add("on");
-      H.classList.add("show-video"); H.classList.toggle("wt-playing", root.classList.contains("playing")); LS.set("wt:tab", 1);
+    // 视频在「📚 英语 → 🎧 听 → 🎬 视频」（index.html 的 enShow('listen','video') 调 videoCore.enter，切到别处调 videoCore.leave）
+    const H = document.documentElement;
+    const leave = () => { if (!H.classList.contains("show-video")) return; H.classList.remove("show-video", "wt-playing"); LS.set("wt:tab", 0); try { player && player.pauseVideo && player.pauseVideo(); } catch (e) {} };
+    const core = () => {
+      H.classList.add("show-video"); H.classList.toggle("wt-playing", root.classList.contains("playing"));
       scrollTo(0, 0); $("#wt-bml").href = bookmarklet(); loadBook(); loadList(); fit(); if (VS) vsData(); else vsLoad();
     };
-    btn.onclick = enter;
+    window.videoCore = { enter: core, leave };
+    enter = () => { if (window.enShow) window.enShow("listen", "video"); else core(); }; // 别的地方（?v=、已保存里的视频）要打开视频：先切到「🎧 听 → 🎬 视频」
     $("#wt-bml").href = bookmarklet(); $("#wt-bml").onclick = e => { e.preventDefault(); tip("把它拖到书签栏；手机上请用「复制书签代码」"); };
     $("#wt-bmc").onclick = async () => { tip(await copyText(bookmarklet()) ? "已复制，按上面第 2、3 步存成书签" : "复制失败，请长按右边的链接复制"); };
     $("#wt-go").onclick = () => openUrl($("#wt-url").value);
@@ -747,6 +744,6 @@
     }
   }
 
-  function init() { if (!build()) return; { const q = new URLSearchParams(location.search).get("v"); if (q && /^[\w-]{11}$/.test(q)) { try { history.replaceState(null, "", location.pathname); } catch (e) {} enter(); open(q); window.__wt = { open, enter: () => enter(), state: () => ({ cur, n: cues.length, lock, follow, set }) }; return; } } if (LS.get("wt:tab", 0) && !document.documentElement.classList.contains("collect-mode")) enter(); window.__wt = { open, enter: () => enter(), state: () => ({ cur, n: cues.length, lock, follow, set }) }; }
+  function init() { if (!build()) return; { const q = new URLSearchParams(location.search).get("v"); if (q && /^[\w-]{11}$/.test(q)) { try { history.replaceState(null, "", location.pathname); } catch (e) {} enter(); open(q); window.__wt = { open, enter: () => enter(), state: () => ({ cur, n: cues.length, lock, follow, set }) }; return; } } if (window.__wantVideo && !document.documentElement.classList.contains("collect-mode")) window.videoCore.enter(); window.__wt = { open, enter: () => enter(), state: () => ({ cur, n: cues.length, lock, follow, set }) }; }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();

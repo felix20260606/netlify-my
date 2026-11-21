@@ -347,6 +347,26 @@
   .subgrp button.on::after{content:"";position:absolute;left:2px;right:2px;bottom:0;height:2.5px;background:var(--jade);border-radius:2px}
 
   #view-en{padding-top:98px}
+  /* 七个二级标签：一行放不下时可以左右滑 */
+  .subgrp{max-width:none;overflow-x:auto;scrollbar-width:none}
+  .subgrp::-webkit-scrollbar{display:none}
+  .subgrp button{white-space:nowrap}
+  .modes button.mx{display:none!important}
+  /* 「📰 读」「✍️ 写」「🎧 听 → 听力练习」借用生词本这一页，但不显示生词本的大标题和模式按钮 */
+  html[data-en="read"] #view-en>header,html[data-en="write"] #view-en>header,html[data-en="listen"] #view-en>header{display:none}
+  html[data-en="read"] #view-en,html[data-en="write"] #view-en,html[data-en="listen"] #view-en{padding-top:110px}
+  html.has-sec #view-en{padding-top:150px}
+  #en-secbar{display:none;position:fixed;top:98px;left:0;right:0;height:40px;z-index:8800;align-items:center;justify-content:center;gap:8px;
+    background:var(--paper);border-bottom:1px solid var(--line);padding:0 14px}
+  html.has-sec #en-secbar{display:flex}
+  html.show-fat #en-secbar,html.show-trip #en-secbar,html.show-ielts #en-secbar,html.show-speak #en-secbar,html.show-daily #en-secbar,html.collect-mode #en-secbar{display:none!important}
+  #en-secbar .seg-wrap{display:flex;gap:8px;background:transparent;border:0;padding:0;width:auto;max-width:none}
+  #en-secbar button{flex:0 0 auto;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:600;
+    font-family:inherit;cursor:pointer;transition:.15s ease;border-radius:999px;padding:5px 15px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  #en-secbar button:hover{color:var(--ink)}
+  #en-secbar button.on{background:var(--ui-pur-soft,#E3F0EA);color:var(--ui-pur-text,var(--jade));font-weight:700}
+  /* 🎬 视频挪进「🎧 听」：留着二级标签和小标签条 */
+  html.show-video #view-video{padding-top:138px!important}
   #view-fat,#view-trip{display:none;position:fixed;top:98px;left:0;right:0;bottom:0;background:var(--bg)}
   #view-fat iframe{width:100%;height:100%;border:0;display:block}
   #fat-region{flex:0 0 auto;display:flex;align-items:center;justify-content:safe center;gap:8px;
@@ -408,9 +428,12 @@
 </div>
 <div id="subtabs">
   <div class="subgrp on" data-l1="en">
-    <button id="tab-daily" type="button">📅 每日一练</button>
-    <button id="tab-notebook" class="on" type="button">📖 生词本</button>
-    <button id="tab-speak" type="button">🗣 口语</button>
+    <button id="tab-daily" type="button">📅 每日</button>
+    <button id="tab-notebook" class="on" type="button">📖 词汇</button>
+    <button id="tab-listen" type="button">🎧 听</button>
+    <button id="tab-speak" type="button">🗣 说</button>
+    <button id="tab-read" type="button">📰 读</button>
+    <button id="tab-write" type="button">✍️ 写</button>
     <button id="tab-ielts" type="button">🎓 雅思</button>
   </div>
   <div class="subgrp" data-l1="life">
@@ -418,6 +441,8 @@
     <button id="tab-trip" type="button">🚗 旅游</button>
   </div>
 </div>
+<!-- 「🎧 听」「✍️ 写」下面的小标签（固定在二级标签下面，和雅思的小标签一个样式）；内容由 index 底部的 setSec() 画 -->
+<div id="en-secbar"><div class="seg-wrap"></div></div>
 <div id="view-en">
 <header>
   <div class="wrap">
@@ -440,15 +465,18 @@
     <div class="modes">
       <button data-mode="stats">📊 统计</button>
       <button data-mode="pump">🔊 练习</button>
-      <button data-mode="reading">📰 阅读</button>
+      <button data-mode="reading" class="mx">📰 阅读</button>
       <button data-mode="saved">⭐ 已保存</button>
       <button data-mode="list" class="on">📖 列表</button>
-      <button data-mode="grammar">📐 语法</button>
+      <button data-mode="grammar" class="mx">📐 语法</button>
+      <button data-mode="writing" class="mx">📝 写作批改</button>
     </div>
   </div>
 </header>
 
 <div class="wrap">
+  <!-- ✍️ 写 → 📝 写作批改（write.js 画进来） -->
+  <div id="ielts-write-view" style="display:none;padding:8px 0 40px;max-width:1100px;margin:0 auto"></div>
   <!-- LIST -->
   <div id="list-view">
     <div id="pending-box"></div>
@@ -649,7 +677,7 @@
 <div id="view-ielts">
 <div id="ielts-subnav">
   <div class="seg-wrap">
-    <button id="ielts-t-write" type="button">📝 写作批改</button>
+    <button id="ielts-t-write" type="button" hidden>📝 写作批改</button>
     <button id="ielts-t-notes" class="on" type="button">✍️ 笔记</button>
     <button id="ielts-t-basics" type="button">📖 常识</button>
   </div>
@@ -799,7 +827,7 @@
 
 </div>
 </div><!-- /ielts-basics -->
-<div id="ielts-write-view" style="display:none;padding:52px 16px 40px;max-width:1100px;margin:0 auto"></div>
+
 <div id="ielts-notes-view"><iframe id="ieltsframe" title="雅思笔记" referrerpolicy="no-referrer"></iframe></div>
 </div><!-- /view-ielts -->
 <style id="mobile-adapt">
@@ -813,6 +841,10 @@
     #apptabs{height:calc(56px + var(--sat));padding:var(--sat) calc(10px + var(--sar)) 0 calc(10px + var(--sal))}
     #subtabs{top:calc(56px + var(--sat));padding-left:calc(14px + var(--sal));padding-right:calc(14px + var(--sar))}
     #view-en,#view-ielts{padding-top:calc(98px + var(--sat))}
+    html[data-en="read"] #view-en,html[data-en="write"] #view-en,html[data-en="listen"] #view-en{padding-top:calc(110px + var(--sat))}
+    html.has-sec #view-en{padding-top:calc(150px + var(--sat))}
+    #en-secbar{top:calc(98px + var(--sat))}
+    html.show-video #view-video{padding-top:calc(138px + var(--sat))!important}
     #view-fat,#view-trip{top:calc(98px + var(--sat))}
     #view-ielts{padding-bottom:calc(64px + var(--sab))}
     #view-ielts .ielts-header{top:calc(98px + var(--sat))}
@@ -826,11 +858,10 @@
   @media (max-width:640px){
     /* 导航：触摸区域 */
     #apptabs button{min-height:44px}
-    .subgrp{gap:6px;height:100%}
-    .subgrp button{height:42px;min-width:64px;padding:0 10px;margin-left:-10px}
-    .subgrp button+button{margin-left:0}
+    .subgrp{gap:2px;height:100%;justify-content:flex-start}
+    .subgrp button{height:42px;min-width:0;padding:0 8px;font-size:13.5px}
     .modes button{min-height:44px;padding:0;white-space:nowrap}
-    .modes{display:grid;grid-template-columns:repeat(3,1fr)} /* 6 个模式：手机上排成 3 × 2 */
+    .modes{display:grid;grid-template-columns:repeat(4,1fr)} /* 4 个模式：统计 / 练习 / 已保存 / 列表，手机上一行 */
     .cats button{min-height:44px}
     .filters button{min-height:44px;padding:0 14px;font-size:13px}
     #triprow button{min-height:40px;padding:0 16px}
@@ -897,6 +928,10 @@
     #view-en,#view-ielts{padding-top:56px}
     #view-fat,#view-trip{top:56px}
     #ielts-subnav{top:56px}
+    #en-secbar{top:56px}
+    html[data-en="read"] #view-en,html[data-en="write"] #view-en,html[data-en="listen"] #view-en{padding-top:68px}
+    html.has-sec #view-en{padding-top:108px}
+    html.show-video #view-video{padding-top:96px!important}
     #view-ielts .ielts-header{top:56px}
     /* 内容铺满，两侧留白 */
     .wrap,#view-ielts .wrap{max-width:none;padding:0 40px}
@@ -1328,7 +1363,9 @@ document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>{
   document.getElementById("grammar").classList.toggle("on",m==="grammar"); if(m==="grammar"&&window.grammarShow)grammarShow();
   document.getElementById("reading").classList.toggle("on",m==="reading"); if(m==="reading"&&window.readingShow)readingShow();
   document.getElementById("stats").classList.toggle("on",m==="stats"); if(m==="stats"&&window.statsShow)statsShow();
+  const wv=document.getElementById("ielts-write-view"); if(wv){wv.style.display=m==="writing"?"block":"none"; if(m==="writing"&&window.writingShow&&!wv.dataset.on){wv.dataset.on="1";writingShow(wv);}}
   try{localStorage.setItem("vocab_mode",m);}catch(e){}
+  if(window.enSync)enSync(m); // 阅读 → 「📰 读」，语法 / 写作批改 → 「✍️ 写」，其它 → 「📖 词汇」（别的页面直接点模式按钮跳过来时，上面的标签跟着变）
   
   document.getElementById("export-panel").classList.toggle("on",m==="export");
 });
@@ -1640,16 +1677,34 @@ refresh(); // show seed words immediately, no waiting on storage
     if(fr)fr.setAttribute('src',FAT_FILES[r]||FAT_FILES.wrap);
     try{localStorage.setItem('fat_region',r);}catch(e){}
   }
-  var L2_OWNER={daily:'en',notebook:'en',speak:'en',ielts:'en',fat:'life',trip:'life'};
-  function show(which){
-    var l1=L2_OWNER[which]||'en';
-    L2_OF[l1]=which;
+  // 英语七个二级标签：📅 每日 | 📖 词汇 | 🎧 听 | 🗣 说 | 📰 读 | ✍️ 写 | 🎓 雅思
+  //   词汇 / 听（听力练习）/ 读 / 写 借用生词本这一页（#view-en）：html[data-en] 决定隐藏哪些部分，再切到对应的模式（.modes 按钮）
+  //   听 → 🎬 视频（watch.js 的 videoCore）/ 🎧 听力练习（「🔊 练习」）；写 → 📝 写作批改（write.js）/ 📐 语法；读 → 📰 阅读（今日新闻、文章）
+  var tListen=document.getElementById('tab-listen'),tRead=document.getElementById('tab-read'),tWrite=document.getElementById('tab-write');
+  var L2_OWNER={daily:'en',notebook:'en',listen:'en',speak:'en',read:'en',write:'en',ielts:'en',fat:'life',trip:'life'};
+  var EN_PAGE={notebook:'vocab',listen:'listen',read:'read',write:'write'};
+  var SECS={listen:[['video','🎬 视频'],['practice','🎧 听力练习']],write:[['writing','📝 写作批改'],['grammar','📐 语法']]};
+  var VOCAB_MODES=/^(stats|pump|saved|list)$/, CUR='', busy=false;
+  function getSub(w){var d=SECS[w][0][0];try{var v=localStorage.getItem('en_sub_'+w);if(SECS[w].some(function(x){return x[0]===v;}))return v;}catch(e){}return d;}
+  function clickMode(m){var b=document.querySelector('.modes button[data-mode="'+m+'"]');if(b&&!b.classList.contains('on'))b.click();}
+  function setSec(which,sub){
+    root.classList.toggle('has-sec',!!SECS[which]);
+    var bar=document.getElementById('en-secbar'),wrap=bar&&bar.firstElementChild;if(!wrap)return;
+    wrap.innerHTML=SECS[which]?SECS[which].map(function(x){return '<button type="button" data-sub="'+x[0]+'" class="'+(x[0]===sub?'on':'')+'">'+x[1]+'</button>';}).join(''):'';
+  }
+  function show(which,sub){
+    if(!L2_OWNER[which])which='notebook';
+    var l1=L2_OWNER[which];
+    L2_OF[l1]=which; CUR=which;
     // L1 按钮 + 子导航条 显隐
     l1En.classList.toggle('on',l1==='en'); l1Life.classList.toggle('on',l1==='life');
     if(grpEn)grpEn.classList.toggle('on',l1==='en');
     if(grpLife)grpLife.classList.toggle('on',l1==='life');
     // L2 按钮高亮
     tNb.classList.toggle('on',which==='notebook');
+    if(tListen)tListen.classList.toggle('on',which==='listen');
+    if(tRead)tRead.classList.toggle('on',which==='read');
+    if(tWrite)tWrite.classList.toggle('on',which==='write');
     if(tIelts)tIelts.classList.toggle('on',which==='ielts');
     if(tSpeak)tSpeak.classList.toggle('on',which==='speak');
     if(tDaily)tDaily.classList.toggle('on',which==='daily');
@@ -1659,6 +1714,11 @@ refresh(); // show seed words immediately, no waiting on storage
     root.classList.remove('show-fat','show-trip','show-ielts','show-speak','show-daily');
     if(which!=='speak'&&window.speakHide)speakHide();
     if(which!=='daily'&&window.dailyHide)dailyHide();
+    if(EN_PAGE[which])root.setAttribute('data-en',EN_PAGE[which]);else root.removeAttribute('data-en');
+    if(SECS[which]){sub=sub&&SECS[which].some(function(x){return x[0]===sub;})?sub:getSub(which);try{localStorage.setItem('en_sub_'+which,sub);}catch(e){}}else sub='';
+    setSec(which,sub);
+    var wantVideo=which==='listen'&&sub==='video';
+    if(!wantVideo){window.__wantVideo=0;if(window.videoCore)videoCore.leave();}
     if(which==='fat'){
       root.classList.add('show-fat');
       if(!fatLoaded){fatLoaded=true;
@@ -1680,8 +1740,26 @@ refresh(); // show seed words immediately, no waiting on storage
       root.classList.add('show-daily');
       if(window.dailyShow)dailyShow();
     }
+    busy=true;
+    try{
+      if(which==='notebook'){if(!VOCAB_MODES.test(root.getAttribute('data-mode')||'')){var lm='list';try{lm=localStorage.getItem('vocab_mode_v')||'list';}catch(e){}clickMode(VOCAB_MODES.test(lm)?lm:'list');}}
+      else if(which==='read')clickMode('reading');
+      else if(which==='write')clickMode(sub==='grammar'?'grammar':'writing');
+      else if(which==='listen'){if(wantVideo){if(window.videoCore)videoCore.enter();else window.__wantVideo=1;}else clickMode('pump');}
+    }finally{busy=false;}
     try{localStorage.setItem('vocab_tab',which);}catch(e){}
   }
+  window.enShow=show;
+  // 生词本的模式按钮被点了（包括每日一练、统计页、#article 链接直接点模式按钮跳过来）：上面的标签跟着变
+  window.enSync=function(m){
+    if(VOCAB_MODES.test(m)){try{localStorage.setItem('vocab_mode_v',m);}catch(e){}}
+    if(busy||!EN_PAGE[CUR]||root.classList.contains('show-video'))return;
+    if(m==='reading'){if(CUR!=='read')show('read');return;}
+    if(m==='grammar'||m==='writing'){var sb=m==='grammar'?'grammar':'writing';if(CUR!=='write'||getSub('write')!==sb)show('write',sb);return;}
+    if(m==='pump'&&CUR==='listen')return;
+    if(CUR!=='notebook')show('notebook');
+  };
+  document.getElementById('en-secbar').addEventListener('click',function(e){var b=e.target.closest('button[data-sub]');if(b&&SECS[CUR])show(CUR,b.dataset.sub);});
   buildTripRow();
   if(destDb)destDb.onclick=function(){setDest('db');};
   if(destMel)destMel.onclick=function(){setDest('mel');};
@@ -1698,6 +1776,9 @@ refresh(); // show seed words immediately, no waiting on storage
   if(tIelts)tIelts.onclick=function(){show('ielts');};
   if(tSpeak)tSpeak.onclick=function(){show('speak');};
   if(tDaily)tDaily.onclick=function(){show('daily');};
+  if(tListen)tListen.onclick=function(){show('listen');};
+  if(tRead)tRead.onclick=function(){show('read');};
+  if(tWrite)tWrite.onclick=function(){show('write');};
   tFat.onclick=function(){show('fat');};
   if(fatNav)fatNav.onclick=function(){setFatRegion('nav');};
   if(fatCalc)fatCalc.onclick=function(){setFatRegion('calc');};
@@ -1711,42 +1792,38 @@ refresh(); // show seed words immediately, no waiting on storage
   tTrip.onclick=function(){show('trip');};
   var saved='';try{saved=localStorage.getItem('vocab_tab')||'';}catch(e){}
   if(saved==='xsaved'||saved==='xreview'){try{localStorage.setItem('vocab_mode',saved==='xsaved'?'saved':'pump');localStorage.setItem('vocab_tab','notebook');}catch(e){} saved='notebook';} // 以前的「已保存 / 复习」入口已并进生词本
-  var g='';try{g=new URLSearchParams(location.search).get('go');if(g==='speak'||g==='daily')saved=g;}catch(e){} // 直达链接 ?go=speak / ?go=daily
+  var vsub='';try{if(localStorage.getItem('wt:tab')==='1'){saved='listen';vsub='video';}}catch(e){} // 以前一级标签「🎬 视频」上次开着：现在在「🎧 听 → 🎬 视频」
+  if(saved==='notebook'){try{var om=localStorage.getItem('vocab_mode')||'';if(om==='reading')saved='read';else if(om==='grammar')saved='write',vsub='grammar';}catch(e){}} // 以前停在生词本的「阅读 / 语法」：现在是「📰 读」「✍️ 写」
+  var g='';try{g=new URLSearchParams(location.search).get('go');if(g==='speak'||g==='daily'||g==='listen'||g==='read'||g==='write'||g==='ielts')saved=g,vsub='';if(g==='video')saved='listen',vsub='video';}catch(e){} // 直达链接 ?go=speak / daily / listen / read / write / video
   if(!saved&&!g&&!/^#article\//.test(location.hash))saved='daily'; // 第一次来（没存过标签）：先进「📅 每日一练」
-  if((saved==='fat'||saved==='trip'||saved==='ielts'||saved==='speak'||saved==='daily')&&!root.classList.contains('collect-mode'))show(saved);
+  if(L2_OWNER[saved]&&!root.classList.contains('collect-mode'))show(saved,vsub);
 })();
 
-/* ===== 雅思页内二级：基本常识 / 笔记(ielts-notes.html) ===== */
+/* ===== 雅思页内二级：笔记(ielts-notes.html) / 基本常识；「📝 写作批改」挪到了「✍️ 写」 ===== */
 (function(){
   var bBtn=document.getElementById('ielts-t-basics'),nBtn=document.getElementById('ielts-t-notes');
   var basics=document.getElementById('ielts-basics'),notesV=document.getElementById('ielts-notes-view');
   var ifr=document.getElementById('ieltsframe');
   if(!bBtn||!nBtn||!basics||!notesV)return;
-  var wBtn=document.getElementById('ielts-t-write'),writeV=document.getElementById('ielts-write-view');
+  var wBtn=document.getElementById('ielts-t-write');
   function sw(which){
-    var isNotes=which==='notes',isW=which==='write';
-    bBtn.classList.toggle('on',which==='basics');
+    var isNotes=which==='notes';
+    bBtn.classList.toggle('on',!isNotes);
     nBtn.classList.toggle('on',isNotes);
-    wBtn.classList.toggle('on',isW);
-    basics.style.display=which==='basics'?'block':'none';
+    basics.style.display=isNotes?'none':'block';
     notesV.style.display=isNotes?'block':'none';
-    writeV.style.display=isW?'block':'none';
-    if(isW&&window.writingShow&&!writeV.dataset.on){writeV.dataset.on='1';writingShow(writeV);}
     if(isNotes&&ifr&&!ifr.getAttribute('src'))ifr.setAttribute('src','ielts-notes.html');
     try{localStorage.setItem('ielts_sub',which);}catch(e){}
   }
   bBtn.onclick=function(){sw('basics');};
   nBtn.onclick=function(){sw('notes');};
-  wBtn.onclick=function(){sw('write');};
+  if(wBtn)wBtn.onclick=function(){if(window.enShow)enShow('write','writing');}; // 旧的跳转（每日一练「写」）点这个隐藏按钮 → 「✍️ 写 → 📝 写作批改」
   var s='';try{s=localStorage.getItem('ielts_sub')||'';}catch(e){}
-  if(s==='notes'&&!localStorage.getItem('ielts_sub_w'))s='write'; // 新加的「写作批改」排最前，第一次默认进它；之后记住上次选的
-  try{localStorage.setItem('ielts_sub_w','1');}catch(e){}
-  var first=s==='basics'||s==='notes'?s:'write';
-  if(document.readyState==='complete')sw(first);else window.addEventListener('load',function(){sw(first);}); // 等 write.js 加载完
+  sw(s==='basics'?'basics':'notes');
 })();
 </script>
 <script src="tts.js?v=1"></script>
-<script src="watch.js?v=13"></script>
+<script src="watch.js?v=14"></script>
 <script src="channels.js?v=3"></script>
 <script src="pump.js?v=27"></script>
 <script src="speak.js?v=9"></script>
