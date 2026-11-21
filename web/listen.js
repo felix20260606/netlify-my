@@ -64,12 +64,14 @@
     document.body.append(fl); return fl;
   }
   const onPage = () => !!(root && root.classList.contains("on") && root.getClientRects().length && view === "ep" && EP && !EP.err && EP.id === AU.dataset.id);
+  // html.sm-floating：视频悬浮窗看到这个会往上挪，不叠在一起。只在真的要变时才写：classList 就算没变也会触发 MutationObserver，sync 又在监听 html 的 class，会死循环卡住页面
+  function setFloatCls(on) { const H = document.documentElement; if (H.classList.contains("sm-floating") !== on) H.classList.toggle("sm-floating", on); }
   function sync() { // 节目页看得见 → 播放器放回页面；看不见但在播（或暂停在中途）→ 悬浮条
     const slot = root && root.querySelector("#sm-slot"), f = flEl(), box = f.querySelector(".au");
-    if (onPage() && slot) { if (AU.parentNode !== slot) slot.append(AU); f.classList.remove("on"); document.documentElement.classList.remove("sm-floating"); return; }
+    if (onPage() && slot) { if (AU.parentNode !== slot) slot.append(AU); f.classList.remove("on"); setFloatCls(false); return; }
     if (AU.parentNode !== box) box.append(AU);
     const keep = !!AU.dataset.id && !flClosed && (!AU.paused || (AU.currentTime > 0 && !AU.ended));
-    f.querySelector("b").textContent = auTitle; f.classList.toggle("on", keep); if (document.documentElement.classList.contains("sm-floating") !== keep) document.documentElement.classList.toggle("sm-floating", keep); // 视频悬浮窗看到这个会往上挪，不叠在一起
+    f.querySelector("b").textContent = auTitle; f.classList.toggle("on", keep); setFloatCls(keep);
   }
   function backToEp() {
     const id = AU.dataset.id; if (!id) return;
