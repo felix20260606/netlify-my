@@ -549,7 +549,7 @@ In "do_zh" write plain Chinese for the learner (never write the section keys lik
 // 「📰 今日新闻」的 AI 简化版 + 读后小测：POST /api/ai {task:"newsimp", url, title, text} → { ok, simple, summary_zh, quiz:[{q, opts, ans, why_zh}], words:[{en, zh}] }；
 // 同一篇（按网址）存 KV「news/simp/哈希」7 天，全家共用，一篇只花一次额度
 const NEWSIMP_SYS = `You are an expert ESL materials writer. The reader is a Chinese native speaker at about CEFR B1 who lives in Kuala Lumpur.
-Rewrite the news article for them: 250-350 words, CEFR B1 English, short clear sentences, explain or replace rare words, keep all key facts, names and numbers correct, neutral tone. Separate paragraphs with a blank line.
+Rewrite the news article for them in 250-350 words (never more than 380 words; leave out minor details), CEFR B1 English, short clear sentences, explain or replace rare words, keep all key facts, names and numbers correct, neutral tone. Separate paragraphs with a blank line.
 Then write 4 multiple-choice comprehension questions about the article (in English, 3 options each, only one correct) and pick 6-8 useful words or phrases from the ORIGINAL article that a B1 learner probably does not know.
 Reply with ONLY one JSON object, no markdown:
 {"simple":"the rewritten article","summary_zh":"两句简体中文概括","quiz":[{"q":"question","opts":["A","B","C"],"ans":0,"why_zh":"简体中文：为什么"}],"words":[{"en":"word or phrase as used in the article","zh":"中文意思"}]}`;
@@ -574,10 +574,10 @@ async function ai(req, env) {
   try {
     const b = await req.json(), text = String(b.text || "").split(/\s+/).slice(0, 1500).join(" ").slice(0, 10000), prompt = String(b.prompt || "").slice(0, 3000);
     if (b.task === "newsimp") {
-      const t = String(b.text || "").split(/\s+/).slice(0, 1300).join(" "), title = clip(b.title, 300); if (t.split(" ").length < 80) return json({ ok: false, error: "bad body" }, 400);
+      const t = String(b.text || "").split(/\s+/).slice(0, 1000).join(" "), title = clip(b.title, 300); if (t.split(" ").length < 80) return json({ ok: false, error: "bad body" }, 400);
       let hh = 2166136261; const hs = String(b.url || title || t.slice(0, 200)); for (let i = 0; i < hs.length; i++) { hh ^= hs.charCodeAt(i); hh = Math.imul(hh, 16777619); }
       const key = "news/simp/" + (hh >>> 0).toString(36), c = env.CAPTIONS && !b.fresh ? await env.CAPTIONS.get(key, "json") : null; if (c) return json(Object.assign(c, { cached: 1 }));
-      const r = await aiJson(env, [{ role: "system", content: NEWSIMP_SYS }, { role: "user", content: "Title: " + title + "\n\n" + t }], o => typeof o.simple === "string" && o.simple.split(/\s+/).length > 80 && Array.isArray(o.quiz), 2600);
+      const r = await aiJson(env, [{ role: "system", content: NEWSIMP_SYS }, { role: "user", content: "Title: " + title + "\n\n" + t }], o => typeof o.simple === "string" && o.simple.split(/\s+/).length > 80 && Array.isArray(o.quiz), 3800); // 输出要放得下改写稿 + 题目，太小会被截断
       if (r.ok) { r.quiz = (r.quiz || []).filter(q => q && q.q && Array.isArray(q.opts) && q.opts.length >= 2 && +q.ans >= 0 && +q.ans < q.opts.length).slice(0, 5); r.words = (Array.isArray(r.words) ? r.words : []).filter(w => w && w.en).slice(0, 10); if (env.CAPTIONS) await env.CAPTIONS.put(key, JSON.stringify(r), { expirationTtl: 7 * 86400 }); }
       return json(r, r.ok ? 200 : 502);
     }
