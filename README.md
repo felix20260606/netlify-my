@@ -11,7 +11,7 @@
 | `web/` | 网站，部署到 <https://ruilearning-my.pages.dev>（生词本、🎬 视频、减脂、旅游等；后台接口 `_worker.js`）。本地说明见 `web/README.txt`。全站界面统一用 `web/theme.css`（深色 + 紫色，和插件同一套配色） |
 | `extension/` | 浏览器插件「双语字幕 · 生词收集」（图标为 BAN）（Manifest V3，Chrome / Brave / Edge） |
 | `web/vs/` | 插件和网站共用的上色、语法、句型、注释模块（`bash tools/sync-shared.sh` 从 `extension/` 复制，别直接改） |
-| `tools/` | 小工具：`sync-shared.sh`（同步共用模块）、`update-channels.py`（更新频道地图） |
+| `tools/` | 小工具：`sync-shared.sh`（同步共用模块）、`update-channels.py`（更新频道地图）、`gen-tts.mjs`（生成口语 AI 语音） |
 | `site/` | 书签小工具的源码 `bookmarklet.src.js` 和安装页 `install-bookmarklet.html` |
 | `tests/` | Playwright 回归测试脚本（加载插件 + 模拟的 YouTube 页面） |
 | `data/` | 自动备份：`vocab.json`（生词本）、`captions/`（视频字幕），由 `.github/workflows/backup-vocab.yml` 每 6 小时更新 |
@@ -581,6 +581,8 @@ NODE_PATH=$(npm root -g) node tests/t18.js
 有空   → 🤖 AI 陪练聊天纠错 / ⚡ 快问快答 / 🎬 原声跟读 / 🧰 这句话怎么说
 每周   → 📼 我的录音看分数曲线；考雅思做一次 🎓 模拟考
 ```
+
+朗读默认用 AI 真人声（Workers AI Deepgram Aura，页头可切回系统声）：固定句子由 GitHub Actions 每天预先生成一批 `web/tts/*.mp3`（`tools/gen-tts.mjs`），AI 回复现场生成（`/api/tts`），没生成或出错时用系统语音。
 
 每句话都是 🔊 听 → 🐢 慢速 → 🎙 跟读（说完点 ⏹）→ 看读对 / 漏读的词和百分比 → ▶ 回放。要允许浏览器用麦克风；打分先用后台 Workers AI 转文字，不行再用浏览器自带的语音识别（Brave 不行）。练习记录、聊天记录、录音存云端，按家人分开。每一栏的用法、7 天计划、数据存在哪见 `流程说明.md`「口语：怎么用（流程）」。
 
