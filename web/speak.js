@@ -85,11 +85,17 @@
   .sk-sample{margin-top:10px;font-size:15.5px;line-height:1.75;color:var(--ui-ink)}
   .sk-empty{color:var(--ui-muted);text-align:center;padding:40px 0}
   .sk-note{color:var(--ui-muted);font-size:12.5px;margin-top:10px;line-height:1.6}
+  .sk-stat{display:grid;grid-template-columns:1fr auto;gap:10px 18px;align-items:end;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:14px;padding:12px 14px;margin:0 0 14px}
+  .sk-stat .tls{display:flex;flex-wrap:wrap;gap:6px 18px}.sk-stat .tl b{display:block;font-size:20px;font-weight:900;color:var(--ui-ink);line-height:1.2}.sk-stat .tl span{font-size:12px;color:var(--ui-muted)}
+  .sk-stat .bars{display:flex;gap:5px;height:58px;align-items:flex-end}.sk-stat .bars i{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;width:18px;height:100%;font-style:normal}
+  .sk-stat .bars u{display:block;width:100%;min-height:3px;border-radius:4px 4px 2px 2px;background:var(--ui-pur);opacity:.55}.sk-stat .bars i.td u{opacity:1}.sk-stat .bars em{font-style:normal;font-size:11px;color:var(--ui-muted);margin-top:3px}
+  .sk-stat .by{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--ui-muted);border-top:1px solid var(--ui-line);padding-top:8px}.sk-stat .by b{color:var(--ui-ink)}
+  @media(max-width:640px){.sk-stat{grid-template-columns:1fr}.sk-stat .tls{display:grid;grid-template-columns:repeat(3,1fr)}.sk-stat .bars{justify-content:space-between}.sk-stat .bars i{width:auto;flex:1}}
   @media(max-width:640px){.sk-hd h1{font-size:22px}.sk-title{font-size:21px}.sk-ln{max-width:100%}.sk-en{font-size:16px}.sk-ib{height:36px}}`;
 
   let root = null, D = null, loading = null;
   let sec = LG("speak:sec", ""); if (!SECS.some(s => s[0] === sec)) sec = "";
-  let opt = Object.assign({ rate: 1, zh: true }, LG("speak:opt", {}));
+  let opt = Object.assign({ rate: 1, zh: true, voice: "ai" }, LG("speak:opt", {}));
   let done = LG("speak:done", {});
   if (!sec) sec = Object.keys(done).length ? "daily" : "start"; // 第一次来：先进「🌱 入门」
   let view = null; // 打开的条目：{t:"dialog"|"func"|"pair"|"conn"|"topic"|"sgrp", id}
@@ -102,6 +108,7 @@
   const isDone = k => !!done[k];
 
   function loadData() {
+    ttsLoad();
     if (window.SPEAK_DATA) { D = window.SPEAK_DATA; return Promise.resolve(); }
     if (!loading) loading = new Promise(res => { const s = document.createElement("script"); s.src = "speak-data.js?v=" + V; s.onload = s.onerror = res; document.head.append(s); }).then(() => { D = window.SPEAK_DATA || null; });
     return loading;
@@ -116,18 +123,49 @@
     const other = L.find(v => (!main || v.name !== main.name) && /en[-_]US/i.test(v.lang)) || L.find(v => !main || v.name !== main.name);
     return other || main;
   }
-  function say(text, o) {
-    o = o || {}; const my = ++sayId;
+  // AI 真人语音（opt.voice === "ai"，默认）：固定句子播预先生成的 tts/<编号>.mp3（tools/gen-tts.mjs，不花额度）；
+  // 还没生成的固定句子先用系统语音；AI 回复、随机数字这类不在名单里的句子现场生成（/api/tts，Workers AI aura-1）；播不了就退回系统语音
+  let TTSM = null, ttsLoading = null, player = null;
+  const clean = t => String(t).replace(/[{}]/g, "").replace(/\s+/g, " ").trim();
+  function ttsKey(voice, text) { const s = voice + "|" + clean(text); let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, "0"); }
+  function ttsLoad() {
+    if (!ttsLoading) ttsLoading = fetch("tts/index.json?h=" + Math.floor(Date.now() / 3.6e6)).then(r => r.ok ? r.json() : null).catch(() => null)
+      .then(j => { TTSM = { voices: (j && j.voices) || { "": "asteria", A: "orion" }, done: new Set((j && j.done) || []), todo: new Set((j && j.todo) || []) }; });
+    return ttsLoading;
+  }
+  function sysSay(t, o, my) {
     try {
       speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(String(text).replace(/[{}]/g, ""));
+      const u = new SpeechSynthesisUtterance(t);
       const v = voiceFor(o.who); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = "en-US";
       u.rate = (o.rate || opt.rate) * (o.slow ? 0.75 : 1); u.pitch = o.who === "A" ? 1.05 : 1;
       u.onend = () => { if (my === sayId && o.end) o.end(); }; u.onerror = () => { if (my === sayId && o.end) o.end(true); };
       speechSynthesis.speak(u);
     } catch (e) { tip("这个浏览器不能朗读"); if (o.end) o.end(true); }
   }
-  function hush() { sayId++; try { speechSynthesis.cancel(); } catch (e) {} }
+  function say(text, o) {
+    o = o || {}; const my = ++sayId, t = clean(text);
+    if (player) { try { player.pause(); } catch (e) {} player = null; }
+    try { speechSynthesis.cancel(); } catch (e) {}
+    if (opt.voice !== "sys") {
+      if (!TTSM) ttsLoad();
+      else {
+        const v = TTSM.voices[o.who === "A" ? "A" : ""] || "asteria", k = ttsKey(v, t);
+        const src = TTSM.done.has(k) ? "tts/" + k + ".mp3" : !TTSM.todo.has(k) && t.length <= 1500 && /[a-z]/i.test(t) ? "/api/tts?v=" + v + "&t=" + encodeURIComponent(t) : "";
+        if (src) {
+          const a = new Audio(src); player = a; let fell = false;
+          const back = () => { if (fell || my !== sayId) return; fell = true; player = null; sysSay(t, o, my); };
+          try { a.preservesPitch = true; a.playbackRate = (o.rate || opt.rate) * (o.slow ? 0.75 : 1); } catch (e) {}
+          a.onended = () => { if (my === sayId) { player = null; if (o.end) o.end(); } };
+          a.onerror = back;
+          const pr = a.play(); if (pr && pr.catch) pr.catch(back);
+          return;
+        }
+      }
+    }
+    sysSay(t, o, my);
+  }
+  function hush() { sayId++; if (player) { try { player.pause(); } catch (e) {} player = null; } try { speechSynthesis.cancel(); } catch (e) {} }
 
   /* ---------- 录音和打分（同「🔊 练习」的跟读卡） ---------- */
   const toks = t => String(t || "").toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9'\s-]+/g, " ").split(/[\s-]+/).map(x => x.replace(/^'+|'+$/g, "")).filter(Boolean);
@@ -198,12 +236,26 @@
     return { start: "", tools: 3, drill: (D.drills || []).length, quick: (D.quick || []).length, mine: items("rec:").length, daily: 3, chat: (D.dialogs || []).length + 1, clip: CLIPS ? CLIPS.length : "…", dialog: (D.dialogs || []).length, func: (D.functions || []).length + (D.slang || []).length, pron: ((D.pron && D.pron.pairs) || []).length + 4, shadow: ((D.pron && D.pron.shadow) || []).reduce((a, g) => a + g.items.length, 0), topic: (D.topics || []).length };
   }
   function doneCount(prefix) { return Object.keys(done).filter(k => k.indexOf(prefix) === 0).length; }
+  // 最上边的统计条：今天 / 连续天数 / 近 7 天柱图 / 练习天数 / 各栏练过多少（数据：speak:log 每天练习次数、speak:days 打卡、speak:done 练过的条目）
+  const dayAgo = (k, n) => new Date(Date.parse(k + "T00:00:00+08:00") - n * 864e5 + 8 * 3600e3).toISOString().slice(0, 10);
+  function statBar() {
+    const L = LG("speak:log", {}), K = LG("speak:days", {}), t = today(), v = k => +L[k] || 0;
+    let run = 0, k = v(t) ? t : dayAgo(t, 1); while (v(k)) { run++; k = dayAgo(k, 1); }
+    const wk = Array.from({ length: 7 }, (_, i) => dayAgo(t, 6 - i)), mx = Math.max(1, ...wk.map(v)), w7 = wk.reduce((a, d) => a + v(d), 0);
+    const days = Object.keys(L).filter(d => v(d) > 0).length, total = Object.keys(L).reduce((a, d) => a + v(d), 0), punch = Object.keys(K).filter(d => K[d]).length;
+    const WD = "日一二三四五六", bars = wk.map(d => '<i title="' + d + "：" + v(d) + ' 次" class="' + (d === t ? "td" : "") + '"><u style="height:' + Math.round(v(d) / mx * 40) + 'px"></u><em>' + WD[new Date(d + "T12:00:00Z").getUTCDay()] + "</em></i>").join("");
+    const tile = (n, l) => '<div class="tl"><b>' + n + "</b><span>" + l + "</span></div>";
+    const sub = [["d:", "对话", (D && D.dialogs || []).length], ["s:", "跟读句", 0], ["t:", "话题", (D && D.topics || []).length], ["f:", "表达", (D && D.functions || []).length + (D && D.slang || []).length], ["p:", "发音", (D && D.pron && D.pron.pairs || []).length]];
+    return '<div class="sk-stat"><div class="tls">' + tile(v(t), "今天练习") + tile("🔥 " + run, "连续天数") + tile(w7, "近 7 天") + tile(days, "练习天数") + tile(punch, "每日一练打卡") + tile(total, "累计次数") + '</div><div class="bars">' + bars + "</div>" +
+      '<div class="by">' + sub.map(([p, l, n]) => "<span>" + l + " <b>" + doneCount(p) + "</b>" + (n ? " / " + n : "") + "</span>").join("") + "</div></div>";
+  }
   function head() {
     const n = counts();
     return '<div class="sk-hd"><h1>🗣 口语</h1><p>每天 15 分钟：听 → 跟读 → 角色扮演 → 自己说。点 🔊 听，点 🎙 录音跟读，会标出读对、读漏的词。</p><div class="sp">' +
       '<span class="sk-seg" title="朗读速度"><button data-rate="0.8" class="' + (opt.rate < .95 ? "on" : "") + '">慢</button><button data-rate="1" class="' + (opt.rate >= .95 && opt.rate < 1.1 ? "on" : "") + '">正常</button><button data-rate="1.15" class="' + (opt.rate >= 1.1 ? "on" : "") + '">快</button></span>' +
+      '<span class="sk-seg" title="朗读声音：AI 真人语音（Workers AI）或这台设备自带的语音"><button data-voice="ai" class="' + (opt.voice !== "sys" ? "on" : "") + '">AI 真人声</button><button data-voice="sys" class="' + (opt.voice === "sys" ? "on" : "") + '">系统声</button></span>' +
       '<span class="sk-seg" title="显示中文"><button data-zh="1" class="' + (opt.zh ? "on" : "") + '">中文</button><button data-zh="0" class="' + (!opt.zh ? "on" : "") + '">隐藏</button></span></div></div>' +
-      '<div class="sk-chips">' + SECS.map(([k, t]) => '<button data-sec="' + k + '" class="' + (sec === k && !view ? "on" : sec === k ? "on" : "") + '">' + t + (n[k] === "" ? "" : "<b>" + (n[k] || 0) + "</b>") + "</button>").join("") + "</div>";
+      '<div class="sk-chips">' + SECS.map(([k, t]) => '<button data-sec="' + k + '" class="' + (sec === k && !view ? "on" : sec === k ? "on" : "") + '">' + t + (n[k] === "" ? "" : "<b>" + (n[k] || 0) + "</b>") + "</button>").join("") + "</div>" + (view ? "" : statBar());
   }
   function draw() {
     if (!root) return;
@@ -828,6 +880,7 @@
       }
       const ad = t.closest("[data-add]"); if (ad) { if (window.vocabAddWord) window.vocabAddWord(ad.dataset.add, ad.dataset.sent || ""); else tip("生词本还没加载好"); return; }
       const sc = t.closest("[data-sec]"); if (sc) { stopAll(); sec = sc.dataset.sec; view = null; LS("speak:sec", sec); draw(); return; }
+      const vc = t.closest("[data-voice]"); if (vc) { opt.voice = vc.dataset.voice; LS("speak:opt", opt); hush(); draw(); if (opt.voice !== "sys") ttsLoad().then(() => say("Hi! This is the voice you will hear.")); return; }
       const rt = t.closest("[data-rate]"); if (rt) { opt.rate = +rt.dataset.rate; LS("speak:opt", opt); draw(); return; }
       const zh = t.closest("[data-zh]"); if (zh) { opt.zh = zh.dataset.zh === "1"; LS("speak:opt", opt); draw(); return; }
       const sg = t.closest("[data-sg]"); if (sg) { stopAll(); shadowGroup = +sg.dataset.sg; draw(); return; }
