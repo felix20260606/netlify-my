@@ -470,7 +470,7 @@
       <button data-mode="list" class="on">📖 列表</button>
       <button data-mode="grammar" class="mx">📐 语法</button>
       <button data-mode="writing" class="mx">📝 写作批改</button>
-      <button data-mode="sme" class="mx">📻 6 分钟英语</button>
+      <button data-mode="sme" class="mx">📻 BBC 听力</button>
     </div>
   </div>
 </header>
@@ -1687,7 +1687,7 @@ refresh(); // show seed words immediately, no waiting on storage
   var tListen=document.getElementById('tab-listen'),tRead=document.getElementById('tab-read'),tWrite=document.getElementById('tab-write');
   var L2_OWNER={daily:'en',notebook:'en',listen:'en',speak:'en',read:'en',write:'en',ielts:'en',fat:'life',trip:'life'};
   var EN_PAGE={notebook:'vocab',listen:'listen',read:'read',write:'write'};
-  var SECS={listen:[['sme','📻 6 分钟英语'],['video','🎬 视频'],['practice','🎧 听力练习']],write:[['writing','📝 写作批改'],['grammar','📐 语法']]};
+  var SECS={listen:[['sme','📻 BBC 听力'],['video','🎬 视频'],['practice','🎧 听力练习']],write:[['writing','📝 写作批改'],['grammar','📐 语法']]};
   var VOCAB_MODES=/^(stats|pump|saved|list)$/, CUR='', busy=false;
   function getSub(w){var d=SECS[w][0][0];try{var v=localStorage.getItem('en_sub_'+w);if(SECS[w].some(function(x){return x[0]===v;}))return v;}catch(e){}return d;}
   function clickMode(m){var b=document.querySelector('.modes button[data-mode="'+m+'"]');if(b&&!b.classList.contains('on'))b.click();}
@@ -1828,13 +1828,13 @@ refresh(); // show seed words immediately, no waiting on storage
 })();
 </script>
 <script src="tts.js?v=1"></script>
-<script src="watch.js?v=14"></script>
+<script src="watch.js?v=15"></script>
 <script src="channels.js?v=3"></script>
 <script src="pump.js?v=28"></script>
 <script src="speak.js?v=9"></script>
-<script src="daily.js?v=5"></script>
+<script src="daily.js?v=6"></script>
 <script src="read.js?v=8"></script>
-<script src="listen.js?v=1"></script>
+<script src="listen.js?v=2"></script>
 <script src="import.js?v=1"></script>
 <script src="write.js?v=1"></script>
 <script src="stats.js?v=1"></script>

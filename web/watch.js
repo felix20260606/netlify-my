@@ -37,6 +37,15 @@
   html.show-video #view-video{display:block}
   html.show-video #view-en,html.show-video #view-fat,html.show-video #view-trip,html.show-video #view-ielts,html.show-video #view-ext,html.show-video #view-speak,html.show-video #view-daily{display:none!important}
   html.show-video body{padding-bottom:0}
+  /* 视频在放时切到别的页面：只留视频，缩成右下角的悬浮小窗继续播（html.wt-float，见 videoCore.leave） */
+  html.wt-float:not(.show-video) #view-video{display:block;position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(340px,62vw);z-index:9400;padding:0;background:#000;border-radius:12px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+  html.wt-float.sm-floating:not(.show-video) #view-video{bottom:calc(130px + env(safe-area-inset-bottom,0px))}
+  html.wt-float:not(.show-video) #view-video .wrap{max-width:none!important;padding:0!important}
+  html.wt-float:not(.show-video) #watch>:not(.wt-play),html.wt-float:not(.show-video) .wt-play>:not(.wt-video):not(.wt-fbar){display:none!important}
+  html.wt-float:not(.show-video) .wt-play{display:block!important;height:auto!important}
+  html.wt-float:not(.show-video) .wt-video{border-radius:0;max-height:none!important;height:auto!important;aspect-ratio:16/9!important}
+  .wt-fbar{display:none}html.wt-float:not(.show-video) .wt-fbar{display:flex;gap:6px;align-items:center;padding:5px 6px;background:#1b1d21;font-size:12.5px;color:#cfd3d8}
+  .wt-fbar b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wt-fbar button{flex:0 0 auto;height:26px;padding:0 8px;border-radius:7px;border:1px solid #454950;background:#2d2f34;color:#e6e8eb;font:inherit;font-size:12px;cursor:pointer}
   #apptabs .seg-wrap.three{max-width:460px}
   #view-video .wrap{max-width:620px;margin:0 auto;padding:0 14px}
   #watch{padding-top:12px}
@@ -333,7 +342,7 @@
       </div>
       <div class="wt-play">
         <div class="wt-bar"><button id="wt-back" aria-label="返回">‹ 返回</button><b id="wt-title"></b></div>
-        <div class="wt-video"><div id="wt-yt"></div></div>
+        <div class="wt-fbar"><span>🎬</span><b id="wt-ftitle"></b><button id="wt-fplay" type="button">⏯</button><button id="wt-fback" type="button" title="回到视频页">↩ 回到视频</button><button id="wt-fx" type="button" title="停止并关掉">✕</button></div><div class="wt-video"><div id="wt-yt"></div></div>
         <div class="wt-sub" id="wt-sub"><div class="en none">点 ▶ 开始播放</div><div class="zh"></div></div>
         <div class="wt-ctl">
           <button id="wt-prev" aria-label="上一句" title="上一句（←）">⏮ 上句</button>
@@ -361,12 +370,16 @@
 
     // 视频在「📚 英语 → 🎧 听 → 🎬 视频」（index.html 的 enShow('listen','video') 调 videoCore.enter，切到别处调 videoCore.leave）
     const H = document.documentElement;
-    const leave = () => { if (!H.classList.contains("show-video")) return; H.classList.remove("show-video", "wt-playing"); LS.set("wt:tab", 0); try { player && player.pauseVideo && player.pauseVideo(); } catch (e) {} };
+    const leave = () => { if (!H.classList.contains("show-video")) return; const fl = root.classList.contains("playing") && playing(); H.classList.remove("show-video", "wt-playing"); LS.set("wt:tab", 0); if (fl) { H.classList.add("wt-float"); $("#wt-ftitle").textContent = (doc && doc.title) || ""; } else { try { player && player.pauseVideo && player.pauseVideo(); } catch (e) {} } }; // 正在放：变成右下角悬浮小窗接着放
+    const unfloat = () => H.classList.remove("wt-float");
+    $("#wt-fx").onclick = () => { try { player && player.pauseVideo && player.pauseVideo(); } catch (e) {} savePos(true); unfloat(); };
+    $("#wt-fback").onclick = () => { unfloat(); enter(); };
+    $("#wt-fplay").onclick = () => { try { if (playing()) player.pauseVideo(); else player.playVideo(); } catch (e) {} };
     const core = () => {
-      H.classList.add("show-video"); H.classList.toggle("wt-playing", root.classList.contains("playing"));
+      H.classList.remove("wt-float"); H.classList.add("show-video"); H.classList.toggle("wt-playing", root.classList.contains("playing"));
       scrollTo(0, 0); $("#wt-bml").href = bookmarklet(); loadBook(); loadList(); fit(); if (VS) vsData(); else vsLoad();
     };
-    window.videoCore = { enter: core, leave };
+    window.videoCore = { enter: core, leave, pause: () => { try { if (playing()) player.pauseVideo(); } catch (e) {} } }; // pause：别处开始放音频（BBC 听力）时停视频
     enter = () => { if (window.enShow) window.enShow("listen", "video"); else core(); }; // 别的地方（?v=、已保存里的视频）要打开视频：先切到「🎧 听 → 🎬 视频」
     $("#wt-bml").href = bookmarklet(); $("#wt-bml").onclick = e => { e.preventDefault(); tip("把它拖到书签栏；手机上请用「复制书签代码」"); };
     $("#wt-bmc").onclick = async () => { tip(await copyText(bookmarklet()) ? "已复制，按上面第 2、3 步存成书签" : "复制失败，请长按右边的链接复制"); };
@@ -586,7 +599,7 @@
       listEl.innerHTML = '<div class="wt-empty">这个视频还没有字幕。<br>在电脑上用插件打开它看约 20 秒，字幕会自动同步过来；视频本身现在就可以播放。</div>';
     }
   }
-  function closePlay() { savePos(true); closeSheet(); loop = null; abA = -1; stopTick(); try { player && player.destroy && player.destroy(); } catch (e) {} player = null; ready = false; doc = null; root.classList.remove("playing"); document.documentElement.classList.remove("wt-playing"); $(".wt-video", root).innerHTML = '<div id="wt-yt"></div>'; loadList(); }
+  function closePlay() { document.documentElement.classList.remove("wt-float"); savePos(true); closeSheet(); loop = null; abA = -1; stopTick(); try { player && player.destroy && player.destroy(); } catch (e) {} player = null; ready = false; doc = null; root.classList.remove("playing"); document.documentElement.classList.remove("wt-playing"); $(".wt-video", root).innerHTML = '<div id="wt-yt"></div>'; loadList(); }
   function drawCues() {
     listEl.innerHTML = cues.map((c, i) => '<div class="wt-row" data-i="' + i + '"><i>' + fmt(c.s) + '</i><span class="t">' + markup(c.t) + '</span><span class="r">' + esc(c.r || "") + "</span></div>").join("") + '<button class="wt-back">↓ 回到当前</button>';
     paintLoop();
@@ -636,7 +649,7 @@
     player = new YT.Player("wt-yt", { videoId: v, playerVars: { playsinline: 1, rel: 0, modestbranding: 1, cc_load_policy: 0, iv_load_policy: 3, start: Math.floor(resumeAt) }, events: {
       onReady: () => { ready = true; try { player.setPlaybackRate(set.rate); } catch (e) {} startTick(); },
       onStateChange: e => {
-        if (e.data === 1) { if (lock) { lock = false; } started = true; startTick(); if (!cues.length || cur < 0) showSub(cur); }
+        if (e.data === 1) { if (lock) { lock = false; } started = true; try { window.smePause && window.smePause(); } catch (er) {} startTick(); if (!cues.length || cur < 0) showSub(cur); }
         else if (e.data === 2) savePos(false);
         else if (e.data === 0 && doc) { const m = meta(doc.v); m.w = 1; m.p = 0; saveMeta(); }
       },

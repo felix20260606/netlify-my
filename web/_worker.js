@@ -455,31 +455,63 @@ async function news(req, env, u) {
   return json(out);
 }
 
-// ---------- 每日听力 /api/sme：BBC Learning English「6 Minute English」（「🎧 听 → 📻 6 分钟英语」）----------
-// GET /api/sme → { ok, list:[{id, t 标题, d 日期, p 一句简介, img}] }：今年和去年的节目目录（新的在前），KV「sme/list」存 12 小时
-// GET /api/sme?ep=6-minute-english_2026/ep-261119 → { ok, id, title, mp3, intro, q:[问题, 选项…], vocab:[[词, 英文解释]], lines:[{who, t}] }：KV「sme/ep/…」存 90 天
+// ---------- 每日听力 /api/sme：BBC Learning English 的四个栏目（「🎧 听 → 📻 BBC 听力」）----------
+// s = ree Real Easy English（慢速简单对话）/ tews The English We Speak（地道说法）/ news Learning English from the News（新闻英语）/ sme 6 Minute English
+// GET /api/sme?s=tews → { ok, s, list:[{id, t 标题, d 日期, p 一句简介, img}] }：今年和去年的节目目录（新的在前），KV「sme/list/<s>」存 12 小时（6 Minute English 还是「sme/list」）
+// GET /api/sme?ep=6-minute-english_2026/ep-261119 → { ok, id, s, title, mp3, intro, q:[问题, 选项…], vocab:[[词, 英文解释, 例句?]], heads:[[新闻标题, 来源]], lines:[{who, t}] }：KV「sme/ep/…」存 90 天
+// GET /api/sme?ep=…&zh=1 → { ok, intro, q:[], vocab:[], heads:[], lines:[] } 和上面一一对应的中文（谷歌翻译），KV「sme/zh/…」存 180 天
+const SME_S = {
+  ree: { slug: "real-easy-english", yearly: false, re: /^real-easy-english\/\d{6}$/ },
+  tews: { slug: "the-english-we-speak", yearly: true, re: /^the-english-we-speak_\d{4}\/ep-\d{6}$/ },
+  news: { slug: "learning-english-from-the-news", yearly: true, re: /^learning-english-from-the-news_\d{4}\/\d{6}$/ },
+  sme: { slug: "6-minute-english", yearly: true, re: /^6-minute-english_\d{4}\/ep-\d{6}$/ },
+};
+const smeOf = ep => Object.keys(SME_S).find(k => SME_S[k].re.test(ep)) || "";
 function smeLines(h) {
-  const dec = s => s.replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&#x27;|&rsquo;|&lsquo;/g, "'").replace(/&ldquo;|&rdquo;/g, '"').replace(/&mdash;/g, "—").replace(/&ndash;/g, "–").replace(/&hellip;/g, "…").replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n));
-  return dec(h.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, "").replace(/<strong>([^<]{1,40})<\/strong>\s*<br\s*\/?>/gi, "\n@@$1\n").replace(/<br\s*\/?>/gi, "\n").replace(/<\/(p|h\d|li|div|dt|dd)>/gi, "\n").replace(/<[^>]+>/g, "")).split("\n").map(s => s.replace(/\s+/g, " ").trim()).filter(Boolean);
+  const dec = s => s.replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&#x27;|&rsquo;|&lsquo;/g, "'").replace(/&ldquo;|&rdquo;/g, '"').replace(/&mdash;/g, "—").replace(/&ndash;/g, "–").replace(/&hellip;/g, "…").replace(/&pound;/g, "£").replace(/&euro;/g, "€").replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n));
+  // 说话人 / 生词：「<strong>Name</strong><br />」或「<strong>Name<br /></strong>」→ 单独一行「@@Name」
+  return dec(h.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, "").replace(/<strong>([^<]{1,60})<br\s*\/?>\s*<\/strong>|<strong>([^<]{1,60})<\/strong>\s*<br\s*\/?>/gi, (m, x, y) => "\n@@" + (x || y) + "\n").replace(/<br\s*\/?>/gi, "\n").replace(/<\/(p|h\d|li|div|dt|dd)>/gi, "\n").replace(/<[^>]+>/g, "")).split("\n").map(s => s.replace(/\s+/g, " ").trim()).filter(s => s && s !== "@@");
 }
 function smeParse(html) {
   const L0 = smeLines(html), L = L0.map(s => s.replace(/^@@/, "")), at = (re, from) => { for (let i = from || 0; i < L.length; i++) if (re.test(L[i])) return i; return -1; };
   const og = (html.match(/<meta property="og:title" content="([^"]*)"/) || [])[1] || "";
   const mp3 = (html.match(/href="(https:\/\/downloads\.bbc\.co\.uk\/[^"]+\.mp3)"/) || [])[1] || "";
-  const iI = at(/^Introduction$/i), iQ = at(/^This week'?s question$/i), iV = at(/^Vocabulary$/i), iT = at(/^TRANSCRIPT$/), iN = iT < 0 ? -1 : at(/^(Next|Latest|Download|Previous|Episode \d+|Take the quiz)/i, iT + 1);
-  const seg = (a, b) => (a < 0 ? [] : L.slice(a + 1, b > a ? b : a + 40));
-  const intro = seg(iI, iQ > iI ? iQ : iV).join(" ");
-  const q = seg(iQ, iV).filter(s => !/^Listen to the programme/i.test(s));
-  const V = seg(iV, iT), vocab = []; for (let i = 0; i + 1 < V.length; i += 2) vocab.push([V[i], V[i + 1]]);
-  const T = iT < 0 ? [] : L0.slice(iT + 1, iN > iT ? iN : L.length).filter(s => !/^(@@)?Note: This is not a word-for-word transcript/i.test(s));
+  const iI = at(/^(Introduction|The story)$/i), iH = at(/^News headlines$/i), iQ = at(/^This week'?s question$/i), iV = at(/^(Vocabulary|Key words and phrases)$/i), iT = at(/^Transcript$/i);
+  const iEnd = at(/^(Next|Latest|Download|Previous|Episode \d+|Take the quiz|Note: This podcast)/i, Math.max(iI, iV, iT, 0) + 1);
+  const marks = [iI, iH, iQ, iV, iT, iEnd].filter(x => x >= 0).sort((x, y) => x - y);
+  const end = a => { const n = marks.find(x => x > a); return n == null ? Math.min(L.length, a + 80) : n; };
+  const seg = (a, raw) => (a < 0 ? [] : (raw ? L0 : L).slice(a + 1, end(a)));
+  const intro = seg(iI).join(" ");
+  const q = seg(iQ).filter(s => !/^Listen to the programme/i.test(s));
+  const heads = []; { const H = seg(iH); for (let i = 0; i < H.length; i++) { if (H[i + 1] && H[i + 1].length < 40 && H[i].length > H[i + 1].length) { heads.push([H[i], H[i + 1]]); i++; } else heads.push([H[i], ""]); } }
+  const V0 = seg(iV, true), vocab = [];
+  if (V0.some(s => /^@@/.test(s))) { for (const s of V0) { if (/^@@/.test(s)) vocab.push([s.slice(2).trim(), ""]); else if (vocab.length) { const v = vocab[vocab.length - 1]; if (!v[1]) v[1] = s; else if (!v[2]) v[2] = s; } } }
+  else for (let i = 0; i + 1 < V0.length; i += 2) vocab.push([V0[i], V0[i + 1]]);
+  const T = iT < 0 ? [] : L0.slice(iT + 1, end(iT)).filter(s => !/^(@@)?Note: This is not a word-for-word transcript/i.test(s));
   const lines = []; let who = "";
   for (let i = 0; i < T.length; i++) { const s = T[i]; if (/^@@/.test(s)) { who = s.slice(2).trim(); continue; } lines.push({ who, t: s }); }
-  return { title: og.split(" / ").pop().trim(), mp3, intro, q, vocab, lines };
+  return { title: og.split(" / ").pop().trim(), mp3, intro, q, vocab: vocab.filter(v => v[0] && v[1]), heads, lines };
 }
-function smeIndex(html) {
-  const out = [], seen = new Set(), re = /<a\s+href="\/learningenglish\/english\/features\/(6-minute-english_\d{4}\/ep-\d{6})"><img src="([^"]+)"[\s\S]*?<h2><a\s+href="[^"]+">([^<]+)<\/a><\/h2>[\s\S]*?<h3>([\s\S]*?)<\/h3>\s*<p>([^<]*)<\/p>/g;
+function smeIndex(html, slug) {
+  const out = [], seen = new Set(), re = new RegExp('<a\\s+href="/learningenglish/english/features/(' + slug + '(?:_\\d{4})?/(?:ep-)?\\d{6})"><img src="([^"]+)"[\\s\\S]*?<h2><a\\s+href="[^"]+">([^<]+)</a></h2>[\\s\\S]*?<h3>([\\s\\S]*?)</h3>\\s*<p>([^<]*)</p>', "g");
   const dec = s => s.replace(/&amp;/g, "&").replace(/&#39;|&rsquo;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
   let m; while ((m = re.exec(html))) { if (seen.has(m[1])) continue; seen.add(m[1]); const d = (m[4].match(/(\d{1,2} \w{3} \d{4})/) || [])[1] || ""; out.push({ id: m[1], img: m[2], t: dec(m[3]), d, p: dec(m[5]) }); }
+  return out;
+}
+// 一批英文句子 → 一样多的中文：按行拼起来（每段不超过 1500 字）交给谷歌翻译，行数对不上就拆小再试
+async function smeZh(arr) {
+  const out = arr.map(() => "");
+  async function run(idx, depth) {
+    const text = idx.map(i => arr[i].replace(/\s+/g, " ")).join("\n"), j = await gtrans(text, "zh-CN");
+    const zh = j ? (j.sentences || []).map(x => x.trans || "").join("").split("\n").map(x => x.trim()) : [];
+    if (zh.length === idx.length) { idx.forEach((i, k) => { out[i] = zh[k]; }); return; }
+    if (idx.length === 1) { out[idx[0]] = zh.join(" ").trim(); return; }
+    if (depth < 3) { const h = Math.ceil(idx.length / 2); await run(idx.slice(0, h), depth + 1); await run(idx.slice(h), depth + 1); }
+  }
+  const chunks = []; let cur = [], len = 0;
+  arr.forEach((s, i) => { if (!s) return; if (cur.length && len + s.length > 1500) { chunks.push(cur); cur = []; len = 0; } cur.push(i); len += s.length + 1; });
+  if (cur.length) chunks.push(cur);
+  for (let i = 0; i < chunks.length; i += 4) await Promise.all(chunks.slice(i, i + 4).map(c => run(c, 0).catch(() => {})));
   return out;
 }
 async function sme(req, env, u) {
@@ -487,21 +519,35 @@ async function sme(req, env, u) {
   const UA = { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36", "Accept": "text/html" };
   const BASE = "https://www.bbc.co.uk/learningenglish/english/features/", ep = u.searchParams.get("ep") || "", fresh = !!u.searchParams.get("fresh");
   if (ep) {
-    if (!/^6-minute-english_\d{4}\/ep-\d{6}$/.test(ep)) return json({ ok: false, error: "bad ep" }, 400);
-    const key = "sme/ep/" + ep; if (!fresh) { const c = await env.CAPTIONS.get(key, "json"); if (c) return json(c); }
-    try {
-      const r = await fetch(BASE + ep, { headers: UA }); if (!r.ok) return json({ ok: false, error: "http " + r.status }, 502);
-      const x = smeParse(await r.text()); if (x.lines.length < 6) return json({ ok: false, error: "no transcript" }, 502);
-      const out = { ok: true, id: ep, url: BASE + ep, ...x }; await env.CAPTIONS.put(key, JSON.stringify(out), { expirationTtl: 90 * 86400 }); return json(out);
-    } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 502); }
+    const s = smeOf(ep); if (!s) return json({ ok: false, error: "bad ep" }, 400);
+    const key = "sme/ep/" + ep; let x = fresh ? null : await env.CAPTIONS.get(key, "json");
+    if (!x) {
+      try {
+        const r = await fetch(BASE + ep, { headers: UA }); if (!r.ok) return json({ ok: false, error: "http " + r.status }, 502);
+        const p = smeParse(await r.text()); if (!p.mp3 || (p.lines.length < 6 && !(s === "news" && (p.intro || p.vocab.length)))) return json({ ok: false, error: "no transcript" }, 502);
+        x = { ok: true, id: ep, s, url: BASE + ep, ...p }; await env.CAPTIONS.put(key, JSON.stringify(x), { expirationTtl: 90 * 86400 });
+      } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 502); }
+    }
+    if (!u.searchParams.get("zh")) return json(x);
+    const zk = "sme/zh/" + ep; if (!fresh) { const c = await env.CAPTIONS.get(zk, "json"); if (c) return json(c); }
+    const q = x.q || [], V = x.vocab || [], H = x.heads || [], Ls = x.lines || [];
+    const all = [x.intro || "", ...q, ...V.map(v => v[1] || ""), ...V.map(v => v[2] || ""), ...H.map(h => h[0]), ...Ls.map(l => l.t)];
+    const zh = await smeZh(all); let i = 1; const take = n => { const r = zh.slice(i, i + n); i += n; return r; };
+    const out = { ok: true, id: ep, intro: zh[0], q: take(q.length), vocab: take(V.length), vex: take(V.length), heads: take(H.length), lines: take(Ls.length) };
+    const got = zh.filter(Boolean).length; if (!got) return json({ ok: false, error: "translate failed" }, 502);
+    if (got >= all.filter(Boolean).length * 0.9) await env.CAPTIONS.put(zk, JSON.stringify(out), { expirationTtl: 180 * 86400 }); // 大部分翻好了才存，没翻全的下次再试
+    return json(out);
   }
-  if (!fresh) { const c = await env.CAPTIONS.get("sme/list", "json"); if (c) return json(c); }
+  const s = SME_S[u.searchParams.get("s") || "sme"] ? (u.searchParams.get("s") || "sme") : "", S = SME_S[s]; if (!S) return json({ ok: false, error: "bad s" }, 400);
+  const lk = s === "sme" ? "sme/list" : "sme/list/" + s;
+  if (!fresh) { const c = await env.CAPTIONS.get(lk, "json"); if (c) return json(c); }
   const y = +newsDay().slice(0, 4), seen = new Set(), list = [];
-  for (const yy of [y, y - 1]) {
-    try { const r = await fetch(BASE + "6-minute-english_" + yy, { headers: UA }); if (r.ok) for (const i of smeIndex(await r.text())) if (!seen.has(i.id)) { seen.add(i.id); list.push(i); } } catch (e) {}
+  for (const page of S.yearly ? [S.slug + "_" + y, S.slug + "_" + (y - 1)] : [S.slug]) {
+    try { const r = await fetch(BASE + page, { headers: UA }); if (r.ok) for (const i of smeIndex(await r.text(), S.slug)) if (!seen.has(i.id)) { seen.add(i.id); list.push(i); } } catch (e) {}
   }
   if (!list.length) return json({ ok: false, error: "no list" }, 502);
-  const out = { ok: true, list: list.slice(0, 120) }; await env.CAPTIONS.put("sme/list", JSON.stringify(out), { expirationTtl: 12 * 3600 }); return json(out);
+  list.sort((p, q) => (q.id.match(/\d{6}$/) || [""])[0].localeCompare((p.id.match(/\d{6}$/) || [""])[0])); // 期号 = 年月日，新的在前
+  const out = { ok: true, s, list: list.slice(0, 120) }; await env.CAPTIONS.put(lk, JSON.stringify(out), { expirationTtl: 12 * 3600 }); return json(out);
 }
 
 // ---------- AI（Cloudflare Workers AI，免费额度每天 1 万 neurons；要在 Pages 项目「设置 → 绑定」里加 Workers AI，变量名 AI）----------
