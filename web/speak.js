@@ -13,7 +13,7 @@
    依赖 index.html 的全局：toast、chosenVoice（「⚙ 设置」里选的朗读声音）、vocabAddWord（加进生词本） */
 (function () {
   "use strict";
-  const V = "1";
+  const V = "2";
   const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const LG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
   const LS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
