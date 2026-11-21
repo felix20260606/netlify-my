@@ -439,6 +439,12 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
     paintNews(); if (view === "home") openDoc(j.simple, "（简单版）" + NEWS.title, id + ":s");
   }
   let quizPick = {};
+  // 读后小测答错的题收进「❌ 错题本」（errbook.js）
+  function quizErr(qi, oi) {
+    const Q = doc && simpAll()[baseId(doc.id)], q = Q && (Q.quiz || [])[qi];
+    if (!q || oi === +q.ans || !window.ERR) return;
+    window.ERR.add([{ src: "read", kind: "mcq", q: q.q, ctx: "出自：" + String(doc.title || "").replace(/^（简单版）/, ""), opts: q.opts, ans: +q.ans, wrong: q.opts[oi], why: q.why_zh || "" }]);
+  }
   function quizHtml() { // 新闻文章（原文或简单版）读到底下：读后小测 + 文中生词
     const Q = doc && /^n:/.test(doc.id) && simpAll()[baseId(doc.id)]; if (!Q) return "";
     const isS = /:s$/.test(doc.id), qs = (Q.quiz || []).map((q, qi) => { const pk = quizPick[doc.id + qi]; return '<div class="ra-qq"><b>' + (qi + 1) + ". " + esc(q.q) + "</b>" + q.opts.map((o, oi) => '<button data-a="qz" data-q="' + qi + '" data-o="' + oi + '" class="' + (pk == null ? "" : oi === +q.ans ? "ok" : oi === pk ? "bad" : "") + '">' + String.fromCharCode(65 + oi) + ". " + esc(o) + "</button>").join("") + (pk != null ? '<div class="why">' + (pk === +q.ans ? "✅ 对了。" : "❌ 正确答案是 " + String.fromCharCode(65 + +q.ans) + "。") + esc(q.why_zh || "") + "</div>" : "") + "</div>"; }).join("");
@@ -599,7 +605,7 @@ So I have made a small rule for myself. I still carry fifty ringgit, folded neat
       if (a === "news") { newsRead(); return; }
       if (a === "news-alt") { newsAlt(); return; }
       if (a === "news-simp") { newsSimp(); return; }
-      if (a === "qz") { const k = doc.id + b.dataset.q; if (quizPick[k] == null) { quizPick[k] = +b.dataset.o; const y = window.scrollY; drawRead(); window.scrollTo(0, y); } return; }
+      if (a === "qz") { const k = doc.id + b.dataset.q; if (quizPick[k] == null) { quizPick[k] = +b.dataset.o; quizErr(+b.dataset.q, +b.dataset.o); const y = window.scrollY; drawRead(); window.scrollTo(0, y); } return; }
       if (a === "kw-add") { const Q = simpAll()[baseId(doc.id)]; if (!Q || !window.vocabAddWord) return; b.disabled = true; b.textContent = "加入中…"; (async () => { let n = 0; for (const w of Q.words || []) { const sent = P.sents.find(x => x.toLowerCase().includes(String(w.en).toLowerCase())) || ""; try { if (await window.vocabAddWord(w.en, sent)) n++; } catch (e) {} } b.textContent = "已加入 " + n + " 个"; })(); return; }
       if (a === "sw") { const Q = simpAll()[baseId(doc.id)], bid = baseId(doc.id); if (!Q) return; if (/:s$/.test(doc.id)) { const d = docs().find(x => x.id === bid); if (d) openDoc(d.text, d.title, d.id); else if (NEWS && newsId(NEWS) === bid) newsRead(); } else openDoc(Q.simple, "（简单版）" + doc.title, bid + ":s"); return; }
       if (a === "news-list") { newsList = !newsList; paintNews(); return; }

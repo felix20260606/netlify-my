@@ -845,7 +845,26 @@
     await Promise.all([callLT(r), callAI(r), loadVocab()]);
     runLocal(r); redrawRes();
     recordHist(r);
+    toErrBook(r);
     const hb = host && host.querySelector('[data-v="hist"]'); if (hb) hb.textContent = "历史 " + hist().length;
+  }
+
+  // 语法和拼写错误收进「❌ 错题本」（errbook.js）：错的写法 → 第一条建议，带原句；人名地名（大写开头的拼写提示）不收；一篇最多 10 条
+  function toErrBook(r) {
+    if (!window.ERR || !r || !(r.matches || []).length) return;
+    const T = r.text, L = [];
+    for (const m of r.matches) {
+      if (L.length >= 10) break;
+      if (!(m.cat === "grammar" || m.cat === "spell") || !m.rep || !m.rep[0] || !m.length) continue;
+      const wrong = T.substr(m.offset, m.length); if (!/[a-z]/i.test(wrong) || wrong.trim() === m.rep[0].trim()) continue;
+      if (m.cat === "spell" && /^[A-Z]/.test(wrong)) continue;
+      let a = m.offset, b = m.offset + m.length;
+      while (a > 0 && !/[.!?\n]/.test(T[a - 1])) a--;
+      while (b < T.length && !/[.!?\n]/.test(T[b])) b++;
+      const ctx = T.slice(a, Math.min(T.length, b + 1)).trim();
+      L.push({ src: "write", kind: "fix", ctx: ctx.length > 400 ? T.slice(Math.max(0, m.offset - 120), m.offset + m.length + 120) : ctx, wrong, right: m.rep[0], why: (m.cat === "spell" ? "拼写：" : "语法：") + (m.msg || m.short || m.rule || "") });
+    }
+    if (L.length) window.ERR.add(L);
   }
 
   /* ---------- 应用建议 ---------- */

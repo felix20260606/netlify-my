@@ -58,6 +58,49 @@ async function userPre(req, kv) {
   return L.some(x => x.id === id) ? "u/" + id + "/" : null;
 }
 const noUser = () => json({ ok: false, error: "unknown user" }, 404);
+
+// ---------- 写入保护（口令）/api/auth ----------
+// 平时的同步、加词、练习、插件上传都不用口令；只有「大改动」要：整份还原（replace）、删视频字幕、改名 / 删家人，
+//   以及一次删很多条（生词本 > 20 条、插件数据 > 30 项、个人资料 > 30 项）、一次改写很多已有词条（> 60 条），
+//   或者当天不带口令的删除 / 改写累计超过上限（生词本删 40 条、改写 150 条；插件数据删 80 项）。
+// 口令只存加盐的 SHA-256（KV「auth」= {salt, h, at}）；网页存在本机 localStorage「auth:key」，每个请求带请求头 x-key。
+// 还没设口令时一切照旧（谁都能写），网站上会提示去设；忘了口令：Cloudflare 后台 → KV → CAPTIONS 删掉「auth」这一条，再在网站上重新设。
+//   GET  /api/auth                → { ok, set 设过没有, valid 这次带的口令对不对 }
+//   POST /api/auth {set:"新口令"} → 还没设过：直接设；已经设过：要带对的 x-key（= 改口令）。口令至少 8 位。
+const AUTH_KEY = "auth";
+let authMem = null, authAt = 0, authFail = 0, authFailAt = 0;
+async function sha(s) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+async function authDoc(kv, fresh) { if (!fresh && authMem !== null && Date.now() - authAt < 30000) return authMem; authMem = (await kv.get(AUTH_KEY, "json")) || false; authAt = Date.now(); return authMem; }
+// → "none" 没设口令 | "ok" 口令对 | "bad" 没带或不对
+async function authOf(req, kv) {
+  const d = await authDoc(kv); if (!d || !d.h) return "none";
+  const k = req.headers.get("x-key") || ""; if (!k) return "bad";
+  if (authFail > 20 && Date.now() - authFailAt < 60000) return "bad"; // 同一台机房一分钟内错太多次：先一律当错（防猜）
+  if ((await sha(d.salt + "|" + k)) === d.h) return "ok";
+  authFail = Date.now() - authFailAt < 60000 ? authFail + 1 : 1; authFailAt = Date.now(); return "bad";
+}
+const needKey = why => json({ ok: false, error: "needkey", why }, 403);
+// 当天不带口令的删除 / 改写累计（KV「guard:<人>:<日期>」，只在真的有删除、改写时才写一次）
+async function guardDay(kv, who, add, lim) {
+  const k = "guard:" + who + ":" + bjDay(), cur = (await kv.get(k, "json")) || {};
+  for (const f in add) if ((+cur[f] || 0) + add[f] > lim[f]) return false;
+  if (Object.values(add).some(v => v > 0)) { for (const f in add) cur[f] = (+cur[f] || 0) + add[f]; await kv.put(k, JSON.stringify(cur), { expirationTtl: 3 * 86400 }); }
+  return true;
+}
+async function auth(req, env) {
+  if (req.method === "OPTIONS") return json({ ok: true });
+  const kv = env.CAPTIONS; if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
+  try {
+    if (req.method === "GET") { const d = await authDoc(kv, true), a = await authOf(req, kv); return json({ ok: true, set: !!(d && d.h), valid: a === "ok" }); }
+    if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
+    const b = JSON.parse((await req.text()) || "{}"), nk = String(b.set || "");
+    if (nk.length < 8 || nk.length > 200) return json({ ok: false, error: "口令至少 8 位" }, 400);
+    const d = await authDoc(kv, true); if (d && d.h && (await authOf(req, kv)) !== "ok") return needKey("change");
+    const salt = crypto.getRandomValues(new Uint8Array(16)).reduce((s, x) => s + x.toString(16).padStart(2, "0"), "");
+    const doc = { salt, h: await sha(salt + "|" + nk), at: Date.now() }; await kv.put(AUTH_KEY, JSON.stringify(doc)); authMem = doc; authAt = Date.now();
+    return json({ ok: true, set: true });
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 500); }
+}
 async function users(req, env) {
   if (req.method === "OPTIONS") return json({ ok: true });
   const kv = env.CAPTIONS; if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
@@ -75,6 +118,7 @@ async function users(req, env) {
       await kv.put(USERS_KEY, JSON.stringify(L)); usersMem = L; usersAt = Date.now();
       return json({ ok: true, user, users: L });
     }
+    if ((isObj(b.rename) || b.remove) && (await authOf(req, kv)) === "bad") return needKey("users");
     if (isObj(b.rename)) {
       const x = L.find(y => y.id === String(b.rename.id || "")), name = nm(b.rename.name);
       if (!x || !name) return json({ ok: false, error: "bad body" }, 400);
@@ -116,6 +160,7 @@ async function cap(req, env, u) {
     }
     if (req.method === "DELETE") {
       const v = u.searchParams.get("v"); if (!okId(v)) return json({ ok: false, error: "bad id" }, 400);
+      if ((await authOf(req, kv)) === "bad") return needKey("cap");
       await kv.delete("v/" + v);
       return json({ ok: true });
     }
@@ -208,6 +253,18 @@ async function vocab(req, env) {
     else return json({ ok: false, error: "bad body" }, 400);
     const changed = JSON.stringify(next) !== before;
     if (changed) {
+      // 写入保护：整份还原、一次删 / 改很多条、当天累计太多 → 要口令（见上面 /api/auth）
+      const A = await authOf(req, kv);
+      if (A === "bad") {
+        if (b.replace) return needKey("replace");
+        // 插件、书签带不了口令，所以只有真的删 / 改写已有词条时才数（patch 只会删，不会改写内容）
+        const old = Array.isArray(b.add) || isObj(b.patch) ? null : JSON.parse(before).custom, nx = new Set(next.custom.map(e => e && e.id));
+        let rm = 0, rw = 0;
+        if (!old) rm = Math.max(0, JSON.parse(before).custom.filter(e => e && e.id && !nx.has(e.id)).length);
+        else { const by = new Map(next.custom.filter(e => e && e.id).map(e => [e.id, e])); for (const e of old) { if (!e || !e.id) continue; const y = by.get(e.id); if (!y) rm++; else if (JSON.stringify(y) !== JSON.stringify(e)) rw++; } }
+        if (rm > 20 || rw > 60) return needKey("big");
+        if ((rm || rw) && !(await guardDay(kv, pre + "vocab", { rm, rw }, { rm: 40, rw: 150 }))) return needKey("day");
+      }
       // 回收站：这次被删掉的词条整条存进 VK + ":trash"（30 天内能在网站上恢复）
       const gone = new Set(next.deleted), had = JSON.parse(before).custom.filter(e => e && e.id && gone.has(e.id) && !next.custom.some(x => x && x.id === e.id));
       if (had.length) { const tk = VK + ":trash", now = Date.now(), old = ((await kv.get(tk, "json")) || []).filter(t => t && t.e && now - t.at < 30 * 86400e3 && !had.some(e => e.id === t.e.id)); await kv.put(tk, JSON.stringify(had.map(e => ({ e, at: now })).concat(old).slice(0, 500))); }
@@ -241,6 +298,8 @@ async function ext(req, env) {
     if (req.method !== "POST") return json({ ok: false, error: "method" }, 405);
     const raw = await req.text(); if (raw.length > 20000000) return json({ ok: false, error: "too large" }, 413);
     const b = JSON.parse(raw || "{}");
+    const A = await authOf(req, kv);
+    if (b.replace && A === "bad") return needKey("replace");
     if (b.replace && isObj(b.replace.items)) { // 整份还原（内容取自存档或仓库里的 data/ext.json）
       const day = EK + "@" + bjDay(); if (raw0 && !(await kv.get(day))) await kv.put(day, raw0, { expirationTtl: 30 * 86400 });
       const now = Date.now(), items = {}; for (const k in b.replace.items) { const x = b.replace.items[k]; if (isObj(x)) items[k] = { v: x.v, at: now }; }
@@ -255,6 +314,11 @@ async function ext(req, env) {
       if (old && (+old.at || 0) > at) continue;
       if (x.del) { if (!old || !old.del) { doc.items[k] = { del: 1, at }; changed = true; } if (k.startsWith("med|")) gone.push(k.slice(4)); }
       else if (!old || old.del || JSON.stringify(old.v) !== JSON.stringify(x.v)) { doc.items[k] = { v: x.v, at }; changed = true; }
+    }
+    if (changed && A === "bad") { // 写入保护：一次删太多、当天累计删太多 → 要口令
+      const prev = (raw0 && JSON.parse(raw0).items) || {}, rm = Object.keys(b.changes).filter(k => isObj(b.changes[k]) && b.changes[k].del && isObj(prev[k]) && !prev[k].del).length;
+      if (rm > 30) return needKey("big");
+      if (rm && !(await guardDay(kv, pre + "ext", { rm }, { rm: 80 }))) return needKey("day");
     }
     if (changed) {
       const cut = Date.now() - 120 * 86400e3; for (const k in doc.items) if (doc.items[k].del && doc.items[k].at < cut) delete doc.items[k];
@@ -318,7 +382,7 @@ async function sent(req, env, u) {
 // ---------- 个人的学习资料 /api/mine（按人分开，换设备也在）：阅读的文章、作文批改历史、词汇量测试 ----------
 // GET  ?k=reading|writing|vtest → { ok, items:{ id:{v, at} | {del:1, at} } }（删除记号保留 60 天）
 // POST {k, changes:{ id:{v,at}|{del:1,at} }} → 同一项以 at 新的为准，返回合并后的 { ok, items }
-const MINE_K = /^(reading|writing|vtest|speak|daily|sme)$/; // daily：「📅 每日」的设置、手动打勾、每天完成几项；sme：「📻 6 分钟英语」听过哪几期 // speak：口语页的练习记录、每日打卡、AI 陪练记录、录音存档索引（speak.js）
+const MINE_K = /^(reading|writing|vtest|speak|daily|sme|err|exam)$/; // err：「❌ 错题本」（errbook.js）；exam：雅思听力 / 阅读模考的成绩（exam.js） // daily：「📅 每日」的设置、手动打勾、每天完成几项；sme：「📻 6 分钟英语」听过哪几期 // speak：口语页的练习记录、每日打卡、AI 陪练记录、录音存档索引（speak.js）
 async function mine(req, env, u) {
   if (req.method === "OPTIONS") return json({ ok: true });
   const kv = env.CAPTIONS; if (!kv) return json({ ok: false, error: "KV binding CAPTIONS is missing" }, 500);
@@ -329,6 +393,7 @@ async function mine(req, env, u) {
     const raw = await req.text(); if (raw.length > 3000000) return json({ ok: false, error: "too large" }, 413);
     const b = JSON.parse(raw || "{}"); if (!MINE_K.test(b.k || "") || !isObj(b.changes)) return json({ ok: false, error: "bad body" }, 400);
     const key = pre + "mine:" + b.k, cur = ((await kv.get(key, "json")) || {}).items || {}, now = Date.now(); let changed = false;
+    if (Object.keys(b.changes).filter(id => isObj(b.changes[id]) && b.changes[id].del && cur[id] && !cur[id].del).length > 30 && (await authOf(req, kv)) === "bad") return needKey("big");
     for (const id in b.changes) { const x = b.changes[id]; if (!isObj(x) || !(+x.at) || String(id).length > 200) continue; if (!cur[id] || +x.at > +cur[id].at) { cur[id] = x.del ? { del: 1, at: +x.at } : { v: x.v, at: +x.at }; changed = true; } }
     for (const id in cur) if (cur[id].del && now - cur[id].at > 60 * 86400e3) { delete cur[id]; changed = true; }
     if (changed) { const out = JSON.stringify({ items: cur }); if (out.length > 20000000) return json({ ok: false, error: "too large" }, 413); await kv.put(key, out); }
@@ -514,8 +579,40 @@ async function smeZh(arr) {
   for (let i = 0; i < chunks.length; i += 4) await Promise.all(chunks.slice(i, i + 4).map(c => run(c, 0).catch(() => {})));
   return out;
 }
+// GET /api/sme?al=<期号>&part=N → { ok, part, parts, total, words:[[词, 开始秒, 结束秒]] }：逐句精听用的「每个词在第几秒」
+//   把这一期的 mp3 按 1MB 一段（约 1 分钟）切开交给 Workers AI Whisper（每分钟约 47 neurons，一期约 300），时间从这一段开头算；
+//   网页（listen.js）按 段号 × 1MB ÷ 文件大小 × 总时长 换成整期的时间，再和文稿逐词对齐。每段结果存 KV「sme/al/<期号>/<段号>」180 天（家里人共用，只花一次）
+const AL_PART = 1000000;
+async function smeAlign(env, u) {
+  const ep = u.searchParams.get("al") || "", part = Math.max(0, Math.min(40, +u.searchParams.get("part") || 0));
+  if (!smeOf(ep)) return json({ ok: false, error: "bad ep" }, 400);
+  const kv = env.CAPTIONS, key = "sme/al/" + ep + "/" + part;
+  const hit = await kv.get(key, "json"); if (hit) return json(Object.assign({ ok: true, cached: true }, hit));
+  if (!env.AI) return json({ ok: false, error: "noai" }, 503);
+  const x = await kv.get("sme/ep/" + ep, "json"); if (!x || !x.mp3) return json({ ok: false, error: "open the episode first" }, 409);
+  try {
+    const r = await fetch(x.mp3, { headers: { Range: "bytes=" + part * AL_PART + "-" + ((part + 1) * AL_PART - 1) } });
+    if (r.status !== 206 && r.status !== 200) return json({ ok: false, error: "mp3 " + r.status }, 502);
+    let buf = new Uint8Array(await r.arrayBuffer()), total = +((r.headers.get("content-range") || "").split("/")[1]) || 0;
+    if (r.status === 200) { total = buf.length; buf = buf.subarray(part * AL_PART, (part + 1) * AL_PART); } // 不支持分段下载：整份下来自己切
+    const parts = Math.max(1, Math.ceil(total / AL_PART)); if (!buf.length) return json({ ok: false, error: "past end", parts }, 400);
+    let bin = ""; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+    const o = await env.AI.run("@cf/openai/whisper-large-v3-turbo", { audio: btoa(bin), language: "en" });
+    const words = [];
+    for (const sg of (o && o.segments) || []) {
+      if (Array.isArray(sg.words) && sg.words.length) sg.words.forEach(w => words.push([String(w.word || "").trim(), Math.round((+w.start || 0) * 100) / 100, Math.round((+w.end || 0) * 100) / 100]));
+      else String(sg.text || "").trim().split(/\s+/).forEach((w, i, a) => { const st = +sg.start || 0, d = ((+sg.end || st) - st) / a.length; words.push([w, Math.round((st + d * i) * 100) / 100, Math.round((st + d * (i + 1)) * 100) / 100]); }); // 没有逐词时间：按段内平均分
+    }
+    if (!words.length) return json({ ok: false, error: "no words" }, 502);
+    const out = { part, parts, total, words: words.filter(w => w[0]) };
+    if (part === 0 && buf[0] === 73 && buf[1] === 68 && buf[2] === 51) out.id3 = 10 + ((buf[6] & 127) << 21 | (buf[7] & 127) << 14 | (buf[8] & 127) << 7 | (buf[9] & 127)); // 文件开头的 ID3 标签（封面图等）不是声音：换算时间时要扣掉
+    await kv.put(key, JSON.stringify(out), { expirationTtl: 180 * 86400 });
+    return json(Object.assign({ ok: true }, out));
+  } catch (e) { return json({ ok: false, error: String(e && e.message || e) }, 502); }
+}
 async function sme(req, env, u) {
   if (req.method === "OPTIONS") return json({ ok: true });
+  if (u.searchParams.get("al")) return smeAlign(env, u);
   const UA = { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36", "Accept": "text/html" };
   const BASE = "https://www.bbc.co.uk/learningenglish/english/features/", ep = u.searchParams.get("ep") || "", fresh = !!u.searchParams.get("fresh");
   if (ep) {
@@ -613,6 +710,50 @@ async function aiJson(env, msgs, ok, maxTok) {
 }
 const clip = (s, n) => String(s == null ? "" : s).slice(0, n);
 function pickJson(s) { s = String(s || ""); const i = s.indexOf("{"), j = s.lastIndexOf("}"); if (i < 0 || j <= i) return null; try { return JSON.parse(s.slice(i, j + 1)); } catch (e) { return null; } }
+// ---------- 雅思听力 / 阅读模考出题（exam.js，POST /api/ai {task:"exam", mode:"reading"|"listening", text, title}）----------
+// reading：text = 分好段的文章，每段开头是 "A " "B " …；出 5 道 TRUE/FALSE/NOT GIVEN、3 道「哪一段讲了…」、3 道摘要填空（答案是原文里 1–3 个词）、2 道四选一
+// listening：text = 节目文稿（"说话人: 句子" 一行一句）；出 6 道笔记填空（答案是原文里 1–3 个词，按出现顺序）、4 道三选一
+// 后台检查每道题：答案格式对、填空答案确实在原文里，不合格的题扔掉；剩下的不够就换模型再出。同一篇文章出过的题存 KV「x/<哈希>」60 天（再做、家里人做都不再花额度）
+const EXAM_READ_SYS = `You are an experienced IELTS Academic Reading question writer.
+The passage is split into paragraphs labelled A, B, C ... Write questions that test real reading skills (paraphrase, not copying sentences).
+Reply with ONLY one JSON object, no markdown:
+{"tfng":[{"s":"statement","a":"TRUE|FALSE|NOT GIVEN","p":"paragraph letter","why_zh":"简体中文解释，指出原文依据"}],
+ "match":[{"s":"a short description of information (paraphrased)","a":"paragraph letter","why_zh":"..."}],
+ "gaps":[{"s":"a summary sentence with ____ where the answer goes","a":"ONE to THREE words copied exactly from the passage","why_zh":"..."}],
+ "mcq":[{"q":"question","opts":["A text","B text","C text","D text"],"ans":0,"why_zh":"..."}]}
+Exactly 5 tfng (at least one of each answer), 3 match (different paragraphs), 3 gaps, 2 mcq. Statements must be paraphrased. Do not use information outside the passage.`;
+const EXAM_LISTEN_SYS = `You are an experienced IELTS Listening question writer. The text is the transcript of a radio programme (one line per turn, "Speaker: words").
+Reply with ONLY one JSON object, no markdown:
+{"notes":[{"s":"a note line with ____ where the answer goes","a":"ONE to THREE words or a number, copied exactly from the transcript","why_zh":"简体中文解释，引用原话"}],
+ "mcq":[{"q":"question","opts":["A text","B text","C text"],"ans":0,"why_zh":"..."}]}
+Exactly 6 notes and 4 mcq, all in the order the information is heard. Notes must paraphrase the context but the answer words must appear exactly in the transcript.`;
+const exNorm = s => String(s || "").toLowerCase().replace(/[’']/g, "'").replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
+function examClean(o, mode, text) {
+  if (!isObj(o)) return null;
+  const T = " " + exNorm(text) + " ", c = (x, n) => clip(x, n).trim(), out = { mode };
+  const gap = x => isObj(x) && /_{2,}/.test(x.s || "") && x.a && exNorm(x.a).split(" ").length <= 3 && T.includes(" " + exNorm(x.a) + " ") ? { s: c(x.s, 300).replace(/_{2,}/, "____"), a: c(x.a, 60), why_zh: c(x.why_zh, 300) } : null;
+  const mcq = n => x => isObj(x) && x.q && Array.isArray(x.opts) && x.opts.length === n && x.opts.every(y => typeof y === "string" && y.trim()) && Number.isInteger(+x.ans) && +x.ans >= 0 && +x.ans < n ? { q: c(x.q, 300), opts: x.opts.map(y => c(y, 200).replace(/^[A-D][.)]\s+/, "")), ans: +x.ans, why_zh: c(x.why_zh, 300) } : null;
+  if (mode === "reading") {
+    const L = [...new Set((String(text).match(/^[A-H](?= )/gm) || []))];
+    const tf = x => { const a = String(x && x.a || "").toUpperCase().replace(/_/g, " ").trim(); return isObj(x) && x.s && ["TRUE", "FALSE", "NOT GIVEN"].includes(a) ? { s: c(x.s, 300), a, p: L.includes(String(x.p || "").toUpperCase()) ? String(x.p).toUpperCase() : "", why_zh: c(x.why_zh, 300) } : null; };
+    const mt = x => isObj(x) && x.s && L.includes(String(x.a || "").toUpperCase().trim()) ? { s: c(x.s, 300), a: String(x.a).toUpperCase().trim(), why_zh: c(x.why_zh, 300) } : null;
+    out.tfng = (o.tfng || []).map(tf).filter(Boolean).slice(0, 5); out.match = (o.match || []).map(mt).filter(Boolean).slice(0, 3); out.gaps = (o.gaps || []).map(gap).filter(Boolean).slice(0, 3); out.mcq = (o.mcq || []).map(mcq(4)).filter(Boolean).slice(0, 2); out.letters = L;
+    return out.tfng.length >= 3 && out.tfng.length + out.match.length + out.gaps.length + out.mcq.length >= 9 ? out : null;
+  }
+  out.notes = (o.notes || []).map(gap).filter(Boolean).slice(0, 6); out.mcq = (o.mcq || []).map(mcq(3)).filter(Boolean).slice(0, 4);
+  return out.notes.length >= 3 && out.notes.length + out.mcq.length >= 7 ? out : null;
+}
+async function examGen(env, b) {
+  const mode = b.mode === "listening" ? "listening" : "reading", text = clip(b.text, 9000).trim();
+  if (text.split(/\s+/).length < 150) return json({ ok: false, error: "too short" }, 400);
+  const kv = env.CAPTIONS, ck = "x/" + (await sha(mode + "|" + text)).slice(0, 32);
+  if (kv && !b.again) { const hit = await kv.get(ck, "json"); if (hit) return json(Object.assign({ ok: true, cached: true }, hit)); }
+  let got = null;
+  const r = await aiJson(env, [{ role: "system", content: mode === "reading" ? EXAM_READ_SYS : EXAM_LISTEN_SYS }, { role: "user", content: (b.title ? "Title: " + clip(b.title, 200) + "\n\n" : "") + text }], o => !!(got = examClean(o, mode, text)), 2600);
+  if (!r.ok || !got) return json({ ok: false, error: r.error || "bad output" }, 502);
+  got.model = r.model; if (kv) await kv.put(ck, JSON.stringify(got), { expirationTtl: 60 * 86400 });
+  return json(Object.assign({ ok: true }, got));
+}
 async function ai(req, env) {
   if (req.method === "OPTIONS") return json({ ok: true });
   if (!env.AI) return json({ ok: false, error: "noai" });
@@ -654,6 +795,7 @@ async function ai(req, env) {
       const r = await aiJson(env, [{ role: "system", content: JUDGE_SYS }, { role: "user", content: "Question: " + q + "\nLearner's answer: " + t }], o => typeof o.correct === "boolean", 400);
       return json(r, r.ok ? 200 : 502);
     }
+    if (b.task === "exam") return examGen(env, b);
     if (b.task === "coach") {
       const r = await aiJson(env, [{ role: "system", content: COACH_SYS }, { role: "user", content: clip(b.text, 3000) }], o => Array.isArray(o.days) && o.days.length, 2000);
       return json(r, r.ok ? 200 : 502);
@@ -725,6 +867,7 @@ export default {
     if (API_PATHS.includes(u.pathname)) return cap(req, env, u);
     if (u.pathname === VOCAB_PATH) return vocab(req, env);
     if (u.pathname === "/api/users") return users(req, env);
+    if (u.pathname === "/api/auth") return auth(req, env);
     if (u.pathname === EXT_PATH) return ext(req, env);
     if (u.pathname === MEDIA_PATH) return media(req, env);
     if (u.pathname === SENT_PATH) return sent(req, env, u);

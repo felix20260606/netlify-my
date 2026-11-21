@@ -47,6 +47,11 @@
   #sme .sm-hd div{margin:0 0 8px;font-size:14.5px}#sme .sm-hd small{color:var(--ui-muted);font-size:12px;margin-left:6px}
   #sme .sm-tr{font-size:16px;line-height:1.7}#sme .sm-tr p{margin:0 0 10px}#sme .sm-tr .w{display:block;font-size:12px;font-weight:800;color:var(--ui-pur-text)}#sme .sm-tr.hide{filter:blur(6px);user-select:none;max-height:220px;overflow:hidden;cursor:pointer}
   #sme .sm-empty{color:var(--ui-muted);padding:16px 2px}
+  #sme .sm-dk h3 small{font-weight:400;color:var(--ui-muted);font-size:12.5px;margin-left:6px}#sme .dk-n{font-size:12.5px;color:var(--ui-pur-text);font-weight:800;margin-bottom:4px}
+  #sme .dk-t{font-size:18px;line-height:1.65;min-height:30px;margin:2px 0 8px}#sme .dk-t.hid{color:var(--ui-muted);font-size:14.5px}#sme .dk-t .h{color:var(--ui-green,#3fb37f)}#sme .dk-t .m{color:var(--ui-red,#ff8080);text-decoration:underline wavy;text-underline-offset:4px}
+  #sme .dk-b{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}#sme .dk-b .ui-btn{min-width:44px}
+  #sme .dk-in{display:flex;gap:6px}#sme .dk-in input{flex:1;min-width:0;border:1px solid var(--ui-line-2);background:var(--ui-surface-2);color:var(--ui-ink);border-radius:10px;padding:9px 11px;font:inherit;font-size:15.5px}
+  #sme .dk-sc{font-size:14px;margin-top:8px;color:var(--ui-ink-2)}#sme .dk-sc b{font-size:16px}
   #sm-float{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:9400;width:min(560px,calc(100vw - 24px));box-sizing:border-box;background:var(--ui-surface,#26282c);border:1px solid color-mix(in srgb,var(--ui-pur,#9C3FD0) 50%,var(--ui-line-2,#454950));border-radius:16px;padding:8px 10px 4px;box-shadow:0 14px 40px rgba(0,0,0,.45);color:var(--ui-ink,#e6e8eb);font-family:var(--ui-font);display:none}
   #sm-float.on{display:block}#sm-float .top{display:flex;align-items:center;gap:8px;font-size:13px}#sm-float .top b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #sm-float button{border:1px solid var(--ui-line-2,#454950);background:var(--ui-surface-2,#2d2f34);color:var(--ui-ink,#e6e8eb);border-radius:8px;height:28px;padding:0 9px;font:inherit;font-size:12.5px;cursor:pointer;flex:0 0 auto}
@@ -114,6 +119,84 @@
   }
   const meta = id => (LISTS[serOf(id)] || []).find(x => x.id === id) || {};
 
+  // ---------- 🎯 逐句精听：每句单独播、重复、放慢、听写对答案 ----------
+  // 每句的时间：后台 /api/sme?al=期号&part=N 用 Whisper 把原声分段转成「每个词在第几秒」（存 KV，只花一次），这里和文稿逐词对齐（最长公共子序列），
+  // 每句从第一个对上的词开始、到下一句开头结束；对不上的句子按前后两句插值。听写对得少于 80% 的句子收进「❌ 错题本」
+  const DK = {}; let segEnd = 0, segT = 0;
+  const ntok = t => String(t || "").toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9'\s-]+/g, " ").split(/[\s-]+/).map(x => x.replace(/^'+|'+$/g, "")).filter(Boolean);
+  function splitSents(lines) {
+    const out = [];
+    (lines || []).forEach((l, li) => (String(l.t || "").match(/[^.!?]+[.!?]+["'”’)]*|[^.!?]+$/g) || []).forEach(t => { t = t.trim(); if (/[a-z]/i.test(t)) { const p = out[out.length - 1]; if (p && p.li === li && ntok(t).length < 3) p.t += " " + t; else out.push({ who: l.who || "", t, li }); } }));
+    return out;
+  }
+  function alignTimes(S, W) {
+    const A = [], own = []; S.forEach((x, si) => ntok(x.t).forEach(w => { A.push(w); own.push(si); }));
+    const B = W.map(w => ntok(w[0])[0] || ""), n = A.length, m = B.length, M = m + 1, T = new Uint16Array((n + 1) * (m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) T[i * M + j] = A[i] === B[j] ? T[(i + 1) * M + j + 1] + 1 : Math.max(T[(i + 1) * M + j], T[i * M + j + 1]);
+    const st = S.map(() => null), en = S.map(() => null); let i = 0, j = 0;
+    while (i < n && j < m) { if (A[i] === B[j]) { const si = own[i]; if (st[si] == null) st[si] = W[j][1]; en[si] = W[j][2]; i++; j++; } else if (T[(i + 1) * M + j] >= T[i * M + j + 1]) i++; else j++; }
+    for (let k = 0; k < S.length; k++) if (st[k] == null) { let a = k - 1; while (a >= 0 && st[a] == null) a--; let b = k + 1; while (b < S.length && st[b] == null) b++; const t0 = a >= 0 ? en[a] : 0, t1 = b < S.length ? st[b] : t0 + 4 * (k - a); st[k] = t0 + (t1 - t0) * (k - a) / (b - a); en[k] = st[k]; }
+    return S.map((x, k) => Object.assign({}, x, { s: Math.max(0, st[k] - 0.15), e: k + 1 < S.length ? Math.max(st[k] + 0.6, st[k + 1] - 0.05) : (en[k] || st[k] + 4) + 0.6 }));
+  }
+  window.smeAlignTimes = alignTimes; window.smeSplitSents = splitSents; // 测试用
+  function durOf(id) {
+    return new Promise(res => {
+      if (AU.dataset.id === id && isFinite(AU.duration) && AU.duration > 0) return res(AU.duration);
+      const a = AU.dataset.id === id ? AU : new Audio(); if (a !== AU) { a.preload = "metadata"; a.src = EP.mp3; }
+      let t = setTimeout(() => res(0), 15000); a.addEventListener("loadedmetadata", () => { clearTimeout(t); res(a.duration || 0); }, { once: true }); try { a.load(); } catch (e) {}
+    });
+  }
+  async function dkLoad(id) {
+    const d = DK[id] = { busy: true, prog: "", i: 0, show: false, typed: "", res: null }; draw();
+    try {
+      const dur = await durOf(id); if (!dur) throw new Error("音频时长没取到");
+      const W = []; let parts = 1, total = 0, id3 = 0;
+      for (let p = 0; p < parts && p < 40; p++) {
+        const j = await (await fetch("/api/sme?al=" + encodeURIComponent(id) + "&part=" + p)).json();
+        if (!j || !j.ok) throw new Error(j && j.error === "noai" ? "AI 没开" : "对时间失败（" + ((j && j.error) || "网络") + "）");
+        parts = j.parts || 1; total = j.total || 1; if (p === 0) id3 = +j.id3 || 0;
+        const off = Math.max(0, (p * 1e6 - (p ? id3 : 0)) / Math.max(1, total - id3) * dur);
+        (j.words || []).forEach(w => W.push([w[0], w[1] + off, w[2] + off]));
+        d.prog = (p + 1) + " / " + parts; if (DK[id] === d && EP && EP.id === id) { const el = root && root.querySelector(".dk-prog"); if (el) el.textContent = d.prog; }
+      }
+      d.sents = alignTimes(splitSents(EP.lines), W);
+    } catch (e) { d.err = e.message || String(e); }
+    d.busy = false; if (EP && EP.id === id) draw();
+  }
+  function dkPlay(slow) {
+    const d = EP && DK[EP.id], x = d && d.sents && d.sents[d.i]; if (!x) return;
+    if (AU.dataset.id !== EP.id) { AU.src = EP.mp3; AU.dataset.id = EP.id; }
+    clearInterval(segT); AU.playbackRate = slow ? 0.75 : rate; AU.currentTime = x.s; segEnd = x.e;
+    AU.play().catch(() => {});
+    segT = setInterval(() => { if (AU.paused || AU.currentTime >= segEnd) { clearInterval(segT); if (!AU.paused) AU.pause(); AU.playbackRate = rate; } }, 60);
+  }
+  function dkCheck() {
+    const d = EP && DK[EP.id], x = d && d.sents && d.sents[d.i]; if (!x) return;
+    const a = ntok(x.t), b = ntok(d.typed), n = a.length, m = b.length, M = m + 1, T = new Uint16Array((n + 1) * (m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) T[i * M + j] = a[i] === b[j] ? T[(i + 1) * M + j + 1] + 1 : Math.max(T[(i + 1) * M + j], T[i * M + j + 1]);
+    const hit = new Array(n).fill(false); let i = 0, j = 0; while (i < n && j < m) { if (a[i] === b[j]) { hit[i] = true; i++; j++; } else if (T[(i + 1) * M + j] >= T[i * M + j + 1]) i++; else j++; }
+    d.res = { hit, score: n ? hit.filter(Boolean).length / n : 0 }; d.show = true;
+    if (d.res.score < 0.8 && window.ERR) { const miss = a.filter((w, k) => !hit[k]); window.ERR.add([{ src: "listen", kind: "say", q: "精听时没听出来：听一遍，再跟着读", ctx: x.t, right: x.t, why: "没听出来的词：" + miss.slice(0, 12).join(", ") + "（出自 " + EP.title + "）" }], true); }
+  }
+  function dkHtml() {
+    if (!EP || !(EP.lines || []).length || serOf(EP.id) === "news") return "";
+    const d = DK[EP.id], Z = zhOn ? ZH[EP.id] : null;
+    let s = '<div class="sm-box sm-dk"><h3>🎯 逐句精听<small>一句一句听：重复、放慢、听写对答案</small></h3>';
+    if (!d) return s + '<div class="sm-intro">整期听完一两遍以后，用这个一句一句抠：每句能单独重复、放慢，也可以先听写再对答案（没听出来的句子会进「❌ 错题本」）。</div><div class="dk-b"><button class="ui-btn pri" data-a="dk">开始逐句精听</button></div></div>';
+    if (d.busy) return s + '<div class="sm-intro">正在给每一句对时间（这期第一次用要一两分钟，以后打开就不用等）… <span class="dk-prog">' + esc(d.prog) + "</span></div></div>";
+    if (d.err) return s + '<div class="sm-intro">' + esc(d.err) + '</div><div class="dk-b"><button class="ui-btn" data-a="dk">重试</button></div></div>';
+    const x = d.sents[d.i], R = d.res, toks = String(x.t).split(/\s+/);
+    let shown = esc(x.t);
+    if (R) { let k = 0; shown = toks.map(w => { const n = ntok(w).length; if (!n) return esc(w); const ok = R.hit.slice(k, k + n).every(Boolean); k += n; return '<span class="' + (ok ? "h" : "m") + '">' + esc(w) + "</span>"; }).join(" "); }
+    s += '<div class="dk-n">第 ' + (d.i + 1) + " / " + d.sents.length + " 句" + (x.who ? " · " + esc(x.who) : "") + "</div>";
+    s += '<div class="dk-t' + (d.show ? "" : " hid") + '">' + (d.show ? shown + (Z && (Z.lines || [])[x.li] ? '<span class="zh">' + esc(Z.lines[x.li]) + "</span>" : "") : "（先别看原文：听几遍，把听到的写下来）") + "</div>";
+    s += '<div class="dk-b"><button class="ui-btn" data-a="dk-prev" title="上一句（←）">⏮</button><button class="ui-btn pri" data-a="dk-play" title="播放这句（空格）">▶ 这句</button><button class="ui-btn" data-a="dk-slow">🐢 慢放</button><button class="ui-btn" data-a="dk-next" title="下一句（→）">⏭</button><button class="ui-btn" data-a="dk-show">' + (d.show ? "🙈 藏起原文" : "👀 看原文") + "</button></div>";
+    s += '<div class="dk-in"><input id="dk-in" placeholder="听写：把这句写下来，回车对答案" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(d.typed) + '"><button class="ui-btn" data-a="dk-check">对答案</button></div>';
+    if (R) s += '<div class="dk-sc">听对 <b>' + Math.round(R.score * 100) + "%</b>" + (R.score >= 0.95 ? " 🎉 全对" : R.score >= 0.8 ? " 不错，红色的再听一遍" : " 红色的词没听出来，点 🐢 慢放多听几遍（已收进错题本）") + "</div>";
+    return s + "</div>";
+  }
+  function dkGo(di) { const d = EP && DK[EP.id]; if (!d || !d.sents) return; d.i = Math.max(0, Math.min(d.sents.length - 1, d.i + di)); d.typed = ""; d.res = null; d.show = false; draw(); dkPlay(false); const el = root.querySelector(".sm-dk"); if (el && el.getBoundingClientRect().top < 60) el.scrollIntoView({ block: "start" }); }
+
   function homeHtml() {
     const D = done(), L = LISTS[ser];
     if (!L) return '<div class="sm-empty">正在取节目列表…</div>';
@@ -133,7 +216,7 @@
     const news = serOf(EP.id) === "news";
     return '<h1>' + esc(EP.title) + '</h1><div class="sm-date">' + esc(m.d || "") + " · BBC Learning English · " + esc(S[2]) + (heard ? ' · <span class="ok">✓ 听过</span>' : "") + "</div>" +
       '<div class="sm-box"><div id="sm-slot"></div><div class="sm-rate">速度 ' + [0.75, 0.9, 1, 1.15].map(v => '<button data-rate="' + v + '" class="' + (Math.abs(rate - v) < .01 ? "on" : "") + '">' + v + "×</button>").join("") +
-      '<span style="flex:1"></span><button data-a="done">' + (heard ? "✓ 已听完" : "✓ 听完了") + "</button></div></div>" +
+      '<span style="flex:1"></span><button data-a="done">' + (heard ? "✓ 已听完" : "✓ 听完了") + "</button></div></div>" + dkHtml() +
       (EP.intro ? '<div class="sm-box"><h3>' + (news ? "📰 新闻背景" : "📝 简介") + '</h3><div class="sm-intro">' + esc(EP.intro) + zh("", 0) + "</div></div>" : "") +
       ((EP.q || []).length ? '<div class="sm-box sm-q"><h3>❓ 本期问题（答案在节目最后）</h3>' + EP.q.map((x, i) => "<div>" + esc(x) + zh("q", i) + "</div>").join("") + "</div>" : "") +
       ((EP.heads || []).length ? '<div class="sm-box sm-hd"><h3>🗞️ 各家新闻标题</h3>' + EP.heads.map((h, i) => "<div>" + esc(h[0]) + (h[1] ? "<small>— " + esc(h[1]) + "</small>" : "") + zh("heads", i) + "</div>").join("") + "</div>" : "") +
@@ -159,6 +242,11 @@
     const mo = new MutationObserver(() => sync());
     mo.observe(root, { attributes: true, attributeFilter: ["class"] }); mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-en", "data-mode"] });
     const ven = document.getElementById("view-en"); if (ven) mo.observe(ven, { attributes: true, attributeFilter: ["class", "style"] });
+    root.addEventListener("input", e => { if (e.target.id === "dk-in" && EP && DK[EP.id]) DK[EP.id].typed = e.target.value; });
+    root.addEventListener("keydown", e => {
+      const d = EP && DK[EP.id]; if (!d || !d.sents || view !== "ep") return;
+      if (e.target.id === "dk-in") { if (e.key === "Enter") { e.preventDefault(); d.typed = e.target.value; if (!d.typed.trim()) return dkPlay(false); dkCheck(); draw(); const i = root.querySelector("#dk-in"); if (i) i.focus(); } return; }
+    });
     root.addEventListener("click", e => {
       const t = e.target, sv = t.closest("[data-ser]"); if (sv) { ser = sv.dataset.ser; LS("sme:s", ser); view = "home"; loadList(ser); draw(); return; }
       const epEl = t.closest("[data-ep]"); if (epEl) { openEp(epEl.dataset.ep); return; }
@@ -166,6 +254,16 @@
       const ad = t.closest("[data-add]"); if (ad && EP) { const v = EP.vocab[+ad.dataset.add], w = String(v[0]).replace(/\s*\(.*?\)\s*/g, " ").trim(), re = new RegExp("\\b" + w.split(/\s+/)[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), line = (EP.lines || []).find(l => re.test(l.t)); if (window.vocabAddWord) { ad.disabled = true; window.vocabAddWord(w, v[2] || (line ? line.t : "")).then(ok => { ad.textContent = ok ? "✓ 已加" : "已在本里"; }); } return; }
       const b = t.closest("[data-a]"); if (!b) return; const a = b.dataset.a;
       if (a === "home") { view = "home"; if (EP && !EP.err) ser = serOf(EP.id); loadList(ser); draw(); return; }
+      if (a === "dk" && EP && !EP.err) { dkLoad(EP.id); return; }
+      if (/^dk-/.test(a) && EP && DK[EP.id] && DK[EP.id].sents) {
+        const d = DK[EP.id], inp = root.querySelector("#dk-in"); if (inp) d.typed = inp.value;
+        if (a === "dk-play") return dkPlay(false);
+        if (a === "dk-slow") return dkPlay(true);
+        if (a === "dk-prev") return dkGo(-1);
+        if (a === "dk-next") return dkGo(1);
+        if (a === "dk-show") { d.show = !d.show; draw(); return; }
+        if (a === "dk-check") { if (!d.typed.trim()) { tip("先把听到的写下来"); return; } dkCheck(); draw(); return; }
+      }
       if (a === "zh") { zhOn = !zhOn; LS("sme:zh", zhOn); if (zhOn && EP && !EP.err) loadZh(EP.id); draw(); return; }
       if (a === "done" && EP && !EP.err) { markDone(EP.id); return; }
       if (a === "tr" || (a === "tr-peek" && !trShow)) { trShow = !trShow; draw(); return; }

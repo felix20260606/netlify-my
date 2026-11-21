@@ -183,6 +183,13 @@
     if (blob && (r.target || r.key.indexOf("t:") === 0)) archive(r.key, x, r.target, blob); // 存进「📼 我的录音」
     paintRec(r.key);
     if (r.after) r.after(x);
+    // 跟读没读出来的词（一句里漏了 1–3 个、整体读对一半以上，才算「这个词读不准」）收进「❌ 错题本」
+    if (r.target && x.res && window.ERR && x.res.score >= .5) { const miss = x.res.a.filter((w, i) => !x.res.hit[i] && w.length > 2); if (miss.length && miss.length <= 3) window.ERR.add([{ src: "pron", kind: "say", q: "听一遍，再大声读出来", ctx: r.target, right: r.target, why: "上次没读出来的词：" + miss.join(", ") }], true); }
+  }
+  // AI 点评里「可以说得更好」的句子收进「❌ 错题本」（原话 → 更好的说法）
+  function fixesToErr(F, q) {
+    if (!window.ERR || !Array.isArray(F)) return;
+    window.ERR.add(F.filter(f => f && f.bad && f.good && String(f.bad).trim() !== String(f.good).trim()).slice(0, 8).map(f => ({ src: "speak", kind: "fix", q: "这句怎么说更地道？" + (q ? "（" + String(q).slice(0, 80) + "）" : ""), wrong: String(f.bad), right: String(f.good), why: f.why_zh || "" })));
   }
   const pct = v => Math.round((v || 0) * 100);
   function recBtn(key, target, max, label) { const x = RES[key] || {}; return '<button class="sk-ib rec' + (x.on ? " on" : "") + '" data-rec="' + esc(key) + '" data-t="' + esc(target || "") + '" data-max="' + (max || 20) + '">' + (x.on ? "⏹ 停止" : "🎙 " + (label || (x.url ? "再读" : "跟读"))) + "</button>"; }
@@ -473,7 +480,7 @@
     if (!CH || CH.sumBusy) return; CH.sumBusy = true; draw(); const my = CH;
     try {
       const j = await (await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "chatsum", scene: CH.scene, history: CH.msgs.map(m => ({ role: m.role, content: m.content })) }) })).json();
-      if (CH !== my) return; CH.sumBusy = false; if (j.ok) { CH.sum = j; chatSave(); } else tip("总结没出来，再点一次"); draw();
+      if (CH !== my) return; CH.sumBusy = false; if (j.ok) { CH.sum = j; chatSave(); fixesToErr(j.fixes); } else tip("总结没出来，再点一次"); draw();
       const b = root.querySelector(".sk-box:last-child"); if (b) b.scrollIntoView({ block: "start", behavior: "smooth" });
     } catch (e) { if (CH === my) { CH.sumBusy = false; tip("总结没出来，再点一次"); draw(); } }
   }
@@ -530,6 +537,7 @@
     AIR[key] = { busy: true }; draw();
     try {
       const j = await (await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "speak", prompt: q, text: x.said }) })).json();
+      if (j.ok) fixesToErr(j.fixes, q);
       AIR[key] = j.ok ? { r: j } : { err: j.error === "noai" ? "AI 没开（Cloudflare 里绑定 Workers AI）" : j.error === "too short" ? "说得太短了，至少说几句再点评" : "AI 没回上来" };
     } catch (e) { AIR[key] = { err: "网络问题，没连上 AI" }; }
     draw();
@@ -706,7 +714,7 @@
   async function mockRate() {
     MK.busy = true; MK.err = ""; draw();
     const text = MK.qs.map((q, i) => "[Part " + q.part + "] Q: " + q.q + "\nA: " + (MK.ans[i] || "(no answer)")).join("\n\n");
-    try { const j = await (await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "speak", prompt: "IELTS Speaking mock test, Parts 1-3 (judge all answers together)", text }) })).json(); MK.busy = false; if (j.ok) { MK.r = j; markDone("mk:" + today()); } else MK.err = j.error === "too short" ? "说得太少了，没法打分" : "AI 没打出分，点重试"; }
+    try { const j = await (await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "speak", prompt: "IELTS Speaking mock test, Parts 1-3 (judge all answers together)", text }) })).json(); MK.busy = false; if (j.ok) { MK.r = j; markDone("mk:" + today()); fixesToErr(j.fixes, "雅思口语模拟考"); } else MK.err = j.error === "too short" ? "说得太少了，没法打分" : "AI 没打出分，点重试"; }
     catch (e) { MK.busy = false; MK.err = "网络问题"; }
     draw();
   }
